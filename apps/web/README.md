@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# Theme System
 
-## Getting Started
+This directory contains the styled-components theme system for the NicoFlow frontend application.
 
-First, run the development server:
+## Files
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- `theme.ts` - Color definitions and theme objects for light and dark modes
+- `ThemeContext.tsx` - React context for theme switching functionality
+- `globalStyles.ts` - Global CSS styles using styled-components
+- `styled.d.ts` - TypeScript declarations for styled-components theme
+- `../hooks/useTheme.ts` - Custom hook for accessing theme context
+
+## Usage
+
+### Basic Theme Usage
+
+```tsx
+import styled from 'styled-components';
+
+const StyledComponent = styled.div`
+  background-color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.textPrimary};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+`;
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Theme Toggle
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```tsx
+import { useTheme } from '../hooks/useTheme';
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load Inter, a custom Google Font.
+const MyComponent = () => {
+  const { isDark, toggleTheme, setTheme } = useTheme();
 
-## Learn More
+  return <button onClick={toggleTheme}>Switch to {isDark ? 'light' : 'dark'} mode</button>;
+};
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Available Colors
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Light Theme
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `primary`: #7C3AED
+- `primaryHover`: #C4B5FD
+- `secondary`: #8B5CF6
+- `background`: #F9FAFB
+- `surface`: #FFFFFF
+- `textPrimary`: #1F2937
+- `textSecondary`: #6B7280
+- `border`: #CCCED2
+- `error`: #EF4444
+- `success`: #22C55E
+- `warning`: #F59E0B
+- `gradient`: ['#7C3AED', '#C4B5FD']
+- `gradientHovered`: ['#6B21D1', '#B3A3F3']
+- `gradientActive`: ['#5B21B6', '#A78BFA']
 
-## Deploy on Vercel
+#### Dark Theme
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `primary`: #A78BFA
+- `primaryHover`: #9F88F5
+- `primaryLight`: #5B21B6
+- `secondary`: #7C3AED
+- `background`: #1E1E2F
+- `surface`: #2A2A40
+- `textPrimary`: #E0E7FF
+- `textSecondary`: #A5B4FC
+- `border`: #4C4F67
+- `error`: #4C4F67
+- `success`: #4ADE80
+- `warning`: #FBBF24
+- `gradient`: ['#5B21B6', '#A78BFA']
+- `gradientHovered`: ['#4C1D95', '#9F88F5']
+- `gradientActive`: ['#3B0CA7', '#8B72E9']
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Toast Colors
+
+Both themes include toast-specific colors for success, info, warning, and error states.
+
+## Features
+
+- ✅ Light and dark theme support
+- ✅ Automatic system theme detection
+- ✅ Theme persistence in localStorage
+- ✅ Smooth transitions between themes
+- ✅ TypeScript support with full type safety
+- ✅ Global styles with styled-components
+- ✅ Custom hook for easy theme access

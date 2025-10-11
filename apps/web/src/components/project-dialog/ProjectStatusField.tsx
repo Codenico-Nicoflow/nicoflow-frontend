@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
+import { Archive,CheckCircle, Clock } from 'lucide-react';
 import { type Control } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle, Clock, Archive } from 'lucide-react';
+
 import { type ProjectFormData } from '@my-monorepo/utils';
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ProjectStatusFieldProps {
   control: Control<ProjectFormData>;

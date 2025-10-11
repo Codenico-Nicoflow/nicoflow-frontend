@@ -1,27 +1,32 @@
-import { useRoutes, Navigate, useLocation } from 'react-router-dom';
-import SignIn from './pages/auth/SignIn';
-import SignUp from './pages/auth/SignUp';
+import { useAuth, useUser } from '@clerk/clerk-react';
+import { Navigate, useLocation, useRoutes } from 'react-router-dom';
+
+import AuthLayout from './components/layout/AuthLayout';
+import PrivateLayout from './components/layout/PrivateLayout';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
-import PrivateLayout from './components/layout/PrivateLayout';
-import AuthLayout from './components/layout/AuthLayout';
+import SignIn from './pages/auth/SignIn';
+import SignUp from './pages/auth/SignUp';
+import ErrorPage from './pages/ErrorPage';
+import HelpAndInformation from './pages/HelpAndInformation';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Profile from './pages/Profile';
+import ProjectView from './pages/project/ProjectView';
 import Inbox from './pages/tasks/Inbox';
 import NextSevenDays from './pages/tasks/NextSevenDays';
 import Today from './pages/tasks/Today';
 import Tomorrow from './pages/tasks/Tomorrow';
-import ProjectView from './pages/project/ProjectView';
 import TermsOfService from './pages/TermsOfService';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import HelpAndInformation from './pages/HelpAndInformation';
-import Profile from './pages/Profile';
-import { useAppUser } from '@my-monorepo/store';
-import ErrorPage from './pages/ErrorPage';
 
 const PrivateRoutes = () => {
   const location = useLocation();
-  const user = useAppUser();
+  const { isSignedIn, isLoaded } = useAuth();
 
-  return user ? <PrivateLayout /> : <Navigate to="/auth/sign-in" state={{ from: location }} replace />;
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  return isSignedIn ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
 };
 
 const AppRoutes = () => {
@@ -44,30 +49,20 @@ const AppRoutes = () => {
       ],
     },
     {
-      path: '/auth',
-      element: <AuthLayout />,
-      children: [
-        { path: 'sign-in', element: <SignIn /> },
-        { path: 'sign-up', element: <SignUp /> },
-        { path: 'forgot-password', element: <ForgotPassword /> },
-        { path: 'reset-password', element: <ResetPassword /> },
-      ],
-    },
-    {
       path: '/sign-in',
-      element: <Navigate to="/auth/sign-in" replace />,
+      element: <SignIn />,
     },
     {
       path: '/sign-up',
-      element: <Navigate to="/auth/sign-up" replace />,
+      element: <SignUp />,
     },
     {
       path: '/forgot-password',
-      element: <Navigate to="/auth/forgot-password" replace />,
+      element: <ForgotPassword />,
     },
     {
       path: '/reset-password',
-      element: <Navigate to="/auth/reset-password" replace />,
+      element: <ResetPassword />,
     },
 
     {

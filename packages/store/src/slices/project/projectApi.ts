@@ -1,9 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { PROJECT_API } from '../../api/endpoints';
-
 import { baseQueryWithReauth } from '../baseQuery';
-
 import type {
   CreateProjectRequest,
   CreateProjectResponse,
@@ -18,7 +16,7 @@ import type {
 export const projectApi = createApi({
   reducerPath: 'projectApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Project'],
+  tagTypes: ['Project', 'Category'],
   endpoints: builder => ({
     getProjects: builder.query<GetProjectsResponse, void>({
       query: () => PROJECT_API.GET_PROJECTS,

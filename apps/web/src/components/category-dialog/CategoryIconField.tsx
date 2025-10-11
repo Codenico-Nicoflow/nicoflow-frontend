@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
-import { type Control } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Sparkles } from 'lucide-react';
-import IconPicker from '@/components/project-dialog/IconPicker';
+import { type Control } from 'react-hook-form';
+
 import type { ICategory } from '@my-monorepo/types';
+
+import IconPicker from '@/components/project-dialog/IconPicker';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface CategoryIconFieldProps {
   control: Control<ICategory>;

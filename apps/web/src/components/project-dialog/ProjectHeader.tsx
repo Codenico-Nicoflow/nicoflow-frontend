@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FolderOpen, Calendar as CalendarIcon, Star } from 'lucide-react';
+import { Calendar as CalendarIcon, FolderOpen, Star } from 'lucide-react';
 
 interface ProjectHeaderProps {
   isEditMode: boolean;

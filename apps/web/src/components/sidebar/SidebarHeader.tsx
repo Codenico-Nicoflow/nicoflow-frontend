@@ -1,16 +1,21 @@
-import { cn } from '@/lib/utils';
-import { SidebarHeader as ShadCnSidebarHeader } from '../ui/sidebar';
+import { useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
+import { Crown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+import { capitalize } from '@my-monorepo/utils';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Crown } from 'lucide-react';
-import { USER_STATUS } from '@my-monorepo/types';
-import { useNavigate } from 'react-router-dom';
-import { useAppUser } from '@my-monorepo/store';
+import { cn } from '@/lib/utils';
+
+import { SidebarHeader as ShadCnSidebarHeader } from '../ui/sidebar';
 
 const SidebarHeader = ({ className }: { className?: string & React.ComponentProps<typeof ShadCnSidebarHeader> }) => {
-  const user = useAppUser();
+  const { user } = useUser();
   const navigate = useNavigate();
+
+  const hasPremiumPlan = user?.publicMetadata?.plan === 'premium';
 
   const getInitials = (name: string) => {
     return name
@@ -52,7 +57,7 @@ const SidebarHeader = ({ className }: { className?: string & React.ComponentProp
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
-            {user?.username || 'User'}
+            {capitalize(user?.username || 'User')}
           </motion.h3>
           <motion.p
             initial={{ opacity: 0, x: -10 }}
@@ -60,7 +65,7 @@ const SidebarHeader = ({ className }: { className?: string & React.ComponentProp
             transition={{ duration: 0.3, delay: 0.3 }}
             className="text-sm text-muted-foreground truncate"
           >
-            {user?.email || 'Email'}
+            {user?.emailAddresses[0]?.emailAddress || 'Email'}
           </motion.p>
           <motion.div
             className="flex items-center gap-2 mt-1"
@@ -70,14 +75,14 @@ const SidebarHeader = ({ className }: { className?: string & React.ComponentProp
             transition={{ duration: 0.3, delay: 0.3 }}
           >
             <Badge
-              variant={user?.status === USER_STATUS.PREMIUM ? 'default' : 'secondary'}
+              variant="default"
               className={cn(
                 'text-xs px-2 py-0.5',
-                user?.status === USER_STATUS.PREMIUM && 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900'
+                hasPremiumPlan && 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900'
               )}
             >
-              {user?.status === USER_STATUS.PREMIUM && <Crown className="w-3 h-3 mr-1" />}
-              {user?.status === USER_STATUS.PREMIUM ? 'Premium User' : 'Regular User'}
+              {hasPremiumPlan && <Crown className="w-3 h-3 mr-1" />}
+              {hasPremiumPlan ? 'Premium User' : 'Regular User'}
             </Badge>
           </motion.div>
         </div>

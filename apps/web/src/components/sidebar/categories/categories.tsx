@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { AnimatePresence,motion } from 'framer-motion';
 import { ChevronDown, FolderOpen, Plus } from 'lucide-react';
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@/components/ui/sidebar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
-import { useSidebar } from '@/components/ui/sidebar';
+
 import { useGetCategoriesWithProjectsQuery } from '@my-monorepo/store';
-import NewProject from '../NewProject';
-import CategorySection from './CategorySection';
-import { CategoriesLoadingState, CategoriesEmptyState } from './states';
+
 import CategoryDialog from '@/components/category-dialog/CategoryDialog';
 import DragAndDropContext from '@/components/drag-drop/DragAndDropContext';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel , useSidebar } from '@/components/ui/sidebar';
+
+import NewProject from '../NewProject';
+
+import CategorySection from './CategorySection';
+import { CategoriesEmptyState,CategoriesLoadingState } from './states';
 
 export default function Categories() {
   const { state } = useSidebar();

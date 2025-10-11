@@ -1,37 +1,17 @@
 // Store exports
-export { store, persistor } from './store';
-export type { RootState, AppDispatch } from './store';
+export type { AppDispatch, RootState } from './store';
+export { store } from './store';
 
 // Hooks exports
-export { useAppDispatch, useAppSelector, useAppUser } from './hooks';
-
-// Auth exports
-export { authApi } from './slices/auth/authApi';
-export { setUser, setIsLoading, clearAuth } from './slices/auth/authSlice';
-export {
-  useLoginMutation,
-  useRegisterMutation,
-  useLogoutMutation,
-  useForgotPasswordMutation,
-  useResetPasswordMutation,
-  useGetCurrentUserQuery,
-  useRefreshTokenMutation,
-} from './slices/auth/authApi';
-export type {
-  LoginRequest,
-  RegisterRequest,
-  AuthResponse,
-  ForgotPasswordRequest,
-  ResetPasswordRequest,
-} from './slices/auth/type';
+export { useAppDispatch, useAppSelector } from './hooks';
 
 // Project exports
 export { projectApi } from './slices/project/projectApi';
 export {
-  useGetProjectsQuery,
-  useGetProjectQuery,
   useCreateProjectMutation,
   useDeleteProjectMutation,
+  useGetProjectQuery,
+  useGetProjectsQuery,
   useUpdateProjectMutation,
 } from './slices/project/projectApi';
 export type {
@@ -44,11 +24,11 @@ export type {
 // Category exports
 export { categoryApi } from './slices/category/categoryApi';
 export {
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation,
   useGetCategoriesQuery,
   useGetCategoriesWithProjectsQuery,
   useGetCategoryQuery,
-  useCreateCategoryMutation,
-  useDeleteCategoryMutation,
   useUpdateCategoryMutation,
 } from './slices/category/categoryApi';
 export type {
@@ -59,4 +39,4 @@ export type {
 } from './slices/category/type';
 
 // API endpoints
-export { AUTH_API, PROJECT_API, CATEGORY_API } from './api/endpoints';
+export { CATEGORY_API, PROJECT_API } from './api/endpoints';

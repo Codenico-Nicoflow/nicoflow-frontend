@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
-import { type Control } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Star } from 'lucide-react';
+import { type Control } from 'react-hook-form';
+
 import { type ProjectFormData } from '@my-monorepo/utils';
+
+import { Checkbox } from '@/components/ui/checkbox';
+import { FormControl,FormField, FormItem, FormLabel } from '@/components/ui/form';
 
 interface ProjectFavoriteFieldProps {
   control: Control<ProjectFormData>;

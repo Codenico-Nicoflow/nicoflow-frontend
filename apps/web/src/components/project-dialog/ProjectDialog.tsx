@@ -1,26 +1,33 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-
 import { useEffect } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
+
+import {
+  categoryApi,
+  useCreateProjectMutation,
+  useGetCategoriesQuery,
+  useUpdateProjectMutation,
+} from '@my-monorepo/store';
+import type { ProjectFormData } from '@my-monorepo/utils';
+import { projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import { projectSchema } from '@my-monorepo/utils';
-import { showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
-import type { ProjectFormData } from '@my-monorepo/utils';
-import { useGetCategoriesQuery, useCreateProjectMutation, useUpdateProjectMutation } from '@my-monorepo/store';
-import { useDispatch } from 'react-redux';
-import ProjectHeader from './ProjectHeader';
-import ProjectNameField from './ProjectNameField';
+
+import ProjectActionButtons from './ProjectActionButtons';
 import ProjectCategoryField from './ProjectCategoryField';
-import ProjectIconField from './ProjectIconField';
-import ProjectStatusField from './ProjectStatusField';
 import ProjectDueDateField from './ProjectDueDateField';
 import ProjectFavoriteField from './ProjectFavoriteField';
-import ProjectActionButtons from './ProjectActionButtons';
-import { toast } from 'sonner';
+import ProjectHeader from './ProjectHeader';
+import ProjectIconField from './ProjectIconField';
+import ProjectNameField from './ProjectNameField';
+import ProjectStatusField from './ProjectStatusField';
 
 interface Project {
   id: number;
@@ -50,7 +57,7 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
   const form = useForm<ProjectFormData>({
     defaultValues: {
       name: project?.name || '',
-      categoryId: project?.categoryId || categories?.[0]?.id || 1,
+      categoryId: project?.categoryId || categories?.[0]?.id || undefined,
       icon: project?.icon || 'folder',
       status: project?.status || undefined,
       isFavorite: project?.isFavorite || false,
@@ -67,6 +74,13 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
       });
     }
   }, [project, form]);
+
+  // Set default category when categories load (only for new projects)
+  useEffect(() => {
+    if (!project && categories && categories.length > 0 && !form.getValues('categoryId')) {
+      form.setValue('categoryId', categories[0].id);
+    }
+  }, [categories, project, form]);
 
   const onSubmit = async (data: ProjectFormData) => {
     try {
@@ -148,7 +162,7 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none">
+      <DialogContent className="w-[95vw] max-w-5xl sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none">
         <DialogTitle className="sr-only">{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
 
         <DialogHeader className="p-4 sm:p-6 lg:p-8">

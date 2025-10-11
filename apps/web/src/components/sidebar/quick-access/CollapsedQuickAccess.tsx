@@ -1,12 +1,14 @@
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+
 import {
   SidebarGroup,
-  SidebarMenu,
   SidebarGroupContent,
-  SidebarMenuItem,
+  SidebarMenu,
   SidebarMenuButton,
+  SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import type { QuickAccessItem } from '../data';
 
 const CollapsedQuickAccess = ({

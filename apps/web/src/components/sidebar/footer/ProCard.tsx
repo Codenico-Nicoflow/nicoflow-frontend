@@ -1,7 +1,8 @@
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
 import { Star } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 const ProCard = () => {
   return (

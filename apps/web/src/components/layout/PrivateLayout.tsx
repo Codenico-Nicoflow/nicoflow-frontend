@@ -1,6 +1,9 @@
 import { Outlet } from 'react-router-dom';
+
+import { SidebarInset,SidebarProvider } from '@/components/ui/sidebar';
+
 import { AppSidebar } from '../sidebar/AppSidebar';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+
 import { CustomSidebarTrigger } from './CustomSidebarTrigger';
 
 const PrivateLayout = () => {

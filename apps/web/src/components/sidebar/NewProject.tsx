@@ -1,8 +1,11 @@
-import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { SidebarMenuItem, SidebarMenuButton } from '../ui/sidebar';
+
+import { motion } from 'framer-motion';
 import { Plus, Sparkles } from 'lucide-react';
+
 import ProjectDialog from '@/components/project-dialog/ProjectDialog';
+
+import { SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar';
 
 const NewProject = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

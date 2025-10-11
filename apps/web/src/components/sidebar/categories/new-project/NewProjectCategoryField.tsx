@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sparkles } from 'lucide-react';
 import { type Control } from 'react-hook-form';
-import { type ProjectFormData, type GetAllCategoriesResponse, capitalize } from '@my-monorepo/store';
+
+import { capitalize,type GetAllCategoriesResponse, type ProjectFormData } from '@my-monorepo/store';
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface NewProjectCategoryFieldProps {
   control: Control<ProjectFormData>;

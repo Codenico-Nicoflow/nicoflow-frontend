@@ -1,9 +1,19 @@
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
-import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from '@/components/ui/sidebar';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Target, ChevronDown } from 'lucide-react';
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/useMobile';
+
 import { type QuickAccessItem } from '../data';
 
 const FullView = ({
@@ -15,6 +25,15 @@ const FullView = ({
   setSelectedItem: (index: number) => void;
   quickAccessItems: QuickAccessItem[];
 }) => {
+  const { setOpenMobile } = useSidebar();
+  const isMobile = useIsMobile();
+
+  const handleNavClick = (index: number) => {
+    setSelectedItem(index);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
   return (
     <Collapsible defaultOpen className="group/quick-access">
       <SidebarGroup>
@@ -56,7 +75,7 @@ const FullView = ({
                       >
                         <SidebarMenuButton
                           asChild
-                          onClick={() => setSelectedItem(index)}
+                          onClick={() => handleNavClick(index)}
                           className={`hover:bg-accent/50 transition-all duration-200 rounded-lg user-select-none ${
                             selectedItem === index ? 'bg-primary/80 text-primary-foreground' : ''
                           }`}

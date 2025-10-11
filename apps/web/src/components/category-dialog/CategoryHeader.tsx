@@ -1,6 +1,7 @@
+import React from 'react';
+
 import { motion } from 'framer-motion';
 import { FolderOpen, Sparkles, Tag } from 'lucide-react';
-import React from 'react';
 
 interface CategoryHeaderProps {
   isEditMode: boolean;

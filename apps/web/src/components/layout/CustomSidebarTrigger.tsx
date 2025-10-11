@@ -1,8 +1,10 @@
-import { useSidebar } from '@/components/ui/sidebar';
-import { Button } from '../ui/button';
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+
+import { useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
+
+import { Button } from '../ui/button';
 
 export function CustomSidebarTrigger() {
   const { toggleSidebar, state } = useSidebar();

@@ -8,7 +8,16 @@
   "printWidth": 120,
   "semi": true,
   "trailingComma": "es5",
-  "importOrder": ["^react", "^[a-zA-Z]", "^@?\\w", "^[./]"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrder": [
+    "^(react|react-native|react-dom)(/.*)?$",
+    "^(expo|@react-navigation)",
+    "<THIRD_PARTY_MODULES>",
+    "^@my-monorepo/",
+    "^@/",
+    "^[./]"
+  ],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": true
 }

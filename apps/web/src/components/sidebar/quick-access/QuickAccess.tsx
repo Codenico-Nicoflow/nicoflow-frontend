@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react';
+
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
+
 import { useSidebar } from '../../ui/sidebar';
+import { quickAccessItems } from '../data';
+
 import CollapsedQuickAccess from './CollapsedQuickAccess';
 import FullView from './FullView';
-import { useEffect, useState } from 'react';
-import { quickAccessItems } from '../data';
-import { useLocation } from 'react-router-dom';
 
 export const QuickAccess = () => {
   const { state } = useSidebar();

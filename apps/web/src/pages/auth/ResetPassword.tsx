@@ -1,30 +1,23 @@
-import SignForm from '@/components/sign-form/SignForm';
+import { useEffect } from 'react';
 
-const inputs = [
-  {
-    label: 'New Password',
-    name: 'newPassword',
-    type: 'password',
-    placeholder: 'Enter your new password',
-    required: true,
-  },
-  {
-    label: 'Confirm Password',
-    name: 'confirmPassword',
-    type: 'password',
-    placeholder: 'Confirm your new password',
-    required: true,
-  },
-];
+import { SignIn } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 
-export default function ResetPassword() {
+import AuthLayout from '@/components/layout/AuthLayout';
+
+const ResetPassword = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Redirect to sign-in as Clerk handles password reset flow there
+    navigate('/sign-in');
+  }, [navigate]);
+
   return (
-    <SignForm
-      title="Reset Password?"
-      description="Please provide a new preferably strong password."
-      type="reset-password"
-      inputs={inputs}
-      buttonText="Reset"
-    />
+    <AuthLayout>
+      <SignIn routing="path" path="/sign-in" />
+    </AuthLayout>
   );
-}
+};
+
+export default ResetPassword;

@@ -1,4 +1,5 @@
 import type { IconId } from '../icons';
+
 import type { IProject } from './IProject';
 
 export interface ICategory {

@@ -1,50 +1,71 @@
-# Welcome to your Expo app 👋
+# Clerk Auth Template
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a [React Native](https://reactnative.dev) project built with [Expo](https://expo.dev), [Clerk](https://go.clerk.com/gjgxNgT), and [React Native Reusables](https://reactnativereusables.com).
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+It was initialized using the following command:
 
 ```bash
-npm run reset-project
+npx @react-native-reusables/cli@latest init -t nicoflow-mobile
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+Before running the app, make sure to:
 
-To learn more about developing your project with Expo, look at the following resources:
+1. [Set up your Clerk account](https://go.clerk.com/blVsQlm)
+2. In the instance setup, leave the default option selected: **Email, phone, username**
+3. Enable Apple, GitHub, and Google as sign-in options under SSO Connections
+4. Rename `.env.example` to `.env.local` and paste your `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` from [your API keys](https://go.clerk.com/u8KAui7)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Then start the development server:
 
-## Join the community
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-Join our community of developers creating universal apps.
+This will launch the Expo Go Server. You can open the app with:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **iOS**: press `i` to launch in the iOS simulator (Mac only)
+- **Android**: press `a` to launch in the Android emulator
+- **Web**: press `w` to run in a browser
+
+Or scan the QR code with the [Expo Go](https://expo.dev/go) app to test on your device.
+
+## Included Screens and Features
+
+- Protected routes using Clerk authentication
+- Sign in screen
+- OAuth with Apple, GitHub, and Google
+- Forgot password screen
+- Reset password screen
+- Verify email screen
+- User profile button
+- Sign out screen
+
+## Project Features
+
+- ⚛️ Built with [Expo Router](https://expo.dev/router)
+- 🔐 Authentication powered by [Clerk](https://go.clerk.com/Q1MKAz0)
+- 🎨 Styled with [Tailwind CSS](https://tailwindcss.com/) via [Nativewind](https://www.nativewind.dev/)
+- 📦 UI powered by [React Native Reusables](https://github.com/founded-labs/react-native-reusables)
+- 🚀 New Architecture enabled
+- 🔥 Edge to Edge enabled
+- 📱 Runs on iOS, Android, and Web
+
+## Learn More
+
+- [Clerk Docs](https://go.clerk.com/Q1MKAz0)
+- [React Native Docs](https://reactnative.dev/docs/getting-started)
+- [Expo Docs](https://docs.expo.dev/)
+- [Nativewind Docs](https://www.nativewind.dev/)
+- [React Native Reusables](https://reactnativereusables.com)
+
+---
+
+If this template helps you move faster, consider giving [React Native Reusables](https://github.com/founded-labs/react-native-reusables) a ⭐ on GitHub. It helps a lot!

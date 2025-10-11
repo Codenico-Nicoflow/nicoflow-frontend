@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
-import { type Control } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { FolderOpen } from 'lucide-react';
+import { type Control } from 'react-hook-form';
+
 import { type ProjectFormData } from '@my-monorepo/utils';
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 interface ProjectNameFieldProps {
   control: Control<ProjectFormData>;

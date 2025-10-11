@@ -1,16 +1,21 @@
-import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
-import type { IProject } from '@my-monorepo/types';
-import { LazyIcon } from '@/components/LazyIcon';
-import type { IconId } from '@my-monorepo/utils';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+import type { IProject } from '@my-monorepo/types';
+import type { IconId } from '@my-monorepo/utils';
+
+import { LazyIcon } from '@/components/LazyIcon';
+import { Button } from '@/components/ui/button';
+import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/useMobile';
 
 const Project = ({ project }: { project: IProject }) => {
   const navigate = useNavigate();
+  const { setOpenMobile } = useSidebar();
+  const isMobile = useIsMobile();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `project-${project.id}`,
     data: {
@@ -43,6 +48,9 @@ const Project = ({ project }: { project: IProject }) => {
                 e.stopPropagation();
               } else {
                 navigate(`/projects/${project.id}`);
+                if (isMobile) {
+                  setOpenMobile(false);
+                }
               }
             }}
             variant="ghost"

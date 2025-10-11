@@ -1,5 +1,4 @@
-import type { ICategory } from '@my-monorepo/types';
-import type { IconId } from '@my-monorepo/types';
+import type { ICategory, IconId } from '@my-monorepo/types';
 
 export type GetAllCategoriesResponse = ICategory[];
 export type GetCategoryResponse = ICategory;

@@ -1,19 +1,20 @@
 import { useMemo, useState } from 'react';
 
-import { motion } from 'framer-motion';
-
-import { cn } from '@/lib/utils';
-import type { ICategory } from '@my-monorepo/types';
+import { useDroppable } from '@dnd-kit/core';
+import { AnimatePresence,motion  } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
-import { capitalize } from '@my-monorepo/utils';
-import { AnimatePresence } from 'framer-motion';
-import ShowMore from './ShowMore';
-import { LazyIcon } from '@/components/LazyIcon';
+
+import type { ICategory } from '@my-monorepo/types';
 import type { IconId } from '@my-monorepo/utils';
-import Project from './Project';
+import { capitalize } from '@my-monorepo/utils';
+
 import CategoryContextMenu from '@/components/category-dialog/CategoryContextMenu';
 import CategoryDialog from '@/components/category-dialog/CategoryDialog';
-import { useDroppable } from '@dnd-kit/core';
+import { LazyIcon } from '@/components/LazyIcon';
+import { cn } from '@/lib/utils';
+
+import Project from './Project';
+import ShowMore from './ShowMore';
 
 interface CategorySectionProps {
   category: ICategory;

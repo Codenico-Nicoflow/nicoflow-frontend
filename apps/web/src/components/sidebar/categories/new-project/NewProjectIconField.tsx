@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Palette } from 'lucide-react';
 import { type Control } from 'react-hook-form';
+
 import { type ProjectFormData } from '@my-monorepo/store';
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
 import IconPicker from './IconPicker';
 
 interface NewProjectIconFieldProps {

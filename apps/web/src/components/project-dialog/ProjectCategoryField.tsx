@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
-import { type Control } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sparkles } from 'lucide-react';
-import type { ProjectFormData } from '@my-monorepo/utils';
+import { type Control } from 'react-hook-form';
+
 import { useGetCategoriesQuery } from '@my-monorepo/store';
+import type { ProjectFormData } from '@my-monorepo/utils';
 import { capitalize } from '@my-monorepo/utils';
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ProjectCategoryFieldProps {
   control: Control<ProjectFormData>;

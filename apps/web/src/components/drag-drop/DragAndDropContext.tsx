@@ -1,23 +1,26 @@
+import { useState } from 'react';
+
 import {
   DndContext,
+  type DragEndEvent,
   DragOverlay,
+  type DragStartEvent,
   MouseSensor,
-  TouchSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  type DragStartEvent,
 } from '@dnd-kit/core';
-import { useUpdateProjectMutation, categoryApi } from '@my-monorepo/store';
-import { useDispatch } from 'react-redux';
-import { showSuccessToast, showErrorToast, ToastMessages } from '@my-monorepo/utils';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LazyIcon } from '@/components/LazyIcon';
-import type { IconId } from '@my-monorepo/utils';
-import type { IProject } from '@my-monorepo/types';
+import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
+
+import { categoryApi,useUpdateProjectMutation } from '@my-monorepo/store';
+import type { IProject } from '@my-monorepo/types';
+import type { IconId } from '@my-monorepo/utils';
+import { showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
+
+import { LazyIcon } from '@/components/LazyIcon';
 
 const DragAndDropContext = ({ children }: { children: React.ReactNode }) => {
   const [updateProject] = useUpdateProjectMutation();

@@ -1,6 +1,8 @@
 import React from 'react';
+
 import type { Preview } from '@storybook/react';
-import { withRouter, reactRouterParameters } from 'storybook-addon-remix-react-router';
+import { reactRouterParameters,withRouter } from 'storybook-addon-remix-react-router';
+
 import '@/styles/globals.css';
 
 const preview: Preview = {

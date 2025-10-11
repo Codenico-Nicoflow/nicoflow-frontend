@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { FileText, HelpCircle, LogOut,Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, HelpCircle, LogOut } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 
 const CollapsedFooter = ({ handleLogout, isLoading }: { handleLogout: () => void; isLoading: boolean }) => {
   return (

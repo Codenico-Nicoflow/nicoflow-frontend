@@ -2,32 +2,35 @@
 // @ts-nocheck
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import IconPicker from '@/components/sidebar/categories/new-project/IconPicker';
-import { Loader2, Star, Calendar as CalendarIcon, FolderOpen, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { Calendar as CalendarIcon, FolderOpen, Loader2, Sparkles,Star } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+
 import {
-  projectSchema,
-  type ProjectFormData,
   type IconId,
+  type ProjectFormData,
+  projectSchema,
   showErrorToast,
   showSuccessToast,
-  useGetCategoriesQuery,
   useCreateProjectMutation,
+  useGetCategoriesQuery,
 } from '@my-monorepo/store';
-import { useDispatch } from 'react-redux';
 import { categoryApi, ToastMessages } from '@my-monorepo/store';
+
+import IconPicker from '@/components/sidebar/categories/new-project/IconPicker';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 interface Project {
   id: number;

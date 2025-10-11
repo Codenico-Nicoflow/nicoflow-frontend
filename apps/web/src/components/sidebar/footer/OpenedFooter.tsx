@@ -1,14 +1,15 @@
+import type { UserResource } from '@clerk/types';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Shield, FileText, HelpCircle, LogOut } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { USER_STATUS } from '@my-monorepo/types';
-import type { IUser } from '@my-monorepo/types';
-import ProCard from './ProCard';
+
+import { Button } from '@/components/ui/button';
+import CustomDialog from '@/components/ui/custom-dialog';
 import { useCustomDialog } from '@/hooks/useCustomDialog';
 import { useIsMobile } from '@/hooks/useMobile';
-import CustomDialog from '@/components/ui/custom-dialog';
+import { cn } from '@/lib/utils';
+
+import ProCard from './ProCard';
 
 const FOOTER_ITEMS = [
   {
@@ -33,7 +34,7 @@ const OpenedFooter = ({
   handleLogout,
   isLoading,
 }: {
-  user: IUser | null;
+  user: UserResource;
   handleLogout: () => void;
   isLoading: boolean;
 }) => {
@@ -48,7 +49,7 @@ const OpenedFooter = ({
       transition={{ duration: 0.4, delay: 0.2 }}
     >
       <CustomDialog {...dialogProps} />
-      {user?.status === USER_STATUS.REGULAR && !isMobile && <ProCard />}
+      {user?.publicMetadata?.plan === 'regular' && !isMobile && <ProCard />}
 
       <motion.div
         className="space-y-2"

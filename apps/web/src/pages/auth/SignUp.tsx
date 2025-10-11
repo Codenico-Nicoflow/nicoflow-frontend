@@ -1,37 +1,23 @@
-import SignForm from '@/components/sign-form/SignForm';
+import { SignUp as ClerkSignUp } from '@clerk/clerk-react';
 
-export default function SignUp() {
-  const inputs = [
-    {
-      label: 'Username',
-      name: 'username',
-      type: 'text',
-      placeholder: 'Enter your username',
-      required: true,
-    },
-    {
-      label: 'Email',
-      name: 'email',
-      type: 'email',
-      placeholder: 'Enter your email',
-      required: true,
-    },
-    {
-      label: 'Password',
-      name: 'password',
-      type: 'password',
-      placeholder: 'Enter your password',
-      required: true,
-    },
-  ];
-
+const SignUp = () => {
   return (
-    <SignForm
-      title="Sign Up"
-      description="Sign up to create an account"
-      type="register"
-      inputs={inputs}
-      buttonText="Sign Up"
+    <ClerkSignUp
+      signInUrl="/sign-in"
+      appearance={{
+        elements: {
+          formButtonPrimary: 'bg-primary hover:bg-primary/90',
+          card: 'bg-background shadow-lg',
+          headerTitle: 'text-foreground',
+          headerSubtitle: 'text-muted-foreground',
+          socialButtonsBlockButton: 'border-input hover:bg-accent',
+          formFieldLabel: 'text-foreground',
+          formFieldInput: 'bg-background border-input',
+          footerActionLink: 'text-primary hover:text-primary/90',
+        },
+      }}
     />
   );
-}
+};
+
+export default SignUp;

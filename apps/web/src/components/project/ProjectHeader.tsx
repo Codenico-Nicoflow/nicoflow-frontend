@@ -1,12 +1,13 @@
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { LazyIcon } from '@/components/LazyIcon';
-import { Edit3, Trash2, Star, Calendar, Clock } from 'lucide-react';
-
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { Calendar, Clock,Edit3, Star, Trash2 } from 'lucide-react';
+
 import { type IconId, type IProject } from '@my-monorepo/types';
+
+import { LazyIcon } from '@/components/LazyIcon';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ProjectHeaderProps {
   project: IProject;

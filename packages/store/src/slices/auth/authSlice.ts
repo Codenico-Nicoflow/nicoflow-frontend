@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { IUser } from '@my-monorepo/types';
+
 import type { RootState } from '../../store';
 
 export interface AuthState {

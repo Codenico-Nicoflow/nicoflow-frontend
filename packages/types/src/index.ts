@@ -1,7 +1,7 @@
 // Interface exports
-export type { IUser } from './interfaces/IUser';
-export type { IProject } from './interfaces/IProject';
 export type { ICategory } from './interfaces/ICategory';
+export type { IProject } from './interfaces/IProject';
+export type { IUser } from './interfaces/IUser';
 
 // Icon exports
 export type { IconId } from './icons';

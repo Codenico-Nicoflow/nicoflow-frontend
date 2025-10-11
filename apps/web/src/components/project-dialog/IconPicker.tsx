@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { LazyIcon } from '@/components/LazyIcon';
+
+import { AnimatePresence,motion } from 'framer-motion';
+import { Check,Palette } from 'lucide-react';
+
 import { ICON_IDS, type IconId } from '@my-monorepo/utils';
-import { Palette, Check } from 'lucide-react';
+
+import { LazyIcon } from '@/components/LazyIcon';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface IconPickerProps {
   value?: IconId;

@@ -1,7 +1,7 @@
-import { DialogHeader } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import { Calendar, FolderOpen, Star } from 'lucide-react';
-import { Plus } from 'lucide-react';
+import { Calendar, FolderOpen, Plus,Star  } from 'lucide-react';
+
+import { DialogHeader } from '@/components/ui/dialog';
 
 const NewProjectHeader = () => {
   return (

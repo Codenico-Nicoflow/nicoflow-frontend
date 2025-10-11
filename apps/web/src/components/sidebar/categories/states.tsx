@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Loader2, FolderOpen, Plus, Sparkles } from 'lucide-react';
+import { FolderOpen, Loader2, Plus, Sparkles } from 'lucide-react';
+
 import { useSidebar } from '@/components/ui/sidebar';
 
 export function CategoriesLoadingState() {

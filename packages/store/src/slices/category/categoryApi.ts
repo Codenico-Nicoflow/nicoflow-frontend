@@ -1,19 +1,18 @@
+/* eslint-disable simple-import-sort/imports */
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { CATEGORY_API } from '../../api/endpoints';
-
 import { baseQueryWithReauth } from '../baseQuery';
-
 import type {
   CreateCategoryRequest,
   CreateCategoryResponse,
   DeleteCategoryRequest,
+  DeleteCategoryResponse,
+  GetAllCategoriesResponse,
   GetCategoryRequest,
   GetCategoryResponse,
-  GetAllCategoriesResponse,
   UpdateCategoryRequest,
   UpdateCategoryResponse,
-  DeleteCategoryResponse,
 } from './type';
 
 export const categoryApi = createApi({

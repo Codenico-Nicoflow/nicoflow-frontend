@@ -2,16 +2,23 @@
   "name": "my-monorepo",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.18.1",
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
-    "turbo": "^2.5.8",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/react": "19.1.0",
-    "@types/react-dom": "19.1.0"
+    "@types/react-dom": "19.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "turbo": "^2.5.8"
   },
   "pnpm": {
     "overrides": {

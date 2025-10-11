@@ -1,16 +1,36 @@
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError, FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query';
 
-import { AUTH_API } from '../api/endpoints';
-
-import { setUser, clearAuth } from './auth/authSlice';
-import type { AuthResponse } from './auth/type';
-
-import type { BaseQueryFn, FetchArgs, FetchBaseQueryError, FetchBaseQueryMeta } from '@reduxjs/toolkit/query';
+// Extend Window interface to include Clerk
+declare global {
+  interface Window {
+    Clerk?: {
+      session?: {
+        getToken: () => Promise<string | null>;
+      };
+      signOut: () => Promise<void>;
+    };
+  }
+}
 
 export const rawBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> =
   fetchBaseQuery({
     baseUrl: 'http://localhost:3001/',
     credentials: 'include',
+    prepareHeaders: async headers => {
+      // Get Clerk token
+      if (typeof window !== 'undefined' && window.Clerk) {
+        try {
+          const token = await window.Clerk.session?.getToken();
+          if (token) {
+            headers.set('authorization', `Bearer ${token}`);
+          }
+        } catch (error) {
+          console.error('Failed to get Clerk token:', error);
+        }
+      }
+      return headers;
+    },
   });
 
 export const baseQueryWithReauth: BaseQueryFn<
@@ -20,33 +40,12 @@ export const baseQueryWithReauth: BaseQueryFn<
   object,
   FetchBaseQueryMeta
 > = async (args, api, extraOptions) => {
-  let result = await rawBaseQuery(args, api, extraOptions);
+  const result = await rawBaseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {
-    try {
-      const refreshResult = await rawBaseQuery(
-        {
-          url: AUTH_API.REFRESH_TOKEN,
-          method: 'POST',
-        },
-        api,
-        extraOptions
-      );
-
-      if (refreshResult.data) {
-        const { user } = refreshResult.data as AuthResponse;
-        console.log('user', user);
-        api.dispatch(setUser(user));
-
-        result = await rawBaseQuery(args, api, extraOptions);
-      } else {
-        api.dispatch(clearAuth());
-        // Redux Persist will automatically clear this from localStorage
-      }
-    } catch (error) {
-      console.error('Error during token refresh:', error);
-      api.dispatch(clearAuth());
-      // Redux Persist will automatically clear this from localStorage
+    if (typeof window !== 'undefined' && window.Clerk) {
+      await window.Clerk.signOut();
+      window.location.href = '/sign-in';
     }
   }
 

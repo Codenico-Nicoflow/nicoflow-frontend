@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 import { ErrorPageIcon } from '@/assets/svgs';
+import { Button } from '@/components/ui/button';
 
 export default function ErrorPage() {
   return (

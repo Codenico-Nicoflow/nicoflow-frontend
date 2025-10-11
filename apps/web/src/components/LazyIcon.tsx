@@ -1,5 +1,6 @@
-import React, { Suspense, lazy, useMemo } from 'react';
-import { type IconId, ICON_IMPORTS } from '@my-monorepo/utils';
+import React, { lazy, Suspense, useMemo } from 'react';
+
+import { ICON_IMPORTS,type IconId } from '@my-monorepo/utils';
 
 interface LazyIconProps {
   iconId: IconId;

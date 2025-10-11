@@ -1,11 +1,14 @@
+import { useState } from 'react';
+
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import ProjectHeader from '@/components/project/ProjectHeader';
-import ProjectDialog from '@/components/project-dialog/ProjectDialog';
-import DeleteDialog from '@/components/project-dialog/DeleteDialog';
-import TasksSection from '@/components/project/TasksSection';
-import { useState } from 'react';
+
 import { useGetProjectQuery } from '@my-monorepo/store';
+
+import ProjectHeader from '@/components/project/ProjectHeader';
+import TasksSection from '@/components/project/TasksSection';
+import DeleteDialog from '@/components/project-dialog/DeleteDialog';
+import ProjectDialog from '@/components/project-dialog/ProjectDialog';
 
 const ProjectView = () => {
   const { projectId } = useParams<{ projectId: string }>();

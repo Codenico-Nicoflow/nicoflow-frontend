@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Trash2, AlertTriangle } from 'lucide-react';
-import { useDeleteProjectMutation, categoryApi } from '@my-monorepo/store';
-import { showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
+import { AlertTriangle,Trash2 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
+
+import { categoryApi,useDeleteProjectMutation } from '@my-monorepo/store';
+import { showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface DeleteDialogProps {
   open: boolean;

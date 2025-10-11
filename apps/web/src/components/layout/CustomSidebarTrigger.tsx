@@ -1,38 +1,50 @@
 import { motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 import { useSidebar } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/useMobile';
 import { cn } from '@/lib/utils';
 
 import { Button } from '../ui/button';
 
 export function CustomSidebarTrigger() {
-  const { toggleSidebar, state } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  const { toggleSidebar } = useSidebar();
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed top-4 left-4 z-50"
+      >
+        <Button
+          onClick={toggleSidebar}
+          size="icon"
+          className={cn(
+            'h-12 w-12 rounded-full shadow-lg',
+            'bg-background border-2 border-border',
+            'hover:bg-accent hover:scale-105',
+            'active:scale-95',
+            'transition-all duration-200',
+            'group'
+          )}
+        >
+          <Menu className="h-5 w-5 text-foreground group-hover:text-primary transition-colors" />
+        </Button>
+      </motion.div>
+    );
+  }
 
   return (
     <Button
       onClick={toggleSidebar}
       variant="ghost"
       size="icon"
-      className={cn(
-        'relative h-10 w-10 rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5',
-        'hover:border-primary/40 hover:bg-gradient-to-br hover:from-primary/20 hover:to-primary/10',
-        'transition-all duration-200 ease-out shadow-sm hover:shadow-md',
-        'group'
-      )}
+      className={cn('h-8 w-8 rounded-md mb-4', 'hover:bg-muted/50', 'transition-all duration-200 ease-out', 'group')}
     >
-      <motion.div
-        className="flex items-center justify-center"
-        animate={{ rotate: isCollapsed ? 0 : 180 }}
-        transition={{ duration: 0.2, ease: 'easeInOut' }}
-      >
-        {isCollapsed ? (
-          <Menu className="h-5 w-5 text-primary group-hover:text-primary/80 transition-colors" />
-        ) : (
-          <X className="h-5 w-5 text-primary group-hover:text-primary/80 transition-colors" />
-        )}
-      </motion.div>
+      <Menu className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
     </Button>
   );
 }

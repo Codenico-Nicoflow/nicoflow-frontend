@@ -1,8 +1,9 @@
-import { useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { useAppUser } from '@my-monorepo/store';
+import { USER_STATUS } from '@my-monorepo/types';
 import { capitalize } from '@my-monorepo/utils';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,10 +13,12 @@ import { cn } from '@/lib/utils';
 import { SidebarHeader as ShadCnSidebarHeader } from '../ui/sidebar';
 
 const SidebarHeader = ({ className }: { className?: string & React.ComponentProps<typeof ShadCnSidebarHeader> }) => {
-  const { user } = useUser();
+  const user = useAppUser();
   const navigate = useNavigate();
 
-  const hasPremiumPlan = user?.publicMetadata?.plan === 'premium';
+  const hasPremiumPlan = user?.status === USER_STATUS.PREMIUM;
+
+  console.log(user);
 
   const getInitials = (name: string) => {
     return name
@@ -65,7 +68,7 @@ const SidebarHeader = ({ className }: { className?: string & React.ComponentProp
             transition={{ duration: 0.3, delay: 0.3 }}
             className="text-sm text-muted-foreground truncate"
           >
-            {user?.emailAddresses[0]?.emailAddress || 'Email'}
+            {user?.email || 'Email'}
           </motion.p>
           <motion.div
             className="flex items-center gap-2 mt-1"

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, CheckSquare, Plus, Sparkles,Target } from 'lucide-react';
+import { Calendar, CheckSquare, Plus, Sparkles, Target } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

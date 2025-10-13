@@ -3,9 +3,10 @@ import { Image, type ImageStyle, View } from 'react-native';
 
 import { Link, Stack } from 'expo-router';
 
-import { useUser } from '@clerk/clerk-expo';
 import { MoonStarIcon, SunIcon, XIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
+
+import { useAppUser } from '@my-monorepo/store';
 
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -38,7 +39,7 @@ const SCREEN_OPTIONS = {
 
 export default function Screen() {
   const { colorScheme } = useColorScheme();
-  const { user } = useUser();
+  const user = useAppUser();
 
   return (
     <>

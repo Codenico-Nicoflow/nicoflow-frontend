@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
@@ -17,7 +18,7 @@ import {
 import type { ProjectFormData } from '@my-monorepo/utils';
 import { projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 
 import ProjectActionButtons from './ProjectActionButtons';
@@ -165,7 +166,7 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
       <DialogContent className="w-[95vw] max-w-5xl sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none">
         <DialogTitle className="sr-only">{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
 
-        <DialogHeader className="p-4 sm:p-6 lg:p-8">
+        <DialogHeader className="p-2 sm:p-6 lg:p-4">
           <ProjectHeader isEditMode={isEditMode} />
         </DialogHeader>
 

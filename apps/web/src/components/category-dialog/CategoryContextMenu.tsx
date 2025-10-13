@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-import { Edit, MoreVertical,Trash2 } from 'lucide-react';
+import { Edit, MoreVertical, Trash2 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { categoryApi,useDeleteCategoryMutation } from '@my-monorepo/store';
+import { categoryApi, useDeleteCategoryMutation } from '@my-monorepo/store';
 import type { ICategory } from '@my-monorepo/types';
-import { showErrorToast, showSuccessToast , ToastMessages } from '@my-monorepo/utils';
+import { showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +15,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useCustomDialog } from '@/hooks/useCustomDialog';
+
+import CustomDialog from '../ui/custom-dialog';
 
 interface CategoryContextMenuProps {
   category: ICategory;
@@ -25,6 +28,7 @@ const CategoryContextMenu: React.FC<CategoryContextMenuProps> = ({ category, onE
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteCategory, { isLoading: isDeleteLoading }] = useDeleteCategoryMutation();
   const dispatch = useDispatch();
+  const { openDialog, closeDialog, dialogProps } = useCustomDialog();
 
   const handleEdit = () => {
     onEdit(category);
@@ -45,6 +49,7 @@ const CategoryContextMenu: React.FC<CategoryContextMenuProps> = ({ category, onE
 
   return (
     <DropdownMenu>
+      <CustomDialog {...dialogProps} />
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -61,7 +66,20 @@ const CategoryContextMenu: React.FC<CategoryContextMenuProps> = ({ category, onE
           Edit Category
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={handleDelete}
+          onClick={() =>
+            openDialog({
+              title: 'Delete Category',
+              description: 'Are you sure you want to delete this category?',
+              acceptButton: {
+                text: 'Delete',
+                onClick: handleDelete,
+              },
+              cancelButton: {
+                text: 'Cancel',
+                onClick: closeDialog,
+              },
+            })
+          }
           className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
           disabled={isDeleting || isDeleteLoading}
         >

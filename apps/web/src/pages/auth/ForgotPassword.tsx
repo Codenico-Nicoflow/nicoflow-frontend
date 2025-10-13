@@ -1,23 +1,23 @@
-import { useEffect } from 'react';
+import SignForm from '@/components/sign-form/SignForm';
 
-import { SignIn } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+const inputs = [
+  {
+    label: 'Email',
+    name: 'email',
+    type: 'email',
+    placeholder: 'Enter your email',
+    required: true,
+  },
+];
 
-import AuthLayout from '@/components/layout/AuthLayout';
-
-const ForgotPassword = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Redirect to sign-in as Clerk handles forgot password flow there
-    navigate('/sign-in');
-  }, [navigate]);
-
+export default function ForgotPassword() {
   return (
-    <AuthLayout>
-      <SignIn routing="path" path="/sign-in" />
-    </AuthLayout>
+    <SignForm
+      title="Forgot Password?"
+      description="Don't worry! It happens. Please enter the address associated with your account."
+      type="forgot-password"
+      inputs={inputs}
+      buttonText="Send"
+    />
   );
-};
-
-export default ForgotPassword;
+}

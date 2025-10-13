@@ -1,7 +1,8 @@
-import type { UserResource } from '@clerk/types';
 import { motion } from 'framer-motion';
 import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { type IUser, USER_STATUS } from '@my-monorepo/types';
 
 import { Button } from '@/components/ui/button';
 import CustomDialog from '@/components/ui/custom-dialog';
@@ -34,7 +35,7 @@ const OpenedFooter = ({
   handleLogout,
   isLoading,
 }: {
-  user: UserResource;
+  user: IUser;
   handleLogout: () => void;
   isLoading: boolean;
 }) => {
@@ -49,7 +50,7 @@ const OpenedFooter = ({
       transition={{ duration: 0.4, delay: 0.2 }}
     >
       <CustomDialog {...dialogProps} />
-      {user?.publicMetadata?.plan === 'regular' && !isMobile && <ProCard />}
+      {user?.status === USER_STATUS.REGULAR && !isMobile && <ProCard />}
 
       <motion.div
         className="space-y-2"

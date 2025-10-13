@@ -8,8 +8,8 @@ export interface QuickAccessItem {
 
 export const quickAccessItems = [
   {
-    title: 'Inbox',
-    url: '/tasks/inbox',
+    title: 'Bucket',
+    url: '/tasks/bucket',
     icon: Inbox,
   },
   {

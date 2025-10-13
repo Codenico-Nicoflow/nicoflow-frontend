@@ -8,4 +8,4 @@ export type { IconId } from './icons';
 export { ICON_IDS } from './icons';
 
 // Constants exports
-export { USER_STATUS } from './constants';
+export { GENERAL_CATEGORY, USER_STATUS } from './constants';

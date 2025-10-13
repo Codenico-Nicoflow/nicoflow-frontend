@@ -1,5 +1,6 @@
-import { useAuth, useUser } from '@clerk/clerk-react';
 import { Navigate, useLocation, useRoutes } from 'react-router-dom';
+
+import { useAppUser } from '@my-monorepo/store';
 
 import AuthLayout from './components/layout/AuthLayout';
 import PrivateLayout from './components/layout/PrivateLayout';
@@ -12,7 +13,7 @@ import HelpAndInformation from './pages/HelpAndInformation';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Profile from './pages/Profile';
 import ProjectView from './pages/project/ProjectView';
-import Inbox from './pages/tasks/Inbox';
+import Bucket from './pages/tasks/Bucket';
 import NextSevenDays from './pages/tasks/NextSevenDays';
 import Today from './pages/tasks/Today';
 import Tomorrow from './pages/tasks/Tomorrow';
@@ -20,13 +21,12 @@ import TermsOfService from './pages/TermsOfService';
 
 const PrivateRoutes = () => {
   const location = useLocation();
-  const { isSignedIn, isLoaded } = useAuth();
+  const user = useAppUser();
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
-  }
+  // You can add loading logic here if needed
+  // For now, we'll assume auth state is managed elsewhere
 
-  return isSignedIn ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
+  return user ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
 };
 
 const AppRoutes = () => {
@@ -35,8 +35,8 @@ const AppRoutes = () => {
       path: '/',
       element: <PrivateRoutes />,
       children: [
-        { index: true, element: <Navigate to="/tasks/inbox" replace /> },
-        { path: '/tasks/inbox', element: <Inbox /> },
+        { index: true, element: <Navigate to="/tasks/bucket" replace /> },
+        { path: '/tasks/bucket', element: <Bucket /> },
         { path: '/tasks/next-7-days', element: <NextSevenDays /> },
         { path: '/tasks/today', element: <Today /> },
         { path: '/tasks/tomorrow', element: <Tomorrow /> },
@@ -49,20 +49,14 @@ const AppRoutes = () => {
       ],
     },
     {
-      path: '/sign-in',
-      element: <SignIn />,
-    },
-    {
-      path: '/sign-up',
-      element: <SignUp />,
-    },
-    {
-      path: '/forgot-password',
-      element: <ForgotPassword />,
-    },
-    {
-      path: '/reset-password',
-      element: <ResetPassword />,
+      path: '/',
+      element: <AuthLayout />,
+      children: [
+        { path: 'sign-in', element: <SignIn /> },
+        { path: 'sign-up', element: <SignUp /> },
+        { path: 'forgot-password', element: <ForgotPassword /> },
+        { path: 'reset-password', element: <ResetPassword /> },
+      ],
     },
 
     {

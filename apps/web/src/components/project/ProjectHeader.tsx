@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Calendar, Clock,Edit3, Star, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Edit3, Star, Trash2 } from 'lucide-react';
 
 import { type IconId, type IProject } from '@my-monorepo/types';
 

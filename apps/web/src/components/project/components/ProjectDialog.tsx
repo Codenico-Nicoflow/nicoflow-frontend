@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
@@ -15,35 +14,26 @@ import {
   useGetCategoriesQuery,
   useUpdateProjectMutation,
 } from '@my-monorepo/store';
+import type { IProject } from '@my-monorepo/types';
 import type { ProjectFormData } from '@my-monorepo/utils';
 import { projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
 
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 
-import ProjectActionButtons from './ProjectActionButtons';
-import ProjectCategoryField from './ProjectCategoryField';
-import ProjectDueDateField from './ProjectDueDateField';
-import ProjectFavoriteField from './ProjectFavoriteField';
-import ProjectHeader from './ProjectHeader';
-import ProjectIconField from './ProjectIconField';
-import ProjectNameField from './ProjectNameField';
-import ProjectStatusField from './ProjectStatusField';
-
-interface Project {
-  id: number;
-  name: string;
-  icon: string;
-  isFavorite: boolean;
-  dueDate?: Date;
-  status: 'active' | 'archived' | 'completed';
-  categoryId?: number;
-}
+import ProjectActionButtons from './fields/ProjectActionButtons';
+import ProjectCategoryField from './fields/ProjectCategoryField';
+import ProjectDueDateField from './fields/ProjectDueDateField';
+import ProjectFavoriteField from './fields/ProjectFavoriteField';
+import ProjectIconField from './fields/ProjectIconField';
+import ProjectNameField from './fields/ProjectNameField';
+import ProjectStatusField from './fields/ProjectStatusField';
+import ProjectDialogHeader from './ProjectDialogHeader';
 
 interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  project?: Project;
+  project?: IProject;
   onSuccess?: () => void;
 }
 
@@ -163,11 +153,13 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-5xl sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none">
-        <DialogTitle className="sr-only">{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
-
+      <DialogContent
+        aria-describedby={undefined}
+        className="w-[95vw] max-w-5xl sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none"
+      >
         <DialogHeader className="p-2 sm:p-6 lg:p-4">
-          <ProjectHeader isEditMode={isEditMode} />
+          <ProjectDialogHeader isEditMode={isEditMode} />
+          <DialogTitle className="sr-only">{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
         </DialogHeader>
 
         <motion.div

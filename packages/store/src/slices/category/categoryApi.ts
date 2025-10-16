@@ -6,7 +6,6 @@ import { baseQueryWithReauth } from '../baseQuery';
 import type {
   CreateCategoryRequest,
   CreateCategoryResponse,
-  DeleteCategoryRequest,
   DeleteCategoryResponse,
   GetAllCategoriesResponse,
   GetCategoryRequest,
@@ -52,7 +51,7 @@ export const categoryApi = createApi({
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Category'],
     }),
-    deleteCategory: builder.mutation<DeleteCategoryResponse, DeleteCategoryRequest>({
+    deleteCategory: builder.mutation<DeleteCategoryResponse, void>({
       query: id => ({
         url: `${CATEGORY_API.DELETE_CATEGORY}${id}`,
         method: 'DELETE',

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Clock, Edit3, Star, Trash2 } from 'lucide-react';
 
 import { type IconId, type IProject } from '@my-monorepo/types';
+import { capitalize } from '@my-monorepo/utils';
 
 import { LazyIcon } from '@/components/LazyIcon';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +30,7 @@ const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps) => {
     }
   };
 
-  const isOverdue = project?.dueDate && new Date() > project.dueDate && project.status === 'active';
+  const isOverdue = project?.dueDate && new Date() > new Date(project.dueDate) && project.status === 'active';
 
   return (
     <motion.div
@@ -73,7 +74,7 @@ const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps) => {
 
             <div className="flex items-center gap-4 flex-wrap">
               <Badge variant="secondary" className={cn('text-xs font-medium', getStatusColor(project?.status || ''))}>
-                {project.status.charAt(0).toUpperCase() + project?.status?.slice(1)}
+                {capitalize(project?.status || '')}
               </Badge>
 
               {project?.dueDate && (

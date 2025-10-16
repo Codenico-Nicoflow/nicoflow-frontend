@@ -1,11 +1,20 @@
 // Interface exports
-export type { ICategory } from './interfaces/ICategory';
-export type { IProject } from './interfaces/IProject';
-export type { IUser } from './interfaces/IUser';
+export type { ICategory, IProject, ITask, ITaskNotification, ITaskRecurrence, IUser } from './interfaces';
 
 // Icon exports
+export {
+  FilterBy,
+  GENERAL_CATEGORY,
+  NotificationStatus,
+  NotificationTrigger,
+  NotificationType,
+  RecurrenceFrequency,
+  RecurrenceType,
+  TaskPriority,
+  TaskSortOrder,
+  TaskStatus,
+  USER_STATUS,
+  Weekday,
+} from './constants';
 export type { IconId } from './icons';
 export { ICON_IDS } from './icons';
-
-// Constants exports
-export { GENERAL_CATEGORY, USER_STATUS } from './constants';

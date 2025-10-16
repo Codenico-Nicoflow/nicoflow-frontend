@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { Calendar as CalendarIcon, FolderOpen, Star } from 'lucide-react';
 
-interface ProjectHeaderProps {
+interface ProjectDialogHeaderProps {
   isEditMode: boolean;
 }
 
-const ProjectHeader = ({ isEditMode }: ProjectHeaderProps) => {
+const ProjectDialogHeader = ({ isEditMode }: ProjectDialogHeaderProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -62,4 +62,4 @@ const ProjectHeader = ({ isEditMode }: ProjectHeaderProps) => {
   );
 };
 
-export default ProjectHeader;
+export default ProjectDialogHeader;

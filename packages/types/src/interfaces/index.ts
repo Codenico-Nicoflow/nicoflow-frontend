@@ -1,0 +1,114 @@
+// ============================================
+// IMPORTS
+// ============================================
+
+import type {
+  NotificationStatus,
+  NotificationTrigger,
+  NotificationType,
+  RecurrenceFrequency,
+  RecurrenceType,
+  TaskPriority,
+  TaskSortOrder,
+  TaskStatus,
+  Weekday,
+} from '../constants';
+import { IconId } from '../icons';
+
+// ============================================
+// INTERFACES
+// ============================================
+
+export interface ICategory {
+  id: number;
+  name: string;
+  icon?: IconId;
+  sortOrder?: number;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IProject {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+  category: ICategory;
+  categoryId: number;
+  status: 'active' | 'archived' | 'completed';
+  icon?: IconId;
+  sortOrder?: number;
+  dueDate?: string;
+  isFavorite?: boolean;
+}
+
+export interface ITaskRecurrence {
+  id: number;
+  taskId: number;
+  type: RecurrenceType;
+  frequency: RecurrenceFrequency;
+  interval: number;
+  weekdays: Weekday[];
+  dayOfMonth: number;
+  monthOfYear: number;
+  endDate: string;
+  maxOccurrences: number;
+  occurrenceCount: number;
+  lastGenerated: string;
+  nextOccurrence: string;
+  customPattern: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ITaskNotification {
+  id: number;
+  taskId: number;
+  type: NotificationType;
+  trigger: NotificationTrigger;
+  status: NotificationStatus;
+  triggerTime: string;
+  minutesBeforeDue: number;
+  minutesAfterDue: number;
+  message: string;
+  isActive: boolean;
+  lastSent: string;
+  nextScheduled: string;
+  retryCount: number;
+  maxRetries: number;
+  errorMessage: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ITask {
+  id: number;
+  name: string;
+  projectId: number;
+  description: string;
+  status: TaskStatus;
+  createdAt: string;
+  updatedAt: string;
+  dueDate?: string;
+  priority?: TaskPriority;
+  sortOrder?: TaskSortOrder;
+  assignees?: number[];
+  recurrence?: ITaskRecurrence;
+  notifications?: ITaskNotification[];
+  completedAt?: string;
+  url?: string;
+  estimatedMinutes?: number;
+}
+
+export interface IUser {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  theme: 'light' | 'dark';
+  imageUrl: string;
+  username: string;
+  status: 'premium' | 'regular';
+}

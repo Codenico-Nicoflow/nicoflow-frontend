@@ -10,3 +10,4 @@ export type UpdateProjectRequest = Partial<IProject>;
 export type DeleteProjectRequest = number;
 export type GetProjectRequest = number;
 export type GetProjectResponse = IProject;
+export type DeleteProjectResponse = { message: string };

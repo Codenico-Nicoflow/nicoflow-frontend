@@ -18,8 +18,6 @@ const SidebarHeader = ({ className }: { className?: string & React.ComponentProp
 
   const hasPremiumPlan = user?.status === USER_STATUS.PREMIUM;
 
-  console.log(user);
-
   const getInitials = (name: string) => {
     return name
       .split(' ')

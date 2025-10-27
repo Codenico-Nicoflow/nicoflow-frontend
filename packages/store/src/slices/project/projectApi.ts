@@ -26,7 +26,6 @@ export const projectApi = createApi({
     }),
     getProject: builder.query<GetProjectResponse, GetProjectRequest>({
       query: id => {
-        console.log('GET_PROJECT', `${PROJECT_API.GET_PROJECT}${id}`);
         return `${PROJECT_API.GET_PROJECT}${id}`;
       },
       transformErrorResponse: error => error.data,

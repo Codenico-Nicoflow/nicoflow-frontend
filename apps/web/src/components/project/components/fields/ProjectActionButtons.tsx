@@ -7,9 +7,10 @@ interface ProjectActionButtonsProps {
   isLoading: boolean;
   isEditMode: boolean;
   onCancel: () => void;
+  isDisabled?: boolean;
 }
 
-const ProjectActionButtons = ({ isLoading, isEditMode, onCancel }: ProjectActionButtonsProps) => {
+const ProjectActionButtons = ({ isLoading, isEditMode, onCancel, isDisabled = false }: ProjectActionButtonsProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -27,7 +28,7 @@ const ProjectActionButtons = ({ isLoading, isEditMode, onCancel }: ProjectAction
       </Button>
       <Button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || isDisabled}
         className="h-10 sm:h-12 px-6 sm:px-8 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
       >
         {isLoading ? (

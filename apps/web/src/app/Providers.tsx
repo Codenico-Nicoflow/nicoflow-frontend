@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { store } from '@my-monorepo/store';
 
+import { LoadingOverlayProvider } from '@/components/loading-overlay/LoadingOverlayProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -13,8 +14,10 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     <Provider store={store}>
       <BrowserRouter>
         <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          {children}
-          <Toaster />
+          <LoadingOverlayProvider>
+            {children}
+            <Toaster />
+          </LoadingOverlayProvider>
         </ThemeProvider>
       </BrowserRouter>
     </Provider>

@@ -4,7 +4,7 @@ import { type Control } from 'react-hook-form';
 
 import type { ICategory } from '@my-monorepo/types';
 
-import IconPicker from '@/components/project-dialog/IconPicker';
+import IconPicker from '@/components/project/components/fields/IconPicker';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface CategoryIconFieldProps {

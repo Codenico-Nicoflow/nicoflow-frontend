@@ -13,10 +13,10 @@ import HelpAndInformation from './pages/HelpAndInformation';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Profile from './pages/Profile';
 import ProjectView from './pages/project/ProjectView';
-import Bucket from './pages/tasks/Bucket';
-import NextSevenDays from './pages/tasks/NextSevenDays';
-import Today from './pages/tasks/Today';
-import Tomorrow from './pages/tasks/Tomorrow';
+import Bucket from './pages/quick-access/Bucket';
+import NextSevenDays from './pages/quick-access/NextSevenDays';
+import Today from './pages/quick-access/Today';
+import Tomorrow from './pages/quick-access/Tomorrow';
 import TermsOfService from './pages/TermsOfService';
 
 const PrivateRoutes = () => {
@@ -35,11 +35,11 @@ const AppRoutes = () => {
       path: '/',
       element: <PrivateRoutes />,
       children: [
-        { index: true, element: <Navigate to="/tasks/bucket" replace /> },
-        { path: '/tasks/bucket', element: <Bucket /> },
-        { path: '/tasks/next-7-days', element: <NextSevenDays /> },
-        { path: '/tasks/today', element: <Today /> },
-        { path: '/tasks/tomorrow', element: <Tomorrow /> },
+        { index: true, element: <Navigate to="/quick-access/bucket" replace /> },
+        { path: '/quick-access/bucket', element: <Bucket /> },
+        { path: '/quick-access/next-7-days', element: <NextSevenDays /> },
+        { path: '/quick-access/today', element: <Today /> },
+        { path: '/quick-access/tomorrow', element: <Tomorrow /> },
         { path: '/projects/new', element: <div>New Project</div> },
         { path: '/projects/:projectId', element: <ProjectView /> },
         { path: '/terms-of-service', element: <TermsOfService /> },

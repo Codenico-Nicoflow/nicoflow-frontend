@@ -1,10 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
@@ -15,35 +14,26 @@ import {
   useGetCategoriesQuery,
   useUpdateProjectMutation,
 } from '@my-monorepo/store';
+import type { IProject } from '@my-monorepo/types';
 import type { ProjectFormData } from '@my-monorepo/utils';
 import { projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
 
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 
-import ProjectActionButtons from './ProjectActionButtons';
-import ProjectCategoryField from './ProjectCategoryField';
-import ProjectDueDateField from './ProjectDueDateField';
-import ProjectFavoriteField from './ProjectFavoriteField';
-import ProjectHeader from './ProjectHeader';
-import ProjectIconField from './ProjectIconField';
-import ProjectNameField from './ProjectNameField';
-import ProjectStatusField from './ProjectStatusField';
-
-interface Project {
-  id: number;
-  name: string;
-  icon: string;
-  isFavorite: boolean;
-  dueDate?: Date;
-  status: 'active' | 'archived' | 'completed';
-  categoryId?: number;
-}
+import ProjectActionButtons from './fields/ProjectActionButtons';
+import ProjectCategoryField from './fields/ProjectCategoryField';
+import ProjectDueDateField from './fields/ProjectDueDateField';
+import ProjectFavoriteField from './fields/ProjectFavoriteField';
+import ProjectIconField from './fields/ProjectIconField';
+import ProjectNameField from './fields/ProjectNameField';
+import ProjectStatusField from './fields/ProjectStatusField';
+import ProjectDialogHeader from './ProjectDialogHeader';
 
 interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  project?: Project;
+  project?: IProject;
   onSuccess?: () => void;
 }
 
@@ -67,6 +57,9 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
     resolver: zodResolver(projectSchema),
   });
 
+  // Watch form values for changes
+  const watchedValues = form.watch();
+
   useEffect(() => {
     if (project) {
       form.reset({
@@ -83,16 +76,44 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
     }
   }, [categories, project, form]);
 
+  // Check if there are changes in edit mode
+  const hasChanges = useMemo(() => {
+    if (!isEditMode || !project) return true; // Always allow create mode
+
+    const originalData = {
+      name: project.name,
+      categoryId: project.categoryId,
+      icon: project.icon,
+      status: project.status,
+      dueDate: project.dueDate ? new Date(project.dueDate).toISOString() : null,
+      isFavorite: project.isFavorite,
+    };
+
+    const currentData = {
+      name: watchedValues.name || '',
+      categoryId: watchedValues.categoryId,
+      icon: watchedValues.icon || 'folder',
+      status: watchedValues.status,
+      dueDate: watchedValues.dueDate ? new Date(watchedValues.dueDate).toISOString() : null,
+      isFavorite: watchedValues.isFavorite || false,
+    };
+
+    return Object.keys(originalData).some(key => {
+      const originalValue = originalData[key as keyof typeof originalData];
+      const currentValue = currentData[key as keyof typeof currentData];
+      return originalValue !== currentValue;
+    });
+  }, [isEditMode, project, watchedValues]);
+
   const onSubmit = async (data: ProjectFormData) => {
+    // Double safety check: prevent API call if no changes in edit mode
+    if (isEditMode && !hasChanges) {
+      onOpenChange(false);
+      return;
+    }
+
     try {
       if (isEditMode) {
-        const hasChanges = checkForChanges(data);
-
-        if (!hasChanges) {
-          onOpenChange(false);
-          return;
-        }
-
         const updateData = {
           ...data,
           dueDate: data.dueDate || null,
@@ -120,54 +141,27 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
     }
   };
 
-  const checkForChanges = (formData: ProjectFormData): boolean => {
-    if (!project) return true;
-
-    const originalData = {
-      name: project.name,
-      categoryId: project.categoryId,
-      icon: project.icon,
-      status: project.status,
-      dueDate: project.dueDate,
-      isFavorite: project.isFavorite,
-    };
-
-    const currentData = {
-      name: formData.name,
-      categoryId: formData.categoryId,
-      icon: formData.icon,
-      status: formData.status,
-      dueDate: formData.dueDate,
-      isFavorite: formData.isFavorite,
-    };
-
-    for (const key in currentData) {
-      const originalValue = originalData[key as keyof typeof originalData];
-      const currentValue = currentData[key as keyof typeof currentData];
-
-      if (key === 'dueDate') {
-        const originalDate = originalValue ? new Date(originalValue).toISOString() : null;
-        const currentDate = currentValue ? new Date(currentValue).toISOString() : null;
-        if (originalDate !== currentDate) return true;
-      } else {
-        if (originalValue !== currentValue) return true;
-      }
-    }
-
-    return false;
-  };
-
   const handleCancel = () => {
     onOpenChange(false);
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-5xl sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none">
-        <DialogTitle className="sr-only">{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
+  const handleOpenChange = (isOpen: boolean) => {
+    // Reset form when dialog closes
+    if (!isOpen) {
+      form.reset();
+    }
+    onOpenChange(isOpen);
+  };
 
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        aria-describedby={undefined}
+        className="w-[95vw] max-w-5xl sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none"
+      >
         <DialogHeader className="p-2 sm:p-6 lg:p-4">
-          <ProjectHeader isEditMode={isEditMode} />
+          <ProjectDialogHeader isEditMode={isEditMode} />
+          <DialogTitle className="sr-only">{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
         </DialogHeader>
 
         <motion.div
@@ -194,6 +188,7 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
                 isLoading={isCreateLoading || isUpdateLoading || isCategoriesLoading}
                 isEditMode={isEditMode}
                 onCancel={handleCancel}
+                isDisabled={isEditMode && !hasChanges}
               />
             </form>
           </Form>

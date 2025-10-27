@@ -24,3 +24,19 @@ export const CATEGORY_API = {
   UPDATE_CATEGORY: '/categories/',
   DELETE_CATEGORY: '/categories/',
 };
+
+export const TASKS_API = {
+  GET_TASKS: '/tasks',
+  GET_TASK: '/tasks/',
+  CREATE_TASK: '/tasks',
+  UPDATE_TASK: '/tasks/',
+  DELETE_TASK: '/tasks/',
+};
+
+export const BUCKET_API = {
+  GET_BUCKETS: '/bucket',
+  GET_BUCKET: '/bucket/',
+  CREATE_BUCKET: '/bucket',
+  UPDATE_BUCKET: '/bucket/',
+  DELETE_BUCKET: '/bucket/',
+};

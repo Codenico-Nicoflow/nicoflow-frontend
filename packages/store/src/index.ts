@@ -61,5 +61,16 @@ export type {
   UpdateCategoryResponse,
 } from './slices/category/type';
 
+// Task exports
+export { taskApi } from './slices/tasks/taskApi';
+export {
+  useCreateTaskMutation,
+  useDeleteTaskMutation,
+  useGetTaskQuery,
+  useGetTasksQuery,
+  useUpdateTaskMutation,
+} from './slices/tasks/taskApi';
+export type { CreateTaskRequest, CreateTaskResponse, UpdateTaskRequest, UpdateTaskResponse } from './slices/tasks/type';
+
 // API endpoints
-export { CATEGORY_API, PROJECT_API } from './api/endpoints';
+export { BUCKET_API, CATEGORY_API, PROJECT_API, TASKS_API } from './api/endpoints';

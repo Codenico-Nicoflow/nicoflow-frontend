@@ -71,6 +71,28 @@ const updateCategorySchema = z.object({
   icon: z.enum(ICON_IDS).optional(),
 });
 
+const taskSchema = z.object({
+  name: z.string().min(1, 'Task name is required').max(100, 'Task name must be less than 100 characters'),
+  description: z
+    .string()
+    .min(1, 'Task description is required')
+    .max(500, 'Description must be less than 500 characters'),
+  priority: z.enum(['low', 'medium', 'high']),
+  dueDate: z.date().optional().nullable(),
+  estimatedMinutes: z
+    .number()
+    .min(1, 'Estimated time must be at least 1 minute')
+    .max(1440, 'Estimated time must be less than 24 hours')
+    .optional()
+    .nullable(),
+  url: z
+    .string()
+    .url('Please enter a valid URL')
+    .or(z.literal(''))
+    .optional()
+    .transform(val => (val === '' ? undefined : val)),
+});
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -81,6 +103,8 @@ export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export type ProjectFormData = z.output<typeof projectSchema>;
 
+export type TaskFormData = z.output<typeof taskSchema>;
+
 export {
   createCategorySchema,
   forgotPasswordSchema,
@@ -88,5 +112,6 @@ export {
   projectSchema,
   registerSchema,
   resetPasswordSchema,
+  taskSchema,
   updateCategorySchema,
 };

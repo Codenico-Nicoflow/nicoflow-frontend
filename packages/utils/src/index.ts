@@ -8,6 +8,7 @@ export {
   projectSchema,
   registerSchema,
   resetPasswordSchema,
+  taskSchema,
   updateCategorySchema,
 } from './utils/schemas';
 
@@ -18,6 +19,7 @@ export type {
   ProjectFormData,
   RegisterFormData,
   ResetPasswordFormData,
+  TaskFormData,
 } from './utils/schemas';
 
 // Utils exports

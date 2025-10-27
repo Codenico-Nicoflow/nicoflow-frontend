@@ -1,21 +1,26 @@
 export const ToastMessages = {
   // ✅ Success messages
+  SIGN_IN_SUCCESSFULLY: 'Signed in successfully!',
+  SIGN_UP_SUCCESSFULLY: 'Signed up successfully!',
   PASSWORD_CHANGED_SUCCESSFULLY: 'Password changed successfully!',
   LOGGED_OUT_SUCCESSFULLY: 'You have been logged out.',
   LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY: 'Logged out from all devices.',
   PASSWORD_RESET_EMAIL_SENT_SUCCESSFULLY: 'Password reset email sent successfully!',
+
   PROJECT_DELETED: 'Project deleted successfully!',
   PROJECT_CREATED: 'Project created successfully!',
   PROJECT_UPDATED: 'Project updated successfully!',
   PROJECT_ARCHIVED: 'Project archived successfully!',
   PROJECT_COMPLETED: 'Project completed successfully!',
   PROJECT_MOVED: 'Project moved successfully!',
+
+  TASK_UPDATED_SUCCESSFULLY: 'Task updated successfully!',
+  TASK_CREATED_SUCCESSFULLY: 'Task created successfully!',
+  TASK_DELETED_SUCCESSFULLY: 'Task deleted successfully!',
+
   CATEGORY_CREATED: 'Category created successfully!',
   CATEGORY_UPDATED: 'Category updated successfully!',
   CATEGORY_DELETED: 'Category deleted successfully!',
-  SIGN_IN_SUCCESSFULLY: 'Signed in successfully!',
-  SIGN_UP_SUCCESSFULLY: 'Signed up successfully!',
-  INVALID_DROP_TARGET: 'Invalid drop target.',
 
   // ✅ Authentication & User Error messages
   INVALID_REFRESH_TOKEN: 'Your session has expired. Please log in again.',
@@ -56,6 +61,14 @@ export const ToastMessages = {
   PROJECT_NAME_TOO_SHORT: 'Project name is too short.',
   PROJECT_NAME_TOO_LONG: 'Project name is too long.',
 
+  // ✅ Task errors
+  TASK_STATUS_INVALID: 'Task status is invalid.',
+  TASK_STATUS_NOT_FOUND: 'Task status not found.',
+  TASK_STATUS_NOT_VALID: 'Task status is not valid.',
+  TASK_STATUS_NOT_ALLOWED: 'Task status is not allowed.',
+  TASK_NAME_REQUIRED: 'Task name is required.',
+  TASK_DESCRIPTION_REQUIRED: 'Task description is required',
+
   // ✅ Rate limiting errors
   TOO_MANY_REQUESTS: 'Too many requests. Please try again later.',
   LOGIN_ATTEMPTS_EXCEEDED: 'Too many login attempts. Please try again later.',
@@ -66,4 +79,5 @@ export const ToastMessages = {
   // ✅ General errors
   UNEXPECTED_ERROR: 'Something went wrong. Please try again.',
   GENERAL_ERROR: 'Server error. Please try again later.',
+  INVALID_DROP_TARGET: 'Invalid drop target.',
 } as const;

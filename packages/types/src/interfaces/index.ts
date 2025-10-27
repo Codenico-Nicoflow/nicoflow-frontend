@@ -27,6 +27,7 @@ export interface ICategory {
   userId: number;
   createdAt: string;
   updatedAt: string;
+  projects?: IProject[];
 }
 
 export interface IProject {
@@ -91,15 +92,15 @@ export interface ITask {
   status: TaskStatus;
   createdAt: string;
   updatedAt: string;
-  dueDate?: string;
-  priority?: TaskPriority;
+  dueDate?: string | null;
+  priority: TaskPriority;
   sortOrder?: TaskSortOrder;
   assignees?: number[];
   recurrence?: ITaskRecurrence;
   notifications?: ITaskNotification[];
   completedAt?: string;
   url?: string;
-  estimatedMinutes?: number;
+  estimatedMinutes?: number | null;
 }
 
 export interface IUser {

@@ -30,6 +30,13 @@ export const TaskSortOrder = {
   DESC: 'desc',
 } as const;
 
+export const TaskSortField = {
+  DUE_DATE: 'dueDate',
+  PRIORITY: 'priority',
+  NAME: 'name',
+  CREATED_AT: 'createdAt',
+} as const;
+
 export const FilterBy = {
   ALL: 'all',
   TODO: 'todo',

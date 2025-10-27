@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
@@ -9,8 +9,14 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { categoryApi,useCreateCategoryMutation, useUpdateCategoryMutation } from '@my-monorepo/store';
-import { createCategorySchema, showErrorToast, showSuccessToast , ToastMessages,updateCategorySchema  } from '@my-monorepo/utils';
+import { categoryApi, useCreateCategoryMutation, useUpdateCategoryMutation } from '@my-monorepo/store';
+import {
+  createCategorySchema,
+  showErrorToast,
+  showSuccessToast,
+  ToastMessages,
+  updateCategorySchema,
+} from '@my-monorepo/utils';
 import { type IconId } from '@my-monorepo/utils';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -21,21 +27,10 @@ import CategoryHeader from './CategoryHeader';
 import CategoryIconField from './CategoryIconField';
 import CategoryNameField from './CategoryNameField';
 
-interface Category {
-  id: number;
-  name: string;
-  icon: IconId;
-}
-
-interface CategoryFormData {
-  name: string;
-  icon: IconId;
-}
-
 interface CategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category?: Category;
+  category?: ICategory;
   onSuccess?: () => void;
 }
 
@@ -47,7 +42,7 @@ const CategoryDialog = ({ open, onOpenChange, category, onSuccess }: CategoryDia
   const [updateCategory, { isLoading: isUpdateLoading }] = useUpdateCategoryMutation();
   const dispatch = useDispatch();
 
-  const form = useForm<CategoryFormData>({
+  const form = useForm<Partial<ICategory>>({
     defaultValues: {
       name: category?.name || '',
       icon: category?.icon || 'briefcase',

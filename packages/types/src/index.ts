@@ -11,6 +11,7 @@ export {
   RecurrenceFrequency,
   RecurrenceType,
   TaskPriority,
+  TaskSortField,
   TaskSortOrder,
   TaskStatus,
   USER_STATUS,

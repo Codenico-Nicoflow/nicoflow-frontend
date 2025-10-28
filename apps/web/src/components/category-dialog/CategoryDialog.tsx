@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
+import { Layers } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
@@ -17,13 +17,10 @@ import {
   ToastMessages,
   updateCategorySchema,
 } from '@my-monorepo/utils';
-import { type IconId } from '@my-monorepo/utils';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { FormDialog } from '@/components/ui/form-dialog';
 
-import CategoryActionButtons from './CategoryActionButtons';
-import CategoryHeader from './CategoryHeader';
 import CategoryIconField from './CategoryIconField';
 import CategoryNameField from './CategoryNameField';
 
@@ -35,7 +32,6 @@ interface CategoryDialogProps {
 }
 
 const CategoryDialog = ({ open, onOpenChange, category, onSuccess }: CategoryDialogProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const isEditMode = !!category;
 
   const [createCategory, { isLoading: isCreateLoading }] = useCreateCategoryMutation();
@@ -50,23 +46,40 @@ const CategoryDialog = ({ open, onOpenChange, category, onSuccess }: CategoryDia
     resolver: zodResolver(isEditMode ? updateCategorySchema : createCategorySchema),
   });
 
+  const watchedValues = form.watch();
+
   useEffect(() => {
     if (category) {
       form.reset(category);
     }
   }, [category, form]);
 
+  const hasChanges = useMemo(() => {
+    if (!isEditMode || !category) return true;
+
+    const originalData = {
+      name: category.name,
+      icon: category.icon,
+    };
+
+    const currentData = {
+      name: watchedValues.name,
+      icon: watchedValues.icon,
+    };
+
+    return Object.keys(originalData).some(
+      key => originalData[key as keyof typeof originalData] !== currentData[key as keyof typeof currentData]
+    );
+  }, [isEditMode, category, watchedValues]);
+
   const onSubmit = async (data: CategoryFormData) => {
-    setIsLoading(true);
+    if (isEditMode && !hasChanges) {
+      onOpenChange(false);
+      return;
+    }
+
     try {
       if (isEditMode) {
-        const hasChanges = checkForChanges(data);
-
-        if (!hasChanges) {
-          onOpenChange(false);
-          return;
-        }
-
         await updateCategory({ id: category?.id, ...data }).unwrap();
         dispatch(categoryApi.util.invalidateTags(['Category']));
         showSuccessToast(ToastMessages.CATEGORY_UPDATED, toast);
@@ -79,68 +92,29 @@ const CategoryDialog = ({ open, onOpenChange, category, onSuccess }: CategoryDia
       onOpenChange(false);
     } catch (error) {
       showErrorToast(error, toast);
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  const checkForChanges = (formData: CategoryFormData): boolean => {
-    if (!category) return true;
-
-    const originalData = {
-      name: category.name,
-      icon: category.icon,
-    };
-
-    const currentData = {
-      name: formData.name,
-      icon: formData.icon,
-    };
-
-    for (const key in currentData) {
-      const originalValue = originalData[key as keyof typeof originalData];
-      const currentValue = currentData[key as keyof typeof currentData];
-
-      if (originalValue !== currentValue) return true;
-    }
-
-    return false;
-  };
-
-  const handleCancel = () => {
-    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none">
-        <DialogTitle className="sr-only">{isEditMode ? 'Edit Category' : 'Create New Category'}</DialogTitle>
-
-        <DialogHeader className="p-4 sm:p-6 lg:p-8">
-          <CategoryHeader isEditMode={isEditMode} />
-        </DialogHeader>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-          className="p-4 sm:p-6 lg:p-8"
-        >
-          <Form {...form} key={category?.id || 'new'}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-              <CategoryNameField control={form.control} />
-              <CategoryIconField control={form.control} />
-
-              <CategoryActionButtons
-                isLoading={isLoading || isCreateLoading || isUpdateLoading}
-                isEditMode={isEditMode}
-                onCancel={handleCancel}
-              />
-            </form>
-          </Form>
-        </motion.div>
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isEditMode ? 'Edit Category' : 'Create New Category'}
+      description={isEditMode ? 'Update category details' : 'Add a new category to organize your projects'}
+      icon={Layers}
+      isEditMode={isEditMode}
+      isLoading={isCreateLoading || isUpdateLoading}
+      hasChanges={hasChanges}
+      onSubmit={form.handleSubmit(onSubmit)}
+      maxWidth="md"
+    >
+      <Form {...form}>
+        <div className="space-y-4">
+          <CategoryNameField control={form.control} />
+          <CategoryIconField control={form.control} />
+        </div>
+      </Form>
+    </FormDialog>
   );
 };
 

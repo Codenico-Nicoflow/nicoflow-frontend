@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
+import { CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -10,17 +10,16 @@ import type { ITask } from '@my-monorepo/types';
 import type { TaskFormData } from '@my-monorepo/utils';
 import { showErrorToast, showSuccessToast, taskSchema, ToastMessages } from '@my-monorepo/utils';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
 import { Form } from '@/components/ui/form';
+import { FormDialog } from '@/components/ui/form-dialog';
 
-import TaskActionButtons from './fields/TaskActionButtons';
 import TaskDescriptionField from './fields/TaskDescriptionField';
 import TaskDueDateField from './fields/TaskDueDateField';
 import TaskEstimatedMinutesField from './fields/TaskEstimatedMinutesField';
 import TaskNameField from './fields/TaskNameField';
 import TaskPriorityField from './fields/TaskPriorityField';
 import TaskUrlField from './fields/TaskUrlField';
-import TaskDialogHeader from './TaskDialogHeader';
 
 interface TaskDialogProps {
   open: boolean;
@@ -70,7 +69,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         url: '',
       });
     }
-  }, [task, form]);
+  }, [task, form, open]);
 
   const hasChanges = useMemo(() => {
     if (!isEditMode || !task) return true;
@@ -135,59 +134,34 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     }
   };
 
-  const handleCancel = () => {
-    onOpenChange(false);
-  };
-
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      form.reset();
-    }
-    onOpenChange(isOpen);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent
-        aria-describedby={undefined}
-        className="w-[95vw] max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none"
-      >
-        <DialogHeader className="p-4 sm:p-6">
-          <TaskDialogHeader isEditMode={isEditMode} />
-          <DialogTitle className="sr-only">{isEditMode ? 'Edit Task' : 'Create New Task'}</DialogTitle>
-        </DialogHeader>
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isEditMode ? 'Edit Task' : 'Create New Task'}
+      description={isEditMode ? 'Update task details' : 'Add a new task to your project'}
+      icon={CheckSquare}
+      isEditMode={isEditMode}
+      isLoading={isCreateLoading || isUpdateLoading}
+      hasChanges={hasChanges}
+      onSubmit={form.handleSubmit(onSubmit)}
+      maxWidth="xl"
+    >
+      <Form {...form}>
+        <div className="space-y-4">
+          <TaskNameField control={form.control} />
+          <TaskDescriptionField control={form.control} />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-          className="p-4 sm:p-6"
-        >
-          <Form {...form} key={task?.id || 'new'}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <TaskNameField control={form.control as any} />
-              <TaskDescriptionField control={form.control as any} />
+          <DialogFieldGrid columns={2}>
+            <TaskPriorityField control={form.control} />
+            <TaskDueDateField control={form.control} />
+          </DialogFieldGrid>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <TaskPriorityField control={form.control as any} />
-                <TaskDueDateField control={form.control as any} />
-              </div>
-
-              <TaskEstimatedMinutesField control={form.control as any} />
-
-              <TaskUrlField control={form.control as any} />
-
-              <TaskActionButtons
-                isLoading={isCreateLoading || isUpdateLoading}
-                isEditMode={isEditMode}
-                onCancel={handleCancel}
-                isDisabled={isEditMode && !hasChanges}
-              />
-            </form>
-          </Form>
-        </motion.div>
-      </DialogContent>
-    </Dialog>
+          <TaskEstimatedMinutesField control={form.control} />
+          <TaskUrlField control={form.control} />
+        </div>
+      </Form>
+    </FormDialog>
   );
 };
 

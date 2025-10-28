@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/useMobile';
 import { AppSidebar } from '../sidebar/AppSidebar';
 
 import { CustomSidebarTrigger } from './CustomSidebarTrigger';
+import QuickAddButton from './QuickAddButton';
 
 const PrivateLayout = () => {
   const isMobile = useIsMobile();
@@ -18,6 +19,7 @@ const PrivateLayout = () => {
         <div className={isMobile ? 'flex-1 p-4 pt-20' : 'flex-1 p-4'}>
           <Outlet />
         </div>
+        <QuickAddButton />
       </SidebarInset>
     </SidebarProvider>
   );

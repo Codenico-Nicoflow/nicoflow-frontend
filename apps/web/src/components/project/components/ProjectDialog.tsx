@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion } from 'framer-motion';
+import { FolderKanban } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
@@ -18,17 +18,16 @@ import type { IProject } from '@my-monorepo/types';
 import type { ProjectFormData } from '@my-monorepo/utils';
 import { projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@my-monorepo/utils';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
 import { Form } from '@/components/ui/form';
+import { FormDialog } from '@/components/ui/form-dialog';
 
-import ProjectActionButtons from './fields/ProjectActionButtons';
 import ProjectCategoryField from './fields/ProjectCategoryField';
 import ProjectDueDateField from './fields/ProjectDueDateField';
 import ProjectFavoriteField from './fields/ProjectFavoriteField';
 import ProjectIconField from './fields/ProjectIconField';
 import ProjectNameField from './fields/ProjectNameField';
 import ProjectStatusField from './fields/ProjectStatusField';
-import ProjectDialogHeader from './ProjectDialogHeader';
 
 interface ProjectDialogProps {
   open: boolean;
@@ -141,60 +140,35 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
     }
   };
 
-  const handleCancel = () => {
-    onOpenChange(false);
-  };
-
-  const handleOpenChange = (isOpen: boolean) => {
-    // Reset form when dialog closes
-    if (!isOpen) {
-      form.reset();
-    }
-    onOpenChange(isOpen);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent
-        aria-describedby={undefined}
-        className="w-[95vw] max-w-5xl sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl sm:rounded-lg rounded-none"
-      >
-        <DialogHeader className="p-2 sm:p-6 lg:p-4">
-          <ProjectDialogHeader isEditMode={isEditMode} />
-          <DialogTitle className="sr-only">{isEditMode ? 'Edit Project' : 'Create New Project'}</DialogTitle>
-        </DialogHeader>
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isEditMode ? 'Edit Project' : 'Create New Project'}
+      description={isEditMode ? 'Update project details' : 'Add a new project to organize your tasks'}
+      icon={FolderKanban}
+      isEditMode={isEditMode}
+      isLoading={isCreateLoading || isUpdateLoading || isCategoriesLoading}
+      hasChanges={hasChanges}
+      onSubmit={form.handleSubmit(onSubmit)}
+      maxWidth="xl"
+    >
+      <Form {...form}>
+        <div className="space-y-4">
+          <ProjectNameField control={form.control} />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-          className="p-4 sm:p-6 lg:p-8"
-        >
-          <Form {...form} key={project?.id || 'new'}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-              <ProjectNameField control={form.control} />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-                <ProjectCategoryField control={form.control} />
-                <ProjectIconField control={form.control} />
-              </div>
+          <DialogFieldGrid columns={2}>
+            <ProjectCategoryField control={form.control} />
+            <ProjectIconField control={form.control} />
+          </DialogFieldGrid>
 
-              {isEditMode && <ProjectStatusField control={form.control} />}
+          {isEditMode && <ProjectStatusField control={form.control} />}
 
-              <ProjectDueDateField control={form.control} />
-
-              <ProjectFavoriteField control={form.control} />
-
-              <ProjectActionButtons
-                isLoading={isCreateLoading || isUpdateLoading || isCategoriesLoading}
-                isEditMode={isEditMode}
-                onCancel={handleCancel}
-                isDisabled={isEditMode && !hasChanges}
-              />
-            </form>
-          </Form>
-        </motion.div>
-      </DialogContent>
-    </Dialog>
+          <ProjectDueDateField control={form.control} />
+          <ProjectFavoriteField control={form.control} />
+        </div>
+      </Form>
+    </FormDialog>
   );
 };
 

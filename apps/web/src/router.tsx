@@ -2,8 +2,9 @@ import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 
 import { useAppUser } from '@my-monorepo/store';
 
-import AuthLayout from './components/layout/AuthLayout';
-import PrivateLayout from './components/layout/PrivateLayout';
+import AuthLayout from '@/layout/AuthLayout';
+import PrivateLayout from '@/layout/PrivateLayout';
+
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import SignIn from './pages/auth/SignIn';

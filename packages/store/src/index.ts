@@ -92,6 +92,3 @@ export type {
   TaskDetails,
   UpdateBucketDto,
 } from './slices/bucket/type';
-
-// API endpoints
-export { BUCKET_API, CATEGORY_API, PROJECT_API, TASKS_API } from './api/endpoints';

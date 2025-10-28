@@ -1,14 +1,6 @@
-import SignForm from '@/components/sign-form/SignForm';
+import { ForgotPasswordInputs } from '@my-monorepo/types';
 
-const inputs = [
-  {
-    label: 'Email',
-    name: 'email',
-    type: 'email',
-    placeholder: 'Enter your email',
-    required: true,
-  },
-];
+import SignForm from '@/components/sign-form/SignForm';
 
 export default function ForgotPassword() {
   return (
@@ -16,7 +8,7 @@ export default function ForgotPassword() {
       title="Forgot Password?"
       description="Don't worry! It happens. Please enter the address associated with your account."
       type="forgot-password"
-      inputs={inputs}
+      inputs={ForgotPasswordInputs}
       buttonText="Send"
     />
   );

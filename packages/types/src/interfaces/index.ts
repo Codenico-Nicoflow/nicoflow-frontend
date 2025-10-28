@@ -127,3 +127,9 @@ export interface IBucket {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ProcessingOption {
+  value: ProcessingResult;
+  label: string;
+  enabled: boolean;
+}

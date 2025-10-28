@@ -22,6 +22,10 @@ export const ToastMessages = {
   CATEGORY_UPDATED: 'Category updated successfully!',
   CATEGORY_DELETED: 'Category deleted successfully!',
 
+  BUCKET_CREATED: 'Bucket item created successfully!',
+  BUCKET_UPDATED: 'Bucket item updated successfully!',
+  BUCKET_DELETED: 'Bucket item deleted successfully!',
+  BUCKET_PROCESSED_TASK: 'Bucket item processed into task successfully!',
   // ✅ Authentication & User Error messages
   INVALID_REFRESH_TOKEN: 'Your session has expired. Please log in again.',
   USER_NOT_FOUND: 'User not found. Please check your credentials.',

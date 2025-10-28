@@ -21,13 +21,20 @@ export interface ItemActionsMenuProps {
   actions: ItemAction[];
   triggerClassName?: string;
   align?: 'start' | 'center' | 'end';
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const ItemActionsMenu = ({ actions, triggerClassName, align = 'end' }: ItemActionsMenuProps) => {
+const ItemActionsMenu = ({ actions, triggerClassName, align = 'end', open, onOpenChange }: ItemActionsMenuProps) => {
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className={cn('h-8 w-8 sm:h-9 sm:w-9', triggerClassName)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn('h-8 w-8 sm:h-9 sm:w-9', triggerClassName)}
+          onClick={e => e.stopPropagation()}
+        >
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -37,9 +44,9 @@ const ItemActionsMenu = ({ actions, triggerClassName, align = 'end' }: ItemActio
             key={index}
             onClick={action.onClick}
             disabled={action.disabled}
-            className={cn(action.destructive && 'text-destructive focus:text-destructive')}
+            variant={action.destructive ? 'destructive' : 'default'}
           >
-            <action.icon className="mr-2 h-4 w-4" />
+            <action.icon className="mr-2 h-4 w-4 text-current" />
             {action.label}
           </DropdownMenuItem>
         ))}

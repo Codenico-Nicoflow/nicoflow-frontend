@@ -11,8 +11,8 @@ import {
   ProjectHeader,
   ProjectsEmptyState,
   ProjectsLoadingState,
-} from '@/components/project';
-import TasksSection from '@/components/tasks/components/TasksSection';
+} from '@/features/project';
+import TasksSection from '@/features/tasks/components/TasksSection';
 
 const ProjectView = () => {
   const { projectId } = useParams<{ projectId: string }>();

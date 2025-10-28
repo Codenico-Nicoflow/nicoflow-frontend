@@ -1,23 +1,22 @@
 import { useMemo, useState } from 'react';
 
 import { motion } from 'framer-motion';
-import { Archive, CheckCircle2, ExternalLink, Inbox, StickyNote, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Archive, CheckCircle2, Inbox, StickyNote, Trash2 } from 'lucide-react';
 
 import { useGetBucketsQuery } from '@my-monorepo/store';
 import { type IBucket, ProcessingResult } from '@my-monorepo/types';
 
-import BucketDeleteDialog from '@/components/bucket/BucketDeleteDialog';
-import BucketEditDialog from '@/components/bucket/BucketEditDialog';
-import BucketList from '@/components/bucket/BucketList';
-import BucketProcessDialog from '@/components/bucket/BucketProcessDialog';
-import BucketQuickInput from '@/components/bucket/BucketQuickInput';
 import { AnimatedListItem } from '@/components/ui/animated-list-item';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ListItemCard } from '@/components/ui/list-item-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import BucketDeleteDialog from '@/features/bucket/components/BucketDeleteDialog';
+import BucketEditDialog from '@/features/bucket/components/BucketEditDialog';
+import BucketList from '@/features/bucket/components/BucketList';
+import BucketProcessDialog from '@/features/bucket/components/BucketProcessDialog';
+import BucketQuickInput from '@/features/bucket/components/BucketQuickInput';
 import { cn } from '@/lib/utils';
 
 const Bucket = () => {

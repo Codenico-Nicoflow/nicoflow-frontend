@@ -47,13 +47,9 @@ const registerSchema = z.object({
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(50, 'Project name must be less than 50 characters'),
   categoryId: z.number().min(1, 'Please select a category'),
-  icon: z.enum(ICON_IDS).default('folder'),
-  status: z.enum(['active', 'completed', 'archived']).default('active'),
-  dueDate: z
-    .date()
-    .optional()
-    .or(z.null())
-    .transform(val => (val === null ? undefined : val)),
+  icon: z.enum(ICON_IDS),
+  status: z.enum(['active', 'completed', 'archived']),
+  dueDate: z.date().optional(),
   isFavorite: z.boolean().optional(),
 });
 

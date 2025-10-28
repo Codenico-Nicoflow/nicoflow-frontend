@@ -2,12 +2,23 @@
 // USER CONSTANTS
 // ============================================
 
+import { ProcessingOption } from './interfaces';
+
 export const USER_STATUS = {
   PREMIUM: 'premium',
   REGULAR: 'regular',
 } as const;
 
 export const GENERAL_CATEGORY = 'general';
+
+// ============================================
+// PROJECT CONSTANTS
+// ============================================
+export const PROJECT_STATUS = {
+  ACTIVE: 'active',
+  COMPLETED: 'completed',
+  ARCHIVED: 'archived',
+} as const;
 
 // ============================================
 // TASK CONSTANTS
@@ -119,6 +130,13 @@ export const SomedayType = {
   TASK_IDEA: 'task_idea',
 } as const;
 
+export const BUCKET_PROCESSING_OPTIONS: ProcessingOption[] = [
+  { value: ProcessingResult.TASK, label: 'Task', enabled: true },
+  { value: ProcessingResult.NOTE, label: 'Note', enabled: false },
+  { value: ProcessingResult.SOMEDAY, label: 'Someday', enabled: false },
+  { value: ProcessingResult.TRASH, label: 'Trash', enabled: true },
+] as const;
+
 // ============================================
 // TYPE EXPORTS
 // ============================================
@@ -135,3 +153,81 @@ export type NotificationStatus = (typeof NotificationStatus)[keyof typeof Notifi
 export type ProcessingResult = (typeof ProcessingResult)[keyof typeof ProcessingResult];
 export type NoteType = (typeof NoteType)[keyof typeof NoteType];
 export type SomedayType = (typeof SomedayType)[keyof typeof SomedayType];
+
+// ============================================
+// AUTH CONSTANTS
+// ============================================
+
+export const AuthType = {
+  LOGIN: 'login',
+  REGISTER: 'register',
+  FORGOT_PASSWORD: 'forgot-password',
+} as const;
+
+export const RegisterInputs = [
+  {
+    label: 'Username',
+    name: 'username',
+    type: 'text',
+    placeholder: 'Enter your username',
+    required: true,
+  },
+  {
+    label: 'Email',
+    name: 'email',
+    type: 'email',
+    placeholder: 'Enter your email',
+    required: true,
+  },
+  {
+    label: 'Password',
+    name: 'password',
+    type: 'password',
+    placeholder: 'Enter your password',
+    required: true,
+  },
+];
+
+export const LoginInputs = [
+  {
+    label: 'Email',
+    name: 'email',
+    type: 'email',
+    placeholder: 'Enter your email',
+    required: true,
+  },
+  {
+    label: 'Password',
+    name: 'password',
+    type: 'password',
+    placeholder: 'Enter your password',
+    required: true,
+  },
+];
+
+export const ResetPasswordInputs = [
+  {
+    label: 'New Password',
+    name: 'newPassword',
+    type: 'password',
+    placeholder: 'Enter your new password',
+    required: true,
+  },
+  {
+    label: 'Confirm Password',
+    name: 'confirmPassword',
+    type: 'password',
+    placeholder: 'Confirm your new password',
+    required: true,
+  },
+];
+
+export const ForgotPasswordInputs = [
+  {
+    label: 'Email',
+    name: 'email',
+    type: 'email',
+    placeholder: 'Enter your email',
+    required: true,
+  },
+];

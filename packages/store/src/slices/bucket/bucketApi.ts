@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { BUCKET_API } from '../../api/endpoints';
+import { BUCKET_API } from '@my-monorepo/types';
+
 import { baseQueryWithReauth } from '../baseQuery';
 
 import type { BucketResponse, BucketsResponse, CreateBucketDto, ProcessBucketDto, UpdateBucketDto } from './type';

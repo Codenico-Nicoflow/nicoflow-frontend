@@ -6,11 +6,11 @@ import { ChevronDown, FolderOpen, Plus } from 'lucide-react';
 import { useGetCategoriesWithProjectsQuery } from '@my-monorepo/store';
 import { GENERAL_CATEGORY } from '@my-monorepo/types';
 
-import CategoryDialog from '@/components/category-dialog/CategoryDialog';
 import DragAndDropContext from '@/components/drag-drop/DragAndDropContext';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, useSidebar } from '@/components/ui/sidebar';
+import CategoryDialog from '@/features/category/components/CategoryDialog';
 
 import NewProject from '../NewProject';
 

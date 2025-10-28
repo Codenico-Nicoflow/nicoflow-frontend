@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { TASKS_API } from '../../api/endpoints';
+import { TASKS_API } from '@my-monorepo/types';
+
 import { baseQueryWithReauth } from '../baseQuery';
 
 import type {

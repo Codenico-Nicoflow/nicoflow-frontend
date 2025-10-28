@@ -20,8 +20,7 @@ const DialogFieldGrid = ({ children, columns = 1, className }: DialogFieldGridPr
     >
       {React.Children.map(children, child => {
         if (React.isValidElement(child)) {
-          // Check if child has fullWidth prop
-          const fullWidth = (child.props as any).fullWidth;
+          const fullWidth = (child.props as React.PropsWithChildren<{ fullWidth?: boolean }>).fullWidth;
           if (fullWidth && columns === 2) {
             return <div className="sm:col-span-2">{child}</div>;
           }

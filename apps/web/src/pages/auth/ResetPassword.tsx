@@ -1,21 +1,6 @@
-import SignForm from '@/components/sign-form/SignForm';
+import { ResetPasswordInputs } from '@my-monorepo/types';
 
-const inputs = [
-  {
-    label: 'New Password',
-    name: 'newPassword',
-    type: 'password',
-    placeholder: 'Enter your new password',
-    required: true,
-  },
-  {
-    label: 'Confirm Password',
-    name: 'confirmPassword',
-    type: 'password',
-    placeholder: 'Confirm your new password',
-    required: true,
-  },
-];
+import SignForm from '@/components/sign-form/SignForm';
 
 export default function ResetPassword() {
   return (
@@ -23,7 +8,7 @@ export default function ResetPassword() {
       title="Reset Password?"
       description="Please provide a new preferably strong password."
       type="reset-password"
-      inputs={inputs}
+      inputs={ResetPasswordInputs}
       buttonText="Reset"
     />
   );

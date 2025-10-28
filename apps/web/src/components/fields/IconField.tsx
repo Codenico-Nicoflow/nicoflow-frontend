@@ -2,8 +2,11 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
+import { ICON_IDS, type IconId } from '@my-monorepo/utils';
+
+import { LazyIcon } from '@/components/LazyIcon';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import IconPicker from '@/components/ui/icon-picker';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface IconFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -29,13 +32,30 @@ const IconField = <T extends FieldValues>({
               <Sparkles className="h-4 w-4" />
               {label}
             </FormLabel>
-            <FormControl>
-              <IconPicker
-                value={field.value}
-                onChange={field.onChange}
-                className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
-              />
-            </FormControl>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors">
+                  <SelectValue>
+                    {field.value && (
+                      <div className="flex items-center gap-2">
+                        <LazyIcon iconId={field.value as IconId} className="h-4 w-4" />
+                        <span className="capitalize">{field.value.replace(/-/g, ' ')}</span>
+                      </div>
+                    )}
+                  </SelectValue>
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent className="max-h-[300px]">
+                {ICON_IDS.map(iconId => (
+                  <SelectItem key={iconId} value={iconId}>
+                    <div className="flex items-center gap-2">
+                      <LazyIcon iconId={iconId} className="h-4 w-4" />
+                      <span className="capitalize">{iconId.replace(/-/g, ' ')}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FormMessage />
           </FormItem>
         )}

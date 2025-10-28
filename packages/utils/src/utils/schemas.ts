@@ -93,6 +93,16 @@ const taskSchema = z.object({
     .transform(val => (val === '' ? undefined : val)),
 });
 
+const bucketSchema = z.object({
+  content: z.string().min(1, 'Bucket content is required').max(500, 'Content must be less than 500 characters'),
+});
+
+const processBucketSchema = z.object({
+  processingResult: z.enum(['task', 'note', 'someday', 'trash']),
+  projectId: z.number().optional(),
+  taskDetails: taskSchema.optional(),
+});
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -105,10 +115,16 @@ export type ProjectFormData = z.output<typeof projectSchema>;
 
 export type TaskFormData = z.output<typeof taskSchema>;
 
+export type BucketFormData = z.infer<typeof bucketSchema>;
+
+export type ProcessBucketFormData = z.output<typeof processBucketSchema>;
+
 export {
+  bucketSchema,
   createCategorySchema,
   forgotPasswordSchema,
   loginSchema,
+  processBucketSchema,
   projectSchema,
   registerSchema,
   resetPasswordSchema,

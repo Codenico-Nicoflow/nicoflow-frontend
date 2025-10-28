@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx lint-staged
+pnpm run type-check
+
+
+### TODO: add eventually other commands like tests, build, etc.
+
+# #!/usr/bin/env sh
+# . "$(dirname -- "$0")/_/husky.sh"
+
+# npx lint-staged
+# pnpm run type-check

@@ -1,15 +1,18 @@
 // Interface exports
-export type { ICategory, IProject, ITask, ITaskNotification, ITaskRecurrence, IUser } from './interfaces';
+export type { IBucket, ICategory, IProject, ITask, ITaskNotification, ITaskRecurrence, IUser } from './interfaces';
 
 // Icon exports
 export {
   FilterBy,
   GENERAL_CATEGORY,
+  NoteType,
   NotificationStatus,
   NotificationTrigger,
   NotificationType,
+  ProcessingResult,
   RecurrenceFrequency,
   RecurrenceType,
+  SomedayType,
   TaskPriority,
   TaskSortField,
   TaskSortOrder,

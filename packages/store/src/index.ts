@@ -72,5 +72,26 @@ export {
 } from './slices/tasks/taskApi';
 export type { CreateTaskRequest, CreateTaskResponse, UpdateTaskRequest, UpdateTaskResponse } from './slices/tasks/type';
 
+// Bucket exports
+export { bucketApi } from './slices/bucket/bucketApi';
+export {
+  useCreateBucketMutation,
+  useDeleteBucketMutation,
+  useGetBucketQuery,
+  useGetBucketsQuery,
+  useProcessBucketMutation,
+  useUpdateBucketMutation,
+} from './slices/bucket/bucketApi';
+export type {
+  BucketResponse,
+  BucketsResponse,
+  CreateBucketDto,
+  NoteDetails,
+  ProcessBucketDto,
+  SomedayDetails,
+  TaskDetails,
+  UpdateBucketDto,
+} from './slices/bucket/type';
+
 // API endpoints
 export { BUCKET_API, CATEGORY_API, PROJECT_API, TASKS_API } from './api/endpoints';

@@ -6,6 +6,7 @@ import type {
   NotificationStatus,
   NotificationTrigger,
   NotificationType,
+  ProcessingResult,
   RecurrenceFrequency,
   RecurrenceType,
   TaskPriority,
@@ -112,4 +113,17 @@ export interface IUser {
   imageUrl: string;
   username: string;
   status: 'premium' | 'regular';
+}
+
+export interface IBucket {
+  id: number;
+  userId: number;
+  content: string;
+  processedAt?: string | null;
+  processingResult?: ProcessingResult | null;
+  createdTaskId?: number | null;
+  createdNoteId?: number | null;
+  projectId?: number | null;
+  createdAt: string;
+  updatedAt: string;
 }

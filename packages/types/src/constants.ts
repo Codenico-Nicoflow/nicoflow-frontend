@@ -97,6 +97,29 @@ export const NotificationStatus = {
 } as const;
 
 // ============================================
+// BUCKET CONSTANTS
+// ============================================
+
+export const ProcessingResult = {
+  TASK: 'task',
+  NOTE: 'note',
+  SOMEDAY: 'someday',
+  TRASH: 'trash',
+} as const;
+
+export const NoteType = {
+  NOTE: 'note',
+  REFERENCE: 'reference',
+  REVIEW_MATERIAL: 'review_material',
+} as const;
+
+export const SomedayType = {
+  IDEA: 'idea',
+  PROJECT_IDEA: 'project_idea',
+  TASK_IDEA: 'task_idea',
+} as const;
+
+// ============================================
 // TYPE EXPORTS
 // ============================================
 
@@ -109,3 +132,6 @@ export type Weekday = (typeof Weekday)[keyof typeof Weekday];
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
 export type NotificationTrigger = (typeof NotificationTrigger)[keyof typeof NotificationTrigger];
 export type NotificationStatus = (typeof NotificationStatus)[keyof typeof NotificationStatus];
+export type ProcessingResult = (typeof ProcessingResult)[keyof typeof ProcessingResult];
+export type NoteType = (typeof NoteType)[keyof typeof NoteType];
+export type SomedayType = (typeof SomedayType)[keyof typeof SomedayType];

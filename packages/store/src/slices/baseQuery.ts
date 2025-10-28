@@ -2,7 +2,7 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError, FetchBaseQueryMeta } 
 import { fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { Mutex } from 'async-mutex';
 
-import { AUTH_API } from '../api/endpoints';
+import { AUTH_API } from '@my-monorepo/types';
 
 export const rawBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> =
   fetchBaseQuery({

@@ -5,10 +5,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { useGetProjectQuery } from '@my-monorepo/store';
 
-import ProjectHeader from '@/components/project/ProjectHeader';
-import TasksSection from '@/components/project/TasksSection';
-import DeleteDialog from '@/components/project-dialog/DeleteDialog';
-import ProjectDialog from '@/components/project-dialog/ProjectDialog';
+import {
+  DeleteDialog,
+  ProjectDialog,
+  ProjectHeader,
+  ProjectsEmptyState,
+  ProjectsLoadingState,
+} from '@/features/project';
+import TasksSection from '@/features/tasks/components/TasksSection';
 
 const ProjectView = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -19,11 +23,11 @@ const ProjectView = () => {
   const { data: project, isLoading: isProjectLoading } = useGetProjectQuery(parseInt(projectId || '0'));
 
   if (isProjectLoading) {
-    return <div>Loading...</div>;
+    return <ProjectsLoadingState />;
   }
 
   if (!project) {
-    return <div>Project not found</div>;
+    return <ProjectsEmptyState />;
   }
 
   return (
@@ -34,14 +38,16 @@ const ProjectView = () => {
         transition={{ duration: 0.4 }}
         className="flex-1 overflow-hidden"
       >
-        <ProjectHeader
-          project={project}
-          onEdit={() => setIsEditDialogOpen(true)}
-          onDelete={() => setDeleteDialogOpen(true)}
-        />
+        {project && (
+          <ProjectHeader
+            project={project}
+            onEdit={() => setIsEditDialogOpen(true)}
+            onDelete={() => setDeleteDialogOpen(true)}
+          />
+        )}
 
         <div className="flex-1 overflow-y-auto">
-          <TasksSection projectId={project.id} />
+          <TasksSection projectId={project?.id || 0} />
         </div>
       </motion.div>
 
@@ -50,8 +56,8 @@ const ProjectView = () => {
       <DeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        projectName={project.name}
-        projectId={project.id}
+        projectName={project?.name || ''}
+        projectId={project?.id || 0}
         onSuccess={() => {
           navigate('/');
         }}

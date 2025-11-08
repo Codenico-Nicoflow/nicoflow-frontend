@@ -1,7 +1,8 @@
-import { useAuth, useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { Crown, LogOut, Settings, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { useAppUser, useLogoutMutation } from '@my-monorepo/store';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -10,15 +11,15 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
 const UserProfile = () => {
-  const { user } = useUser();
+  const user = useAppUser();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const [logout, { isLoading }] = useLogoutMutation();
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      await logout().unwrap();
       navigate('/sign-in');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -103,6 +104,7 @@ const UserProfile = () => {
                 size="sm"
                 className="w-full h-8 p-0 hover:bg-transparent text-destructive hover:text-destructive/50 transition-colors"
                 onClick={handleLogout}
+                disabled={isLoading}
               >
                 <LogOut className="w-4 h-4 " />
               </Button>
@@ -128,9 +130,9 @@ const UserProfile = () => {
       >
         <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
           <Avatar className="w-12 h-12 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-            <AvatarImage src={undefined} alt={user?.firstName + ' ' + user?.lastName || 'User'} />{' '}
+            <AvatarImage src={undefined} alt={user?.username || 'User'} /> {/* TODO: add user avatar */}
             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-lg">
-              {user?.firstName ? getInitials(user.firstName + ' ' + user?.lastName) : 'U'}
+              {user?.username ? getInitials(user.username) : 'U'}
             </AvatarFallback>
           </Avatar>
         </motion.div>
@@ -235,9 +237,10 @@ const UserProfile = () => {
               'hover:bg-destructive/10 text-destructive hover:text-destructive'
             )}
             onClick={handleLogout}
+            disabled={isLoading}
           >
             <LogOut className="w-4 h-4 mr-2" />
-            <span>Logout</span>
+            <span>{isLoading ? 'Logging out...' : 'Logout'}</span>
           </Button>
         </motion.div>
       </motion.div>

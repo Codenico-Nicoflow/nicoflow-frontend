@@ -1,12 +1,12 @@
-/* eslint-disable simple-import-sort/imports */
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { CATEGORY_API } from '../../api/endpoints';
+import { CATEGORY_API } from '@my-monorepo/types';
+
 import { baseQueryWithReauth } from '../baseQuery';
+
 import type {
   CreateCategoryRequest,
   CreateCategoryResponse,
-  DeleteCategoryRequest,
   DeleteCategoryResponse,
   GetAllCategoriesResponse,
   GetCategoryRequest,
@@ -52,7 +52,7 @@ export const categoryApi = createApi({
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Category'],
     }),
-    deleteCategory: builder.mutation<DeleteCategoryResponse, DeleteCategoryRequest>({
+    deleteCategory: builder.mutation<DeleteCategoryResponse, number>({
       query: id => ({
         url: `${CATEGORY_API.DELETE_CATEGORY}${id}`,
         method: 'DELETE',

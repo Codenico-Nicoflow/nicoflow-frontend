@@ -1,23 +1,15 @@
-import { SignUp as ClerkSignUp } from '@clerk/clerk-react';
+import { RegisterInputs } from '@my-monorepo/types';
 
-const SignUp = () => {
+import SignForm from '@/components/sign-form/SignForm';
+
+export default function SignUp() {
   return (
-    <ClerkSignUp
-      signInUrl="/sign-in"
-      appearance={{
-        elements: {
-          formButtonPrimary: 'bg-primary hover:bg-primary/90',
-          card: 'bg-background shadow-lg',
-          headerTitle: 'text-foreground',
-          headerSubtitle: 'text-muted-foreground',
-          socialButtonsBlockButton: 'border-input hover:bg-accent',
-          formFieldLabel: 'text-foreground',
-          formFieldInput: 'bg-background border-input',
-          footerActionLink: 'text-primary hover:text-primary/90',
-        },
-      }}
+    <SignForm
+      title="Sign Up"
+      description="Sign up to create an account"
+      type="register"
+      inputs={RegisterInputs}
+      buttonText="Sign Up"
     />
   );
-};
-
-export default SignUp;
+}

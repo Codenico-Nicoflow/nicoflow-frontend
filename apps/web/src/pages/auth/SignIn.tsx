@@ -1,7 +1,16 @@
-import { SignIn as ClerkSignIn } from '@clerk/clerk-react';
+import { LoginInputs } from '@my-monorepo/types';
 
-const SignIn = () => {
-  return <ClerkSignIn signUpUrl="/sign-up" />;
-};
+import SignForm from '@/components/sign-form/SignForm';
 
-export default SignIn;
+export default function SignIn() {
+  return (
+    <SignForm
+      title="Sign In"
+      description="Sign in to your account"
+      type="login"
+      inputs={LoginInputs}
+      showRemember
+      buttonText="Sign In"
+    />
+  );
+}

@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 
 import { useDroppable } from '@dnd-kit/core';
-import { AnimatePresence,motion  } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 
 import type { ICategory } from '@my-monorepo/types';
 import type { IconId } from '@my-monorepo/utils';
 import { capitalize } from '@my-monorepo/utils';
 
-import CategoryContextMenu from '@/components/category-dialog/CategoryContextMenu';
-import CategoryDialog from '@/components/category-dialog/CategoryDialog';
 import { LazyIcon } from '@/components/LazyIcon';
+import CategoryContextMenu from '@/features/category/components/CategoryContextMenu';
+import CategoryDialog from '@/features/category/components/CategoryDialog';
 import { cn } from '@/lib/utils';
 
 import Project from './Project';

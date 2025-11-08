@@ -1,7 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { PROJECT_API } from '../../api/endpoints';
+import { PROJECT_API } from '@my-monorepo/types';
+
 import { baseQueryWithReauth } from '../baseQuery';
+
 import type {
   CreateProjectRequest,
   CreateProjectResponse,
@@ -25,7 +27,6 @@ export const projectApi = createApi({
     }),
     getProject: builder.query<GetProjectResponse, GetProjectRequest>({
       query: id => {
-        console.log('GET_PROJECT', `${PROJECT_API.GET_PROJECT}${id}`);
         return `${PROJECT_API.GET_PROJECT}${id}`;
       },
       transformErrorResponse: error => error.data,

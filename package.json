@@ -2,7 +2,7 @@
   "name": "my-monorepo",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@10.18.1",
+  "packageManager": "pnpm@10.18.3",
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -27,12 +27,22 @@
       "react-native-renderer": "19.1.0"
     }
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss,json,md}": [
+      "prettier --write"
+    ]
+  },
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "test": "turbo test",
-    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules .turbo"
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules .turbo",
+    "prepare": "husky"
   }
 }

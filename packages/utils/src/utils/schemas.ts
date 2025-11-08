@@ -47,13 +47,9 @@ const registerSchema = z.object({
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(50, 'Project name must be less than 50 characters'),
   categoryId: z.number().min(1, 'Please select a category'),
-  icon: z.enum(ICON_IDS).default('folder'),
-  status: z.enum(['active', 'completed', 'archived']).default('active'),
-  dueDate: z
-    .date()
-    .optional()
-    .or(z.null())
-    .transform(val => (val === null ? undefined : val)),
+  icon: z.enum(ICON_IDS),
+  status: z.enum(['active', 'completed', 'archived']),
+  dueDate: z.date().optional(),
   isFavorite: z.boolean().optional(),
 });
 
@@ -71,6 +67,38 @@ const updateCategorySchema = z.object({
   icon: z.enum(ICON_IDS).optional(),
 });
 
+const taskSchema = z.object({
+  name: z.string().min(1, 'Task name is required').max(100, 'Task name must be less than 100 characters'),
+  description: z
+    .string()
+    .min(1, 'Task description is required')
+    .max(500, 'Description must be less than 500 characters'),
+  priority: z.enum(['low', 'medium', 'high']),
+  dueDate: z.date().optional().nullable(),
+  estimatedMinutes: z
+    .number()
+    .min(1, 'Estimated time must be at least 1 minute')
+    .max(1440, 'Estimated time must be less than 24 hours')
+    .optional()
+    .nullable(),
+  url: z
+    .string()
+    .url('Please enter a valid URL')
+    .or(z.literal(''))
+    .optional()
+    .transform(val => (val === '' ? undefined : val)),
+});
+
+const bucketSchema = z.object({
+  content: z.string().min(1, 'Bucket content is required').max(500, 'Content must be less than 500 characters'),
+});
+
+const processBucketSchema = z.object({
+  processingResult: z.enum(['task', 'note', 'someday', 'trash']),
+  projectId: z.number().optional(),
+  taskDetails: taskSchema.optional(),
+});
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -81,12 +109,21 @@ export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export type ProjectFormData = z.output<typeof projectSchema>;
 
+export type TaskFormData = z.output<typeof taskSchema>;
+
+export type BucketFormData = z.infer<typeof bucketSchema>;
+
+export type ProcessBucketFormData = z.output<typeof processBucketSchema>;
+
 export {
+  bucketSchema,
   createCategorySchema,
   forgotPasswordSchema,
   loginSchema,
+  processBucketSchema,
   projectSchema,
   registerSchema,
   resetPasswordSchema,
+  taskSchema,
   updateCategorySchema,
 };

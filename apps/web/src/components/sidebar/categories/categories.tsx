@@ -1,20 +1,21 @@
 import { useState } from 'react';
 
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, FolderOpen, Plus } from 'lucide-react';
 
 import { useGetCategoriesWithProjectsQuery } from '@my-monorepo/store';
+import { GENERAL_CATEGORY } from '@my-monorepo/types';
 
-import CategoryDialog from '@/components/category-dialog/CategoryDialog';
 import DragAndDropContext from '@/components/drag-drop/DragAndDropContext';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel , useSidebar } from '@/components/ui/sidebar';
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, useSidebar } from '@/components/ui/sidebar';
+import CategoryDialog from '@/features/category/components/CategoryDialog';
 
 import NewProject from '../NewProject';
 
 import CategorySection from './CategorySection';
-import { CategoriesEmptyState,CategoriesLoadingState } from './states';
+import { CategoriesEmptyState, CategoriesLoadingState } from './states';
 
 export default function Categories() {
   const { state } = useSidebar();
@@ -45,16 +46,30 @@ export default function Categories() {
     return <CategoriesEmptyState />;
   }
 
-  const sortedCategories = categories.map(category => ({
-    ...category,
-    projects: category.projects
-      ? [...category.projects].sort((a, b) => {
-          if (a.isFavorite && !b.isFavorite) return -1;
-          if (!a.isFavorite && b.isFavorite) return 1;
-          return 0;
-        })
-      : [],
-  }));
+  const sortedCategories = categories
+    .map(category => ({
+      ...category,
+      projects: category.projects
+        ? [...category.projects].sort((a, b) => {
+            if (a.isFavorite && !b.isFavorite) return -1;
+            if (!a.isFavorite && b.isFavorite) return 1;
+            return 0;
+          })
+        : [],
+    }))
+    .sort((a, b) => {
+      // If there are multiple categories and General has no projects, move it to the end
+      if (categories.length > 1) {
+        const aIsGeneralEmpty = a.name.toLowerCase() === GENERAL_CATEGORY && (!a.projects || a.projects.length === 0);
+        const bIsGeneralEmpty = b.name.toLowerCase() === GENERAL_CATEGORY && (!b.projects || b.projects.length === 0);
+
+        if (aIsGeneralEmpty && !bIsGeneralEmpty) return 1;
+        if (!aIsGeneralEmpty && bIsGeneralEmpty) return -1;
+      }
+
+      // Otherwise, maintain original order (by sortOrder or name)
+      return (a.sortOrder || 0) - (b.sortOrder || 0) || a.name.localeCompare(b.name);
+    });
 
   return (
     <DragAndDropContext>

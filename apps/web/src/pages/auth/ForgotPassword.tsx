@@ -1,23 +1,15 @@
-import { useEffect } from 'react';
+import { ForgotPasswordInputs } from '@my-monorepo/types';
 
-import { SignIn } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import SignForm from '@/components/sign-form/SignForm';
 
-import AuthLayout from '@/components/layout/AuthLayout';
-
-const ForgotPassword = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Redirect to sign-in as Clerk handles forgot password flow there
-    navigate('/sign-in');
-  }, [navigate]);
-
+export default function ForgotPassword() {
   return (
-    <AuthLayout>
-      <SignIn routing="path" path="/sign-in" />
-    </AuthLayout>
+    <SignForm
+      title="Forgot Password?"
+      description="Don't worry! It happens. Please enter the address associated with your account."
+      type="forgot-password"
+      inputs={ForgotPasswordInputs}
+      buttonText="Send"
+    />
   );
-};
-
-export default ForgotPassword;
+}

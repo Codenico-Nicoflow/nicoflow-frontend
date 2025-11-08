@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useMemo } from 'react';
 
-import { ICON_IMPORTS,type IconId } from '@my-monorepo/utils';
+import { ICON_IMPORTS, type IconId } from '@my-monorepo/utils';
 
 interface LazyIconProps {
   iconId: IconId;
@@ -13,6 +13,12 @@ const iconCache = new Map<IconId, React.LazyExoticComponent<React.ComponentType<
 
 export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
   const LazyIconComponent = useMemo(() => {
+    // Check if the iconId is valid
+    if (!iconId || !ICON_IMPORTS[iconId]) {
+      console.error(`Invalid iconId: ${iconId}`);
+      return null;
+    }
+
     // Check if we already have this icon cached
     if (iconCache.has(iconId)) {
       return iconCache.get(iconId)!;
@@ -29,6 +35,10 @@ export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
     iconCache.set(iconId, lazyComponent);
     return lazyComponent;
   }, [iconId]);
+
+  if (!LazyIconComponent) {
+    return <div className="w-6 h-6 bg-gray-200 rounded" />;
+  }
 
   return (
     <Suspense fallback={<div className="w-6 h-6 bg-gray-200 rounded" />}>

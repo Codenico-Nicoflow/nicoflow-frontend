@@ -8,23 +8,23 @@ export interface QuickAccessItem {
 
 export const quickAccessItems = [
   {
-    title: 'Inbox',
-    url: '/tasks/inbox',
+    title: 'Bucket',
+    url: '/quick-access/bucket',
     icon: Inbox,
   },
   {
     title: 'Today',
-    url: '/tasks/today',
+    url: '/quick-access/today',
     icon: Calendar,
   },
   {
     title: 'Tomorrow',
-    url: '/tasks/tomorrow',
+    url: '/quick-access/tomorrow',
     icon: MoonIcon,
   },
   {
     title: 'Next 7 Days',
-    url: '/tasks/next-7-days',
+    url: '/quick-access/next-7-days',
     icon: CalendarClock,
   },
 ];

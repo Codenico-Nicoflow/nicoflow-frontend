@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Sparkles } from 'lucide-react';
 
-import ProjectDialog from '@/components/project-dialog/ProjectDialog';
+import { ProjectDialog } from '@/features/project';
 
 import { SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar';
 

@@ -3,7 +3,30 @@ export type { AppDispatch, RootState } from './store';
 export { store } from './store';
 
 // Hooks exports
-export { useAppDispatch, useAppSelector } from './hooks';
+export { useAppDispatch, useAppSelector, useAppUser } from './hooks';
+
+// Auth exports
+export { authApi } from './slices/auth/authApi';
+export {
+  useForgotPasswordMutation,
+  useGetCurrentUserQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useRefreshTokenMutation,
+  useRegisterMutation,
+  useResetPasswordMutation,
+} from './slices/auth/authApi';
+export { clearAuth, setUser } from './slices/auth/authSlice';
+export { selectUser } from './slices/auth/authSlice';
+export { selectIsLoading } from './slices/auth/authSlice';
+export { selectAuth } from './slices/auth/authSlice';
+export type {
+  AuthResponse,
+  ForgotPasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+} from './slices/auth/type';
 
 // Project exports
 export { projectApi } from './slices/project/projectApi';
@@ -38,5 +61,34 @@ export type {
   UpdateCategoryResponse,
 } from './slices/category/type';
 
-// API endpoints
-export { CATEGORY_API, PROJECT_API } from './api/endpoints';
+// Task exports
+export { taskApi } from './slices/tasks/taskApi';
+export {
+  useCreateTaskMutation,
+  useDeleteTaskMutation,
+  useGetTaskQuery,
+  useGetTasksQuery,
+  useUpdateTaskMutation,
+} from './slices/tasks/taskApi';
+export type { CreateTaskRequest, CreateTaskResponse, UpdateTaskRequest, UpdateTaskResponse } from './slices/tasks/type';
+
+// Bucket exports
+export { bucketApi } from './slices/bucket/bucketApi';
+export {
+  useCreateBucketMutation,
+  useDeleteBucketMutation,
+  useGetBucketQuery,
+  useGetBucketsQuery,
+  useProcessBucketMutation,
+  useUpdateBucketMutation,
+} from './slices/bucket/bucketApi';
+export type {
+  BucketResponse,
+  BucketsResponse,
+  CreateBucketDto,
+  NoteDetails,
+  ProcessBucketDto,
+  SomedayDetails,
+  TaskDetails,
+  UpdateBucketDto,
+} from './slices/bucket/type';

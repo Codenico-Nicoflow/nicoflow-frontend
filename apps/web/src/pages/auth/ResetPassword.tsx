@@ -1,23 +1,15 @@
-import { useEffect } from 'react';
+import { ResetPasswordInputs } from '@my-monorepo/types';
 
-import { SignIn } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
+import SignForm from '@/components/sign-form/SignForm';
 
-import AuthLayout from '@/components/layout/AuthLayout';
-
-const ResetPassword = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Redirect to sign-in as Clerk handles password reset flow there
-    navigate('/sign-in');
-  }, [navigate]);
-
+export default function ResetPassword() {
   return (
-    <AuthLayout>
-      <SignIn routing="path" path="/sign-in" />
-    </AuthLayout>
+    <SignForm
+      title="Reset Password?"
+      description="Please provide a new preferably strong password."
+      type="reset-password"
+      inputs={ResetPasswordInputs}
+      buttonText="Reset"
+    />
   );
-};
-
-export default ResetPassword;
+}

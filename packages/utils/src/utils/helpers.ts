@@ -58,3 +58,32 @@ export function isDateInPast(date: Date) {
   date.setHours(0, 0, 0, 0);
   return date < today;
 }
+
+/**
+ * Prepare optional fields for backend submission
+ * - Numeric/Date/Object fields → null when cleared
+ * - String fields → empty string '' when cleared
+ */
+export function prepareOptionalFields<T extends Record<string, any>>(data: T, stringFields: string[] = []): Partial<T> {
+  const result: Partial<T> = {};
+
+  Object.keys(data).forEach(key => {
+    const value = data[key];
+
+    // Skip undefined values
+    if (value === undefined) {
+      return;
+    }
+
+    // Handle null - convert based on field type
+    if (value === null) {
+      result[key as keyof T] = (stringFields.includes(key) ? '' : null) as T[keyof T];
+      return;
+    }
+
+    // Keep the value as is
+    result[key as keyof T] = value;
+  });
+
+  return result;
+}

@@ -1,11 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { IUser } from '@my-monorepo/types';
+import { AUTH_API, type IUser } from '@my-monorepo/types';
 
-import { AUTH_API } from '../../api/endpoints';
 import { baseQueryWithReauth } from '../baseQuery';
 
-import { clearAuth,setUser  } from './authSlice';
+import { clearAuth, setUser } from './authSlice';
 import type { AuthResponse, ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest } from './type';
 
 export const authApi = createApi({

@@ -1,8 +1,10 @@
-import { useAuth, useUser } from '@clerk/clerk-react';
 import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 
-import AuthLayout from './components/layout/AuthLayout';
-import PrivateLayout from './components/layout/PrivateLayout';
+import { useAppUser } from '@my-monorepo/store';
+
+import AuthLayout from '@/layout/AuthLayout';
+import PrivateLayout from '@/layout/PrivateLayout';
+
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import SignIn from './pages/auth/SignIn';
@@ -12,21 +14,20 @@ import HelpAndInformation from './pages/HelpAndInformation';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Profile from './pages/Profile';
 import ProjectView from './pages/project/ProjectView';
-import Inbox from './pages/tasks/Inbox';
-import NextSevenDays from './pages/tasks/NextSevenDays';
-import Today from './pages/tasks/Today';
-import Tomorrow from './pages/tasks/Tomorrow';
+import Bucket from './pages/quick-access/Bucket';
+import NextSevenDays from './pages/quick-access/NextSevenDays';
+import Today from './pages/quick-access/Today';
+import Tomorrow from './pages/quick-access/Tomorrow';
 import TermsOfService from './pages/TermsOfService';
 
 const PrivateRoutes = () => {
   const location = useLocation();
-  const { isSignedIn, isLoaded } = useAuth();
+  const user = useAppUser();
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
-  }
+  // You can add loading logic here if needed
+  // For now, we'll assume auth state is managed elsewhere
 
-  return isSignedIn ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
+  return user ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
 };
 
 const AppRoutes = () => {
@@ -35,11 +36,11 @@ const AppRoutes = () => {
       path: '/',
       element: <PrivateRoutes />,
       children: [
-        { index: true, element: <Navigate to="/tasks/inbox" replace /> },
-        { path: '/tasks/inbox', element: <Inbox /> },
-        { path: '/tasks/next-7-days', element: <NextSevenDays /> },
-        { path: '/tasks/today', element: <Today /> },
-        { path: '/tasks/tomorrow', element: <Tomorrow /> },
+        { index: true, element: <Navigate to="/quick-access/bucket" replace /> },
+        { path: '/quick-access/bucket', element: <Bucket /> },
+        { path: '/quick-access/next-7-days', element: <NextSevenDays /> },
+        { path: '/quick-access/today', element: <Today /> },
+        { path: '/quick-access/tomorrow', element: <Tomorrow /> },
         { path: '/projects/new', element: <div>New Project</div> },
         { path: '/projects/:projectId', element: <ProjectView /> },
         { path: '/terms-of-service', element: <TermsOfService /> },
@@ -49,20 +50,14 @@ const AppRoutes = () => {
       ],
     },
     {
-      path: '/sign-in',
-      element: <SignIn />,
-    },
-    {
-      path: '/sign-up',
-      element: <SignUp />,
-    },
-    {
-      path: '/forgot-password',
-      element: <ForgotPassword />,
-    },
-    {
-      path: '/reset-password',
-      element: <ResetPassword />,
+      path: '/',
+      element: <AuthLayout />,
+      children: [
+        { path: 'sign-in', element: <SignIn /> },
+        { path: 'sign-up', element: <SignUp /> },
+        { path: 'forgot-password', element: <ForgotPassword /> },
+        { path: 'reset-password', element: <ResetPassword /> },
+      ],
     },
 
     {

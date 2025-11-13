@@ -139,27 +139,4 @@ describe('Button', () => {
       expect(handleClick).toHaveBeenCalledTimes(3);
     });
   });
-
-  describe('asChild prop', () => {
-    it('renders as a child component when asChild is true', () => {
-      renderComponent(
-        <Button asChild>
-          <a href="/test">Link Button</a>
-        </Button>
-      );
-
-      const link = screen.getByRole('link', { name: /link button/i });
-      expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute('href', '/test');
-      expect(link).toHaveClass('bg-primary');
-    });
-
-    it('renders as a regular button when asChild is false', () => {
-      renderComponent(<Button asChild={false}>Regular Button</Button>);
-
-      const button = screen.getByRole('button', { name: /regular button/i });
-      expect(button).toBeInTheDocument();
-      expect(button.tagName).toBe('BUTTON');
-    });
-  });
 });

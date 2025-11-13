@@ -49,11 +49,12 @@ type_check:
   before_script:
     - corepack enable
   script:
-    - pnpm build --filter './packages/**'
+    - find packages/types -name "*.tsbuildinfo" -delete || true
+    - cd packages/types && pnpm build && cd ../..
     - pnpm type-check
   artifacts:
     paths:
-      - packages/*/dist
+      - packages/types/dist
     expire_in: 1 hour
   only:
     changes:

@@ -1,6 +1,8 @@
+import type { LucideIcon } from 'lucide-react';
+
 import type { IconId } from './schemas';
 
-export const ICON_IMPORTS: Record<IconId, () => Promise<{ default: any }>> = {
+export const ICON_IMPORTS: Record<IconId, () => Promise<{ default: LucideIcon }>> = {
   folder: () => import('lucide-react').then(m => ({ default: m.Folder })),
   briefcase: () => import('lucide-react').then(m => ({ default: m.Briefcase })),
   user: () => import('lucide-react').then(m => ({ default: m.User })),

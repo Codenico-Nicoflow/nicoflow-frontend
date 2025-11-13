@@ -1,6 +1,70 @@
 image: node:20-alpine
 
+stages:
+  - install
+  - test
+  - build
+
 install:
+  stage: install
   script:
     - corepack enable
     - pnpm install --frozen-lockfile
+  artifacts:
+    paths:
+      - node_modules
+      - apps/*/node_modules
+      - packages/*/node_modules
+    expire_in: 2 hour
+
+test:
+  stage: test
+  dependencies:
+    - install
+  before_script:
+    - corepack enable
+  script:
+    - pnpm test:web:coverage
+  coverage: '/All files\s+\|\s+\d+\.\d+%/'
+  artifacts:
+    paths:
+      - apps/web/coverage/
+    expire_in: 30 days
+
+lint:
+  stage: test
+  dependencies:
+    - install
+  before_script:
+    - corepack enable
+  script:
+    - pnpm lint --max-warnings 0
+  only:
+    changes:
+      - '**/*.{js,jsx,ts,tsx}'
+      - '.eslintrc*'
+      - 'eslint.config.js'
+
+type_check:
+  stage: test
+  dependencies:
+    - install
+  script:
+    - corepack enable
+    - pnpm type-check
+  only:
+    changes:
+      - '**/*.{ts,tsx}'
+      - 'tsconfig*.json'
+
+build_web:
+  stage: build
+  dependencies:
+    - install
+  script:
+    - corepack enable
+    - pnpm build:web
+  artifacts:
+    paths:
+      - apps/web/dist
+    expire_in: 1 week

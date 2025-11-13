@@ -38,6 +38,8 @@
   },
   "scripts": {
     "build": "turbo build",
+    "build:web": "pnpm --filter nicoflow-frontend build",
+    "build:mobile": "pnpm --filter nicoflow-mobile build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "type-check": "turbo type-check",

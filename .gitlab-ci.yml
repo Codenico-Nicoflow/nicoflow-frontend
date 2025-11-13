@@ -1,0 +1,6 @@
+image: node:20-alpine
+
+install:
+  script:
+    - corepack enable
+    - pnpm install --frozen-lockfile

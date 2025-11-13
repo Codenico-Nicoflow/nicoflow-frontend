@@ -42,6 +42,10 @@
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "test": "turbo test",
+    "test:web": "pnpm --filter nicoflow-frontend test",
+    "test:web:watch": "pnpm --filter nicoflow-frontend test:watch",
+    "test:web:ui": "pnpm --filter nicoflow-frontend test:ui",
+    "test:web:coverage": "pnpm --filter nicoflow-frontend test:coverage",
     "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules .turbo",
     "prepare": "husky"
   }

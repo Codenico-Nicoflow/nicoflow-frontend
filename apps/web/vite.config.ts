@@ -32,6 +32,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov', 'cobertura'],
+      exclude: [
+        'node_modules/',
+        '__tests__/',
+        '**/*.test.{ts,tsx}',
+        '**/*.spec.{ts,tsx}',
+        '**/dist/**',
+        '**/.storybook/**',
+        '**/*.stories.{ts,tsx}',
+        '**/coverage/**',
+      ],
+    },
     projects: [
       {
         extends: true,

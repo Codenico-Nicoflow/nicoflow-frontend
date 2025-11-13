@@ -54,3 +54,5 @@ storybook-static
 .cache
 tmp
 temp
+
+GITLAB_CI_CD_COMPLETE_GUIDE.md

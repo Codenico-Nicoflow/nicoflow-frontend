@@ -49,7 +49,7 @@ const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProcessDialog
       form.reset(defaultValues);
 
       if (projects.length > 0 && !selectedProjectId) {
-        setSelectedProjectId(projects[0].id);
+        setSelectedProjectId(projects[0]?.id);
       }
     }
   }, [bucket, open, form, projects, selectedProjectId]);

@@ -63,10 +63,9 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
     }
   }, [project, form]);
 
-  // Set default category when categories load (only for new projects)
   useEffect(() => {
     if (!project && categories && categories.length > 0 && !form.getValues('categoryId')) {
-      form.setValue('categoryId', categories[0].id);
+      form.setValue('categoryId', categories[0]?.id || 0);
     }
   }, [categories, project, form]);
 

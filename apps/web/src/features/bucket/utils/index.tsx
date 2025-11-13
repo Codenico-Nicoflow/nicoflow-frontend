@@ -10,7 +10,7 @@ import { showErrorToast, showSuccessToast, type TaskFormData, ToastMessages } fr
  */
 export const parseBucketContent = (content: string) => {
   const lines = content.split('\n');
-  const firstLine = lines[0].trim();
+  const firstLine = lines[0]?.trim() || '';
   const restLines = lines.slice(1).join('\n').trim();
 
   return {

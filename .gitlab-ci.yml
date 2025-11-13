@@ -37,7 +37,7 @@ lint:
       - '**/*.{js,jsx,ts,tsx}'
       - '.eslintrc*'
       - 'eslint.config.js'
-      - '.gitlab-ci.yml' # Run lint when CI config changes
+      - '.gitlab-ci.yml'
 
 type_check:
   stage: test
@@ -69,7 +69,7 @@ test:web:
     changes:
       - 'apps/web/**/*'
       - 'packages/**/*'
-      - '.gitlab-ci.yml' # Run tests when CI config changes (to verify pipeline works)
+      - '.gitlab-ci.yml'
 
 test:mobile:
   stage: test
@@ -104,7 +104,7 @@ build:web:
   only:
     changes:
       - 'apps/web/**/*'
-      - 'packages/**/*' # Rebuild when packages change (Turbo handles caching)
+      - 'packages/**/*'
 
 build:mobile:
   stage: build

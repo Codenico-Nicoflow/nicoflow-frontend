@@ -7,24 +7,19 @@ interface LazyIconProps {
   className?: string;
 }
 
-// Cache for lazy components to prevent recreation on every render
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const iconCache = new Map<IconId, React.LazyExoticComponent<React.ComponentType<any>>>();
+const iconCache = new Map<IconId, React.LazyExoticComponent<React.ComponentType<unknown>>>();
 
 export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
   const LazyIconComponent = useMemo(() => {
-    // Check if the iconId is valid
     if (!iconId || !ICON_IMPORTS[iconId]) {
       console.error(`Invalid iconId: ${iconId}`);
       return null;
     }
 
-    // Check if we already have this icon cached
     if (iconCache.has(iconId)) {
       return iconCache.get(iconId)!;
     }
 
-    // Create new lazy component and cache it
     const lazyComponent = lazy(() =>
       ICON_IMPORTS[iconId]().then(module => ({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

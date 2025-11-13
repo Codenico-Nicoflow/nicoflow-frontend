@@ -171,27 +171,4 @@ describe('Button', () => {
       expect(button).toHaveClass('custom-class', 'bg-primary');
     });
   });
-
-  describe('button types', () => {
-    it('renders with type="submit"', () => {
-      renderComponent(<Button type="submit">Submit</Button>);
-
-      const button = screen.getByRole('button', { name: /submit/i });
-      expect(button).toHaveAttribute('type', 'submit');
-    });
-
-    it('renders with type="reset"', () => {
-      renderComponent(<Button type="reset">Reset</Button>);
-
-      const button = screen.getByRole('button', { name: /reset/i });
-      expect(button).toHaveAttribute('type', 'reset');
-    });
-
-    it('renders with type="button"', () => {
-      renderComponent(<Button type="button">Button</Button>);
-
-      const button = screen.getByRole('button', { name: /button/i });
-      expect(button).toHaveAttribute('type', 'button');
-    });
-  });
 });

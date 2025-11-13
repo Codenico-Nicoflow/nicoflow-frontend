@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { type TextInput, View } from 'react-native';
 
-import { Link, router } from 'expo-router';
+import { Link } from 'expo-router';
 
 import { useSignIn } from '@clerk/clerk-expo';
 

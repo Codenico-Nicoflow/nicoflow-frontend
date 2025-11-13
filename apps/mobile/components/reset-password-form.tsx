@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { TextInput, View } from 'react-native';
 
-import { router } from 'expo-router';
-
 import { useSignIn } from '@clerk/clerk-expo';
 
 import { Button } from '@/components/ui/button';

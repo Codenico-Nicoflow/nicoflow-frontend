@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Image, type ImageSourcePropType, Platform, View } from 'react-native';
 
 import * as AuthSession from 'expo-auth-session';
-import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 
 import { type StartSSOFlowParams, useSSO } from '@clerk/clerk-expo';
@@ -48,16 +47,11 @@ export function SocialConnections() {
   function onSocialLoginPress(strategy: SocialConnectionStrategy) {
     return async () => {
       try {
-        // Start the authentication process by calling `startSSOFlow()`
-        const { createdSessionId, setActive, signIn } = await startSSOFlow({
+        const { createdSessionId, setActive } = await startSSOFlow({
           strategy,
-          // For web, defaults to current path
-          // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
-          // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
           redirectUrl: AuthSession.makeRedirectUri(),
         });
 
-        // If sign in was successful, set the active session
         if (createdSessionId && setActive) {
           setActive({ session: createdSessionId });
           return;

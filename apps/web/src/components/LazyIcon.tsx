@@ -1,5 +1,7 @@
 import React, { lazy, Suspense, useMemo } from 'react';
 
+import type { LucideIcon } from 'lucide-react';
+
 import { ICON_IMPORTS, type IconId } from '@my-monorepo/utils';
 
 interface LazyIconProps {
@@ -7,7 +9,7 @@ interface LazyIconProps {
   className?: string;
 }
 
-const iconCache = new Map<IconId, React.LazyExoticComponent<React.ComponentType<unknown>>>();
+const iconCache = new Map<IconId, React.LazyExoticComponent<React.ComponentType<React.ComponentProps<LucideIcon>>>>();
 
 export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
   const LazyIconComponent = useMemo(() => {
@@ -22,8 +24,7 @@ export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
 
     const lazyComponent = lazy(() =>
       ICON_IMPORTS[iconId]().then(module => ({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        default: (props: any) => <module.default {...props} />,
+        default: (props: React.ComponentProps<LucideIcon>) => <module.default {...props} />,
       }))
     );
 

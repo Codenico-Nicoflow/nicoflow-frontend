@@ -10,21 +10,27 @@ import { authApi, bucketApi, categoryApi, projectApi, taskApi } from '@my-monore
 import { LoadingOverlayProvider } from '@/components/loading-overlay/LoadingOverlayProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
-// Create a simple auth reducer for testing (no need for the full slice with persistence)
-const authReducer = (state = { user: null, token: null, isAuthenticated: false }, action: any) => {
-  switch (action.type) {
-    case 'auth/setUser':
-      return { ...state, user: action.payload, isAuthenticated: true };
-    case 'auth/clearAuth':
-      return { user: null, token: null, isAuthenticated: false };
-    default:
-      return state;
+type AuthState = { user: null; token: null; isAuthenticated: boolean };
+type AuthAction =
+  | { type: 'auth/setUser'; payload: null }
+  | { type: 'auth/clearAuth' }
+  | { type: string; [key: string]: unknown };
+
+const authReducer = (
+  state: AuthState = { user: null, token: null, isAuthenticated: false },
+  action: AuthAction
+): AuthState => {
+  if (action.type === 'auth/setUser') {
+    return { ...state, user: action.payload as null, isAuthenticated: true };
   }
+  if (action.type === 'auth/clearAuth') {
+    return { user: null, token: null, isAuthenticated: false };
+  }
+  return state;
 };
 
-// Create a mock store helper for testing
-export const createMockStore = (preloadedState?: any) => {
-  const rootReducer = combineReducers({
+const createRootReducer = () =>
+  combineReducers({
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
@@ -32,6 +38,13 @@ export const createMockStore = (preloadedState?: any) => {
     [taskApi.reducerPath]: taskApi.reducer,
     [bucketApi.reducerPath]: bucketApi.reducer,
   });
+
+type RootReducer = ReturnType<typeof createRootReducer>;
+type MockRootState = ReturnType<RootReducer>;
+
+// Create a mock store helper for testing
+export const createMockStore = (preloadedState?: Partial<MockRootState>) => {
+  const rootReducer = createRootReducer();
 
   return configureStore({
     reducer: rootReducer,

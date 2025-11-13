@@ -2,11 +2,7 @@ import { Platform, TextInput, type TextInputProps } from 'react-native';
 
 import { cn } from '@/lib/utils';
 
-function Input({
-  className,
-  placeholderClassName,
-  ...props
-}: TextInputProps & React.RefAttributes<TextInput>) {
+function Input({ className, ...props }: TextInputProps & React.RefAttributes<TextInput>) {
   return (
     <TextInput
       className={cn(
@@ -18,7 +14,7 @@ function Input({
           ),
         Platform.select({
           web: cn(
-            'outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground md:text-sm',
+            'outline-none transition-[color,box-shadow] selection:bg-primary md:text-sm',
             'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50',
             'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
           ),

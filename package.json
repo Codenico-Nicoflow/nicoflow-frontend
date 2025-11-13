@@ -38,7 +38,7 @@
   },
   "scripts": {
     "build": "turbo build",
-    "build:web": "pnpm --filter nicoflow-frontend build",
+    "build:web": "turbo build --filter=nicoflow-frontend",
     "build:mobile": "pnpm --filter nicoflow-mobile build",
     "dev": "turbo dev",
     "lint": "turbo lint",

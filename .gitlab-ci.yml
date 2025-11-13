@@ -4,7 +4,11 @@ stages:
   - install
   - test
   - build
+  - deploy
 
+# ============================================================================
+# Install Stage
+# ============================================================================
 install:
   stage: install
   script:
@@ -17,7 +21,37 @@ install:
       - packages/*/node_modules
     expire_in: 2 hour
 
-test:
+# ============================================================================
+# Test Stage
+# ============================================================================
+lint:
+  stage: test
+  dependencies:
+    - install
+  before_script:
+    - corepack enable
+  script:
+    - pnpm lint:strict
+  only:
+    changes:
+      - '**/*.{js,jsx,ts,tsx}'
+      - '.eslintrc*'
+      - 'eslint.config.js'
+
+type_check:
+  stage: test
+  dependencies:
+    - install
+  before_script:
+    - corepack enable
+  script:
+    - pnpm type-check
+  only:
+    changes:
+      - '**/*.{ts,tsx}'
+      - 'tsconfig*.json'
+
+test:web:
   stage: test
   dependencies:
     - install
@@ -30,41 +64,100 @@ test:
     paths:
       - apps/web/coverage/
     expire_in: 30 days
+  only:
+    changes:
+      - 'apps/web/**/*'
+      - 'packages/**/*'
 
-lint:
+test:mobile:
   stage: test
   dependencies:
     - install
   before_script:
     - corepack enable
   script:
-    - pnpm lint --max-warnings 0
+    - echo "Mobile tests placeholder - will be implemented when mobile development starts"
   only:
     changes:
-      - '**/*.{js,jsx,ts,tsx}'
-      - '.eslintrc*'
-      - 'eslint.config.js'
+      - 'apps/mobile/**/*'
+      - 'packages/**/*'
+  when: manual # Manual trigger for now since it's just a placeholder
 
-type_check:
-  stage: test
-  dependencies:
-    - install
-  script:
-    - corepack enable
-    - pnpm type-check
-  only:
-    changes:
-      - '**/*.{ts,tsx}'
-      - 'tsconfig*.json'
-
-build_web:
+# ============================================================================
+# Build Stage
+# ============================================================================
+build:web:
   stage: build
   dependencies:
     - install
-  script:
+    - test:web
+  before_script:
     - corepack enable
+  script:
     - pnpm build:web
   artifacts:
     paths:
       - apps/web/dist
     expire_in: 1 week
+  only:
+    changes:
+      - 'apps/web/**/*'
+
+build:mobile:
+  stage: build
+  dependencies:
+    - install
+    - test:mobile
+  before_script:
+    - corepack enable
+  script:
+    - echo "Mobile build placeholder - will be implemented when mobile development starts"
+  artifacts:
+    paths:
+      - apps/mobile/.expo
+    expire_in: 1 week
+  only:
+    changes:
+      - 'apps/mobile/**/*'
+
+  when: manual # Manual trigger for now since it's just a placeholder
+
+# ============================================================================
+# Deploy Stage
+# ============================================================================
+deploy:web:dev:
+  stage: deploy
+  dependencies:
+    - build:web
+  before_script:
+    - corepack enable
+  script:
+    - echo "Deploying web app to dev environment..."
+
+  environment:
+    name: dev
+    url: https://dev.yourdomain.com
+  only:
+    refs:
+      - main
+    changes:
+      - 'apps/web/**/*'
+  when: manual
+
+deploy:mobile:dev:
+  stage: deploy
+  dependencies:
+    - build:mobile
+  before_script:
+    - corepack enable
+  script:
+    - echo "Mobile deploy placeholder - will be implemented when mobile development starts"
+  environment:
+    name: dev-mobile
+    url: https://dev-mobile.yourdomain.com
+  only:
+    refs:
+      - main
+    changes:
+      - 'apps/mobile/**/*'
+  when: manual # Manual trigger for now since it's just a placeholder

@@ -68,11 +68,14 @@ test:web:
   before_script:
     - corepack enable
   script:
+    - find packages/types -name "*.tsbuildinfo" -delete || true
+    - cd packages/types && pnpm build && cd ../..
     - pnpm test:web:coverage
   coverage: '/All files\s+\|\s+\d+\.\d+%/'
   artifacts:
     paths:
       - apps/web/coverage/
+      - packages/types/dist
     expire_in: 30 days
   only:
     changes:
@@ -105,10 +108,15 @@ build:web:
   before_script:
     - corepack enable
   script:
+    # Build types package first (required for web build)
+    - find packages/types -name "*.tsbuildinfo" -delete || true
+    - cd packages/types && pnpm build && cd ../..
+    # Build web app (turbo will handle other dependencies)
     - pnpm build:web
   artifacts:
     paths:
       - apps/web/dist
+      - packages/types/dist
     expire_in: 1 week
   only:
     changes:

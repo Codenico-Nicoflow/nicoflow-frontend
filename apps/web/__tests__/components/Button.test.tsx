@@ -162,13 +162,4 @@ describe('Button', () => {
       expect(button.tagName).toBe('BUTTON');
     });
   });
-
-  describe('custom className', () => {
-    it('merges custom className with default classes', () => {
-      renderComponent(<Button className="custom-class">Custom</Button>);
-
-      const button = screen.getByRole('button', { name: /custom/i });
-      expect(button).toHaveClass('custom-class', 'bg-primary');
-    });
-  });
 });

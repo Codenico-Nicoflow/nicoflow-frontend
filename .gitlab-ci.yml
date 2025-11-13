@@ -49,13 +49,11 @@ type_check:
   before_script:
     - corepack enable
   script:
-    # Build types package first (Turbo's dependsOn should handle this, but explicit build ensures it)
-    - pnpm build --filter @my-monorepo/types
-    # Then run type-check for all packages
+    - pnpm build --filter './packages/**'
     - pnpm type-check
   artifacts:
     paths:
-      - packages/types/dist
+      - packages/*/dist
     expire_in: 1 hour
   only:
     changes:

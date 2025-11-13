@@ -14,7 +14,8 @@
     },
     "type-check": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": [],
+      "cache": false
     },
     "test": {
       "cache": false,

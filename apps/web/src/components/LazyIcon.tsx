@@ -36,7 +36,7 @@ export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
   }
 
   return (
-    <Suspense fallback={<div className="w-6 h-6 bg-gray-200 rounded" />}>
+    <Suspense fallback={<div className="w-6 h-6 bg-gray-300 rounded" />}>
       <LazyIconComponent className={className} />
     </Suspense>
   );

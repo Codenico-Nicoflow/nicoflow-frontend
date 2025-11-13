@@ -42,7 +42,7 @@
     "build:mobile": "pnpm --filter nicoflow-mobile build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "lint:strict": "pnpm --filter './apps/**' --filter './packages/**' exec eslint . --max-warnings 0",
+    "lint:strict": "pnpm --filter './apps/web/**' --filter './packages/**' exec eslint . --max-warnings 0",
     "type-check": "turbo type-check",
     "test": "turbo test",
     "test:web": "pnpm --filter nicoflow-frontend test",

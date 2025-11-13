@@ -32,6 +32,9 @@ lint:
     - corepack enable
   script:
     - pnpm lint:strict
+  # TODO: When mobile development starts, update lint:strict script to include mobile app
+  # Change: "lint:strict": "pnpm --filter './apps/web/**' ..."
+  # To: "lint:strict": "pnpm --filter './apps/**' ..."
   only:
     changes:
       - '**/*.{js,jsx,ts,tsx}'

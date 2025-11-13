@@ -35,5 +35,6 @@ export {
   isFetchBaseQueryError,
   showErrorToast,
   showSuccessToast,
+  type Toast,
 } from './utils/helpers';
 export { ToastMessages } from './utils/messages';

@@ -3,6 +3,15 @@ import { type FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { ToastMessages } from './messages';
 
 /**
+ * Toast interface for cross-platform compatibility
+ * Works with Sonner (web) and can be extended for mobile (Expo/React Native)
+ */
+export interface Toast {
+  error: (message: string) => void | string | number;
+  success: (message: string) => void | string | number;
+}
+
+/**
  * Type predicate to narrow an unknown error to `FetchBaseQueryError`
  */
 export function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
@@ -16,7 +25,7 @@ export function isErrorWithMessage(error: unknown): error is { message: string }
   return typeof error === 'object' && error != null && 'message' in error && typeof error.message === 'string';
 }
 
-export function showErrorToast(err: unknown, toast: any) {
+export function showErrorToast(err: unknown, toast: Toast) {
   let text: string;
 
   if (isFetchBaseQueryError(err)) {
@@ -43,7 +52,7 @@ export function showErrorToast(err: unknown, toast: any) {
   toast.error(text);
 }
 
-export function showSuccessToast(msg: string, toast: any) {
+export function showSuccessToast(msg: string, toast: Toast) {
   const text = ToastMessages[msg as keyof typeof ToastMessages] || msg;
   return toast.success(text);
 }
@@ -64,7 +73,10 @@ export function isDateInPast(date: Date) {
  * - Numeric/Date/Object fields → null when cleared
  * - String fields → empty string '' when cleared
  */
-export function prepareOptionalFields<T extends Record<string, any>>(data: T, stringFields: string[] = []): Partial<T> {
+export function prepareOptionalFields<T extends Record<string, string | number | boolean | null | undefined>>(
+  data: T,
+  stringFields: string[] = []
+): Partial<T> {
   const result: Partial<T> = {};
 
   Object.keys(data).forEach(key => {
@@ -82,7 +94,7 @@ export function prepareOptionalFields<T extends Record<string, any>>(data: T, st
     }
 
     // Keep the value as is
-    result[key as keyof T] = value;
+    result[key as keyof T] = value as T[keyof T];
   });
 
   return result;

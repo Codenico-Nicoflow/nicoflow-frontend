@@ -23,8 +23,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "erasableSyntaxOnly": true,
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],

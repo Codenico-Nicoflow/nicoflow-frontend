@@ -26,7 +26,7 @@ export const bucketApi = createApi({
         url: `${BUCKET_API.GET_BUCKET}${id}`,
         method: 'GET',
       }),
-      providesTags: (result, error, id) => [{ type: 'Bucket', id }],
+      providesTags: (_, _error, id) => [{ type: 'Bucket', id }],
     }),
     createBucket: builder.mutation<BucketResponse, CreateBucketDto>({
       query: body => ({
@@ -42,7 +42,7 @@ export const bucketApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_, _error, { id }) => [
         { type: 'Bucket', id },
         { type: 'Bucket', id: 'LIST' },
       ],
@@ -52,7 +52,7 @@ export const bucketApi = createApi({
         url: `${BUCKET_API.DELETE_BUCKET}${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_, _error, id) => [
         { type: 'Bucket', id },
         { type: 'Bucket', id: 'LIST' },
       ],
@@ -63,7 +63,7 @@ export const bucketApi = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_, _error, { id }) => [
         { type: 'Bucket', id },
         { type: 'Bucket', id: 'LIST' },
       ],

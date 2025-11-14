@@ -29,7 +29,7 @@ const IconPicker: React.FC<IconPickerProps> = ({ value, onChange }) => {
 
       <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
         <AnimatePresence>
-          {ICON_IDS.map(iconId => (
+          {ICON_IDS.map((iconId: IconId) => (
             <motion.div
               key={iconId}
               initial={{ opacity: 0, scale: 0.8 }}

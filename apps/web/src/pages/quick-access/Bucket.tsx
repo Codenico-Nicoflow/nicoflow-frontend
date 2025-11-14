@@ -83,7 +83,7 @@ const Bucket = () => {
       },
     };
 
-    const variant = variants[bucket.processingResult];
+    const variant = variants[bucket.processingResult] || variants[ProcessingResult.TASK];
     return (
       <Badge variant="outline" className={cn('text-xs flex items-center', variant.className)}>
         {variant.icon}

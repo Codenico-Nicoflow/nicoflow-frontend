@@ -27,5 +27,7 @@ export function formatTaskPriority(priority: TaskPriority): { className: string;
       return { className: 'text-yellow-600 bg-yellow-50 border-yellow-600', label: 'Medium' };
     case TaskPriority.HIGH:
       return { className: 'text-red-600 bg-red-50 border-red-600', label: 'High' };
+    default:
+      return { className: 'text-muted-foreground bg-muted border-muted-foreground', label: 'Unknown' };
   }
 }

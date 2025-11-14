@@ -79,7 +79,6 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
   ]);
 
   const onSubmit = async (data: ProjectFormData) => {
-    // Double safety check: prevent API call if no changes in edit mode
     if (isEditMode && !hasChanges) {
       onOpenChange(false);
       return;
@@ -89,7 +88,7 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
       if (isEditMode) {
         const updateData = {
           ...data,
-          dueDate: data.dueDate ? data.dueDate.toISOString() : undefined,
+          dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : undefined,
         };
 
         await updateProject({ id: project?.id, body: updateData }).unwrap();
@@ -98,7 +97,7 @@ const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialog
       } else {
         const createData = {
           ...data,
-          dueDate: data.dueDate ? data.dueDate.toISOString() : undefined,
+          dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : undefined,
         };
 
         await createProject(createData).unwrap();

@@ -4,7 +4,8 @@ stages:
   - install
   - test
   - build
-  - deploy
+  - deploy-staging
+  - deploy-production
 
 # ============================================================================
 # Install Stage
@@ -143,29 +144,27 @@ build:mobile:
   when: manual
 
 # ============================================================================
-# Deploy Stage
+# Deploy Staging Stage
 # ============================================================================
-deploy:web:dev:
-  stage: deploy
+deploy:web:staging:
+  stage: deploy-staging
+  image: node:20-alpine
   dependencies:
     - build:web
   before_script:
-    - corepack enable
+    - npm install -g vercel@latest
   script:
-    - echo "Deploying web app to dev environment..."
-
+    - cd apps/web
+    - vercel deploy ./dist --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --project=$VERCEL_PROJECT_ID_STAGING
   environment:
-    name: dev
-    url: https://dev.yourdomain.com
+    name: staging
+    url: https://nicoflow-staging-codenico05s-projects.vercel.app
   only:
     refs:
-      - main
-    changes:
-      - 'apps/web/**/*'
-  when: manual
+      - staging
 
 deploy:mobile:dev:
-  stage: deploy
+  stage: deploy-staging
   dependencies:
     - build:mobile
   before_script:
@@ -181,3 +180,26 @@ deploy:mobile:dev:
     changes:
       - 'apps/mobile/**/*'
   when: manual
+
+# ============================================================================
+# Deploy Production Stage
+# ============================================================================
+deploy:web:production:
+  stage: deploy-production
+  image: node:20-alpine
+  dependencies:
+    - build:web
+  before_script:
+    - npm install -g vercel@latest
+  script:
+    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+    - vercel build --prod --token=$VERCEL_TOKEN
+    - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+  environment:
+    name: production
+    url: https://nicoflow-production.vercel.app
+  only:
+    refs:
+      - production
+  when: manual
+  allow_failure: false

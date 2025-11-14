@@ -122,7 +122,7 @@ const CategorySection = ({
           className="space-y-1 ml-6 pl-4 border-l border-muted/20"
         >
           <AnimatePresence>
-            {displayedProjects.map((project, projectIndex) => (
+            {displayedProjects?.map((project, projectIndex) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, x: -10 }}

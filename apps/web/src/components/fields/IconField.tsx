@@ -46,7 +46,7 @@ const IconField = <T extends FieldValues>({
                 </SelectTrigger>
               </FormControl>
               <SelectContent className="max-h-[300px]">
-                {ICON_IDS.map(iconId => (
+                {ICON_IDS.map((iconId: IconId) => (
                   <SelectItem key={iconId} value={iconId}>
                     <div className="flex items-center gap-2">
                       <LazyIcon iconId={iconId} className="h-4 w-4" />

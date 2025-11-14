@@ -22,8 +22,13 @@ export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
       return iconCache.get(iconId)!;
     }
 
+    const iconImport = ICON_IMPORTS[iconId];
+    if (!iconImport) {
+      return null;
+    }
+
     const lazyComponent = lazy(() =>
-      ICON_IMPORTS[iconId]().then(module => ({
+      iconImport().then(module => ({
         default: (props: React.ComponentProps<LucideIcon>) => <module.default {...props} />,
       }))
     );

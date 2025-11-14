@@ -1,0 +1,200 @@
+import { toast } from 'sonner';
+
+import type { ProcessBucketDto, TaskDetails } from '@/lib/store';
+import { ProcessingResult } from '@/lib/types';
+import { showErrorToast, showSuccessToast, type TaskFormData, ToastMessages } from '@/lib/utils';
+
+/**
+ * Parses bucket content into task form fields
+ * First line becomes the task name, rest becomes description
+ */
+export const parseBucketContent = (content: string) => {
+  const lines = content.split('\n');
+  const firstLine = lines[0]?.trim() || '';
+  const restLines = lines.slice(1).join('\n').trim();
+
+  return {
+    name: firstLine,
+    description: restLines || '',
+  };
+};
+
+/**
+ * Validates if bucket can be processed based on selected type and required data
+ */
+export const canProcessBucket = (
+  selectedType: ProcessingResult,
+  selectedProjectId: number | undefined,
+  hasProjects: boolean
+): boolean => {
+  switch (selectedType) {
+    case ProcessingResult.TASK:
+      return hasProjects && !!selectedProjectId;
+    case ProcessingResult.TRASH:
+      return true;
+    case ProcessingResult.NOTE:
+    case ProcessingResult.SOMEDAY:
+      // TODO: Implement validation when NOTE and SOMEDAY are ready
+      return false;
+    default:
+      return false;
+  }
+};
+
+// ============================================
+// PROCESSING LOGIC
+// ============================================
+
+interface ProcessBucketParams {
+  bucketId: number;
+  selectedType: ProcessingResult;
+  selectedProjectId?: number;
+  taskData?: TaskFormData;
+  // TODO: Add noteData and somedayData when implemented
+  // noteData?: NoteFormData;
+  // somedayData?: SomedayFormData;
+}
+
+export const buildProcessBucketDto = ({
+  selectedType,
+  selectedProjectId,
+  taskData,
+}: ProcessBucketParams): ProcessBucketDto => {
+  const baseDto: ProcessBucketDto = {
+    processingResult: selectedType,
+  };
+
+  switch (selectedType) {
+    case ProcessingResult.TASK: {
+      if (!taskData || !selectedProjectId) {
+        throw new Error('Task data and project ID are required for task processing');
+      }
+
+      const taskDetails: TaskDetails = {
+        name: taskData.name,
+        description: taskData.description || undefined,
+        priority: taskData.priority,
+        dueDate: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined,
+        estimatedMinutes: taskData.estimatedMinutes || undefined,
+        url: taskData.url || undefined,
+      };
+
+      return {
+        ...baseDto,
+        projectId: selectedProjectId,
+        taskDetails,
+      };
+    }
+
+    case ProcessingResult.NOTE:
+      // TODO: Implement NOTE processing
+      // return {
+      //   ...baseDto,
+      //   noteDetails: {
+      //     title: noteData.title,
+      //     content: noteData.content,
+      //     type: noteData.type,
+      //   },
+      // };
+      throw new Error('NOTE processing is not yet implemented');
+
+    case ProcessingResult.SOMEDAY:
+      // TODO: Implement SOMEDAY processing
+      // return {
+      //   ...baseDto,
+      //   somedayDetails: {
+      //     title: somedayData.title,
+      //     description: somedayData.description,
+      //     type: somedayData.type,
+      //   },
+      // };
+      throw new Error('SOMEDAY processing is not yet implemented');
+
+    case ProcessingResult.TRASH:
+      return baseDto;
+
+    default:
+      throw new Error(`Unknown processing type: ${selectedType}`);
+  }
+};
+
+/**
+ * Handles the complete bucket processing workflow
+ */
+export const handleBucketProcess = async ({
+  bucketId,
+  selectedType,
+  selectedProjectId,
+  taskData,
+  processBucketMutation,
+  onSuccess,
+}: ProcessBucketParams & {
+  processBucketMutation: (args: { id: number; data: ProcessBucketDto }) => Promise<unknown>;
+  onSuccess: () => void;
+}): Promise<void> => {
+  try {
+    const processDto = buildProcessBucketDto({
+      bucketId,
+      selectedType,
+      selectedProjectId,
+      taskData,
+    });
+
+    await processBucketMutation({
+      id: bucketId,
+      data: processDto,
+    });
+
+    switch (selectedType) {
+      case ProcessingResult.TASK:
+        showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
+        break;
+      case ProcessingResult.NOTE:
+        // TODO: Add NOTE success toast when implemented
+        showSuccessToast('Bucket item processed into note', toast);
+        break;
+      case ProcessingResult.SOMEDAY:
+        // TODO: Add SOMEDAY success toast when implemented
+        showSuccessToast('Bucket item saved for someday', toast);
+        break;
+      case ProcessingResult.TRASH:
+        showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
+        break;
+    }
+
+    onSuccess();
+  } catch (error) {
+    showErrorToast(error, toast);
+    throw error;
+  }
+};
+
+// ============================================
+// DEFAULT FORM VALUES
+// ============================================
+
+/**
+ * Returns default form values for task creation from bucket
+ */
+export const getDefaultTaskFormValues = (bucketContent?: string): TaskFormData => {
+  if (bucketContent) {
+    const { name, description } = parseBucketContent(bucketContent);
+    return {
+      name,
+      description,
+      priority: 'low',
+      dueDate: null,
+      estimatedMinutes: null,
+      url: '',
+    };
+  }
+
+  return {
+    name: '',
+    description: '',
+    priority: 'low',
+    dueDate: null,
+    estimatedMinutes: null,
+    url: '',
+  };
+};

@@ -18,8 +18,6 @@ install:
   artifacts:
     paths:
       - node_modules
-      - apps/*/node_modules
-      - packages/*/node_modules
     expire_in: 2 hour
 
 # ============================================================================
@@ -32,10 +30,7 @@ lint:
   before_script:
     - corepack enable
   script:
-    - pnpm lint:strict
-  # TODO: When mobile development starts, update lint:strict script to include mobile app
-  # Change: "lint:strict": "pnpm --filter './apps/web/**' ..."
-  # To: "lint:strict": "pnpm --filter './apps/**' ..."
+    - pnpm lint
   only:
     changes:
       - '**/*.{js,jsx,ts,tsx}'
@@ -50,111 +45,66 @@ type_check:
   before_script:
     - corepack enable
   script:
-    - find packages/types -name "*.tsbuildinfo" -delete || true
-    - cd packages/types && pnpm build && cd ../..
     - pnpm type-check
-  artifacts:
-    paths:
-      - packages/types/dist
-    expire_in: 1 hour
   only:
     changes:
       - '**/*.{ts,tsx}'
       - 'tsconfig*.json'
 
-test:web:
+test:
   stage: test
   dependencies:
     - install
   before_script:
     - corepack enable
   script:
-    - find packages/types -name "*.tsbuildinfo" -delete || true
-    - cd packages/types && pnpm build && cd ../..
-    - pnpm test:web:coverage
+    - pnpm test:coverage
   coverage: '/All files\s+\|\s+\d+\.\d+%/'
   artifacts:
     paths:
-      - apps/web/coverage/
-      - packages/types/dist
+      - coverage/
     expire_in: 30 days
   only:
     changes:
-      - 'apps/web/**/*'
-      - 'packages/**/*'
+      - 'src/**/*'
+      - '__tests__/**/*'
+      - 'vite.config.ts'
       - '.gitlab-ci.yml'
-
-test:mobile:
-  stage: test
-  dependencies:
-    - install
-  before_script:
-    - corepack enable
-  script:
-    - echo "Mobile tests placeholder - will be implemented when mobile development starts"
-  only:
-    changes:
-      - 'apps/mobile/**/*'
-      - 'packages/**/*'
-  when: manual
 
 # ============================================================================
 # Build Stage
 # ============================================================================
-build:web:
+build:
   stage: build
   dependencies:
     - install
-    - test:web
+    - test
   before_script:
     - corepack enable
   script:
-    # Build types package first (required for web build)
-    - find packages/types -name "*.tsbuildinfo" -delete || true
-    - cd packages/types && pnpm build && cd ../..
-    # Build web app (turbo will handle other dependencies)
-    - pnpm build:web
+    - pnpm build
   artifacts:
     paths:
-      - apps/web/dist
-      - packages/types/dist
+      - dist
     expire_in: 1 week
   only:
     changes:
-      - 'apps/web/**/*'
-      - 'packages/**/*'
-
-build:mobile:
-  stage: build
-  dependencies:
-    - install
-    - test:mobile
-  before_script:
-    - corepack enable
-  script:
-    - echo "Mobile build placeholder - will be implemented when mobile development starts"
-  artifacts:
-    paths:
-      - apps/mobile/.expo
-    expire_in: 1 week
-  only:
-    changes:
-      - 'apps/mobile/**/*'
-
-  when: manual
+      - 'src/**/*'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'tsconfig*.json'
 
 # ============================================================================
 # Deploy Staging Stage
 # ============================================================================
-deploy:web:staging:
+deploy:staging:
   stage: deploy-staging
   image: node:20-alpine
   dependencies:
-    - build:web
+    - build
   before_script:
     - npm install -g vercel@latest
   script:
-    - cd apps/web
     - vercel deploy ./dist --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --project=$VERCEL_PROJECT_ID_STAGING
   environment:
     name: staging
@@ -163,38 +113,18 @@ deploy:web:staging:
     refs:
       - staging
 
-deploy:mobile:dev:
-  stage: deploy-staging
-  dependencies:
-    - build:mobile
-  before_script:
-    - corepack enable
-  script:
-    - echo "Mobile deploy placeholder - will be implemented when mobile development starts"
-  environment:
-    name: dev-mobile
-    url: https://dev-mobile.yourdomain.com
-  only:
-    refs:
-      - main
-    changes:
-      - 'apps/mobile/**/*'
-  when: manual
-
 # ============================================================================
 # Deploy Production Stage
 # ============================================================================
-deploy:web:production:
+deploy:production:
   stage: deploy-production
   image: node:20-alpine
   dependencies:
-    - build:web
+    - build
   before_script:
     - npm install -g vercel@latest
   script:
-    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-    - vercel build --prod --token=$VERCEL_TOKEN
-    - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+    - vercel deploy ./dist --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --project=$VERCEL_PROJECT_ID_PRODUCTION
   environment:
     name: production
     url: https://nicoflow-production.vercel.app

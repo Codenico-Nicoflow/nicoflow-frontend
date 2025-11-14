@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["VITE_API_URL", "VITE_ENV"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

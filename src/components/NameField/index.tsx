@@ -1,29 +1,27 @@
 import { motion } from 'framer-motion';
-import { FileText } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
-interface DescriptionFieldProps<T extends FieldValues> {
+interface NameFieldProps<T extends FieldValues> {
   control: Control<T>;
   label: string;
+  icon: LucideIcon;
   placeholder: string;
   fieldName?: Path<T>;
-  minHeight?: string;
   delay?: number;
-  optional?: boolean;
 }
 
-const DescriptionField = <T extends FieldValues>({
+export const NameField = <T extends FieldValues>({
   control,
   label,
+  icon: Icon,
   placeholder,
-  fieldName = 'description' as Path<T>,
-  minHeight = '100px',
-  delay = 0.15,
-  optional = false,
-}: DescriptionFieldProps<T>) => {
+  fieldName = 'name' as Path<T>,
+  delay = 0.1,
+}: NameFieldProps<T>) => {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
       <FormField
@@ -32,15 +30,13 @@ const DescriptionField = <T extends FieldValues>({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <FileText className="h-4 w-4" />
+              <Icon className="h-4 w-4" />
               {label}
-              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
             </FormLabel>
             <FormControl>
-              <Textarea
+              <Input
                 placeholder={placeholder}
-                className="resize-none text-sm sm:text-base border-2 focus:border-primary transition-colors"
-                style={{ minHeight }}
+                className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
                 {...field}
               />
             </FormControl>
@@ -51,5 +47,3 @@ const DescriptionField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default DescriptionField;

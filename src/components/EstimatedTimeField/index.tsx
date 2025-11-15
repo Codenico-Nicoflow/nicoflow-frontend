@@ -13,7 +13,7 @@ interface EstimatedTimeFieldProps<T extends FieldValues> {
   delay?: number;
 }
 
-const EstimatedTimeField = <T extends FieldValues>({
+export const EstimatedTimeField = <T extends FieldValues>({
   control,
   label = 'Estimated Time',
   fieldName = 'estimatedMinutes' as Path<T>,
@@ -76,5 +76,3 @@ const EstimatedTimeField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default EstimatedTimeField;

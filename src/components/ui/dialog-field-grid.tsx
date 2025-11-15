@@ -6,11 +6,13 @@ export interface DialogFieldGridProps {
   children: React.ReactNode;
   columns?: 1 | 2;
   className?: string;
+  'data-testid'?: string;
 }
 
-const DialogFieldGrid = ({ children, columns = 1, className }: DialogFieldGridProps) => {
+const DialogFieldGrid = ({ children, columns = 1, className, 'data-testid': testId }: DialogFieldGridProps) => {
   return (
     <div
+      data-testid={testId || 'dialog-field-grid'}
       className={cn(
         'grid gap-3 sm:gap-4',
         columns === 2 && 'sm:grid-cols-2',

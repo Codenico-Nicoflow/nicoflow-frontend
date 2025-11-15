@@ -4,14 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-import {
-  DescriptionField,
-  DueDateField,
-  EstimatedTimeField,
-  NameField,
-  PriorityField,
-  UrlField,
-} from '@/components/fields';
+import { DescriptionField, DueDateField, EstimatedTimeField, NameField, PriorityField, UrlField } from '@/components';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
 import { Form } from '@/components/ui/form';

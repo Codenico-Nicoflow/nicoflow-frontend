@@ -16,7 +16,7 @@ interface DueDateFieldProps<T extends FieldValues> {
   delay?: number;
 }
 
-const DueDateField = <T extends FieldValues>({
+export const DueDateField = <T extends FieldValues>({
   control,
   label = 'Due Date',
   fieldName = 'dueDate' as Path<T>,
@@ -78,5 +78,3 @@ const DueDateField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default DueDateField;

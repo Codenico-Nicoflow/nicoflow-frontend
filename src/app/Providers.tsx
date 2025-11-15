@@ -3,8 +3,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
-import { LoadingOverlayProvider } from '@/components/loading-overlay/LoadingOverlayProvider';
-import { ThemeProvider } from '@/components/ThemeProvider';
+import { LoadingOverlayProvider, ThemeProvider } from '@/components';
 import { Toaster } from '@/components/ui/sonner';
 import { store } from '@/lib/store';
 

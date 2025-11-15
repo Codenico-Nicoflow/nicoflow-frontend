@@ -15,13 +15,13 @@ import { motion } from 'framer-motion';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { LazyIcon } from '@/components/LazyIcon';
+import { LazyIcon } from '@/components';
 import { categoryApi, useUpdateProjectMutation } from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { IconId } from '@/lib/utils';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
-const DragAndDropContext = ({ children }: { children: React.ReactNode }) => {
+export const DragAndDropContext = ({ children }: { children: React.ReactNode }) => {
   const [updateProject] = useUpdateProjectMutation();
   const dispatch = useDispatch();
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -124,5 +124,3 @@ const DragAndDropContext = ({ children }: { children: React.ReactNode }) => {
     </DndContext>
   );
 };
-
-export default DragAndDropContext;

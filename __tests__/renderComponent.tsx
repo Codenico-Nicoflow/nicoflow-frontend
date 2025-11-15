@@ -5,8 +5,7 @@ import { render, type RenderOptions } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
-import { LoadingOverlayProvider } from '@/components/loading-overlay/LoadingOverlayProvider';
-import { ThemeProvider } from '@/components/ThemeProvider';
+import { LoadingOverlayProvider, ThemeProvider } from '@/components';
 import { authApi, bucketApi, categoryApi, projectApi, taskApi } from '@/lib/store';
 
 type AuthState = { user: null; token: null; isAuthenticated: boolean };

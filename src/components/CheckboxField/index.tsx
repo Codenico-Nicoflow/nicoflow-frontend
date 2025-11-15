@@ -14,7 +14,7 @@ interface CheckboxFieldProps<T extends FieldValues> {
   delay?: number;
 }
 
-const CheckboxField = <T extends FieldValues>({
+export const CheckboxField = <T extends FieldValues>({
   control,
   label,
   description,
@@ -49,5 +49,3 @@ const CheckboxField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default CheckboxField;

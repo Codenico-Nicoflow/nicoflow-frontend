@@ -14,9 +14,11 @@ function Calendar({
   buttonVariant = 'ghost',
   formatters,
   components,
+  'data-testid': testId,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>['variant'];
+  'data-testid'?: string;
 }) {
   const defaultClassNames = getDefaultClassNames();
 
@@ -96,7 +98,15 @@ function Calendar({
       }}
       components={{
         Root: ({ className, rootRef, ...props }) => {
-          return <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />;
+          return (
+            <div
+              data-slot="calendar"
+              data-testid={testId || 'calendar'}
+              ref={rootRef}
+              className={cn(className)}
+              {...props}
+            />
+          );
         },
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === 'left') {
@@ -124,7 +134,13 @@ function Calendar({
   );
 }
 
-function CalendarDayButton({ className, day, modifiers, ...props }: React.ComponentProps<typeof DayButton>) {
+function CalendarDayButton({
+  className,
+  day,
+  modifiers,
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<typeof DayButton> & { 'data-testid'?: string }) {
   const defaultClassNames = getDefaultClassNames();
 
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -134,6 +150,7 @@ function CalendarDayButton({ className, day, modifiers, ...props }: React.Compon
 
   return (
     <Button
+      data-testid={testId || 'calendar-day-button'}
       ref={ref}
       variant="ghost"
       size="icon"

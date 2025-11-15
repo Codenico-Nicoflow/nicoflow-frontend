@@ -19,6 +19,7 @@ export interface ConfirmDialogProps {
   onConfirm: () => void | Promise<void>;
   isLoading?: boolean;
   destructive?: boolean;
+  'data-testid'?: string;
 }
 
 const variantStyles = {
@@ -36,7 +37,7 @@ const variantStyles = {
   },
 };
 
-const ConfirmDialog = ({
+export const ConfirmDialog = ({
   open,
   onOpenChange,
   title,
@@ -48,6 +49,7 @@ const ConfirmDialog = ({
   onConfirm,
   isLoading = false,
   destructive = false,
+  'data-testid': testId,
 }: ConfirmDialogProps) => {
   const handleConfirm = async () => {
     await onConfirm();
@@ -59,8 +61,11 @@ const ConfirmDialog = ({
   const styles = variantStyles[variant];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-md p-0 border-0 shadow-2xl sm:rounded-lg rounded-none">
+    <Dialog open={open} onOpenChange={onOpenChange} data-testid={testId || 'confirm-dialog'}>
+      <DialogContent
+        data-testid={testId ? `${testId}-content` : 'confirm-dialog-content'}
+        className="w-[95vw] max-w-md p-0 border-0 shadow-2xl sm:rounded-lg rounded-none"
+      >
         <DialogHeader className="p-4 sm:p-6 pb-0">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -109,5 +114,3 @@ const ConfirmDialog = ({
     </Dialog>
   );
 };
-
-export { ConfirmDialog };

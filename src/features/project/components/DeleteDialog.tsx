@@ -2,7 +2,7 @@ import { Trash2 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { ConfirmDialog } from '@/components';
 import { categoryApi, useDeleteProjectMutation } from '@/lib/store';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 

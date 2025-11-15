@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Edit, Trash2, Zap } from 'lucide-react';
 
-import { AnimatedListItem } from '@/components/ui/animated-list-item';
+import { AnimatedListItem } from '@/components';
 import { ExpandableText } from '@/components/ui/expandable-text';
 import { ItemActionsMenu } from '@/components/ui/item-actions-menu';
 import { ListItemCard } from '@/components/ui/list-item-card';

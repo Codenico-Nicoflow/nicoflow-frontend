@@ -13,7 +13,7 @@ interface PriorityFieldProps<T extends FieldValues> {
   delay?: number;
 }
 
-const PriorityField = <T extends FieldValues>({
+export const PriorityField = <T extends FieldValues>({
   control,
   label = 'Priority',
   fieldName = 'priority' as Path<T>,
@@ -64,5 +64,3 @@ const PriorityField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default PriorityField;

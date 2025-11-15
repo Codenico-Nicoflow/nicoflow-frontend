@@ -1,27 +1,29 @@
 import { motion } from 'framer-motion';
-import type { LucideIcon } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
-interface NameFieldProps<T extends FieldValues> {
+interface DescriptionFieldProps<T extends FieldValues> {
   control: Control<T>;
   label: string;
-  icon: LucideIcon;
   placeholder: string;
   fieldName?: Path<T>;
+  minHeight?: string;
   delay?: number;
+  optional?: boolean;
 }
 
-const NameField = <T extends FieldValues>({
+export const DescriptionField = <T extends FieldValues>({
   control,
   label,
-  icon: Icon,
   placeholder,
-  fieldName = 'name' as Path<T>,
-  delay = 0.1,
-}: NameFieldProps<T>) => {
+  fieldName = 'description' as Path<T>,
+  minHeight = '100px',
+  delay = 0.15,
+  optional = false,
+}: DescriptionFieldProps<T>) => {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
       <FormField
@@ -30,13 +32,15 @@ const NameField = <T extends FieldValues>({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Icon className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               {label}
+              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
             </FormLabel>
             <FormControl>
-              <Input
+              <Textarea
                 placeholder={placeholder}
-                className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                className="resize-none text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                style={{ minHeight }}
                 {...field}
               />
             </FormControl>
@@ -47,5 +51,3 @@ const NameField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default NameField;

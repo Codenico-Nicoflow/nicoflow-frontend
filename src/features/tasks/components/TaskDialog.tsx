@@ -5,14 +5,7 @@ import { CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import {
-  DescriptionField,
-  DueDateField,
-  EstimatedTimeField,
-  NameField,
-  PriorityField,
-  UrlField,
-} from '@/components/fields';
+import { DescriptionField, DueDateField, EstimatedTimeField, NameField, PriorityField, UrlField } from '@/components';
 import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
 import { Form } from '@/components/ui/form';
 import { FormDialog } from '@/components/ui/form-dialog';

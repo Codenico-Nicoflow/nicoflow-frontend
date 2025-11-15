@@ -1,6 +1,6 @@
 import { Edit, Trash2 } from 'lucide-react';
 
-import { AnimatedListItem } from '@/components/ui/animated-list-item';
+import { AnimatedListItem } from '@/components';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ItemActionsMenu } from '@/components/ui/item-actions-menu';
 import { ListItemCard } from '@/components/ui/list-item-card';

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { LazyIcon } from '@/components/LazyIcon';
+import { LazyIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/useMobile';

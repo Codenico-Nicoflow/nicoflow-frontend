@@ -3,7 +3,7 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Palette } from 'lucide-react';
 
-import { LazyIcon } from '@/components/LazyIcon';
+import { LazyIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { ICON_IDS, type IconId } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -12,21 +12,25 @@ interface IconPickerProps {
   value?: IconId;
   onChange: (iconId: IconId) => void;
   className?: string;
+  'data-testid'?: string;
 }
 
-const IconPicker: React.FC<IconPickerProps> = ({ value, onChange }) => {
+const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, 'data-testid': testId }) => {
   const handleIconSelect = (iconId: IconId) => {
     onChange(iconId);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
+    <div data-testid={testId || 'icon-picker'} className="space-y-4">
+      <div data-testid={testId ? `${testId}-header` : 'icon-picker-header'} className="flex items-center gap-2">
         <Palette className="h-4 w-4 text-primary" />
         <h3 className="font-semibold text-sm">Select Category Icon</h3>
       </div>
 
-      <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+      <div
+        data-testid={testId ? `${testId}-grid` : 'icon-picker-grid'}
+        className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto"
+      >
         <AnimatePresence>
           {ICON_IDS.map((iconId: IconId) => (
             <motion.div

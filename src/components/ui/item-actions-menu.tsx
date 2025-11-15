@@ -23,22 +23,31 @@ export interface ItemActionsMenuProps {
   align?: 'start' | 'center' | 'end';
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  'data-testid'?: string;
 }
 
-const ItemActionsMenu = ({ actions, triggerClassName, align = 'end', open, onOpenChange }: ItemActionsMenuProps) => {
+const ItemActionsMenu = ({
+  actions,
+  triggerClassName,
+  align = 'end',
+  open,
+  onOpenChange,
+  'data-testid': testId,
+}: ItemActionsMenuProps) => {
   return (
-    <DropdownMenu open={open} onOpenChange={onOpenChange}>
+    <DropdownMenu open={open} onOpenChange={onOpenChange} data-testid={testId || 'item-actions-menu'}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
+          data-testid={testId ? `${testId}-trigger` : 'item-actions-menu-trigger'}
           className={cn('h-8 w-8 sm:h-9 sm:w-9', triggerClassName)}
           onClick={e => e.stopPropagation()}
         >
           <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align}>
+      <DropdownMenuContent align={align} data-testid={testId ? `${testId}-content` : 'item-actions-menu-content'}>
         {actions.map((action, index) => (
           <DropdownMenuItem
             key={index}

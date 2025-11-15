@@ -9,16 +9,24 @@ export interface ExpandableTextProps {
   maxLength?: number;
   className?: string;
   buttonClassName?: string;
+  'data-testid'?: string;
 }
 
-const ExpandableText = ({ children, maxLength = 150, className, buttonClassName }: ExpandableTextProps) => {
+const ExpandableText = ({
+  children,
+  maxLength = 150,
+  className,
+  buttonClassName,
+  'data-testid': testId,
+}: ExpandableTextProps) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const shouldTruncate = children.length > maxLength;
   const displayText = isExpanded || !shouldTruncate ? children : `${children.slice(0, maxLength)}...`;
 
   return (
-    <div className="space-y-2">
+    <div data-testid={testId || 'expandable-text'} className="space-y-2">
       <motion.p
+        data-testid={testId ? `${testId}-text` : 'expandable-text-text'}
         className={cn(
           'text-sm sm:text-base text-foreground leading-relaxed whitespace-pre-wrap break-words',
           shouldTruncate && !isExpanded && 'cursor-pointer hover:text-primary transition-colors',
@@ -33,6 +41,7 @@ const ExpandableText = ({ children, maxLength = 150, className, buttonClassName 
       </motion.p>
       {shouldTruncate && (
         <button
+          data-testid={testId ? `${testId}-button` : 'expandable-text-button'}
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn('text-xs text-primary hover:underline', buttonClassName)}
         >

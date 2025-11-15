@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { CheckboxField, DueDateField, IconField, NameField } from '@/components/fields';
+import { CheckboxField, DueDateField, IconField, NameField } from '@/components';
 import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
 import { Form } from '@/components/ui/form';
 import { FormDialog } from '@/components/ui/form-dialog';

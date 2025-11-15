@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Archive, CheckCircle2, Inbox, StickyNote, Trash2 } from 'lucide-react';
 
-import { AnimatedListItem } from '@/components/ui/animated-list-item';
+import { AnimatedListItem } from '@/components';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';

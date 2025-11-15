@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Edit3, Star, Trash2 } from 'lucide-react';
 
-import { LazyIcon } from '@/components/LazyIcon';
+import { LazyIcon } from '@/components';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type IconId, type IProject } from '@/lib/types';

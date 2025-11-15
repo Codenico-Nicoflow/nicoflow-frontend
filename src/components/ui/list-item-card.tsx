@@ -37,10 +37,11 @@ export interface ListItemCardProps
 }
 
 const ListItemCard = React.forwardRef<HTMLDivElement, ListItemCardProps>(
-  ({ className, variant, borderColor, hoverable, ...props }, ref) => {
+  ({ className, variant, borderColor, hoverable, 'data-testid': testId, ...props }, ref) => {
     return (
       <div
         ref={ref}
+        data-testid={testId || 'list-item-card'}
         className={cn(
           listItemCardVariants({ variant, borderColor, hoverable }),
           'bg-background/80 dark:bg-background/80',

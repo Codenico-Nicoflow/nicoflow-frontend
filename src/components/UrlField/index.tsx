@@ -13,7 +13,7 @@ interface UrlFieldProps<T extends FieldValues> {
   delay?: number;
 }
 
-const UrlField = <T extends FieldValues>({
+export const UrlField = <T extends FieldValues>({
   control,
   label = 'URL',
   fieldName = 'url' as Path<T>,
@@ -59,5 +59,3 @@ const UrlField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default UrlField;

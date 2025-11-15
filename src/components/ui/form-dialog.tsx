@@ -19,6 +19,7 @@ export interface FormDialogProps {
   onSubmit: (e?: React.FormEvent) => void;
   children: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  'data-testid'?: string;
 }
 
 const maxWidthClasses = {
@@ -41,6 +42,7 @@ const FormDialog = ({
   onSubmit,
   children,
   maxWidth = 'lg',
+  'data-testid': testId,
 }: FormDialogProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +50,9 @@ const FormDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} data-testid={testId || 'form-dialog'}>
       <DialogContent
+        data-testid={testId ? `${testId}-content` : 'form-dialog-content'}
         className={cn(
           'w-[95vw] p-0 border-0 shadow-2xl sm:rounded-lg rounded-none max-h-[90vh] overflow-hidden flex flex-col',
           maxWidthClasses[maxWidth]

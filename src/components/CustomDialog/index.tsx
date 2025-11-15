@@ -23,6 +23,7 @@ export interface CustomDialogProps {
     text: string;
     onClick: () => void;
   };
+  'data-testid'?: string;
 }
 
 const CustomDialog: React.FC<CustomDialogProps> = ({
@@ -32,10 +33,14 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
   description,
   acceptButton,
   cancelButton,
+  'data-testid': testId,
 }) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md cursor-default">
+    <Dialog open={open} onOpenChange={onOpenChange} data-testid={testId || 'custom-dialog'}>
+      <DialogContent
+        data-testid={testId ? `${testId}-content` : 'custom-dialog-content'}
+        className="sm:max-w-md cursor-default"
+      >
         <DialogHeader>
           {title && <DialogTitle>{title}</DialogTitle>}
           {description && <DialogDescription>{description}</DialogDescription>}

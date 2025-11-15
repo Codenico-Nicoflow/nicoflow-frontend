@@ -2,8 +2,8 @@ import { motion } from 'framer-motion';
 import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import CustomDialog from '@/components/CustomDialog';
 import { Button } from '@/components/ui/button';
-import CustomDialog from '@/components/ui/custom-dialog';
 import { useCustomDialog } from '@/hooks/useCustomDialog';
 import { useIsMobile } from '@/hooks/useMobile';
 import { type IUser, USER_STATUS } from '@/lib/types';

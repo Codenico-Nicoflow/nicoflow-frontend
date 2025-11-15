@@ -7,12 +7,20 @@ export interface AnimatedListItemProps {
   index?: number;
   delay?: number;
   className?: string;
+  'data-testid'?: string;
 }
 
-const AnimatedListItem = ({ children, index = 0, delay = 0.02, className }: AnimatedListItemProps) => {
+export const AnimatedListItem = ({
+  children,
+  index = 0,
+  delay = 0.02,
+  className,
+  'data-testid': testId,
+}: AnimatedListItemProps) => {
   return (
     <AnimatePresence mode="wait">
       <motion.div
+        data-testid={testId || 'animated-list-item'}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
@@ -24,5 +32,3 @@ const AnimatedListItem = ({ children, index = 0, delay = 0.02, className }: Anim
     </AnimatePresence>
   );
 };
-
-export { AnimatedListItem };

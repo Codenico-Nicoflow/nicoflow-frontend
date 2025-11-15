@@ -4,7 +4,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 
-import { LazyIcon } from '@/components/LazyIcon';
+import { LazyIcon } from '@/components';
 import CategoryContextMenu from '@/features/category/components/CategoryContextMenu';
 import CategoryDialog from '@/features/category/components/CategoryDialog';
 import type { ICategory } from '@/lib/types';

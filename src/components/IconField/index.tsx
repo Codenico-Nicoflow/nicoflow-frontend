@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
-import { LazyIcon } from '@/components/LazyIcon';
+import { LazyIcon } from '@/components';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ICON_IDS, type IconId } from '@/lib/utils';
@@ -14,7 +14,7 @@ interface IconFieldProps<T extends FieldValues> {
   delay?: number;
 }
 
-const IconField = <T extends FieldValues>({
+export const IconField = <T extends FieldValues>({
   control,
   label,
   fieldName = 'icon' as Path<T>,
@@ -62,5 +62,3 @@ const IconField = <T extends FieldValues>({
     </motion.div>
   );
 };
-
-export default IconField;

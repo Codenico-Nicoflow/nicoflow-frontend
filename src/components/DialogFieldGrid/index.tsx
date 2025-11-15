@@ -9,7 +9,7 @@ export interface DialogFieldGridProps {
   'data-testid'?: string;
 }
 
-const DialogFieldGrid = ({ children, columns = 1, className, 'data-testid': testId }: DialogFieldGridProps) => {
+export const DialogFieldGrid = ({ children, columns = 1, className, 'data-testid': testId }: DialogFieldGridProps) => {
   return (
     <div
       data-testid={testId || 'dialog-field-grid'}
@@ -32,5 +32,3 @@ const DialogFieldGrid = ({ children, columns = 1, className, 'data-testid': test
     </div>
   );
 };
-
-export { DialogFieldGrid };

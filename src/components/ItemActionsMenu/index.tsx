@@ -26,7 +26,7 @@ export interface ItemActionsMenuProps {
   'data-testid'?: string;
 }
 
-const ItemActionsMenu = ({
+export const ItemActionsMenu = ({
   actions,
   triggerClassName,
   align = 'end',
@@ -63,5 +63,3 @@ const ItemActionsMenu = ({
     </DropdownMenu>
   );
 };
-
-export { ItemActionsMenu };

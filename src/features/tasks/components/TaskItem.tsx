@@ -1,9 +1,7 @@
 import { Edit, Trash2 } from 'lucide-react';
 
-import { AnimatedListItem } from '@/components';
+import { AnimatedListItem, ItemActionsMenu, ListItemCard } from '@/components';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ItemActionsMenu } from '@/components/ui/item-actions-menu';
-import { ListItemCard } from '@/components/ui/list-item-card';
 import { type ITask, TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 

@@ -11,7 +11,7 @@ export interface TimestampProps {
   'data-testid'?: string;
 }
 
-const Timestamp = ({ date, className, addSuffix = true, 'data-testid': testId }: TimestampProps) => {
+export const Timestamp = ({ date, className, addSuffix = true, 'data-testid': testId }: TimestampProps) => {
   const formattedDate = React.useMemo(() => {
     return formatDistanceToNow(new Date(date), { addSuffix });
   }, [date, addSuffix]);
@@ -22,5 +22,3 @@ const Timestamp = ({ date, className, addSuffix = true, 'data-testid': testId }:
     </span>
   );
 };
-
-export { Timestamp };

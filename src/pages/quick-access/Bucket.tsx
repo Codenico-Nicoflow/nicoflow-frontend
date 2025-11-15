@@ -3,11 +3,9 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Archive, CheckCircle2, Inbox, StickyNote, Trash2 } from 'lucide-react';
 
-import { AnimatedListItem } from '@/components';
+import { AnimatedListItem, EmptyState, ListItemCard } from '@/components';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { EmptyState } from '@/components/ui/empty-state';
-import { ListItemCard } from '@/components/ui/list-item-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BucketDeleteDialog from '@/features/bucket/components/BucketDeleteDialog';
 import BucketEditDialog from '@/features/bucket/components/BucketEditDialog';

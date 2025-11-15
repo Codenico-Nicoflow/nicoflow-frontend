@@ -34,9 +34,10 @@ export interface ListItemCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof listItemCardVariants> {
   asChild?: boolean;
+  'data-testid'?: string;
 }
 
-const ListItemCard = React.forwardRef<HTMLDivElement, ListItemCardProps>(
+export const ListItemCard = React.forwardRef<HTMLDivElement, ListItemCardProps>(
   ({ className, variant, borderColor, hoverable, 'data-testid': testId, ...props }, ref) => {
     return (
       <div
@@ -53,5 +54,3 @@ const ListItemCard = React.forwardRef<HTMLDivElement, ListItemCardProps>(
   }
 );
 ListItemCard.displayName = 'ListItemCard';
-
-export { ListItemCard, listItemCardVariants };

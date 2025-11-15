@@ -5,10 +5,17 @@ import { CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { DescriptionField, DueDateField, EstimatedTimeField, NameField, PriorityField, UrlField } from '@/components';
-import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
+import {
+  DescriptionField,
+  DialogFieldGrid,
+  DueDateField,
+  EstimatedTimeField,
+  FormDialog,
+  NameField,
+  PriorityField,
+  UrlField,
+} from '@/components';
 import { Form } from '@/components/ui/form';
-import { FormDialog } from '@/components/ui/form-dialog';
 import { useCreateTaskMutation, useUpdateTaskMutation } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import type { TaskFormData } from '@/lib/utils';

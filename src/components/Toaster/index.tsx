@@ -2,7 +2,7 @@ import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
 import { useTheme } from '../ThemeProvider';
 
-const Toaster = ({ 'data-testid': testId, ...props }: ToasterProps & { 'data-testid'?: string }) => {
+export const Toaster = ({ 'data-testid': testId, ...props }: ToasterProps & { 'data-testid'?: string }) => {
   const { theme } = useTheme();
 
   return (
@@ -21,5 +21,3 @@ const Toaster = ({ 'data-testid': testId, ...props }: ToasterProps & { 'data-tes
     />
   );
 };
-
-export { Toaster };

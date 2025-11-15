@@ -4,11 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-import { DescriptionField, DueDateField, EstimatedTimeField, NameField, PriorityField, UrlField } from '@/components';
+import {
+  DescriptionField,
+  DialogFieldGrid,
+  DueDateField,
+  EstimatedTimeField,
+  FormDialog,
+  NameField,
+  PriorityField,
+  UrlField,
+} from '@/components';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
 import { Form } from '@/components/ui/form';
-import { FormDialog } from '@/components/ui/form-dialog';
 import { useGetProjectsQuery, useProcessBucketMutation } from '@/lib/store';
 import { BUCKET_PROCESSING_OPTIONS, type IBucket, ProcessingResult } from '@/lib/types';
 import { type TaskFormData, taskSchema } from '@/lib/utils';

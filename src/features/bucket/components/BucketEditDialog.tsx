@@ -5,9 +5,8 @@ import { Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { DescriptionField } from '@/components';
+import { DescriptionField, FormDialog } from '@/components';
 import { Form } from '@/components/ui/form';
-import { FormDialog } from '@/components/ui/form-dialog';
 import { useUpdateBucketMutation } from '@/lib/store';
 import { type IBucket } from '@/lib/types';
 import { type BucketFormData, bucketSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';

@@ -2,11 +2,8 @@ import { useState } from 'react';
 
 import { Edit, Trash2, Zap } from 'lucide-react';
 
-import { AnimatedListItem } from '@/components';
+import { AnimatedListItem, ItemActionsMenu, ListItemCard, Timestamp } from '@/components';
 import { ExpandableText } from '@/components/ui/expandable-text';
-import { ItemActionsMenu } from '@/components/ui/item-actions-menu';
-import { ListItemCard } from '@/components/ui/list-item-card';
-import { Timestamp } from '@/components/ui/timestamp';
 import { type IBucket } from '@/lib/types';
 
 interface BucketItemProps {

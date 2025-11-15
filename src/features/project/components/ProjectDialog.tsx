@@ -6,10 +6,8 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { CheckboxField, DueDateField, IconField, NameField } from '@/components';
-import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
+import { CheckboxField, DialogFieldGrid, DueDateField, FormDialog, IconField, NameField } from '@/components';
 import { Form } from '@/components/ui/form';
-import { FormDialog } from '@/components/ui/form-dialog';
 import { categoryApi, useCreateProjectMutation, useGetCategoriesQuery, useUpdateProjectMutation } from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { ProjectFormData } from '@/lib/utils';

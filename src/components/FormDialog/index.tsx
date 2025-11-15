@@ -30,7 +30,7 @@ const maxWidthClasses = {
   '2xl': 'sm:max-w-[900px]',
 };
 
-const FormDialog = ({
+export const FormDialog = ({
   open,
   onOpenChange,
   title,
@@ -116,5 +116,3 @@ const FormDialog = ({
     </Dialog>
   );
 };
-
-export { FormDialog };

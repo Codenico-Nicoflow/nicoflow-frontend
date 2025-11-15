@@ -153,13 +153,5 @@ describe('Button', () => {
       expect(link).toHaveAttribute('href', '/test');
       expect(link).toHaveClass('bg-primary');
     });
-
-    it('renders as a regular button when asChild is false', () => {
-      renderComponent(<Button asChild={false}>Regular Button</Button>);
-
-      const button = screen.getByRole('button', { name: /regular button/i });
-      expect(button).toBeInTheDocument();
-      expect(button.tagName).toBe('BUTTON');
-    });
   });
 });

@@ -4,11 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { SidebarHeader as ShadCnSidebarHeader } from '@/components/ui/sidebar';
 import { useAppUser } from '@/lib/store';
 import { USER_STATUS } from '@/lib/types';
 import { capitalize, cn } from '@/lib/utils';
-
-import { SidebarHeader as ShadCnSidebarHeader } from '../ui/sidebar';
 
 const SidebarHeader = ({ className }: { className?: string & React.ComponentProps<typeof ShadCnSidebarHeader> }) => {
   const user = useAppUser();

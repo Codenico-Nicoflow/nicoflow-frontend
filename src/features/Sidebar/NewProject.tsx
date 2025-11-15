@@ -3,9 +3,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Sparkles } from 'lucide-react';
 
+import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { ProjectDialog } from '@/features/project';
-
-import { SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar';
 
 const NewProject = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

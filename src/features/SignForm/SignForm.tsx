@@ -5,6 +5,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { ForgotPasswordIcon, ResetPasswordIcon } from '@/assets/svgs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import type { ResetPasswordRequest } from '@/lib/store';
 import {
   useForgotPasswordMutation,
@@ -22,11 +26,6 @@ import {
   showSuccessToast,
   ToastMessages,
 } from '@/lib/utils';
-
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { Input } from '../ui/input';
 
 import BottomText from './BottomText';
 import RememberMe from './RememberMe';
@@ -67,9 +66,7 @@ const SignForm = ({ title, description, type, inputs, showRemember = false, butt
       ...defaultValues,
       remember: false,
     },
-    // @ts-expect-error ... TODO: fix this
     resolver: zodResolver(
-      // @ts-expect-error ... TODO: fix this
       type === 'login'
         ? loginSchema
         : type === 'register'
@@ -121,12 +118,10 @@ const SignForm = ({ title, description, type, inputs, showRemember = false, butt
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          {/* @ts-expect-error ... TODO: fix this */}
           <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6 w-full flex flex-col items-center">
             {inputs.map(input => (
               <FormField
                 key={input.name}
-                // @ts-expect-error ... TODO: fix this
                 control={form.control}
                 name={
                   input.name as keyof (
@@ -147,7 +142,6 @@ const SignForm = ({ title, description, type, inputs, showRemember = false, butt
                 )}
               />
             ))}
-            {/* @ts-expect-error ... TODO: fix this */}
             {showRemember && <RememberMe form={form as UseFormReturn<LoginFormData>} />}
             <Button
               type="submit"

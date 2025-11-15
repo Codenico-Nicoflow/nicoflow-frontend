@@ -1,10 +1,9 @@
 import type { UseFormReturn } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
+import { Checkbox } from '@/components/ui/checkbox';
+import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import type { LoginFormData } from '@/lib/utils';
-
-import { Checkbox } from '../ui/checkbox';
-import { FormControl, FormField, FormItem, FormLabel } from '../ui/form';
 
 const RememberMe = ({ form }: { form: UseFormReturn<LoginFormData> }) => {
   return (

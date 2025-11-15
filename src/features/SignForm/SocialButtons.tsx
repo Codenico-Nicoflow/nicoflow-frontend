@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { FacebookIcon, GmailIcon } from '@/assets/svgs';
-
-import Divider from '../ui/divider';
+import { Divider } from '@/components';
 
 export default function SocialButtons() {
   return (

@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
-import { useSidebar } from '../../ui/sidebar';
+import { useSidebar } from '@/components/ui/sidebar';
+
 import { quickAccessItems } from '../data';
 
 import CollapsedQuickAccess from './CollapsedQuickAccess';

@@ -35,7 +35,6 @@ const UserProfile = () => {
   };
 
   const getUserStatus = () => {
-    // Mock user status - you can replace with real data
     return {
       role: 'Premium User',
       tasksCompleted: 42,

@@ -3,9 +3,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
-import { LoadingOverlayProvider } from '@/components/loading-overlay/LoadingOverlayProvider';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import { Toaster } from '@/components/ui/sonner';
+import { LoadingOverlayProvider, ThemeProvider, Toaster } from '@/components';
 import { store } from '@/lib/store';
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {

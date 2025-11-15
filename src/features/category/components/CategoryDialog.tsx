@@ -6,9 +6,8 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { IconField, NameField } from '@/components/fields';
+import { FormDialog, IconField, NameField } from '@/components';
 import { Form } from '@/components/ui/form';
-import { FormDialog } from '@/components/ui/form-dialog';
 import { categoryApi, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/lib/store';
 import type { ICategory } from '@/lib/types';
 import {

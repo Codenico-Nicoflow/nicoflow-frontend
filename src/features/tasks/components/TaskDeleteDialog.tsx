@@ -1,7 +1,7 @@
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { ConfirmDialog } from '@/components';
 import { useDeleteTaskMutation } from '@/lib/store';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 

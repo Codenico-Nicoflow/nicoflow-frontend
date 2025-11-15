@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
-import { useLoadingOverlay } from '@/components/loading-overlay/LoadingOverlayProvider';
+import { useLoadingOverlay } from '@/components';
 import { useGetTasksQuery, useUpdateTaskMutation } from '@/lib/store';
 import { type ITask, TaskStatus } from '@/lib/types';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';

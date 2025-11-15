@@ -7,15 +7,15 @@ import { toast } from 'sonner';
 
 import {
   DescriptionField,
+  DialogFieldGrid,
   DueDateField,
   EstimatedTimeField,
+  FormDialog,
   NameField,
   PriorityField,
   UrlField,
-} from '@/components/fields';
-import { DialogFieldGrid } from '@/components/ui/dialog-field-grid';
+} from '@/components';
 import { Form } from '@/components/ui/form';
-import { FormDialog } from '@/components/ui/form-dialog';
 import { useCreateTaskMutation, useUpdateTaskMutation } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import type { TaskFormData } from '@/lib/utils';

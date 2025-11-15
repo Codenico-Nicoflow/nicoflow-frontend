@@ -40,9 +40,6 @@ export default tseslint.config(
             ['^(expo|@react-navigation)'],
             // Other external packages
             ['^@?\\w'],
-            // Monorepo packages
-            ['^@my-monorepo/'],
-            // Internal aliases (@/)
             ['^@/'],
             // Parent imports
             ['^\\.\\.(?!/?$)', '^\\.\\./?$'],
@@ -85,8 +82,6 @@ export default tseslint.config(
             ['^(expo|@react-navigation)'],
             // Other external packages
             ['^@?\\w'],
-            // Monorepo packages
-            ['^@my-monorepo/'],
             // Internal aliases (@/)
             ['^@/'],
             // Parent imports

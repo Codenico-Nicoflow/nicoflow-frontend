@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import type { CustomDialogProps } from '@/components/ui/custom-dialog';
+import type { CustomDialogProps } from '@/components/CustomDialog';
 
 export interface UseCustomDialogOptions {
   title?: string;

@@ -1,6 +1,6 @@
 import { Inbox } from 'lucide-react';
 
-import { EmptyState } from '@/components/ui/empty-state';
+import { EmptyState } from '@/components';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type IBucket } from '@/lib/types';
 

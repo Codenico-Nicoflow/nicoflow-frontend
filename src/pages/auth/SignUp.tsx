@@ -1,4 +1,4 @@
-import SignForm from '@/components/sign-form/SignForm';
+import SignForm from '@/features/SignForm/SignForm';
 import { RegisterInputs } from '@/lib/types';
 
 export default function SignUp() {

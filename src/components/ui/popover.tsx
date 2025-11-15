@@ -4,24 +4,32 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { cn } from '@/lib/utils';
 
-function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />;
+function Popover({
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Root> & { 'data-testid'?: string }) {
+  return <PopoverPrimitive.Root data-slot="popover" data-testid={testId || 'popover'} {...props} />;
 }
 
-function PopoverTrigger({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
+function PopoverTrigger({
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Trigger> & { 'data-testid'?: string }) {
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" data-testid={testId || 'popover-trigger'} {...props} />;
 }
 
 function PopoverContent({
   className,
   align = 'center',
   sideOffset = 4,
+  'data-testid': testId,
   ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+}: React.ComponentProps<typeof PopoverPrimitive.Content> & { 'data-testid'?: string }) {
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
         data-slot="popover-content"
+        data-testid={testId || 'popover-content'}
         align={align}
         sideOffset={sideOffset}
         className={cn(
@@ -34,8 +42,11 @@ function PopoverContent({
   );
 }
 
-function PopoverAnchor({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
-  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
+function PopoverAnchor({
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<typeof PopoverPrimitive.Anchor> & { 'data-testid'?: string }) {
+  return <PopoverPrimitive.Anchor data-slot="popover-anchor" data-testid={testId || 'popover-anchor'} {...props} />;
 }
 
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };

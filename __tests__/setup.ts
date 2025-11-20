@@ -96,6 +96,25 @@ Object.defineProperty(global, 'IntersectionObserver', {
   value: IntersectionObserverMock,
 });
 
+// Mock ResizeObserver
+class ResizeObserverMock {
+  observe = vi.fn();
+  disconnect = vi.fn();
+  unobserve = vi.fn();
+}
+
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  configurable: true,
+  value: ResizeObserverMock,
+});
+
+Object.defineProperty(global, 'ResizeObserver', {
+  writable: true,
+  configurable: true,
+  value: ResizeObserverMock,
+});
+
 afterEach(() => {
   vi.clearAllMocks();
   localStorageMock.clear();

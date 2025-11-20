@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import CustomDialog from '@/components/CustomDialog';
+import { CustomDialog } from '@/components/CustomDialog';
 import { Button } from '@/components/ui/button';
 import { useCustomDialog } from '@/hooks/useCustomDialog';
 import { useIsMobile } from '@/hooks/useMobile';

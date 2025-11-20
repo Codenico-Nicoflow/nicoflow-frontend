@@ -4,7 +4,7 @@ import { Edit, MoreVertical, Trash2 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import CustomDialog from '@/components/CustomDialog';
+import { CustomDialog } from '@/components/CustomDialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

@@ -29,6 +29,7 @@ export const DescriptionField = <T extends FieldValues>({
       <FormField
         control={control}
         name={fieldName}
+        rules={{ required: !optional }}
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">

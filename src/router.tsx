@@ -36,7 +36,7 @@ const AppRoutes = () => {
       element: <PrivateRoutes />,
       children: [
         { index: true, element: <Navigate to="/quick-access/bucket" replace /> },
-        { path: '/quick-access/bucket', element: <Bucket /> },
+        { path: '/quick-access/Bucket', element: <Bucket /> },
         { path: '/quick-access/next-7-days', element: <NextSevenDays /> },
         { path: '/quick-access/today', element: <Today /> },
         { path: '/quick-access/tomorrow', element: <Tomorrow /> },

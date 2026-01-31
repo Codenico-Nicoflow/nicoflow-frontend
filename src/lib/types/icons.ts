@@ -22,7 +22,7 @@ export const ICON_IDS = [
   'shield', // security / privacy
   'trophy', // achievements / goals
   'chat', // communication / collaboration
-  'clipboard', // tasks / management
+  'clipboard', // Tasks / management
   'flag', // priorities / milestones
   'star', // favorites / important
   'leaf', // nature / sustainability

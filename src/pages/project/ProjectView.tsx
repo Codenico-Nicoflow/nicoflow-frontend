@@ -4,13 +4,13 @@ import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
-  DeleteDialog,
+  ProjectDeleteDialog,
   ProjectDialog,
+  ProjectEmptyState,
   ProjectHeader,
-  ProjectsEmptyState,
-  ProjectsLoadingState,
-} from '@/features/project';
-import TasksSection from '@/features/tasks/components/TasksSection';
+  ProjectLoadingState,
+} from '@/features/Project';
+import TasksSection from '@/features/Tasks/components/TasksSection';
 import { useGetProjectQuery } from '@/lib/store';
 
 const ProjectView = () => {
@@ -22,11 +22,11 @@ const ProjectView = () => {
   const { data: project, isLoading: isProjectLoading } = useGetProjectQuery(parseInt(projectId || '0'));
 
   if (isProjectLoading) {
-    return <ProjectsLoadingState />;
+    return <ProjectLoadingState />;
   }
 
   if (!project) {
-    return <ProjectsEmptyState />;
+    return <ProjectEmptyState />;
   }
 
   return (
@@ -52,7 +52,7 @@ const ProjectView = () => {
 
       <ProjectDialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} project={project} />
 
-      <DeleteDialog
+      <ProjectDeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         projectName={project?.name || ''}

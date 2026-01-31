@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { DIALOG_ACCEPT_BUTTON, DIALOG_CANCEL_BUTTON } from '@/lib/test_ids';
 
 export interface CustomDialogProps {
   open: boolean;
@@ -26,7 +27,7 @@ export interface CustomDialogProps {
   'data-testid'?: string;
 }
 
-const CustomDialog: React.FC<CustomDialogProps> = ({
+export const CustomDialog: React.FC<CustomDialogProps> = ({
   open,
   onOpenChange,
   title,
@@ -49,16 +50,18 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
         {(acceptButton || cancelButton) && (
           <DialogFooter>
             {cancelButton && (
-              <Button variant="outline" onClick={cancelButton.onClick}>
+              <Button variant="outline" data-testid={DIALOG_CANCEL_BUTTON} onClick={cancelButton.onClick}>
                 {cancelButton.text}
               </Button>
             )}
-            {acceptButton && <Button onClick={acceptButton.onClick}>{acceptButton.text}</Button>}
+            {acceptButton && (
+              <Button data-testid={DIALOG_ACCEPT_BUTTON} onClick={acceptButton.onClick}>
+                {acceptButton.text}
+              </Button>
+            )}
           </DialogFooter>
         )}
       </DialogContent>
     </Dialog>
   );
 };
-
-export default CustomDialog;

@@ -50,7 +50,7 @@ export const ToastMessages = {
   PASSWORD_RULE_ERROR: 'Password must be at least 8 characters, at least one uppercase, one lowercase',
 
   // ✅ Project errors
-  PROJECT_ALREADY_EXISTS: 'A project with this name already exists.',
+  PROJECT_ALREADY_EXISTS: 'A Project with this name already exists.',
   PROJECT_NOT_FOUND: 'Project not found.',
   PROJECT_NAME_REQUIRED: 'Project name is required.',
   PROJECT_NAME_ALREADY_EXISTS: 'Project name already exists.',

@@ -6,14 +6,14 @@ import { useLocation } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import BucketQuickInput from '@/features/bucket/components/BucketQuickInput';
+import { BucketQuickInput } from '@/features/Bucket/components/BucketQuickInput';
 import { cn } from '@/lib/utils';
 
 const QuickAddButton = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (location.pathname === '/quick-access/bucket') {
+  if (location.pathname === '/quick-access/Bucket') {
     return null;
   }
 

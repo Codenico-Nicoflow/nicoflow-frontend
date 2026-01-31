@@ -13,7 +13,7 @@ export default tseslint.config(
     ignores: ['**/dist/**', '**/node_modules/**', '**/.expo/**', '**/build/**', '**/.turbo/**', '**/coverage/**'],
   },
 
-  // Base config for JavaScript files (no TypeScript project needed)
+  // Base config for JavaScript files (no TypeScript Project needed)
   {
     files: ['**/*.{js,jsx}'],
     extends: [js.configs.recommended],

@@ -28,7 +28,7 @@ describe('AnimatedListItem', () => {
     expect(element).toHaveClass('custom-class');
   });
 
-  it('should handle animation props (index and delay)', () => {
+  it('should handle animation props (index.ts and delay)', () => {
     renderComponent(
       <AnimatedListItem index={5} delay={0.1}>
         <div>Animated Content</div>

@@ -13,7 +13,14 @@ export interface EmptyStateProps {
   'data-testid'?: string;
 }
 
-const EmptyState = ({ icon: Icon, title, description, action, className, 'data-testid': testId }: EmptyStateProps) => {
+export const EmptyState = ({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+  'data-testid': testId,
+}: EmptyStateProps) => {
   return (
     <div
       data-testid={testId || 'empty-state'}
@@ -47,5 +54,3 @@ const EmptyState = ({ icon: Icon, title, description, action, className, 'data-t
     </div>
   );
 };
-
-export { EmptyState };

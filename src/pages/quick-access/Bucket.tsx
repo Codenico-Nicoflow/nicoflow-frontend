@@ -7,11 +7,13 @@ import { AnimatedListItem, EmptyState, ListItemCard } from '@/components';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import BucketDeleteDialog from '@/features/bucket/components/BucketDeleteDialog';
-import BucketEditDialog from '@/features/bucket/components/BucketEditDialog';
-import BucketList from '@/features/bucket/components/BucketList';
-import BucketProcessDialog from '@/features/bucket/components/BucketProcessDialog';
-import BucketQuickInput from '@/features/bucket/components/BucketQuickInput';
+import {
+  BucketDeleteDialog,
+  BucketEditDialog,
+  BucketList,
+  BucketProcessDialog,
+  BucketQuickInput,
+} from '@/features/Bucket/components';
 import { useGetBucketsQuery } from '@/lib/store';
 import { type IBucket, ProcessingResult } from '@/lib/types';
 import { cn } from '@/lib/utils';

@@ -46,7 +46,7 @@ const registerSchema = z.object({
 
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(50, 'Project name must be less than 50 characters'),
-  categoryId: z.number().min(1, 'Please select a category'),
+  categoryId: z.number().min(1, 'Please select a Category'),
   icon: z.enum(ICON_IDS),
   status: z.enum(['active', 'completed', 'archived']),
   dueDate: z.date().optional(),

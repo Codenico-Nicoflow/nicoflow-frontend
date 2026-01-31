@@ -5,6 +5,9 @@ export { store } from './store';
 // Hooks exports
 export { useAppDispatch, useAppSelector, useAppUser } from './hooks';
 
+// Store utils
+export { invalidateApiTags } from './utils/invalidateTags';
+
 // Auth exports
 export { authApi } from './slices/auth/authApi';
 export {

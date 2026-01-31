@@ -16,7 +16,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 import { LazyIcon } from '@/components';
-import { categoryApi, useUpdateProjectMutation } from '@/lib/store';
+import { categoryApi, invalidateApiTags, useUpdateProjectMutation } from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { IconId } from '@/lib/utils';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
@@ -27,6 +27,11 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeProject, setActiveProject] = useState<IProject | null>(null);
 
+  const resetActiveState = () => {
+    setActiveId(null);
+    setActiveProject(null);
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
     setActiveProject(event.active.data.current?.project);
@@ -36,42 +41,51 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
     const { active, over } = event;
 
     if (!over) {
+      resetActiveState();
       return;
     }
 
     if (active.id === over.id) {
+      resetActiveState();
       return;
     }
 
-    if (active.id.toString().startsWith('project-') && over.id.toString().startsWith('category-')) {
-      const projectId = parseInt(active.id.toString().replace('project-', ''));
-      const targetCategoryId = parseInt(over.id.toString().replace('category-', ''));
+    const activeIdValue = active.id.toString();
+    const overIdValue = over.id.toString();
 
-      const projectData = active.data.current?.project;
-      const currentCategoryId = projectData?.categoryId;
+    try {
+      if (activeIdValue.startsWith('project-') && overIdValue.startsWith('category-')) {
+        const projectId = Number(activeIdValue.replace('project-', ''));
+        const targetCategoryId = Number(overIdValue.replace('category-', ''));
 
-      if (currentCategoryId === targetCategoryId) {
-        return;
-      }
+        if (Number.isNaN(projectId) || Number.isNaN(targetCategoryId)) {
+          showErrorToast(ToastMessages.INVALID_DROP_TARGET, toast);
+          return;
+        }
 
-      try {
+        const projectData = active.data.current?.project;
+        const currentCategoryId = projectData?.categoryId;
+
+        if (currentCategoryId === targetCategoryId) {
+          return;
+        }
+
         await updateProject({
           id: projectId,
           body: { categoryId: targetCategoryId },
         }).unwrap();
 
-        dispatch(categoryApi.util.invalidateTags(['Category']));
+        invalidateApiTags(dispatch, categoryApi, ['Category'] as const);
 
         showSuccessToast(ToastMessages.PROJECT_MOVED, toast);
-      } catch (error) {
-        showErrorToast(error, toast);
+      } else {
+        showErrorToast(ToastMessages.INVALID_DROP_TARGET, toast);
       }
-    } else {
-      showErrorToast(ToastMessages.INVALID_DROP_TARGET, toast);
+    } catch (error) {
+      showErrorToast(error, toast);
+    } finally {
+      resetActiveState();
     }
-
-    setActiveId(null);
-    setActiveProject(null);
   };
 
   const mouseSensor = useSensor(MouseSensor, {

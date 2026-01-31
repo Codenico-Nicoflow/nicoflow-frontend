@@ -105,7 +105,7 @@ deploy:staging:
   before_script:
     - npm install -g vercel@latest
   script:
-    - vercel deploy ./dist --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --project=$VERCEL_PROJECT_ID_STAGING
+    - vercel deploy ./dist --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --Project=$VERCEL_PROJECT_ID_STAGING
   environment:
     name: staging
     url: https://nicoflow-staging-codenico05s-projects.vercel.app
@@ -124,7 +124,7 @@ deploy:production:
   before_script:
     - npm install -g vercel@latest
   script:
-    - vercel deploy ./dist --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --project=$VERCEL_PROJECT_ID_PRODUCTION
+    - vercel deploy ./dist --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --Project=$VERCEL_PROJECT_ID_PRODUCTION
   environment:
     name: production
     url: https://nicoflow-production.vercel.app

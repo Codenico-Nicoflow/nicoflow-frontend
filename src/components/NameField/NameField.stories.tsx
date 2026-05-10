@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Folder } from 'lucide-react';
 
-import { StoryFormWrapper } from '@/stories/helpers/StoryFormWrapper';
+import { StoryFormWrapper } from '@/stories/helpers';
 
 import { NameField } from '.';
 

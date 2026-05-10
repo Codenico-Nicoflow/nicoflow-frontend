@@ -10,7 +10,7 @@ import {
   ProjectHeader,
   ProjectLoadingState,
 } from '@/features/Project';
-import TasksSection from '@/features/Tasks/components/TasksSection';
+import { TasksSection } from '@/features/Tasks/components';
 import { useGetProjectQuery } from '@/lib/store';
 
 const ProjectView = () => {

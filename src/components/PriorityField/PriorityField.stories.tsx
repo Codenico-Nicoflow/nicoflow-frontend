@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { StoryFormWrapper } from '@/stories/helpers/StoryFormWrapper';
+import { StoryFormWrapper } from '@/stories/helpers';
 
 import { PriorityField } from '.';
 

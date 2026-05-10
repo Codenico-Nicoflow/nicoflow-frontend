@@ -387,7 +387,7 @@ Storybook infrastructure:
 ## Local Dev
 
 ```bash
-# Prerequisites: Node 20+, pnpm 10.18.3+, nicoflow-api running on :3001
+# Prerequisites: Node 20+, pnpm 10.18.3+, nicoflow-api running on :8080
 pnpm install
 pnpm dev           # Vite dev server → http://localhost:5173
 pnpm type-check    # tsc --noEmit

@@ -6,7 +6,7 @@ React 19 SPA for the Nicoflow task management platform.
 
 - Node.js 20+
 - pnpm 10.18.3+
-- [nicoflow-api](https://github.com/Codenico-Nicoflow/nicoflow-api) (Go backend) running on `http://localhost:8080`
+- [nicoflow-api](https://github.com/Codenico-Nicoflow/nicoflow-api) (Go backend) running on `http://localhost:8080/v1`
 
 ## Quickstart
 

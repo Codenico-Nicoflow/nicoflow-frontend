@@ -2,7 +2,7 @@
 
 React 19 SPA for the Nicoflow task management platform. Standalone repo — not a monorepo.
 
-**Backend:** `nicoflow-api` (Go) at `http://localhost:8080/`
+**Backend:** `nicoflow-api` (Go) at `http://localhost:8080/v1`
 
 ---
 
@@ -160,7 +160,7 @@ Auth guard is in `PrivateRoutes` (`src/router.tsx`): reads `useAppUser()` — if
 
 ## API & Auth
 
-**Base URL:** `http://localhost:8080/` — hardcoded in `src/lib/store/slices/baseQuery.ts`
+**Base URL:** `http://localhost:8080/v1` — hardcoded in `src/lib/store/slices/baseQuery.ts`
 
 **Token flow:**
 
@@ -387,7 +387,7 @@ Storybook infrastructure:
 ## Local Dev
 
 ```bash
-# Prerequisites: Node 20+, pnpm 10.18.3+, nicoflow-api running on :8080
+# Prerequisites: Node 20+, pnpm 10.18.3+, nicoflow-api running on :8080/v1
 pnpm install
 pnpm dev           # Vite dev server → http://localhost:5173
 pnpm type-check    # tsc --noEmit

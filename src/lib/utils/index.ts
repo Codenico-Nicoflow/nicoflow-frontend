@@ -5,7 +5,7 @@ export type { IconId } from './utils/schemas';
 export { ICON_IDS } from './utils/schemas';
 export {
   bucketSchema,
-  createCategorySchema,
+  createAreaSchema,
   forgotPasswordSchema,
   loginSchema,
   processBucketSchema,
@@ -13,7 +13,7 @@ export {
   registerSchema,
   resetPasswordSchema,
   taskSchema,
-  updateCategorySchema,
+  updateAreaSchema,
 } from './utils/schemas';
 
 // Form data types

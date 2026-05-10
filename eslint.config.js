@@ -118,9 +118,9 @@ export default tseslint.config(
     },
   },
 
-  // Web app specific config
+  // Web app config
   {
-    files: ['apps/web/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}'],
     extends: [reactHooks.configs['recommended-latest'], reactRefresh.configs.vite],
     languageOptions: {
       globals: {
@@ -132,30 +132,14 @@ export default tseslint.config(
     },
   },
 
-  // Storybook config for web app
-  {
-    files: ['apps/web/**/*.stories.{ts,tsx}'],
-    ...storybook.configs['flat/recommended'],
-  },
+  // Storybook config
+  ...storybook.configs['flat/recommended'],
 
-  // Mobile app specific config (Expo)
+  // Override storybook rules that conflict with @storybook/react-vite usage pattern
   {
-    files: ['apps/mobile/**/*.{ts,tsx}'],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-    },
-  },
-
-  // Package configs
-  {
-    files: ['packages/**/*.{ts,tsx}'],
-    languageOptions: {
-      globals: {
-        ...globals.node,
-      },
+    files: ['src/**/*.stories.{ts,tsx}'],
+    rules: {
+      'storybook/no-renderer-packages': 'off',
     },
   }
 );

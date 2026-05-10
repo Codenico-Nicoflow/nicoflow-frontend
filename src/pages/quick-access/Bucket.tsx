@@ -70,11 +70,6 @@ const Bucket = () => {
         label: 'Note',
         className: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
       },
-      [ProcessingResult.SOMEDAY]: {
-        icon: <Archive className="h-3 w-3 mr-1" />,
-        label: 'Someday',
-        className: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20',
-      },
       [ProcessingResult.TRASH]: {
         icon: <Trash2 className="h-3 w-3 mr-1" />,
         label: 'Trash',

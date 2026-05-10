@@ -9,7 +9,7 @@ export const USER_STATUS = {
   REGULAR: 'regular',
 } as const;
 
-export const GENERAL_CATEGORY = 'general';
+export const GENERAL_AREA = 'general';
 
 // ============================================
 // PROJECT CONSTANTS
@@ -114,7 +114,6 @@ export const NotificationStatus = {
 export const ProcessingResult = {
   TASK: 'task',
   NOTE: 'note',
-  SOMEDAY: 'someday',
   TRASH: 'trash',
 } as const;
 
@@ -124,16 +123,9 @@ export const NoteType = {
   REVIEW_MATERIAL: 'review_material',
 } as const;
 
-export const SomedayType = {
-  IDEA: 'idea',
-  PROJECT_IDEA: 'project_idea',
-  TASK_IDEA: 'task_idea',
-} as const;
-
 export const BUCKET_PROCESSING_OPTIONS: ProcessingOption[] = [
   { value: ProcessingResult.TASK, label: 'Task', enabled: true },
   { value: ProcessingResult.NOTE, label: 'Note', enabled: false },
-  { value: ProcessingResult.SOMEDAY, label: 'Someday', enabled: false },
   { value: ProcessingResult.TRASH, label: 'Trash', enabled: true },
 ] as const;
 
@@ -152,7 +144,6 @@ export type NotificationTrigger = (typeof NotificationTrigger)[keyof typeof Noti
 export type NotificationStatus = (typeof NotificationStatus)[keyof typeof NotificationStatus];
 export type ProcessingResult = (typeof ProcessingResult)[keyof typeof ProcessingResult];
 export type NoteType = (typeof NoteType)[keyof typeof NoteType];
-export type SomedayType = (typeof SomedayType)[keyof typeof SomedayType];
 
 // ============================================
 // AUTH CONSTANTS

@@ -16,7 +16,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 import { LazyIcon } from '@/components';
-import { categoryApi, invalidateApiTags, useUpdateProjectMutation } from '@/lib/store';
+import { areaApi, invalidateApiTags, useUpdateProjectMutation } from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { IconId } from '@/lib/utils';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
@@ -54,28 +54,28 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
     const overIdValue = over.id.toString();
 
     try {
-      if (activeIdValue.startsWith('project-') && overIdValue.startsWith('category-')) {
+      if (activeIdValue.startsWith('project-') && overIdValue.startsWith('area-')) {
         const projectId = Number(activeIdValue.replace('project-', ''));
-        const targetCategoryId = Number(overIdValue.replace('category-', ''));
+        const targetAreaId = Number(overIdValue.replace('area-', ''));
 
-        if (Number.isNaN(projectId) || Number.isNaN(targetCategoryId)) {
+        if (Number.isNaN(projectId) || Number.isNaN(targetAreaId)) {
           showErrorToast(ToastMessages.INVALID_DROP_TARGET, toast);
           return;
         }
 
         const projectData = active.data.current?.project;
-        const currentCategoryId = projectData?.categoryId;
+        const currentAreaId = projectData?.areaId;
 
-        if (currentCategoryId === targetCategoryId) {
+        if (currentAreaId === targetAreaId) {
           return;
         }
 
         await updateProject({
           id: projectId,
-          body: { categoryId: targetCategoryId },
+          body: { areaId: targetAreaId },
         }).unwrap();
 
-        invalidateApiTags(dispatch, categoryApi, ['Category'] as const);
+        invalidateApiTags(dispatch, areaApi, ['Area'] as const);
 
         showSuccessToast(ToastMessages.PROJECT_MOVED, toast);
       } else {

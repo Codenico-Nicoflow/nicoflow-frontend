@@ -1,0 +1,35 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to confirm production deployment'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: github.event.inputs.confirm == 'DEPLOY'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://nicoflow-production.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Deploy to Vercel (production)
+        run: npx vercel deploy ./dist --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_PRODUCTION }}

@@ -18,9 +18,9 @@ export const ToastMessages = {
   TASK_CREATED_SUCCESSFULLY: 'Task created successfully!',
   TASK_DELETED_SUCCESSFULLY: 'Task deleted successfully!',
 
-  CATEGORY_CREATED: 'Category created successfully!',
-  CATEGORY_UPDATED: 'Category updated successfully!',
-  CATEGORY_DELETED: 'Category deleted successfully!',
+  AREA_CREATED: 'Area created successfully!',
+  AREA_UPDATED: 'Area updated successfully!',
+  AREA_DELETED: 'Area deleted successfully!',
 
   BUCKET_CREATED: 'Bucket item created successfully!',
   BUCKET_UPDATED: 'Bucket item updated successfully!',

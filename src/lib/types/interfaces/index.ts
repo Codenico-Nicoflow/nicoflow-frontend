@@ -20,7 +20,7 @@ import type { IconId } from '../icons';
 // INTERFACES
 // ============================================
 
-export interface ICategory {
+export interface IArea {
   id: number;
   name: string;
   icon?: IconId;
@@ -37,8 +37,8 @@ export interface IProject {
   createdAt: string;
   updatedAt: string;
   userId: number;
-  category: ICategory;
-  categoryId: number;
+  area: IArea;
+  areaId: number;
   status: 'active' | 'archived' | 'completed';
   icon?: IconId;
   sortOrder?: number;

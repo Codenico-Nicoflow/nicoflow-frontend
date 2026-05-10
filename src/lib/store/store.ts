@@ -3,10 +3,10 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+import { areaApi } from './slices/area/areaApi';
 import { authApi } from './slices/auth/authApi';
 import authReducer from './slices/auth/authSlice';
 import { bucketApi } from './slices/bucket/bucketApi';
-import { categoryApi } from './slices/category/categoryApi';
 import { projectApi } from './slices/project/projectApi';
 import { taskApi } from './slices/tasks/taskApi';
 
@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   [authApi.reducerPath]: authApi.reducer,
   [projectApi.reducerPath]: projectApi.reducer,
-  [categoryApi.reducerPath]: categoryApi.reducer,
+  [areaApi.reducerPath]: areaApi.reducer,
   [taskApi.reducerPath]: taskApi.reducer,
   [bucketApi.reducerPath]: bucketApi.reducer,
 });
@@ -34,13 +34,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(
-      authApi.middleware,
-      projectApi.middleware,
-      categoryApi.middleware,
-      taskApi.middleware,
-      bucketApi.middleware
-    ),
+    }).concat(authApi.middleware, projectApi.middleware, areaApi.middleware, taskApi.middleware, bucketApi.middleware),
 });
 
 export const persistor = persistStore(store);

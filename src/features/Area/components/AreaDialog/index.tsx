@@ -1,0 +1,98 @@
+import { useEffect } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Layers, Tag } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
+
+import { FormDialog, IconField, NameField } from '@/components';
+import { Form } from '@/components/ui/form.tsx';
+import { areaApi, invalidateApiTags, useCreateAreaMutation, useUpdateAreaMutation } from '@/lib/store';
+import type { IArea } from '@/lib/types';
+import {
+  createAreaSchema,
+  hasFormChanges,
+  showErrorToast,
+  showSuccessToast,
+  ToastMessages,
+  updateAreaSchema,
+} from '@/lib/utils';
+
+interface AreaDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  area?: IArea;
+  onSuccess?: () => void;
+}
+
+export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogProps) => {
+  const isEditMode = !!area;
+
+  const [createArea, { isLoading: isCreateLoading }] = useCreateAreaMutation();
+  const [updateArea, { isLoading: isUpdateLoading }] = useUpdateAreaMutation();
+  const dispatch = useDispatch();
+
+  const form = useForm<Partial<IArea>>({
+    defaultValues: {
+      name: area?.name || '',
+      icon: area?.icon || 'briefcase',
+    },
+    resolver: zodResolver(isEditMode ? updateAreaSchema : createAreaSchema),
+  });
+
+  const watchedValues = form.watch();
+
+  useEffect(() => {
+    if (area) {
+      form.reset(area);
+    }
+  }, [area, form]);
+
+  const hasChanges = hasFormChanges(isEditMode, area, watchedValues, ['name', 'icon']);
+
+  const onSubmit = async (data: Partial<IArea>) => {
+    if (isEditMode && !hasChanges) {
+      onOpenChange(false);
+      return;
+    }
+
+    try {
+      if (isEditMode) {
+        await updateArea({ id: area?.id, ...data }).unwrap();
+        invalidateApiTags(dispatch, areaApi, ['Area'] as const);
+        showSuccessToast(ToastMessages.AREA_UPDATED, toast);
+      } else {
+        await createArea(data).unwrap();
+        invalidateApiTags(dispatch, areaApi, ['Area'] as const);
+        showSuccessToast(ToastMessages.AREA_CREATED, toast);
+      }
+      onSuccess?.();
+      onOpenChange(false);
+    } catch (error) {
+      showErrorToast(error, toast);
+    }
+  };
+
+  return (
+    <FormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isEditMode ? 'Edit Area' : 'Create New Area'}
+      description={isEditMode ? 'Update Area details' : 'Add a new Area to organize your projects'}
+      icon={Layers}
+      isEditMode={isEditMode}
+      isLoading={isCreateLoading || isUpdateLoading}
+      hasChanges={hasChanges}
+      onSubmit={form.handleSubmit(onSubmit)}
+      maxWidth="md"
+    >
+      <Form {...form}>
+        <div className="space-y-4">
+          <NameField control={form.control} label="Area Name" icon={Tag} placeholder="Enter area name" delay={0.1} />
+          <IconField control={form.control} label="Area Icon" delay={0.2} />
+        </div>
+      </Form>
+    </FormDialog>
+  );
+};

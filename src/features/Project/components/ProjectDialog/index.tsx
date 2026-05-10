@@ -9,17 +9,17 @@ import { toast } from 'sonner';
 import { CheckboxField, DialogFieldGrid, DueDateField, FormDialog, IconField, NameField } from '@/components';
 import { Form } from '@/components/ui/form.tsx';
 import {
-  categoryApi,
+  areaApi,
   invalidateApiTags,
   useCreateProjectMutation,
-  useGetCategoriesQuery,
+  useGetAreasQuery,
   useUpdateProjectMutation,
 } from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { ProjectFormData } from '@/lib/utils';
 import { hasFormChanges, projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
-import { ProjectCategoryField } from '../ProjectCategoryField';
+import { ProjectAreaField } from '../ProjectAreaField';
 import { ProjectStatusField } from '../ProjectStatusField';
 
 interface ProjectDialogProps {
@@ -34,13 +34,13 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
 
   const [createProject, { isLoading: isCreateLoading }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdateLoading }] = useUpdateProjectMutation();
-  const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesQuery();
+  const { data: areas, isLoading: isAreasLoading } = useGetAreasQuery();
   const dispatch = useDispatch();
 
   const form = useForm<ProjectFormData>({
     defaultValues: {
       name: project?.name || '',
-      categoryId: project?.categoryId || categories?.[0]?.id || undefined,
+      areaId: project?.areaId || areas?.[0]?.id || undefined,
       icon: project?.icon || 'folder',
       status: project?.status || 'active',
       isFavorite: project?.isFavorite || false,
@@ -61,14 +61,14 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
   }, [project, form]);
 
   useEffect(() => {
-    if (!project && categories && categories.length > 0 && !form.getValues('categoryId')) {
-      form.setValue('categoryId', categories[0]?.id || 0);
+    if (!project && areas && areas.length > 0 && !form.getValues('areaId')) {
+      form.setValue('areaId', areas[0]?.id || 0);
     }
-  }, [categories, project, form]);
+  }, [areas, project, form]);
 
   const hasChanges = hasFormChanges(isEditMode, project, watchedValues as Partial<IProject>, [
     'name',
-    'categoryId',
+    'areaId',
     'icon',
     'status',
     'dueDate',
@@ -89,7 +89,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
         };
 
         await updateProject({ id: project?.id, body: updateData }).unwrap();
-        invalidateApiTags(dispatch, categoryApi, ['Category']);
+        invalidateApiTags(dispatch, areaApi, ['Area']);
         showSuccessToast(ToastMessages.PROJECT_UPDATED, toast);
       } else {
         const createData = {
@@ -99,7 +99,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
         };
 
         await createProject(createData).unwrap();
-        invalidateApiTags(dispatch, categoryApi, ['Category']);
+        invalidateApiTags(dispatch, areaApi, ['Area']);
         showSuccessToast(ToastMessages.PROJECT_CREATED, toast);
       }
       onSuccess?.();
@@ -119,7 +119,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
       description={isEditMode ? 'Update Project details' : 'Add a new Project to organize your Tasks'}
       icon={FolderKanban}
       isEditMode={isEditMode}
-      isLoading={isCreateLoading || isUpdateLoading || isCategoriesLoading}
+      isLoading={isCreateLoading || isUpdateLoading || isAreasLoading}
       hasChanges={hasChanges}
       onSubmit={form.handleSubmit(onSubmit)}
       maxWidth="xl"
@@ -135,7 +135,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
           />
 
           <DialogFieldGrid columns={2}>
-            <ProjectCategoryField control={form.control} />
+            <ProjectAreaField control={form.control} />
             <IconField control={form.control} label="Project Icon" delay={0.25} />
           </DialogFieldGrid>
 

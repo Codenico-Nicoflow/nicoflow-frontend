@@ -16,27 +16,27 @@ export const PROJECT_API = {
   DELETE_PROJECT: '/projects/',
 };
 
-export const CATEGORY_API = {
-  GET_CATEGORIES: '/Categories',
-  GET_CATEGORIES_WITH_PROJECTS: '/Categories/with-projects',
-  GET_CATEGORY: '/Categories/',
-  CREATE_CATEGORY: '/Categories',
-  UPDATE_CATEGORY: '/Categories/',
-  DELETE_CATEGORY: '/Categories/',
+export const AREA_API = {
+  GET_AREAS: '/areas',
+  GET_AREAS_WITH_PROJECTS: '/areas/with-projects',
+  GET_AREA: '/areas/',
+  CREATE_AREA: '/areas',
+  UPDATE_AREA: '/areas/',
+  DELETE_AREA: '/areas/',
 };
 
 export const TASKS_API = {
-  GET_TASKS: '/Tasks',
-  GET_TASK: '/Tasks/',
-  CREATE_TASK: '/Tasks',
-  UPDATE_TASK: '/Tasks/',
-  DELETE_TASK: '/Tasks/',
+  GET_TASKS: '/tasks',
+  GET_TASK: '/tasks/',
+  CREATE_TASK: '/tasks',
+  UPDATE_TASK: '/tasks/',
+  DELETE_TASK: '/tasks/',
 };
 
 export const BUCKET_API = {
-  GET_BUCKETS: '/Bucket',
-  GET_BUCKET: '/Bucket/',
-  CREATE_BUCKET: '/Bucket',
-  UPDATE_BUCKET: '/Bucket/',
-  DELETE_BUCKET: '/Bucket/',
+  GET_BUCKETS: '/bucket',
+  GET_BUCKET: '/bucket/',
+  CREATE_BUCKET: '/bucket',
+  UPDATE_BUCKET: '/bucket/',
+  DELETE_BUCKET: '/bucket/',
 };

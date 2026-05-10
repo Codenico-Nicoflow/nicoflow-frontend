@@ -1,4 +1,4 @@
-export { ProjectCategoryField } from './ProjectCategoryField';
+export { ProjectAreaField } from './ProjectAreaField';
 export { ProjectDeleteDialog } from './ProjectDeleteDialog';
 export { ProjectDialog } from './ProjectDialog';
 export { ProjectHeader } from './ProjectHeader';

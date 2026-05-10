@@ -163,7 +163,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
         </Alert>
       )}
 
-      {(selectedType === ProcessingResult.NOTE || selectedType === ProcessingResult.SOMEDAY) && (
+      {selectedType === ProcessingResult.NOTE && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>This feature is coming soon! Stay tuned.</AlertDescription>

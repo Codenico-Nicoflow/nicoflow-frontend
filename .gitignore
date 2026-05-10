@@ -50,11 +50,13 @@ storybook-static
 # TypeScript
 *.tsbuildinfo
 
+# Claude Code
+.claude/
+
 # Misc
 .cache
 tmp
 temp
 
 GITLAB_CI_CD_COMPLETE_GUIDE.md
-CLAUDE.md
 TESTING_STRATEGY_SUMMARY.md

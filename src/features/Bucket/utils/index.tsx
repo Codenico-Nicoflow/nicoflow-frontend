@@ -33,8 +33,6 @@ export const canProcessBucket = (
     case ProcessingResult.TRASH:
       return true;
     case ProcessingResult.NOTE:
-    case ProcessingResult.SOMEDAY:
-      // TODO: Implement validation when NOTE and SOMEDAY are ready
       return false;
     default:
       return false;
@@ -50,9 +48,6 @@ export interface ProcessBucketParams {
   selectedType: ProcessingResult;
   selectedProjectId?: number;
   taskData?: TaskFormData;
-  // TODO: Add noteData and somedayData when implemented
-  // noteData?: NoteFormData;
-  // somedayData?: SomedayFormData;
 }
 
 export const buildProcessBucketDto = ({
@@ -87,28 +82,7 @@ export const buildProcessBucketDto = ({
     }
 
     case ProcessingResult.NOTE:
-      // TODO: Implement NOTE processing
-      // return {
-      //   ...baseDto,
-      //   noteDetails: {
-      //     title: noteData.title,
-      //     content: noteData.content,
-      //     type: noteData.type,
-      //   },
-      // };
       throw new Error('NOTE processing is not yet implemented');
-
-    case ProcessingResult.SOMEDAY:
-      // TODO: Implement SOMEDAY processing
-      // return {
-      //   ...baseDto,
-      //   somedayDetails: {
-      //     title: somedayData.title,
-      //     description: somedayData.description,
-      //     type: somedayData.type,
-      //   },
-      // };
-      throw new Error('SOMEDAY processing is not yet implemented');
 
     case ProcessingResult.TRASH:
       return baseDto;
@@ -150,12 +124,7 @@ export const handleBucketProcess = async ({
         showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
         break;
       case ProcessingResult.NOTE:
-        // TODO: Add NOTE success toast when implemented
         showSuccessToast('Bucket item processed into note', toast);
-        break;
-      case ProcessingResult.SOMEDAY:
-        // TODO: Add SOMEDAY success toast when implemented
-        showSuccessToast('Bucket item saved for someday', toast);
         break;
       case ProcessingResult.TRASH:
         showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);

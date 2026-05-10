@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components';
-import { categoryApi, invalidateApiTags, useDeleteProjectMutation } from '@/lib/store';
+import { areaApi, invalidateApiTags, useDeleteProjectMutation } from '@/lib/store';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 interface DeleteDialogProps {
@@ -22,7 +22,7 @@ export const ProjectDeleteDialog = ({ open, onOpenChange, onSuccess, projectName
     try {
       await deleteProject(projectId).unwrap();
       showSuccessToast(ToastMessages.PROJECT_DELETED, toast);
-      invalidateApiTags(dispatch, categoryApi, ['Category']);
+      invalidateApiTags(dispatch, areaApi, ['Area']);
       onSuccess?.();
     } catch (error) {
       console.error('Error:', error);

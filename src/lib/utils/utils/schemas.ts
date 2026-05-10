@@ -46,24 +46,20 @@ const registerSchema = z.object({
 
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(50, 'Project name must be less than 50 characters'),
-  categoryId: z.number().min(1, 'Please select a Category'),
+  areaId: z.number().min(1, 'Please select an Area'),
   icon: z.enum(ICON_IDS),
   status: z.enum(['active', 'completed', 'archived']),
   dueDate: z.date().optional(),
   isFavorite: z.boolean().optional(),
 });
 
-const createCategorySchema = z.object({
-  name: z.string().min(1, 'Category name is required').max(30, 'Category name must be less than 30 characters'),
+const createAreaSchema = z.object({
+  name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters'),
   icon: z.enum(ICON_IDS).default('briefcase'),
 });
 
-const updateCategorySchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Category name is required')
-    .max(30, 'Category name must be less than 30 characters')
-    .optional(),
+const updateAreaSchema = z.object({
+  name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters').optional(),
   icon: z.enum(ICON_IDS).optional(),
 });
 
@@ -89,7 +85,7 @@ const bucketSchema = z.object({
 });
 
 const processBucketSchema = z.object({
-  processingResult: z.enum(['task', 'note', 'someday', 'trash']),
+  processingResult: z.enum(['task', 'note', 'trash']),
   projectId: z.number().optional(),
   taskDetails: taskSchema.optional(),
 });
@@ -112,7 +108,7 @@ export type ProcessBucketFormData = z.output<typeof processBucketSchema>;
 
 export {
   bucketSchema,
-  createCategorySchema,
+  createAreaSchema,
   forgotPasswordSchema,
   loginSchema,
   processBucketSchema,
@@ -120,5 +116,5 @@ export {
   registerSchema,
   resetPasswordSchema,
   taskSchema,
-  updateCategorySchema,
+  updateAreaSchema,
 };

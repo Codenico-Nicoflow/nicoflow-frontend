@@ -3,7 +3,7 @@ export {
   BUCKET_PROCESSING_OPTIONS,
   FilterBy,
   ForgotPasswordInputs,
-  GENERAL_CATEGORY,
+  GENERAL_AREA,
   LoginInputs,
   NoteType,
   NotificationStatus,
@@ -15,7 +15,6 @@ export {
   RecurrenceType,
   RegisterInputs,
   ResetPasswordInputs,
-  SomedayType,
   TaskPriority,
   TaskSortField,
   TaskSortOrder,
@@ -23,12 +22,12 @@ export {
   USER_STATUS,
   Weekday,
 } from './constants';
-export { AUTH_API, BUCKET_API, CATEGORY_API, PROJECT_API, TASKS_API } from './endpoints';
+export { AREA_API, AUTH_API, BUCKET_API, PROJECT_API, TASKS_API } from './endpoints';
 export type { IconId } from './icons';
 export { ICON_IDS } from './icons';
 export type {
+  IArea,
   IBucket,
-  ICategory,
   IProject,
   ITask,
   ITaskNotification,

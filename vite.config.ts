@@ -19,6 +19,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@nicoflow/shared': path.resolve(__dirname, './packages/shared/src/index.ts'),
       __tests__: path.resolve(__dirname, './__tests__'),
     },
   },

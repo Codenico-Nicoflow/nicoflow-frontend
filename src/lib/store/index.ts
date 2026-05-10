@@ -47,22 +47,17 @@ export type {
   UpdateProjectResponse,
 } from './slices/project/type';
 
-// Category exports
-export { categoryApi } from './slices/category/categoryApi';
+// Area exports
+export { areaApi } from './slices/area/areaApi';
 export {
-  useCreateCategoryMutation,
-  useDeleteCategoryMutation,
-  useGetCategoriesQuery,
-  useGetCategoriesWithProjectsQuery,
-  useGetCategoryQuery,
-  useUpdateCategoryMutation,
-} from './slices/category/categoryApi';
-export type {
-  CreateCategoryRequest,
-  CreateCategoryResponse,
-  UpdateCategoryRequest,
-  UpdateCategoryResponse,
-} from './slices/category/type';
+  useCreateAreaMutation,
+  useDeleteAreaMutation,
+  useGetAreaQuery,
+  useGetAreasQuery,
+  useGetAreasWithProjectsQuery,
+  useUpdateAreaMutation,
+} from './slices/area/areaApi';
+export type { CreateAreaRequest, CreateAreaResponse, UpdateAreaRequest, UpdateAreaResponse } from './slices/area/type';
 
 // Task exports
 export { taskApi } from './slices/tasks/taskApi';
@@ -91,7 +86,6 @@ export type {
   CreateBucketDto,
   NoteDetails,
   ProcessBucketDto,
-  SomedayDetails,
   TaskDetails,
   UpdateBucketDto,
 } from './slices/bucket/type';

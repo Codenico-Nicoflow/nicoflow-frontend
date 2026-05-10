@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
 import { LoadingOverlayProvider, ThemeProvider } from '@/components';
-import { authApi, bucketApi, categoryApi, projectApi, taskApi } from '@/lib/store';
+import { areaApi, authApi, bucketApi, projectApi, taskApi } from '@/lib/store';
 
 type AuthState = { user: null; token: null; isAuthenticated: boolean };
 type AuthAction =
@@ -32,7 +32,7 @@ const createRootReducer = () =>
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
-    [categoryApi.reducerPath]: categoryApi.reducer,
+    [areaApi.reducerPath]: areaApi.reducer,
     [taskApi.reducerPath]: taskApi.reducer,
     [bucketApi.reducerPath]: bucketApi.reducer,
   });
@@ -53,7 +53,7 @@ export const createMockStore = (preloadedState?: Partial<MockRootState>) => {
       }).concat(
         authApi.middleware,
         projectApi.middleware,
-        categoryApi.middleware,
+        areaApi.middleware,
         taskApi.middleware,
         bucketApi.middleware
       ),

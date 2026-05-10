@@ -29,18 +29,11 @@ export interface NoteDetails {
   type: string;
 }
 
-export interface SomedayDetails {
-  title: string;
-  description?: string;
-  type: string;
-}
-
 export interface ProcessBucketDto {
   processingResult: ProcessingResult;
   projectId?: number;
   taskDetails?: TaskDetails;
   noteDetails?: NoteDetails;
-  somedayDetails?: SomedayDetails;
 }
 
 // ============================================

@@ -1,5 +1,5 @@
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from '@/components/ui/sidebar';
-import Categories from '@/features/Sidebar/Categories/components/Categories';
+import Areas from '@/features/Sidebar/Areas/components/Areas';
 
 import { SidebarFooter as SidebarFooterComponent } from '../../Footer';
 import { QuickAccess } from '../../QuickAccess';
@@ -15,7 +15,7 @@ export function AppSidebar() {
 
       <SidebarContent className="p-2 space-y-4">
         <QuickAccess />
-        <Categories />
+        <Areas />
       </SidebarContent>
 
       <SidebarFooter>

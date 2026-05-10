@@ -18,7 +18,7 @@ import type {
 export const projectApi = createApi({
   reducerPath: 'projectApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Project', 'Category'],
+  tagTypes: ['Project', 'Area'],
   endpoints: builder => ({
     getProjects: builder.query<GetProjectsResponse, void>({
       query: () => PROJECT_API.GET_PROJECTS,

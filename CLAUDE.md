@@ -416,14 +416,23 @@ pnpm storybook     # → http://localhost:6006
 
 `.github/workflows/` (GitHub Actions):
 
-| File                    | Trigger                                    | Jobs                                        |
-| ----------------------- | ------------------------------------------ | ------------------------------------------- |
-| `ci.yml`                | push to any branch, PR to `main`/`staging` | lint → type-check → test (parallel) → build |
-| `deploy-staging.yml`    | push to `staging`                          | install → build → Vercel staging            |
-| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY")        | install → build → Vercel production         |
+| File                    | Trigger                             | Jobs                                        |
+| ----------------------- | ----------------------------------- | ------------------------------------------- |
+| `ci.yml`                | push to any branch, PR to `staging` | lint → type-check → test (parallel) → build |
+| `deploy-staging.yml`    | push to `staging`                   | install → build → Vercel staging            |
+| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY") | install → build → Vercel production         |
 
 **Secrets required:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_STAGING`, `VERCEL_PROJECT_ID_PRODUCTION`
 
 Deployment: Vercel. `vercel.json` at repo root handles SPA fallback routing.
 
-Branches: `main` (stable, manual deploy), `staging` (auto-deploy), `feature/*` → PR to `main`.
+**Branching strategy:**
+
+```
+feature/NIC-XXXX-description  →  PR to staging  →  merge  →  Vercel staging auto-deploys
+staging                        →  PR to main     →  merge  →  manual production deploy
+```
+
+- `feature/*` — all story/task work happens here; branch name includes Jira key
+- `staging` — integration branch; auto-deploys to `https://staging.nicoflow.app` on every merge
+- `main` — production-stable; only updated via PR from `staging`; deployed manually via `workflow_dispatch`

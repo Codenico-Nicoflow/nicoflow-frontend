@@ -1,23 +1,11 @@
 import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 
-import AuthLayout from '@/layout/AuthLayout';
-import PrivateLayout from '@/layout/PrivateLayout';
+import { AuthLayout, PrivateLayout } from '@/layout';
 import { useAppUser } from '@/lib/store';
-
-import ForgotPassword from './pages/auth/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword';
-import SignIn from './pages/auth/SignIn';
-import SignUp from './pages/auth/SignUp';
-import ErrorPage from './pages/ErrorPage';
-import HelpAndInformation from './pages/HelpAndInformation';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import Profile from './pages/Profile';
-import ProjectView from './pages/project/ProjectView';
-import Bucket from './pages/quick-access/Bucket';
-import NextSevenDays from './pages/quick-access/NextSevenDays';
-import Today from './pages/quick-access/Today';
-import Tomorrow from './pages/quick-access/Tomorrow';
-import TermsOfService from './pages/TermsOfService';
+import { ErrorPage, HelpAndInformation, PrivacyPolicy, Profile, TermsOfService } from '@/pages';
+import { ForgotPassword, ResetPassword, SignIn, SignUp } from '@/pages/auth';
+import { ProjectView } from '@/pages/project';
+import { Bucket, NextSevenDays, Today, Tomorrow } from '@/pages/quick-access';
 
 const PrivateRoutes = () => {
   const location = useLocation();

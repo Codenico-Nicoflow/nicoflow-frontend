@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/features/Sidebar';
-import { useIsMobile } from '@/hooks/useMobile';
+import { useIsMobile } from '@/hooks';
 
 import { CustomSidebarTrigger } from './CustomSidebarTrigger';
 import QuickAddButton from './QuickAddButton';

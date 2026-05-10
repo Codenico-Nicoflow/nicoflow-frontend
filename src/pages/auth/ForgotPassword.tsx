@@ -1,4 +1,4 @@
-import SignForm from '@/features/SignForm/SignForm';
+import { SignForm } from '@/features/SignForm';
 import { ForgotPasswordInputs } from '@/lib/types';
 
 export default function ForgotPassword() {

@@ -8,28 +8,28 @@ React 19 SPA for the Nicoflow task management platform. Standalone repo — not 
 
 ## Stack
 
-| Layer       | Package                                                             | Notes                                                      |
-| ----------- | ------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Framework   | `react@19`, `react-dom@19`                                          |                                                            |
-| Language    | `typescript@5.8`                                                    | strict mode                                                |
-| Build       | `vite@7` + `@tailwindcss/vite`                                      | SVGs via `vite-plugin-svgr`                                |
-| Styling     | `tailwindcss@4` + `tailwindcss-animate`                             | tokens in `src/index.css` as CSS custom properties         |
-| Components  | `shadcn/ui` (New York, neutral)                                     | primitives in `src/components/ui/`                         |
-| Routing     | `react-router-dom@7`                                                | `useRoutes` pattern in `src/router.tsx`                    |
-| State       | `@reduxjs/toolkit@2` + RTK Query                                    |                                                            |
-| Persistence | `redux-persist@6`                                                   | whitelist: `['auth']` only                                 |
-| Auth mutex  | `async-mutex`                                                       | prevents parallel refresh races in `baseQuery.ts`          |
-| Forms       | `react-hook-form@7` + `zod@4` + `@hookform/resolvers`               |                                                            |
-| Animations  | `framer-motion@12`                                                  |                                                            |
-| DnD         | `@dnd-kit/core` + `@dnd-kit/sortable`                               |                                                            |
-| Icons       | `lucide-react`                                                      | `LazyIcon` for dynamic-by-name loading                     |
-| Toasts      | `sonner@2`                                                          | **never** `react-toastify` (still in package.json, unused) |
-| Theme       | `next-themes`                                                       | key `"nicoflow-theme"` in `Providers.tsx`                  |
-| Testing     | `vitest@3` + `@testing-library/react@16` + `msw@2` + `playwright@1` |                                                            |
-| Linting     | `eslint@9` flat config + `typescript-eslint` + `simple-import-sort` |                                                            |
-| Formatting  | `prettier`                                                          | single quotes, 120 width, 2-space indent                   |
-| Git hooks   | `husky` + `lint-staged`                                             | lint + prettier on commit                                  |
-| Storybook   | `storybook@10` + `@storybook/react-vite`                            | stories in `src/**/*.stories.tsx`                          |
+| Layer       | Package                                                             | Notes                                              |
+| ----------- | ------------------------------------------------------------------- | -------------------------------------------------- |
+| Framework   | `react@19`, `react-dom@19`                                          |                                                    |
+| Language    | `typescript@5.8`                                                    | strict mode                                        |
+| Build       | `vite@7` + `@tailwindcss/vite`                                      | SVGs via `vite-plugin-svgr`                        |
+| Styling     | `tailwindcss@4` + `tailwindcss-animate`                             | tokens in `src/index.css` as CSS custom properties |
+| Components  | `shadcn/ui` (New York, neutral)                                     | primitives in `src/components/ui/`                 |
+| Routing     | `react-router-dom@7`                                                | `useRoutes` pattern in `src/router.tsx`            |
+| State       | `@reduxjs/toolkit@2` + RTK Query                                    |                                                    |
+| Persistence | `redux-persist@6`                                                   | whitelist: `['auth']` only                         |
+| Auth mutex  | `async-mutex`                                                       | prevents parallel refresh races in `baseQuery.ts`  |
+| Forms       | `react-hook-form@7` + `zod@4` + `@hookform/resolvers`               |                                                    |
+| Animations  | `framer-motion@12`                                                  |                                                    |
+| DnD         | `@dnd-kit/core` + `@dnd-kit/sortable`                               |                                                    |
+| Icons       | `lucide-react`                                                      | `LazyIcon` for dynamic-by-name loading             |
+| Toasts      | `sonner@2`                                                          | never `react-toastify` — removed                   |
+| Theme       | `next-themes`                                                       | key `"nicoflow-theme"` in `Providers.tsx`          |
+| Testing     | `vitest@3` + `@testing-library/react@16` + `msw@2` + `playwright@1` |                                                    |
+| Linting     | `eslint@9` flat config + `typescript-eslint` + `simple-import-sort` |                                                    |
+| Formatting  | `prettier`                                                          | single quotes, 120 width, 2-space indent           |
+| Git hooks   | `husky` + `lint-staged`                                             | lint + prettier on commit                          |
+| Storybook   | `storybook@10` + `@storybook/react-vite`                            | stories in `src/**/*.stories.tsx`                  |
 
 ---
 
@@ -279,7 +279,7 @@ toast.error(ToastMessages.UNEXPECTED_ERROR);
 
 `ToastMessages` is defined in `src/lib/utils/utils/messages.ts`. It covers auth, project, task, category, bucket, rate-limit, and general error cases.
 
-**Never** `import { toast } from 'react-toastify'` — it's an unused dep that needs to be removed.
+**Never** `import { toast } from 'react-toastify'` — removed from the project.
 
 ---
 
@@ -332,7 +332,7 @@ From `eslint.config.js`:
 | `import/no-duplicates`               | `error` |                                 |
 | `import/first`                       | `error` |                                 |
 
-⚠️ React hooks rules (`eslint-plugin-react-hooks`) currently only apply to `apps/web/**` — a leftover from the old monorepo structure. They don't apply to `src/**` yet. This is a known bug to fix in `eslint.config.js`.
+React hooks rules (`eslint-plugin-react-hooks`) apply to `src/**`.
 
 **Import order** (enforced by `simple-import-sort`):
 
@@ -381,18 +381,6 @@ Storybook infrastructure:
 - `src/stories/decorators/withStoryProviders.tsx` — global decorator
 - `src/stories/helpers/StoryFormWrapper.tsx` — generic render-prop for form field stories
 - `src/stories/mocks/index.ts` — typed mock factories
-
----
-
-## Known Issues (TODO — Sprint 01)
-
-These exist in the codebase right now and need to be fixed:
-
-1. **`eslint.config.js` React rules scope** — `react-hooks` and `react-refresh` plugins only apply to `apps/web/**` (dead path). Move to `src/**`.
-
-2. **`react-toastify`** — in `package.json`, not used anywhere. Remove.
-
-3. **Empty directories** — `apps/` and `packages/` are leftover monorepo scaffolding with no source code. Delete.
 
 ---
 

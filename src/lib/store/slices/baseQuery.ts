@@ -6,7 +6,7 @@ import { AUTH_API } from '@/lib/types';
 
 export const rawBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> =
   fetchBaseQuery({
-    baseUrl: 'http://localhost:3001/',
+    baseUrl: 'http://localhost:8080/v1',
     credentials: 'include',
     prepareHeaders: async headers => {
       // Get token from localStorage or your auth store

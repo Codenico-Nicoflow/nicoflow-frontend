@@ -235,7 +235,7 @@ Every epic is "Done" only when **all** of the following are true:
 ## 3. API Endpoint Reference
 
 **Base URL:** `https://api.nicoflow.app/v1/`
-**Local dev:** `http://localhost:3001/v1/`
+**Local dev:** `http://localhost:8080/v1/`
 
 All authenticated endpoints require `Authorization: Bearer <jwt>` header.
 All request and response bodies are `application/json`.
@@ -2365,7 +2365,7 @@ Plan is read from the JWT `plan` claim — no DB call on each request.
 | ----------- | ------------------------------------- |
 | Production  | `https://api.nicoflow.app/v1`         |
 | Staging     | `https://api-staging.nicoflow.app/v1` |
-| Local       | `http://localhost:3001/v1`            |
+| Local       | `http://localhost:8080/v1`            |
 
 All endpoints are prefixed with `/v1/`. The version prefix is part of the router mount, not individual handler paths. In v1, list endpoints return bare arrays (no pagination wrapper) to match existing RTK Query slice expectations.
 
@@ -2614,7 +2614,7 @@ Implemented in `src/hooks/useWebSocket.ts`:
 
 > This section is the single source of truth for all frontend implementation decisions.
 
-The frontend is a React 19 SPA built with Vite 7 and TypeScript 5.8 in strict mode. It communicates exclusively with the Nicoflow API (`http://localhost:8080/`) via RTK Query. All state, routing, theming, and drag-and-drop are managed by the libraries listed below.
+The frontend is a React 19 SPA built with Vite 7 and TypeScript 5.8 in strict mode. It communicates exclusively with the Nicoflow API (`http://localhost:8080/v1`) via RTK Query. All state, routing, theming, and drag-and-drop are managed by the libraries listed below.
 
 ---
 
@@ -3134,11 +3134,11 @@ pnpm storybook    # → http://localhost:6006
 
 GitHub Actions workflows are in `.github/workflows/`.
 
-| File                    | Trigger                                       | Jobs                                        |
-| ----------------------- | --------------------------------------------- | ------------------------------------------- |
-| `ci.yml`                | Push to any branch; PR to `main` or `staging` | lint → type-check → test (parallel) → build |
-| `deploy-staging.yml`    | Push to `staging`                             | install → build → Vercel staging deploy     |
-| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY")           | install → build → Vercel production deploy  |
+| File                    | Trigger                             | Jobs                                        |
+| ----------------------- | ----------------------------------- | ------------------------------------------- |
+| `ci.yml`                | PR to `main` or `staging`           | lint → type-check → test (parallel) → build |
+| `deploy-staging.yml`    | Push to `staging`                   | install → build → Vercel staging deploy     |
+| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY") | install → build → Vercel production deploy  |
 
 **Required secrets:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_STAGING`, `VERCEL_PROJECT_ID_PRODUCTION`
 

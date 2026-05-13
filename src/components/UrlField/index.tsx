@@ -11,6 +11,8 @@ interface UrlFieldProps<T extends FieldValues> {
   label?: string;
   fieldName?: Path<T>;
   delay?: number;
+  optional?: boolean;
+  'data-testid'?: string;
 }
 
 export const UrlField = <T extends FieldValues>({
@@ -18,6 +20,8 @@ export const UrlField = <T extends FieldValues>({
   label = 'URL',
   fieldName = 'url' as Path<T>,
   delay = 0.3,
+  optional = false,
+  'data-testid': testId,
 }: UrlFieldProps<T>) => {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
@@ -25,15 +29,19 @@ export const UrlField = <T extends FieldValues>({
         control={control}
         name={fieldName}
         render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <FormItem data-testid={testId ? `${testId}-url-item` : 'url-item'}>
+            <FormLabel
+              data-testid={testId ? `${testId}-url-label` : 'url-label'}
+              className="text-sm font-semibold text-foreground flex items-center gap-2"
+            >
               <Link className="h-4 w-4" />
               {label}
-              <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
             </FormLabel>
             <div className="flex gap-2">
               <FormControl>
                 <Input
+                  data-testid={testId ? `${testId}-url-input` : 'url-input'}
                   type="url"
                   placeholder="https://example.com"
                   className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
@@ -45,8 +53,9 @@ export const UrlField = <T extends FieldValues>({
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:border-destructive hover:text-destructive transition-colors flex-shrink-0"
-                  onClick={() => field.onChange('')}
+                  data-testid={testId ? `${testId}-url-clear-button` : 'url-clear-button'}
+                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:bg-primary/20 hover:text-primary transition-colors flex-shrink-0"
+                  onClick={() => field.onChange(undefined)}
                 >
                   <X className="h-4 w-4" />
                 </Button>

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Star } from 'lucide-react';
 
-import { StoryFormWrapper } from '@/stories/helpers/StoryFormWrapper';
+import { StoryFormWrapper } from '@/stories/helpers';
 
 import { CheckboxField } from '.';
 
@@ -44,6 +44,16 @@ export const WithDescription: Story = {
           icon={Star}
           fieldName="isFavorite"
         />
+      )}
+    </StoryFormWrapper>
+  ),
+};
+
+export const Optional: Story = {
+  render: () => (
+    <StoryFormWrapper<FavoriteForm> defaultValues={{ isFavorite: false }}>
+      {control => (
+        <CheckboxField optional control={control} label="Mark as Favorite" icon={Star} fieldName="isFavorite" />
       )}
     </StoryFormWrapper>
   ),

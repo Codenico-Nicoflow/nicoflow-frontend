@@ -151,7 +151,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           </DialogFieldGrid>
 
           <EstimatedTimeField control={form.control} delay={0.3} />
-          <UrlField control={form.control} delay={0.35} />
+          <UrlField control={form.control} delay={0.35} optional />
         </div>
       </Form>
     </FormDialog>

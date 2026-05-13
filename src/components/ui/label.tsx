@@ -4,7 +4,11 @@ import * as LabelPrimitive from '@radix-ui/react-label';
 
 import { cn } from '@/lib/utils';
 
-function Label({ className, 'data-testid': testId, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
+function Label({
+  className,
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root> & { 'data-testid'?: string }) {
   return (
     <LabelPrimitive.Root
       data-slot="label"

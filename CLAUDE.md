@@ -2,34 +2,34 @@
 
 React 19 SPA for the Nicoflow task management platform. Standalone repo — not a monorepo.
 
-**Backend:** `nicoflow-api` (Go) at `http://localhost:8080/`
+**Backend:** `nicoflow-api` (Go) at `http://localhost:8080/v1`
 
 ---
 
 ## Stack
 
-| Layer       | Package                                                             | Notes                                                      |
-| ----------- | ------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Framework   | `react@19`, `react-dom@19`                                          |                                                            |
-| Language    | `typescript@5.8`                                                    | strict mode                                                |
-| Build       | `vite@7` + `@tailwindcss/vite`                                      | SVGs via `vite-plugin-svgr`                                |
-| Styling     | `tailwindcss@4` + `tailwindcss-animate`                             | tokens in `src/index.css` as CSS custom properties         |
-| Components  | `shadcn/ui` (New York, neutral)                                     | primitives in `src/components/ui/`                         |
-| Routing     | `react-router-dom@7`                                                | `useRoutes` pattern in `src/router.tsx`                    |
-| State       | `@reduxjs/toolkit@2` + RTK Query                                    |                                                            |
-| Persistence | `redux-persist@6`                                                   | whitelist: `['auth']` only                                 |
-| Auth mutex  | `async-mutex`                                                       | prevents parallel refresh races in `baseQuery.ts`          |
-| Forms       | `react-hook-form@7` + `zod@4` + `@hookform/resolvers`               |                                                            |
-| Animations  | `framer-motion@12`                                                  |                                                            |
-| DnD         | `@dnd-kit/core` + `@dnd-kit/sortable`                               |                                                            |
-| Icons       | `lucide-react`                                                      | `LazyIcon` for dynamic-by-name loading                     |
-| Toasts      | `sonner@2`                                                          | **never** `react-toastify` (still in package.json, unused) |
-| Theme       | `next-themes`                                                       | key `"nicoflow-theme"` in `Providers.tsx`                  |
-| Testing     | `vitest@3` + `@testing-library/react@16` + `msw@2` + `playwright@1` |                                                            |
-| Linting     | `eslint@9` flat config + `typescript-eslint` + `simple-import-sort` |                                                            |
-| Formatting  | `prettier`                                                          | single quotes, 120 width, 2-space indent                   |
-| Git hooks   | `husky` + `lint-staged`                                             | lint + prettier on commit                                  |
-| Storybook   | `storybook@10` + `@storybook/react-vite`                            | stories in `src/**/*.stories.tsx`                          |
+| Layer       | Package                                                             | Notes                                              |
+| ----------- | ------------------------------------------------------------------- | -------------------------------------------------- |
+| Framework   | `react@19`, `react-dom@19`                                          |                                                    |
+| Language    | `typescript@5.8`                                                    | strict mode                                        |
+| Build       | `vite@7` + `@tailwindcss/vite`                                      | SVGs via `vite-plugin-svgr`                        |
+| Styling     | `tailwindcss@4` + `tailwindcss-animate`                             | tokens in `src/index.css` as CSS custom properties |
+| Components  | `shadcn/ui` (New York, neutral)                                     | primitives in `src/components/ui/`                 |
+| Routing     | `react-router-dom@7`                                                | `useRoutes` pattern in `src/router.tsx`            |
+| State       | `@reduxjs/toolkit@2` + RTK Query                                    |                                                    |
+| Persistence | `redux-persist@6`                                                   | whitelist: `['auth']` only                         |
+| Auth mutex  | `async-mutex`                                                       | prevents parallel refresh races in `baseQuery.ts`  |
+| Forms       | `react-hook-form@7` + `zod@4` + `@hookform/resolvers`               |                                                    |
+| Animations  | `framer-motion@12`                                                  |                                                    |
+| DnD         | `@dnd-kit/core` + `@dnd-kit/sortable`                               |                                                    |
+| Icons       | `lucide-react`                                                      | `LazyIcon` for dynamic-by-name loading             |
+| Toasts      | `sonner@2`                                                          | never `react-toastify` — removed                   |
+| Theme       | `next-themes`                                                       | key `"nicoflow-theme"` in `Providers.tsx`          |
+| Testing     | `vitest@3` + `@testing-library/react@16` + `msw@2` + `playwright@1` |                                                    |
+| Linting     | `eslint@9` flat config + `typescript-eslint` + `simple-import-sort` |                                                    |
+| Formatting  | `prettier`                                                          | single quotes, 120 width, 2-space indent           |
+| Git hooks   | `husky` + `lint-staged`                                             | lint + prettier on commit                          |
+| Storybook   | `storybook@10` + `@storybook/react-vite`                            | stories in `src/**/*.stories.tsx`                  |
 
 ---
 
@@ -160,7 +160,7 @@ Auth guard is in `PrivateRoutes` (`src/router.tsx`): reads `useAppUser()` — if
 
 ## API & Auth
 
-**Base URL:** `http://localhost:8080/` — hardcoded in `src/lib/store/slices/baseQuery.ts`
+**Base URL:** `http://localhost:8080/v1` — hardcoded in `src/lib/store/slices/baseQuery.ts`
 
 **Token flow:**
 
@@ -279,7 +279,7 @@ toast.error(ToastMessages.UNEXPECTED_ERROR);
 
 `ToastMessages` is defined in `src/lib/utils/utils/messages.ts`. It covers auth, project, task, category, bucket, rate-limit, and general error cases.
 
-**Never** `import { toast } from 'react-toastify'` — it's an unused dep that needs to be removed.
+**Never** `import { toast } from 'react-toastify'` — removed from the project.
 
 ---
 
@@ -332,7 +332,7 @@ From `eslint.config.js`:
 | `import/no-duplicates`               | `error` |                                 |
 | `import/first`                       | `error` |                                 |
 
-⚠️ React hooks rules (`eslint-plugin-react-hooks`) currently only apply to `apps/web/**` — a leftover from the old monorepo structure. They don't apply to `src/**` yet. This is a known bug to fix in `eslint.config.js`.
+React hooks rules (`eslint-plugin-react-hooks`) apply to `src/**`.
 
 **Import order** (enforced by `simple-import-sort`):
 
@@ -384,22 +384,10 @@ Storybook infrastructure:
 
 ---
 
-## Known Issues (TODO — Sprint 01)
-
-These exist in the codebase right now and need to be fixed:
-
-1. **`eslint.config.js` React rules scope** — `react-hooks` and `react-refresh` plugins only apply to `apps/web/**` (dead path). Move to `src/**`.
-
-2. **`react-toastify`** — in `package.json`, not used anywhere. Remove.
-
-3. **Empty directories** — `apps/` and `packages/` are leftover monorepo scaffolding with no source code. Delete.
-
----
-
 ## Local Dev
 
 ```bash
-# Prerequisites: Node 20+, pnpm 10.18.3+, nicoflow-api running on :3001
+# Prerequisites: Node 20+, pnpm 10.18.3+, nicoflow-api running on :8080/v1
 pnpm install
 pnpm dev           # Vite dev server → http://localhost:5173
 pnpm type-check    # tsc --noEmit
@@ -416,14 +404,28 @@ pnpm storybook     # → http://localhost:6006
 
 `.github/workflows/` (GitHub Actions):
 
-| File                    | Trigger                                    | Jobs                                        |
-| ----------------------- | ------------------------------------------ | ------------------------------------------- |
-| `ci.yml`                | push to any branch, PR to `main`/`staging` | lint → type-check → test (parallel) → build |
-| `deploy-staging.yml`    | push to `staging`                          | install → build → Vercel staging            |
-| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY")        | install → build → Vercel production         |
+| File                    | Trigger                             | Jobs                                        |
+| ----------------------- | ----------------------------------- | ------------------------------------------- |
+| `ci.yml`                | PR to `main` or `staging`           | lint → type-check → test (parallel) → build |
+| `deploy-staging.yml`    | push to `staging`                   | install → build → Vercel staging            |
+| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY") | install → build → Vercel production         |
 
-**Secrets required:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_STAGING`, `VERCEL_PROJECT_ID_PRODUCTION`
+**Required secrets** (GitHub → Settings → Secrets and variables → Actions):
+
+| Secret                         | Description                                      |
+| ------------------------------ | ------------------------------------------------ |
+| `VERCEL_TOKEN`                 | Vercel personal access token                     |
+| `VERCEL_ORG_ID`                | Vercel team/org ID                               |
+| `VERCEL_PROJECT_ID_STAGING`    | Vercel project ID for the staging environment    |
+| `VERCEL_PROJECT_ID_PRODUCTION` | Vercel project ID for the production environment |
+| `VITE_API_URL_STAGING`         | Backend API base URL for staging builds          |
+| `VITE_API_URL_PRODUCTION`      | Backend API base URL for production builds       |
 
 Deployment: Vercel. `vercel.json` at repo root handles SPA fallback routing.
 
-Branches: `main` (stable, manual deploy), `staging` (auto-deploy), `feature/*` → PR to `main`.
+**Branching strategy:**
+
+```
+feature/NIC-XXXX-description  →  PR to staging  →  merge  →  Vercel staging auto-deploys
+staging                        →  PR to main     →  merge  →  manual production deploy
+```

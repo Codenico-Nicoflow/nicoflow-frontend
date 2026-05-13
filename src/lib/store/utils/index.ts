@@ -1,0 +1,1 @@
+export { invalidateApiTags } from './invalidateTags';

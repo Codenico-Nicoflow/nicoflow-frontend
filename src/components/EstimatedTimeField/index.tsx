@@ -11,6 +11,8 @@ interface EstimatedTimeFieldProps<T extends FieldValues> {
   label?: string;
   fieldName?: Path<T>;
   delay?: number;
+  optional?: boolean;
+  'data-testid'?: string;
 }
 
 export const EstimatedTimeField = <T extends FieldValues>({
@@ -18,6 +20,8 @@ export const EstimatedTimeField = <T extends FieldValues>({
   label = 'Estimated Time',
   fieldName = 'estimatedMinutes' as Path<T>,
   delay = 0.25,
+  optional = false,
+  'data-testid': testId,
 }: EstimatedTimeFieldProps<T>) => {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
@@ -25,16 +29,20 @@ export const EstimatedTimeField = <T extends FieldValues>({
         control={control}
         name={fieldName}
         render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <FormItem data-testid={testId ? `${testId}-estimated-time-item` : 'estimated-time-item'}>
+            <FormLabel
+              data-testid={testId ? `${testId}-estimated-time-label` : 'estimated-time-label'}
+              className="text-sm font-semibold text-foreground flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               {label}
-              <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
             </FormLabel>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <FormControl>
                   <Input
+                    data-testid={testId ? `${testId}-estimated-time-input` : 'estimated-time-input'}
                     type="number"
                     placeholder="Enter estimated time"
                     onChange={e => {
@@ -61,8 +69,9 @@ export const EstimatedTimeField = <T extends FieldValues>({
                 <Button
                   type="button"
                   variant="outline"
+                  data-testid={testId ? `${testId}-estimated-time-clear-button` : 'estimated-time-clear-button'}
                   size="icon"
-                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:border-destructive hover:text-destructive transition-colors flex-shrink-0"
+                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:bg-primary/20 hover:text-primary transition-colors flex-shrink-0"
                   onClick={() => field.onChange(undefined)}
                 >
                   <X className="h-4 w-4" />

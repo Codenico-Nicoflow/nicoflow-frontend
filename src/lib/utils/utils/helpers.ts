@@ -63,7 +63,7 @@ export function capitalize(str: string) {
 
 export function isDateInPast(date: Date) {
   const today = new Date();
-  today.setHours(1, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
   date.setHours(0, 0, 0, 0);
   return date < today;
 }

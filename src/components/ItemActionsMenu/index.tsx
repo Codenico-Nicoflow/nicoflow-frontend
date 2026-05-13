@@ -51,6 +51,7 @@ export const ItemActionsMenu = ({
         {actions.map((action, index) => (
           <DropdownMenuItem
             key={index}
+            data-testid={`${testId ?? 'item-actions-menu'}-action-${action.label.toLowerCase().replace(/\s+/g, '-')}`}
             onClick={action.onClick}
             disabled={action.disabled}
             variant={action.destructive ? 'destructive' : 'default'}

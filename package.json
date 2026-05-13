@@ -87,6 +87,8 @@
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^17.0.4",
+    "prettier": "^3.6.2",
     "postcss": "^8.5.6",
     "storybook": "^10.3.6",
     "storybook-addon-remix-react-router": "^6.1.0",

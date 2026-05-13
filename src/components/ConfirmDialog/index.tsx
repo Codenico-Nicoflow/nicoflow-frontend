@@ -5,6 +5,7 @@ import { type LucideIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CONFIRM_DIALOG_CANCEL_BUTTON, CONFIRM_DIALOG_CONFIRM_BUTTON } from '@/lib/test_ids';
 import { cn } from '@/lib/utils';
 
 export interface ConfirmDialogProps {
@@ -53,9 +54,7 @@ export const ConfirmDialog = ({
 }: ConfirmDialogProps) => {
   const handleConfirm = async () => {
     await onConfirm();
-    if (!isLoading) {
-      onOpenChange(false);
-    }
+    onOpenChange(false);
   };
 
   const styles = variantStyles[variant];
@@ -94,6 +93,7 @@ export const ConfirmDialog = ({
           <Button
             type="button"
             variant="outline"
+            data-testid={CONFIRM_DIALOG_CANCEL_BUTTON}
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
             className="w-full sm:w-1/2 h-9 sm:h-10"
@@ -103,6 +103,7 @@ export const ConfirmDialog = ({
           <Button
             type="button"
             variant={destructive ? 'destructive' : 'default'}
+            data-testid={CONFIRM_DIALOG_CONFIRM_BUTTON}
             onClick={handleConfirm}
             disabled={isLoading}
             className="w-full sm:w-1/2 h-9 sm:h-10"

@@ -18,7 +18,7 @@ export const AnimatedListItem = ({
   'data-testid': testId,
 }: AnimatedListItemProps) => {
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       <motion.div
         data-testid={testId || 'animated-list-item'}
         initial={{ opacity: 0, y: 10 }}

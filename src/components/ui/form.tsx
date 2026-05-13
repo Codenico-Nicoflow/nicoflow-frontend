@@ -70,7 +70,11 @@ type FormItemContextValue = {
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
-function FormItem({ className, 'data-testid': testId, ...props }: React.ComponentProps<'div'>) {
+function FormItem({
+  className,
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<'div'> & { 'data-testid'?: string }) {
   const id = React.useId();
 
   return (
@@ -85,7 +89,11 @@ function FormItem({ className, 'data-testid': testId, ...props }: React.Componen
   );
 }
 
-function FormLabel({ className, 'data-testid': testId, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
+function FormLabel({
+  className,
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root> & { 'data-testid'?: string }) {
   const { error, formItemId } = useFormField();
 
   return (
@@ -100,7 +108,10 @@ function FormLabel({ className, 'data-testid': testId, ...props }: React.Compone
   );
 }
 
-function FormControl({ 'data-testid': testId, ...props }: React.ComponentProps<typeof Slot>) {
+function FormControl({
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<typeof Slot> & { 'data-testid'?: string }) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return (
@@ -115,7 +126,11 @@ function FormControl({ 'data-testid': testId, ...props }: React.ComponentProps<t
   );
 }
 
-function FormDescription({ className, 'data-testid': testId, ...props }: React.ComponentProps<'p'>) {
+function FormDescription({
+  className,
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<'p'> & { 'data-testid'?: string }) {
   const { formDescriptionId } = useFormField();
 
   return (
@@ -129,7 +144,11 @@ function FormDescription({ className, 'data-testid': testId, ...props }: React.C
   );
 }
 
-function FormMessage({ className, 'data-testid': testId, ...props }: React.ComponentProps<'p'>) {
+function FormMessage({
+  className,
+  'data-testid': testId,
+  ...props
+}: React.ComponentProps<'p'> & { 'data-testid'?: string }) {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message ?? '') : props.children;
 

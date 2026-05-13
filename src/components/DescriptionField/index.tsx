@@ -13,6 +13,7 @@ interface DescriptionFieldProps<T extends FieldValues> {
   minHeight?: string;
   delay?: number;
   optional?: boolean;
+  'data-testid'?: string;
 }
 
 export const DescriptionField = <T extends FieldValues>({
@@ -23,22 +24,26 @@ export const DescriptionField = <T extends FieldValues>({
   minHeight = '100px',
   delay = 0.15,
   optional = false,
+  'data-testid': testId,
 }: DescriptionFieldProps<T>) => {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
       <FormField
         control={control}
         name={fieldName}
-        rules={{ required: !optional }}
         render={({ field }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <FormItem data-testid={testId ? `${testId}-description-item` : 'description-item'}>
+            <FormLabel
+              data-testid={testId ? `${testId}-description-label` : 'description-label'}
+              className="text-sm font-semibold text-foreground flex items-center gap-2"
+            >
               <FileText className="h-4 w-4" />
               {label}
               {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
             </FormLabel>
             <FormControl>
               <Textarea
+                data-testid={testId ? `${testId}-description-textarea` : 'description-textarea'}
                 placeholder={placeholder}
                 className="resize-none text-sm sm:text-base border-2 focus:border-primary transition-colors"
                 style={{ minHeight }}

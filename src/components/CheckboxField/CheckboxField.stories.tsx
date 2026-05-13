@@ -48,3 +48,13 @@ export const WithDescription: Story = {
     </StoryFormWrapper>
   ),
 };
+
+export const Optional: Story = {
+  render: () => (
+    <StoryFormWrapper<FavoriteForm> defaultValues={{ isFavorite: false }}>
+      {control => (
+        <CheckboxField optional control={control} label="Mark as Favorite" icon={Star} fieldName="isFavorite" />
+      )}
+    </StoryFormWrapper>
+  ),
+};

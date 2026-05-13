@@ -5,6 +5,7 @@ import { Loader2, type LucideIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FORM_DIALOG_CANCEL_BUTTON, FORM_DIALOG_SUBMIT_BUTTON } from '@/lib/test_ids';
 import { cn } from '@/lib/utils';
 
 export interface FormDialogProps {
@@ -94,13 +95,19 @@ export const FormDialog = ({
             <Button
               type="button"
               variant="outline"
+              data-testid={FORM_DIALOG_CANCEL_BUTTON}
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
               className="w-full sm:w-1/2 h-9 sm:h-10"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading || !hasChanges} className="w-full sm:w-1/2 h-9 sm:h-10">
+            <Button
+              type="submit"
+              data-testid={FORM_DIALOG_SUBMIT_BUTTON}
+              disabled={isLoading || !hasChanges}
+              className="w-full sm:w-1/2 h-9 sm:h-10"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

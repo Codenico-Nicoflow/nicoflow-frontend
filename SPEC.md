@@ -3134,11 +3134,11 @@ pnpm storybook    # → http://localhost:6006
 
 GitHub Actions workflows are in `.github/workflows/`.
 
-| File                    | Trigger                                       | Jobs                                        |
-| ----------------------- | --------------------------------------------- | ------------------------------------------- |
-| `ci.yml`                | Push to any branch; PR to `main` or `staging` | lint → type-check → test (parallel) → build |
-| `deploy-staging.yml`    | Push to `staging`                             | install → build → Vercel staging deploy     |
-| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY")           | install → build → Vercel production deploy  |
+| File                    | Trigger                             | Jobs                                        |
+| ----------------------- | ----------------------------------- | ------------------------------------------- |
+| `ci.yml`                | PR to `main` or `staging`           | lint → type-check → test (parallel) → build |
+| `deploy-staging.yml`    | Push to `staging`                   | install → build → Vercel staging deploy     |
+| `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY") | install → build → Vercel production deploy  |
 
 **Required secrets:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_STAGING`, `VERCEL_PROJECT_ID_PRODUCTION`
 

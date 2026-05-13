@@ -14,6 +14,8 @@ interface DueDateFieldProps<T extends FieldValues> {
   label?: string;
   fieldName?: Path<T>;
   delay?: number;
+  optional?: boolean;
+  'data-testid'?: string;
 }
 
 export const DueDateField = <T extends FieldValues>({
@@ -21,6 +23,8 @@ export const DueDateField = <T extends FieldValues>({
   label = 'Due Date',
   fieldName = 'dueDate' as Path<T>,
   delay = 0.2,
+  optional = false,
+  'data-testid': testId,
 }: DueDateFieldProps<T>) => {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
@@ -28,17 +32,21 @@ export const DueDateField = <T extends FieldValues>({
         control={control}
         name={fieldName}
         render={({ field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <FormItem data-testid={testId ? `${testId}-due-date-item` : 'due-date-item'} className="flex flex-col">
+            <FormLabel
+              data-testid={testId ? `${testId}-due-date-label` : 'due-date-label'}
+              className="text-sm font-semibold text-foreground flex items-center gap-2"
+            >
               <CalendarIcon className="h-4 w-4" />
               {label}
-              <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
             </FormLabel>
             <div className="flex gap-2">
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
+                      data-testid={testId ? `${testId}-due-date-trigger` : 'due-date-trigger'}
                       variant="outline"
                       className={cn(
                         'h-10 sm:h-12 flex-1 justify-start text-left font-normal border-2 focus:border-primary transition-colors text-sm sm:text-base',
@@ -52,6 +60,7 @@ export const DueDateField = <T extends FieldValues>({
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
+                    data-testid={testId ? `${testId}-due-date-calendar` : 'due-date-calendar'}
                     disabled={date => isDateInPast(date)}
                     mode="single"
                     selected={field.value || undefined}
@@ -64,7 +73,8 @@ export const DueDateField = <T extends FieldValues>({
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:border-destructive hover:text-destructive transition-colors"
+                  data-testid={testId ? `${testId}-due-date-clear-button` : 'due-date-clear-button'}
+                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:bg-primary/20 hover:text-primary transition-colors"
                   onClick={() => field.onChange(undefined)}
                 >
                   <X className="h-4 w-4" />

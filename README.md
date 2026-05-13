@@ -28,7 +28,7 @@ pnpm lint             # ESLint
 pnpm lint --fix       # Auto-fix import order + formatting
 pnpm test             # Vitest (single pass)
 pnpm test:watch       # Vitest (watch mode)
-pnpm test:ui          # Vitest browser UI → http://localhost:51204
+pnpm test:ui          # Vitest browser UI
 pnpm test:coverage    # Coverage report (v8)
 pnpm storybook        # Storybook → http://localhost:6006
 pnpm build-storybook  # Build static Storybook
@@ -65,9 +65,22 @@ GitHub Actions (`.github/workflows/`):
 
 | Workflow                | Trigger                             | Jobs                             |
 | ----------------------- | ----------------------------------- | -------------------------------- |
-| `ci.yml`                | push/PR to `staging`                | lint → type-check → test → build |
+| `ci.yml`                | PR to `main` or `staging`           | lint → type-check → test → build |
 | `deploy-staging.yml`    | push to `staging`                   | build → Vercel staging           |
 | `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY") | build → Vercel production        |
+
+### Required Secrets
+
+Set these in **GitHub → Settings → Secrets and variables → Actions**:
+
+| Secret                         | Description                                      |
+| ------------------------------ | ------------------------------------------------ |
+| `VERCEL_TOKEN`                 | Vercel personal access token                     |
+| `VERCEL_ORG_ID`                | Vercel team/org ID                               |
+| `VERCEL_PROJECT_ID_STAGING`    | Vercel project ID for the staging environment    |
+| `VERCEL_PROJECT_ID_PRODUCTION` | Vercel project ID for the production environment |
+| `VITE_API_URL_STAGING`         | Backend API base URL for staging builds          |
+| `VITE_API_URL_PRODUCTION`      | Backend API base URL for production builds       |
 
 ## License
 

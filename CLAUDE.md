@@ -406,11 +406,20 @@ pnpm storybook     # → http://localhost:6006
 
 | File                    | Trigger                             | Jobs                                        |
 | ----------------------- | ----------------------------------- | ------------------------------------------- |
-| `ci.yml`                | push to any branch, PR to `staging` | lint → type-check → test (parallel) → build |
+| `ci.yml`                | PR to `main` or `staging`           | lint → type-check → test (parallel) → build |
 | `deploy-staging.yml`    | push to `staging`                   | install → build → Vercel staging            |
 | `deploy-production.yml` | `workflow_dispatch` (type "DEPLOY") | install → build → Vercel production         |
 
-**Secrets required:** `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_STAGING`, `VERCEL_PROJECT_ID_PRODUCTION`
+**Required secrets** (GitHub → Settings → Secrets and variables → Actions):
+
+| Secret                         | Description                                      |
+| ------------------------------ | ------------------------------------------------ |
+| `VERCEL_TOKEN`                 | Vercel personal access token                     |
+| `VERCEL_ORG_ID`                | Vercel team/org ID                               |
+| `VERCEL_PROJECT_ID_STAGING`    | Vercel project ID for the staging environment    |
+| `VERCEL_PROJECT_ID_PRODUCTION` | Vercel project ID for the production environment |
+| `VITE_API_URL_STAGING`         | Backend API base URL for staging builds          |
+| `VITE_API_URL_PRODUCTION`      | Backend API base URL for production builds       |
 
 Deployment: Vercel. `vercel.json` at repo root handles SPA fallback routing.
 
@@ -420,7 +429,3 @@ Deployment: Vercel. `vercel.json` at repo root handles SPA fallback routing.
 feature/NIC-XXXX-description  →  PR to staging  →  merge  →  Vercel staging auto-deploys
 staging                        →  PR to main     →  merge  →  manual production deploy
 ```
-
-- `feature/*` — all story/task work happens here; branch name includes Jira key
-- `staging` — integration branch; auto-deploys to `https://staging.nicoflow.app` on every merge
-- `main` — production-stable; only updated via PR from `staging`; deployed manually via `workflow_dispatch`

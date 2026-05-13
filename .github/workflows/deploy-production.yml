@@ -26,6 +26,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build
         run: pnpm build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_PRODUCTION }}
       - name: Deploy to Vercel (production)
         run: npx vercel deploy ./dist --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
         env:

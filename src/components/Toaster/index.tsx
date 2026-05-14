@@ -1,6 +1,6 @@
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
-import { useTheme } from '../ThemeProvider';
+import { useTheme } from '@/components';
 
 export const Toaster = ({ 'data-testid': testId, ...props }: ToasterProps & { 'data-testid'?: string }) => {
   const { theme } = useTheme();
@@ -8,7 +8,7 @@ export const Toaster = ({ 'data-testid': testId, ...props }: ToasterProps & { 'd
   return (
     <Sonner
       data-testid={testId || 'toaster'}
-      theme={theme}
+      theme={theme as 'light' | 'dark' | 'system' | undefined}
       className="toaster group"
       style={
         {

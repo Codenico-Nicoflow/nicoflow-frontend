@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { motion } from 'framer-motion';
-import { type LucideIcon } from 'lucide-react';
+import { Loader2, type LucideIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -25,16 +25,16 @@ export interface ConfirmDialogProps {
 
 const variantStyles = {
   danger: {
-    iconBg: 'bg-red-50 dark:bg-red-900/20',
-    iconColor: 'text-red-600 dark:text-red-400',
+    iconBg: 'bg-destructive/10',
+    iconColor: 'text-destructive',
   },
   warning: {
-    iconBg: 'bg-yellow-50 dark:bg-yellow-900/20',
-    iconColor: 'text-yellow-600 dark:text-yellow-400',
+    iconBg: 'bg-warning/10',
+    iconColor: 'text-warning',
   },
   info: {
-    iconBg: 'bg-blue-50 dark:bg-blue-900/20',
-    iconColor: 'text-blue-600 dark:text-blue-400',
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
   },
 };
 
@@ -63,7 +63,7 @@ export const ConfirmDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange} data-testid={testId || 'confirm-dialog'}>
       <DialogContent
         data-testid={testId ? `${testId}-content` : 'confirm-dialog-content'}
-        className="w-[95vw] max-w-md p-0 border-0 shadow-2xl sm:rounded-lg rounded-none"
+        className="w-[95vw] max-w-md p-0 border border-border shadow-lg sm:rounded-lg rounded-none"
       >
         <DialogHeader className="p-4 sm:p-6 pb-0">
           <motion.div
@@ -96,7 +96,7 @@ export const ConfirmDialog = ({
             data-testid={CONFIRM_DIALOG_CANCEL_BUTTON}
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="w-full sm:w-1/2 h-9 sm:h-10"
+            className="w-full sm:w-1/2 h-10"
           >
             {cancelLabel}
           </Button>
@@ -106,9 +106,16 @@ export const ConfirmDialog = ({
             data-testid={CONFIRM_DIALOG_CONFIRM_BUTTON}
             onClick={handleConfirm}
             disabled={isLoading}
-            className="w-full sm:w-1/2 h-9 sm:h-10"
+            className="w-full sm:w-1/2 h-10"
           >
-            {isLoading ? 'Loading...' : confirmLabel}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {confirmLabel}...
+              </>
+            ) : (
+              confirmLabel
+            )}
           </Button>
         </motion.div>
       </DialogContent>

@@ -45,7 +45,7 @@ export const NameField = <T extends FieldValues>({
               <Input
                 data-testid={testId ? `${testId}-name-input` : 'name-input'}
                 placeholder={placeholder}
-                className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                className="h-10 sm:h-12 text-sm sm:text-base"
                 {...field}
               />
             </FormControl>

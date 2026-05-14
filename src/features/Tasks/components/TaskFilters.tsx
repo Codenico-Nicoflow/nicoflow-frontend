@@ -9,17 +9,19 @@ interface TaskFiltersProps {
   onFilterChange: (filter: string) => void;
   taskCounts: {
     all: number;
-    todo: number;
-    inProgress: number;
+    inbox: number;
+    active: number;
     done: number;
+    cancelled: number;
   };
 }
 
 const filters = [
   { value: 'all', label: 'All', key: 'all' },
-  { value: TaskStatus.TODO, label: 'To Do', key: 'todo' },
-  { value: TaskStatus.IN_PROGRESS, label: 'In Progress', key: 'inProgress' },
+  { value: TaskStatus.INBOX, label: 'Inbox', key: 'inbox' },
+  { value: TaskStatus.ACTIVE, label: 'Active', key: 'active' },
   { value: TaskStatus.DONE, label: 'Done', key: 'done' },
+  { value: TaskStatus.CANCELLED, label: 'Cancelled', key: 'cancelled' },
 ];
 
 const TaskFilters = ({ activeFilter, onFilterChange, taskCounts }: TaskFiltersProps) => {

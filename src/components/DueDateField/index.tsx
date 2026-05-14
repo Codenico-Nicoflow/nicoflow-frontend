@@ -49,7 +49,7 @@ export const DueDateField = <T extends FieldValues>({
                       data-testid={testId ? `${testId}-due-date-trigger` : 'due-date-trigger'}
                       variant="outline"
                       className={cn(
-                        'h-10 sm:h-12 flex-1 justify-start text-left font-normal border-2 focus:border-primary transition-colors text-sm sm:text-base',
+                        'h-10 sm:h-12 flex-1 justify-start text-left font-normal text-sm sm:text-base',
                         !field.value && 'text-muted-foreground'
                       )}
                     >
@@ -74,7 +74,7 @@ export const DueDateField = <T extends FieldValues>({
                   variant="outline"
                   size="icon"
                   data-testid={testId ? `${testId}-due-date-clear-button` : 'due-date-clear-button'}
-                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:bg-primary/20 hover:text-primary transition-colors"
+                  className="h-10 sm:h-12 w-10 sm:w-12 hover:bg-primary/10 hover:text-primary"
                   onClick={() => field.onChange(undefined)}
                 >
                   <X className="h-4 w-4" />

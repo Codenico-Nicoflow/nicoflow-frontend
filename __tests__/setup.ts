@@ -115,6 +115,21 @@ Object.defineProperty(global, 'ResizeObserver', {
   value: ResizeObserverMock,
 });
 
+if (!HTMLElement.prototype.hasPointerCapture) {
+  HTMLElement.prototype.hasPointerCapture = () => false;
+}
+if (!HTMLElement.prototype.setPointerCapture) {
+  HTMLElement.prototype.setPointerCapture = () => {};
+}
+if (!HTMLElement.prototype.releasePointerCapture) {
+  HTMLElement.prototype.releasePointerCapture = () => {};
+}
+
+// Radix UI scrolls via scrollIntoView which is not implemented in jsdom
+if (!HTMLElement.prototype.scrollIntoView) {
+  HTMLElement.prototype.scrollIntoView = () => {};
+}
+
 afterEach(() => {
   vi.clearAllMocks();
   localStorageMock.clear();

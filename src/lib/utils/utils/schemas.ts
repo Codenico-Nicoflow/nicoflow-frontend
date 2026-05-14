@@ -71,6 +71,7 @@ const taskSchema = z.object({
     .max(500, 'Description must be less than 500 characters'),
   priority: z.enum(['low', 'medium', 'high']),
   dueDate: z.date().optional().nullable(),
+  scheduledFor: z.enum(['today', 'tomorrow', 'this_week']).optional().nullable(),
   estimatedMinutes: z
     .number()
     .min(1, 'Estimated time must be at least 1 minute')

@@ -55,7 +55,7 @@ export const EstimatedTimeField = <T extends FieldValues>({
                       }
                     }}
                     value={field.value ?? ''}
-                    className="h-10 sm:h-12 pr-16 text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                    className="h-10 sm:h-12 pr-16 text-sm sm:text-base"
                     onBlur={field.onBlur}
                     name={field.name}
                     ref={field.ref}
@@ -71,7 +71,7 @@ export const EstimatedTimeField = <T extends FieldValues>({
                   variant="outline"
                   data-testid={testId ? `${testId}-estimated-time-clear-button` : 'estimated-time-clear-button'}
                   size="icon"
-                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:bg-primary/20 hover:text-primary transition-colors flex-shrink-0"
+                  className="h-10 sm:h-12 w-10 sm:w-12 hover:bg-primary/10 hover:text-primary flex-shrink-0"
                   onClick={() => field.onChange(undefined)}
                 >
                   <X className="h-4 w-4" />

@@ -44,7 +44,7 @@ export const mockTask = (overrides?: Partial<ITask>): ITask => ({
   name: 'Sample Task',
   projectId: 1,
   description: 'A sample task description',
-  status: 'todo',
+  status: 'inbox',
   priority: 'medium',
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',

@@ -670,12 +670,12 @@ List all tasks within a project.
 
 **Query parameters**
 
-| Param       | Type   | Description                                      |
-| ----------- | ------ | ------------------------------------------------ |
-| `status`    | string | Filter by `todo` \| `in-progress` \| `done`      |
-| `priority`  | string | Filter by `low` \| `medium` \| `high`            |
-| `sortField` | string | `dueDate` \| `priority` \| `name` \| `createdAt` |
-| `sortOrder` | string | `asc` \| `desc`                                  |
+| Param       | Type   | Description                                            |
+| ----------- | ------ | ------------------------------------------------------ |
+| `status`    | string | Filter by `inbox` \| `active` \| `done` \| `cancelled` |
+| `priority`  | string | Filter by `low` \| `medium` \| `high`                  |
+| `sortField` | string | `dueDate` \| `priority` \| `name` \| `createdAt`       |
+| `sortOrder` | string | `asc` \| `desc`                                        |
 
 **Response — 200 OK** — `ITask[]`
 

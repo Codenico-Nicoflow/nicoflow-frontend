@@ -43,7 +43,7 @@ export const IconField = <T extends FieldValues>({
               <FormControl>
                 <SelectTrigger
                   data-testid={testId ? `${testId}-icon-trigger` : 'icon-trigger'}
-                  className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                  className="h-10 sm:h-12 text-sm sm:text-base"
                 >
                   <SelectValue>
                     {field.value && (

@@ -44,7 +44,7 @@ export const UrlField = <T extends FieldValues>({
                   data-testid={testId ? `${testId}-url-input` : 'url-input'}
                   type="url"
                   placeholder="https://example.com"
-                  className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                  className="h-10 sm:h-12 text-sm sm:text-base"
                   {...field}
                 />
               </FormControl>
@@ -54,7 +54,7 @@ export const UrlField = <T extends FieldValues>({
                   variant="outline"
                   size="icon"
                   data-testid={testId ? `${testId}-url-clear-button` : 'url-clear-button'}
-                  className="h-10 sm:h-12 w-10 sm:w-12 border-2 hover:bg-primary/20 hover:text-primary transition-colors flex-shrink-0"
+                  className="h-10 sm:h-12 w-10 sm:w-12 hover:bg-primary/10 hover:text-primary flex-shrink-0"
                   onClick={() => field.onChange(undefined)}
                 >
                   <X className="h-4 w-4" />

@@ -25,9 +25,10 @@ export const PROJECT_STATUS = {
 // ============================================
 
 export const TaskStatus = {
-  TODO: 'todo',
-  IN_PROGRESS: 'in-progress',
+  INBOX: 'inbox',
+  ACTIVE: 'active',
   DONE: 'done',
+  CANCELLED: 'cancelled',
 } as const;
 
 export const TaskPriority = {
@@ -50,61 +51,16 @@ export const TaskSortField = {
 
 export const FilterBy = {
   ALL: 'all',
-  TODO: 'todo',
-  IN_PROGRESS: 'in-progress',
+  INBOX: 'inbox',
+  ACTIVE: 'active',
   DONE: 'done',
+  CANCELLED: 'cancelled',
 } as const;
 
-// ============================================
-// RECURRENCE CONSTANTS
-// ============================================
-
-export const RecurrenceType = {
-  NONE: 'none',
-  DAILY: 'daily',
-  WEEKLY: 'weekly',
-  MONTHLY: 'monthly',
-  YEARLY: 'yearly',
-  CUSTOM: 'custom',
-} as const;
-
-export const RecurrenceFrequency = {
-  DAILY: 'daily',
-  WEEKLY: 'weekly',
-  MONTHLY: 'monthly',
-  YEARLY: 'yearly',
-} as const;
-
-export const Weekday = {
-  MONDAY: 'monday',
-  TUESDAY: 'tuesday',
-  WEDNESDAY: 'wednesday',
-  THURSDAY: 'thursday',
-  FRIDAY: 'friday',
-  SATURDAY: 'saturday',
-  SUNDAY: 'sunday',
-} as const;
-
-// ============================================
-// NOTIFICATION CONSTANTS
-// ============================================
-
-export const NotificationType = {
-  EMAIL: 'email',
-  PUSH: 'push',
-  SMS: 'sms',
-} as const;
-
-export const NotificationTrigger = {
-  BEFORE_DUE: 'before_due',
-  AFTER_DUE: 'after_due',
-  SPECIFIC_TIME: 'specific_time',
-} as const;
-
-export const NotificationStatus = {
-  PENDING: 'pending',
-  SENT: 'sent',
-  FAILED: 'failed',
+export const ScheduledFor = {
+  TODAY: 'today',
+  TOMORROW: 'tomorrow',
+  THIS_WEEK: 'this_week',
 } as const;
 
 // ============================================
@@ -115,12 +71,6 @@ export const ProcessingResult = {
   TASK: 'task',
   NOTE: 'note',
   TRASH: 'trash',
-} as const;
-
-export const NoteType = {
-  NOTE: 'note',
-  REFERENCE: 'reference',
-  REVIEW_MATERIAL: 'review_material',
 } as const;
 
 export const BUCKET_PROCESSING_OPTIONS: ProcessingOption[] = [
@@ -136,14 +86,8 @@ export const BUCKET_PROCESSING_OPTIONS: ProcessingOption[] = [
 export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];
 export type TaskPriority = (typeof TaskPriority)[keyof typeof TaskPriority];
 export type TaskSortOrder = (typeof TaskSortOrder)[keyof typeof TaskSortOrder];
-export type RecurrenceType = (typeof RecurrenceType)[keyof typeof RecurrenceType];
-export type RecurrenceFrequency = (typeof RecurrenceFrequency)[keyof typeof RecurrenceFrequency];
-export type Weekday = (typeof Weekday)[keyof typeof Weekday];
-export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
-export type NotificationTrigger = (typeof NotificationTrigger)[keyof typeof NotificationTrigger];
-export type NotificationStatus = (typeof NotificationStatus)[keyof typeof NotificationStatus];
 export type ProcessingResult = (typeof ProcessingResult)[keyof typeof ProcessingResult];
-export type NoteType = (typeof NoteType)[keyof typeof NoteType];
+export type ScheduledFor = (typeof ScheduledFor)[keyof typeof ScheduledFor];
 
 // ============================================
 // AUTH CONSTANTS

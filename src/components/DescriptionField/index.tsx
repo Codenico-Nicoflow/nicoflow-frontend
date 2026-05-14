@@ -45,7 +45,7 @@ export const DescriptionField = <T extends FieldValues>({
               <Textarea
                 data-testid={testId ? `${testId}-description-textarea` : 'description-textarea'}
                 placeholder={placeholder}
-                className="resize-none text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                className="resize-none text-sm sm:text-base"
                 style={{ minHeight }}
                 {...field}
               />

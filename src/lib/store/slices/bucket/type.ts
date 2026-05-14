@@ -1,9 +1,5 @@
 import { type IBucket, type ProcessingResult, type TaskPriority } from '@/lib/types';
 
-// ============================================
-// REQUEST TYPES
-// ============================================
-
 export interface CreateBucketDto {
   content: string;
 }
@@ -20,25 +16,13 @@ export interface TaskDetails {
   estimatedMinutes?: number;
   url?: string;
   sortOrder?: number;
-  assignees?: number[];
-}
-
-export interface NoteDetails {
-  title: string;
-  content: string;
-  type: string;
 }
 
 export interface ProcessBucketDto {
   processingResult: ProcessingResult;
   projectId?: number;
   taskDetails?: TaskDetails;
-  noteDetails?: NoteDetails;
 }
-
-// ============================================
-// RESPONSE TYPES
-// ============================================
 
 export type BucketResponse = IBucket;
 export type BucketsResponse = IBucket[];

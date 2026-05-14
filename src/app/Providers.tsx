@@ -10,7 +10,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <Provider store={store}>
       <BrowserRouter>
-        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <ThemeProvider defaultTheme="system" storageKey="nicoflow-theme">
           <LoadingOverlayProvider>
             {children}
             <Toaster />

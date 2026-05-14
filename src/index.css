@@ -1,52 +1,49 @@
 @import 'tailwindcss';
-
-@custom-variant dark (&:is(.dark *));
+@import '@fontsource/geist/400.css';
+@import '@fontsource/geist/500.css';
+@import '@fontsource/geist/600.css';
+@import '@fontsource/geist/700.css';
+@import '@fontsource/geist-mono/400.css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'Cascadia Code', monospace;
 
-  /* core tokens (must reference base vars) */
+  /* ── Radius scale (3.10 spec — absolute px values) ──────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+  --radius: var(--radius-md); /* shadcn/ui compat */
+
+  /* ── Color tokens → base CSS vars ───────────────────────────────────────── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
-  /* chart tokens */
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-
-  /* sidebar tokens */
+  /* ── Sidebar tokens ─────────────────────────────────────────────────────── */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -56,136 +53,127 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* toast tokens (mapped to base toast vars) */
-  --toast-close: var(--toast-close);
-  --toast-success-bg: var(--toast-success-bg);
-  --toast-success-border: var(--toast-success-border);
-  --toast-info-bg: var(--toast-info-bg);
-  --toast-info-border: var(--toast-info-border);
-  --toast-warning-bg: var(--toast-warning-bg);
-  --toast-warning-border: var(--toast-warning-border);
-  --toast-error-bg: var(--toast-error-bg);
-  --toast-error-border: var(--toast-error-border);
+  /* ── Chart tokens ───────────────────────────────────────────────────────── */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* ── Shadow tokens (warm-tinted, light-mode) ────────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(26, 25, 23, 0.08);
+  --shadow-md: 0 4px 16px rgba(26, 25, 23, 0.1);
+  --shadow-lg: 0 8px 32px rgba(26, 25, 23, 0.14);
 }
 
+/* ── Light mode — Deep Slate + Ember (3.10) ─────────────────────────────────── */
 :root {
-  --radius: 0.625rem;
-
-  /* Light theme base vars (map your lightColors) */
-  --background: #f9fafb;
-  --foreground: #1f2937;
-
-  --card: #ffffff;
-  --card-foreground: #1f2937;
-
-  --popover: #ffffff;
-  --popover-foreground: #1f2937;
-
-  --primary: #7c3aed;
+  --background: #f7f6f3;
+  --foreground: #1a1917;
+  --primary: #c4622d;
   --primary-foreground: #ffffff;
-
-  --secondary: #8b5cf6;
-  --secondary-foreground: #ffffff;
-
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-
-  --accent: #7c3aed;
-  --accent-foreground: #ffffff;
-
-  --destructive: #ef4444;
+  --secondary: #eceae4;
+  --secondary-foreground: #1a1917;
+  --muted: #d6d3cb;
+  --muted-foreground: #7a776e;
+  --accent: #eceae4;
+  --accent-foreground: #1a1917;
+  --border: #ddd9d0;
+  --input: #ddd9d0;
+  --ring: #c4622d;
+  --destructive: #c0392b;
   --destructive-foreground: #ffffff;
+  --success: #2e7d52;
+  --warning: #b45309;
 
-  --border: #7c3aed;
-  --input: #7c3aed;
-  --ring: #7c3aed;
+  /* Derived surfaces */
+  --card: #ffffff;
+  --card-foreground: #1a1917;
+  --popover: #ffffff;
+  --popover-foreground: #1a1917;
 
-  /* charts */
-  --chart-1: #7c3aed;
-  --chart-2: #c4b5fd;
-  --chart-3: #8b5cf6;
-  --chart-4: #22c55e;
-  --chart-5: #f59e0b;
-
-  /* sidebar (light) */
-  --sidebar: #f9fafb;
-  --sidebar-foreground: #1f2937;
-  --sidebar-primary: #7c3aed;
+  /* Sidebar (slightly offset from page) */
+  --sidebar: #efede7;
+  --sidebar-foreground: #1a1917;
+  --sidebar-primary: #c4622d;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #8b5cf6;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #ccced2;
-  --sidebar-ring: #7c3aed;
+  --sidebar-accent: #e4e1da;
+  --sidebar-accent-foreground: #1a1917;
+  --sidebar-border: #ddd9d0;
+  --sidebar-ring: #c4622d;
 
-  /* toast (light) */
-  --toast-close: #979fa9;
-  --toast-success-bg: #f6fff9;
-  --toast-success-border: #48c1b5;
+  /* Charts */
+  --chart-1: #c4622d;
+  --chart-2: #e8824a;
+  --chart-3: #2e7d52;
+  --chart-4: #b45309;
+  --chart-5: #7a776e;
+
+  /* Toast */
+  --toast-close: #7a776e;
+  --toast-success-bg: #f0fbf4;
+  --toast-success-border: #2e7d52;
   --toast-info-bg: #f5f9ff;
   --toast-info-border: #9dc0ee;
   --toast-warning-bg: #fff8ec;
-  --toast-warning-border: #f7d9a4;
+  --toast-warning-border: #b45309;
   --toast-error-bg: #fff5f3;
-  --toast-error-border: #f4b0a1;
+  --toast-error-border: #c0392b;
 }
 
+/* ── Dark mode — Deep Slate + Ember (3.10) ──────────────────────────────────── */
 .dark {
-  /* Dark theme base vars (map your darkColors) */
-  --background: #1e1e2f;
-  --foreground: #e0e7ff;
+  --background: #0f0f0f;
+  --foreground: #edebe6;
+  --primary: #e8824a;
+  --primary-foreground: #0f0f0f;
+  --secondary: #1c1b19;
+  --secondary-foreground: #edebe6;
+  --muted: #2a2926;
+  --muted-foreground: #8c8980;
+  --accent: #1c1b19;
+  --accent-foreground: #edebe6;
+  --border: #2e2c29;
+  --input: #2e2c29;
+  --ring: #e8824a;
+  --destructive: #e05545;
+  --destructive-foreground: #0f0f0f;
+  --success: #4caf7d;
+  --warning: #d97706;
 
-  --card: #a78bfa;
-  --card-foreground: #e0e7ff;
+  /* Derived surfaces */
+  --card: #141412;
+  --card-foreground: #edebe6;
+  --popover: #141412;
+  --popover-foreground: #edebe6;
 
-  --popover: #2a2a40;
-  --popover-foreground: #e0e7ff;
+  /* Sidebar (slightly darker than page) */
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #edebe6;
+  --sidebar-primary: #e8824a;
+  --sidebar-primary-foreground: #0f0f0f;
+  --sidebar-accent: #1c1b19;
+  --sidebar-accent-foreground: #edebe6;
+  --sidebar-border: #2e2c29;
+  --sidebar-ring: #e8824a;
 
-  --primary: #a78bfa;
-  --primary-foreground: #1e1e2f;
+  /* Charts */
+  --chart-1: #e8824a;
+  --chart-2: #c4622d;
+  --chart-3: #4caf7d;
+  --chart-4: #d97706;
+  --chart-5: #8c8980;
 
-  --secondary: #7c3aed;
-  --secondary-foreground: #e0e7ff;
-
-  --muted: #2a2a40;
-  --muted-foreground: #a5b4fc;
-
-  --accent: #7c3aed;
-  --accent-foreground: #ffffff;
-
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  --border: #a78bfa;
-  --input: #a78bfa;
-  --ring: #a78bfa;
-
-  /* charts (dark) */
-  --chart-1: #5b21b6;
-  --chart-2: #a78bfa;
-  --chart-3: #7c3aed;
-  --chart-4: #4ade80;
-  --chart-5: #fbbf24;
-
-  /* sidebar (dark) */
-  --sidebar: #2a2a40;
-  --sidebar-foreground: #e0e7ff;
-  --sidebar-primary: #a78bfa;
-  --sidebar-primary-foreground: #1e1e2f;
-  --sidebar-accent: #7c3aed;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #4c4f67;
-  --sidebar-ring: #a78bfa;
-
-  /* toast (dark) */
-  --toast-close: #cccccc;
-  --toast-success-bg: #2e3b2d;
-  --toast-success-border: #48c1b5;
-  --toast-info-bg: #2b2e40;
+  /* Toast */
+  --toast-close: #8c8980;
+  --toast-success-bg: #0f1f17;
+  --toast-success-border: #4caf7d;
+  --toast-info-bg: #0f1520;
   --toast-info-border: #9dc0ee;
-  --toast-warning-bg: #3e372a;
-  --toast-warning-border: #f7d9a4;
-  --toast-error-bg: #402a2a;
-  --toast-error-border: #f4b0a1;
+  --toast-warning-bg: #1f1508;
+  --toast-warning-border: #d97706;
+  --toast-error-bg: #1f0a09;
+  --toast-error-border: #e05545;
 }
 
 @layer base {
@@ -194,5 +182,34 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  code,
+  pre,
+  kbd {
+    font-family: var(--font-mono);
   }
 }
+
+/*
+ * ── SPACING SCALE ────────────────────────────────────────────────────────────
+ * Placeholder — define in E-005 sprint when spacing tokens are finalized.
+ *
+ * --space-1: 4px;
+ * --space-2: 8px;
+ * --space-3: 12px;
+ * --space-4: 16px;
+ * --space-6: 24px;
+ * --space-8: 32px;
+ */
+
+/*
+ * ── ANIMATION TOKENS ─────────────────────────────────────────────────────────
+ * Placeholder — define in E-005 sprint when motion spec is finalized.
+ *
+ * --duration-fast: 150ms;
+ * --duration-normal: 250ms;
+ * --duration-slow: 400ms;
+ * --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+ * --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+ */

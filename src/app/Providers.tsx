@@ -4,7 +4,14 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
 import { LoadingOverlayProvider, ThemeProvider, Toaster } from '@/components';
-import { store } from '@/lib/store';
+import { store, useAppUser, useGetCurrentUserQuery } from '@/lib/store';
+
+const SessionRestorer = () => {
+  const user = useAppUser();
+  const hasToken = Boolean(localStorage.getItem('authToken'));
+  useGetCurrentUserQuery(undefined, { skip: !!user || !hasToken });
+  return null;
+};
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,6 +19,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       <BrowserRouter>
         <ThemeProvider defaultTheme="system" storageKey="nicoflow-theme">
           <LoadingOverlayProvider>
+            <SessionRestorer />
             {children}
             <Toaster />
           </LoadingOverlayProvider>

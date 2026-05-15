@@ -24,6 +24,7 @@ export const authApi = createApi({
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled;
+        localStorage.setItem('authToken', data.token);
         dispatch(setUser(data.user));
       },
       transformErrorResponse: error => error.data,
@@ -41,6 +42,7 @@ export const authApi = createApi({
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled;
+        localStorage.setItem('authToken', data.token);
         dispatch(setUser(data.user));
       },
       transformErrorResponse: error => error.data,
@@ -52,8 +54,13 @@ export const authApi = createApi({
         method: 'POST',
         credentials: 'include',
       }),
-      async onQueryStarted(_, { dispatch }) {
-        dispatch(clearAuth());
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } finally {
+          localStorage.removeItem('authToken');
+          dispatch(clearAuth());
+        }
       },
       transformErrorResponse: error => error.data,
       invalidatesTags: ['User'],
@@ -80,6 +87,10 @@ export const authApi = createApi({
         method: 'GET',
         credentials: 'include',
       }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+        dispatch(setUser(data));
+      },
       providesTags: ['User'],
     }),
     refreshToken: builder.mutation<AuthResponse, void>({

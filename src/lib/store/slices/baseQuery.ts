@@ -35,17 +35,18 @@ export const baseQueryWithReauth: BaseQueryFn<
   if (result.error?.status === 401) {
     if (!authMutex.isLocked()) {
       await authMutex.runExclusive(async () => {
-        // Attempt to refresh token
         const refreshResult = await rawBaseQuery({ url: AUTH_API.REFRESH_TOKEN, method: 'POST' }, api, extraOptions);
 
         if (refreshResult.error) {
-          // Refresh failed -> clear and redirect to sign-in
           localStorage.removeItem('authToken');
           if (typeof window !== 'undefined') {
             window.location.href = '/sign-in';
           }
           return;
         }
+
+        const refreshData = refreshResult.data as { token: string };
+        localStorage.setItem('authToken', refreshData.token);
       });
     } else {
       await authMutex.waitForUnlock();

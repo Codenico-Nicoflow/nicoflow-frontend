@@ -56,9 +56,9 @@ function Overlay({ isOpen, title, subtitle }: { isOpen: boolean; title: string; 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[1000] bg-[rgba(10,10,15,0.55)] backdrop-blur-sm"
+          className="fixed inset-0 z-[1000] bg-[rgba(10,10,15,0.6)] backdrop-blur-sm"
         >
-          {/* Floating aurora blobs */}
+          {/* Ember aurora blobs */}
           <Aurora />
 
           {/* Dropdown panel */}
@@ -74,22 +74,22 @@ function Overlay({ isOpen, title, subtitle }: { isOpen: boolean; title: string; 
               <Spinner />
               <div className="min-w-0">
                 <div className="text-base font-semibold tracking-tight text-white drop-shadow-sm">{title}</div>
-                {subtitle ? <div className="text-sm text-white/80">{subtitle}</div> : null}
+                {subtitle ? <div className="text-sm text-white/70">{subtitle}</div> : null}
               </div>
             </div>
 
-            {/* Animated progress shimmer bar */}
+            {/* Animated ember shimmer bar */}
             <div className="relative mt-5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
               <motion.span
-                className="absolute inset-y-0 left-0 w-1/3 rounded-full bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-amber-300"
+                className="absolute inset-y-0 left-0 w-1/3 rounded-full bg-gradient-to-r from-primary/80 via-primary to-primary/60"
                 initial={{ x: '-100%' }}
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 1.6, ease: 'easeInOut', repeat: Infinity }}
               />
             </div>
 
-            {/* Subtle bottom glow */}
-            <div className="pointer-events-none absolute -inset-x-10 -bottom-8 h-24 bg-gradient-to-t from-indigo-500/20 via-fuchsia-400/10 to-transparent blur-2xl" />
+            {/* Subtle ember bottom glow */}
+            <div className="pointer-events-none absolute -inset-x-10 -bottom-8 h-24 bg-gradient-to-t from-primary/20 via-primary/10 to-transparent blur-2xl" />
           </motion.div>
         </motion.div>
       ) : null}
@@ -124,17 +124,17 @@ function Aurora() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <motion.div
-        className="absolute -top-32 left-1/2 h-64 w-[48rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-indigo-500/40 via-fuchsia-400/40 to-amber-300/40 blur-3xl"
+        className="absolute -top-32 left-1/2 h-64 w-[48rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-primary/30 via-primary/20 to-transparent blur-3xl"
         animate={{ y: [0, 10, 0], scale: [1, 1.05, 1] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
-        className="absolute top-1/3 left-1/3 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-400/30 blur-3xl"
+        className="absolute top-1/3 left-1/3 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl"
         animate={{ x: [0, 30, -20, 0], y: [0, -20, 10, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
-        className="absolute bottom-10 right-1/4 h-52 w-52 translate-x-1/2 rounded-full bg-indigo-500/30 blur-3xl"
+        className="absolute bottom-10 right-1/4 h-52 w-52 translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
         animate={{ x: [0, -25, 10, 0], y: [0, 15, -10, 0] }}
         transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
       />

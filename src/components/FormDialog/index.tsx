@@ -55,7 +55,7 @@ export const FormDialog = ({
       <DialogContent
         data-testid={testId ? `${testId}-content` : 'form-dialog-content'}
         className={cn(
-          'w-[95vw] p-0 border-0 shadow-2xl sm:rounded-lg rounded-none max-h-[90vh] overflow-hidden flex flex-col',
+          'w-[95vw] p-0 border border-border shadow-lg sm:rounded-lg rounded-none max-h-[90vh] overflow-hidden flex flex-col',
           maxWidthClasses[maxWidth]
         )}
       >
@@ -89,16 +89,16 @@ export const FormDialog = ({
           onSubmit={handleSubmit}
           className="flex flex-col flex-1 overflow-hidden"
         >
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 space-y-4 mb-6">{children}</div>
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 space-y-4 pb-6">{children}</div>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-4 sm:p-6 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-4 sm:p-6 pt-4 border-t border-border">
             <Button
               type="button"
               variant="outline"
               data-testid={FORM_DIALOG_CANCEL_BUTTON}
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-              className="w-full sm:w-1/2 h-9 sm:h-10"
+              className="w-full sm:w-1/2 h-10"
             >
               Cancel
             </Button>
@@ -106,7 +106,7 @@ export const FormDialog = ({
               type="submit"
               data-testid={FORM_DIALOG_SUBMIT_BUTTON}
               disabled={isLoading || !hasChanges}
-              className="w-full sm:w-1/2 h-9 sm:h-10"
+              className="w-full sm:w-1/2 h-10"
             >
               {isLoading ? (
                 <>

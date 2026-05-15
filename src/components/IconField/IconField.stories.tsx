@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, within } from 'storybook/test';
 
+import { ICON_IDS } from '@/lib/utils';
 import { StoryFormWrapper } from '@/stories/helpers';
 
 import { IconField } from '.';
@@ -9,6 +11,12 @@ const meta: Meta<typeof IconField> = {
   component: IconField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  argTypes: {
+    label: { control: 'text' },
+    optional: { control: 'boolean' },
+    delay: { control: 'number' },
+    fieldName: { control: 'text', options: ICON_IDS },
+  },
 };
 export default meta;
 
@@ -22,12 +30,28 @@ export const Default: Story = {
       {control => <IconField control={control} label="Icon" />}
     </StoryFormWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Icon')).toBeInTheDocument();
+  },
 };
 
 export const WithIcon: Story = {
   render: () => (
     <StoryFormWrapper<IconForm> defaultValues={{ icon: 'folder' }}>
       {control => <IconField control={control} label="Icon" />}
+    </StoryFormWrapper>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/folder/i)).toBeInTheDocument();
+  },
+};
+
+export const Optional: Story = {
+  render: () => (
+    <StoryFormWrapper<IconForm> defaultValues={{ icon: undefined }}>
+      {control => <IconField control={control} label="Icon" optional />}
     </StoryFormWrapper>
   ),
 };

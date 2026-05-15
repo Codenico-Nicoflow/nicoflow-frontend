@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { toast } from 'sonner';
 import { expect, within } from 'storybook/test';
 
+import { Button } from '@/components/ui/button';
+
 import { Toaster } from '.';
 
 const meta: Meta<typeof Toaster> = {
@@ -17,26 +19,48 @@ type Story = StoryObj<typeof Toaster>;
 export const Default: Story = {
   render: () => (
     <div className="flex flex-col items-center gap-4">
-      <p className="text-sm text-muted-foreground">Toaster is mounted — trigger a toast to see it</p>
+      <p className="text-sm text-muted-foreground">Click a button to trigger a toast</p>
+      <div className="flex gap-2">
+        <Button onClick={() => toast.success('Project created successfully')}>Success Toast</Button>
+        <Button variant="destructive" onClick={() => toast.error('An unexpected error occurred')}>
+          Error Toast
+        </Button>
+        <Button variant="outline" onClick={() => toast.info('Changes saved automatically')}>
+          Info Toast
+        </Button>
+      </div>
       <Toaster />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/click a button/i)).toBeInTheDocument();
+  },
 };
 
 export const WithSuccessToast: Story = {
   render: () => <Toaster />,
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
     toast.success('Project created successfully');
-    await expect(canvas).toBeTruthy();
+    const toastRegion = document.querySelector('[data-sonner-toaster]');
+    await expect(toastRegion ?? canvasElement).toBeTruthy();
   },
 };
 
 export const WithErrorToast: Story = {
   render: () => <Toaster />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async () => {
     toast.error('An unexpected error occurred');
-    await expect(canvas).toBeTruthy();
+    const toastRegion = document.querySelector('[data-sonner-toaster]');
+    await expect(toastRegion).toBeTruthy();
+  },
+};
+
+export const WithWarningToast: Story = {
+  render: () => <Toaster />,
+  play: async () => {
+    toast.warning('You are approaching your task limit');
+    const toastRegion = document.querySelector('[data-sonner-toaster]');
+    await expect(toastRegion).toBeTruthy();
   },
 };

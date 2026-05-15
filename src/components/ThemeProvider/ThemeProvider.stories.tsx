@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, within } from 'storybook/test';
 
 import { ThemeProvider } from '.';
 
@@ -29,9 +30,18 @@ const ThemedCard = () => (
 export const LightTheme: Story = {
   parameters: { globals: { theme: 'light' } },
   render: () => <ThemedCard />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Themed Component')).toBeInTheDocument();
+    await expect(canvas.getByText('Primary')).toBeInTheDocument();
+  },
 };
 
 export const DarkTheme: Story = {
   parameters: { globals: { theme: 'dark' } },
   render: () => <ThemedCard />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Themed Component')).toBeInTheDocument();
+  },
 };

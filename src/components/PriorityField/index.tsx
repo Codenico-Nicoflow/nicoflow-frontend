@@ -43,7 +43,7 @@ export const PriorityField = <T extends FieldValues>({
               <FormControl>
                 <SelectTrigger
                   data-testid={testId ? `${testId}-priority-trigger` : 'priority-trigger'}
-                  className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
+                  className="h-10 sm:h-12 text-sm sm:text-base"
                 >
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
@@ -51,19 +51,19 @@ export const PriorityField = <T extends FieldValues>({
               <SelectContent data-testid={testId ? `${testId}-priority-content` : 'priority-content'}>
                 <SelectItem value={TaskPriority.LOW}>
                   <div className="flex items-center gap-2">
-                    <div className={cn('h-2 w-2 rounded-full bg-green-500')} />
+                    <div className={cn('h-2 w-2 rounded-full bg-success')} />
                     <span>Low</span>
                   </div>
                 </SelectItem>
                 <SelectItem value={TaskPriority.MEDIUM}>
                   <div className="flex items-center gap-2">
-                    <div className={cn('h-2 w-2 rounded-full bg-yellow-500')} />
+                    <div className={cn('h-2 w-2 rounded-full bg-warning')} />
                     <span>Medium</span>
                   </div>
                 </SelectItem>
                 <SelectItem value={TaskPriority.HIGH}>
                   <div className="flex items-center gap-2">
-                    <div className={cn('h-2 w-2 rounded-full bg-red-500')} />
+                    <div className={cn('h-2 w-2 rounded-full bg-destructive')} />
                     <span>High</span>
                   </div>
                 </SelectItem>

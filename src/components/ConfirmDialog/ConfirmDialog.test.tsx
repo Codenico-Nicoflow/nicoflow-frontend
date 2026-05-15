@@ -68,7 +68,9 @@ describe('ConfirmDialog', () => {
       />
     );
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    const confirmButton = screen.getByTestId('confirm-dialog-confirm-button');
+    expect(confirmButton).toBeDisabled();
+    expect(screen.getByText('Confirm...')).toBeInTheDocument();
   });
 
   it('should apply variant styles and show custom icon', () => {

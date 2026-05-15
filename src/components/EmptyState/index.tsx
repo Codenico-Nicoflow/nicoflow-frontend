@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { motion } from 'framer-motion';
 import { type LucideIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -22,13 +23,16 @@ export const EmptyState = ({
   'data-testid': testId,
 }: EmptyStateProps) => {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
       data-testid={testId || 'empty-state'}
       className={cn('flex flex-col items-center justify-center py-12 sm:py-16 text-center', className)}
     >
       <div
         data-testid={testId ? `${testId}-icon` : 'empty-state-icon'}
-        className="rounded-full bg-muted p-4 sm:p-6 mb-4"
+        className="rounded-full bg-muted ring-1 ring-border p-4 sm:p-6 mb-4"
       >
         <Icon className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
       </div>
@@ -51,6 +55,6 @@ export const EmptyState = ({
           {action}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };

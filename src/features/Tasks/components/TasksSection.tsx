@@ -41,9 +41,10 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   const taskCounts = useMemo(
     () => ({
       all: projectTasks.length,
-      todo: projectTasks.filter(t => t.status === TaskStatus.TODO).length,
-      inProgress: projectTasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length,
+      inbox: projectTasks.filter(t => t.status === TaskStatus.INBOX).length,
+      active: projectTasks.filter(t => t.status === TaskStatus.ACTIVE).length,
       done: projectTasks.filter(t => t.status === TaskStatus.DONE).length,
+      cancelled: projectTasks.filter(t => t.status === TaskStatus.CANCELLED).length,
     }),
     [projectTasks]
   );
@@ -68,7 +69,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
       show({ title: 'Updating task...', subtitle: 'Please wait while we update the task' });
       await updateTask({
         id: task.id,
-        status: task.status === TaskStatus.DONE ? TaskStatus.TODO : TaskStatus.DONE,
+        status: task.status === TaskStatus.DONE ? TaskStatus.ACTIVE : TaskStatus.DONE,
       }).unwrap();
       showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
     } catch (error) {

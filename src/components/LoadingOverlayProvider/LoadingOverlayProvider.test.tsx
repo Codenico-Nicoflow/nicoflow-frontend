@@ -1,5 +1,5 @@
 import { renderComponent } from '__tests__/renderComponent';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
@@ -79,9 +79,8 @@ describe('LoadingOverlayProvider', () => {
       return null;
     };
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => renderComponent(<BadConsumer />)).toThrow(
-      'useLoadingOverlay must be used within LoadingOverlayProvider'
-    );
+    // render bare — no LoadingOverlayProvider in the tree
+    expect(() => render(<BadConsumer />)).toThrow('useLoadingOverlay must be used within LoadingOverlayProvider');
     consoleSpy.mockRestore();
   });
 });

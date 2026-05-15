@@ -10,7 +10,15 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   // Global ignores
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.expo/**', '**/build/**', '**/.turbo/**', '**/coverage/**'],
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/.expo/**',
+      '**/build/**',
+      '**/.turbo/**',
+      '**/coverage/**',
+      '**/storybook-static/**',
+    ],
   },
 
   // Base config for JavaScript files (no TypeScript Project needed)

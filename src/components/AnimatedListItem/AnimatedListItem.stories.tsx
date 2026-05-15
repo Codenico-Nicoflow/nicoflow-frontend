@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, within } from 'storybook/test';
 
 import { AnimatedListItem } from '.';
 
@@ -7,6 +8,11 @@ const meta: Meta<typeof AnimatedListItem> = {
   component: AnimatedListItem,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  argTypes: {
+    index: { control: 'number' },
+    delay: { control: 'number' },
+    className: { control: 'text' },
+  },
 };
 export default meta;
 
@@ -18,6 +24,10 @@ export const Default: Story = {
       <div className="p-3 bg-card border rounded-lg text-sm text-foreground w-64">Animated list item content</div>
     ),
     index: 0,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Animated list item content')).toBeInTheDocument();
   },
 };
 
@@ -31,4 +41,9 @@ export const StaggeredList: Story = {
       ))}
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Item 1')).toBeInTheDocument();
+    await expect(canvas.getByText('Item 5')).toBeInTheDocument();
+  },
 };

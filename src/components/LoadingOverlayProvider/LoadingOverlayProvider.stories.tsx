@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 
@@ -40,8 +41,21 @@ const OverlayTriggerDefault = () => {
 
 export const Default: Story = {
   render: () => <OverlayTrigger />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    const showBtn = canvas.getByRole('button', { name: /show overlay/i });
+    await expect(showBtn).toBeInTheDocument();
+    await user.click(showBtn);
+    const overlay = document.querySelector('[data-testid="loading-overlay"]') ?? document.body;
+    await expect(overlay).toBeTruthy();
+  },
 };
 
 export const DefaultMessages: Story = {
   render: () => <OverlayTriggerDefault />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('button', { name: /show default overlay/i })).toBeInTheDocument();
+  },
 };

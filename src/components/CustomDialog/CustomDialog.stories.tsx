@@ -1,6 +1,7 @@
 import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +12,10 @@ const meta: Meta<typeof CustomDialog> = {
   component: CustomDialog,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  argTypes: {
+    title: { control: 'text' },
+    description: { control: 'text' },
+  },
 };
 export default meta;
 
@@ -47,6 +52,14 @@ export const WithBothButtons: Story = {
       )}
     </DialogWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+    await expect(canvas.getByText('Confirm Action')).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+  },
 };
 
 export const TitleOnly: Story = {
@@ -62,6 +75,12 @@ export const TitleOnly: Story = {
       )}
     </DialogWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+    await expect(canvas.getByText('Information')).toBeInTheDocument();
+  },
 };
 
 export const WithDescription: Story = {
@@ -92,4 +111,9 @@ export const OpenByDefault: Story = {
       cancelButton={{ text: 'Cancel', onClick: () => {} }}
     />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Confirm Action')).toBeInTheDocument();
+    await expect(canvas.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
+  },
 };

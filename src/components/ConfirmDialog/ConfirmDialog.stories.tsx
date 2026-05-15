@@ -2,6 +2,7 @@ import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { AlertTriangle, Info, Trash2 } from 'lucide-react';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +13,15 @@ const meta: Meta<typeof ConfirmDialog> = {
   component: ConfirmDialog,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  argTypes: {
+    variant: { control: 'select', options: ['danger', 'warning', 'info'] },
+    isLoading: { control: 'boolean' },
+    destructive: { control: 'boolean' },
+    title: { control: 'text' },
+    description: { control: 'text' },
+    confirmLabel: { control: 'text' },
+    cancelLabel: { control: 'text' },
+  },
 };
 export default meta;
 
@@ -51,6 +61,13 @@ export const DangerVariant: Story = {
       )}
     </DialogWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+    await expect(canvas.getByText('Delete Project')).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+  },
 };
 
 export const WarningVariant: Story = {
@@ -70,6 +87,12 @@ export const WarningVariant: Story = {
       )}
     </DialogWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+    await expect(canvas.getByText('Archive Project')).toBeInTheDocument();
+  },
 };
 
 export const InfoVariant: Story = {
@@ -106,6 +129,10 @@ export const Loading: Story = {
       onConfirm={() => {}}
     />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('button', { name: /confirm\.\.\./i })).toBeDisabled();
+  },
 };
 
 export const OpenByDefault: Story = {
@@ -122,4 +149,9 @@ export const OpenByDefault: Story = {
       onConfirm={() => {}}
     />
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Delete Project')).toBeInTheDocument();
+    await expect(canvas.getByText('This action cannot be undone.')).toBeInTheDocument();
+  },
 };

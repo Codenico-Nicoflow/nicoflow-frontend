@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, within } from 'storybook/test';
 
 import { DialogFieldGrid } from '.';
 
@@ -7,6 +8,10 @@ const meta: Meta<typeof DialogFieldGrid> = {
   component: DialogFieldGrid,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  argTypes: {
+    columns: { control: 'select', options: [1, 2] },
+    className: { control: 'text' },
+  },
 };
 export default meta;
 
@@ -28,6 +33,11 @@ export const SingleColumn: Story = {
       </DialogFieldGrid>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Field 1')).toBeInTheDocument();
+    await expect(canvas.getByText('Field 3')).toBeInTheDocument();
+  },
 };
 
 export const TwoColumns: Story = {
@@ -41,4 +51,11 @@ export const TwoColumns: Story = {
       </DialogFieldGrid>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Field 1')).toBeInTheDocument();
+    await expect(canvas.getByText('Field 2')).toBeInTheDocument();
+    await expect(canvas.getByText('Field 3')).toBeInTheDocument();
+    await expect(canvas.getByText('Field 4')).toBeInTheDocument();
+  },
 };

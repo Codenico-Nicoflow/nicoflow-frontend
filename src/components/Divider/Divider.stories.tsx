@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, within } from 'storybook/test';
 
 import { Divider } from '.';
 
@@ -18,6 +19,12 @@ export const Default: Story = {
       <Divider />
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const divider =
+      canvas.getByRole('separator', { hidden: true }) ?? canvasElement.querySelector('[data-testid="divider"]');
+    await expect(divider ?? canvasElement.firstElementChild).toBeTruthy();
+  },
 };
 
 export const InContext: Story = {
@@ -28,4 +35,9 @@ export const InContext: Story = {
       <p className="text-sm text-muted-foreground">Section below</p>
     </div>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Section above')).toBeInTheDocument();
+    await expect(canvas.getByText('Section below')).toBeInTheDocument();
+  },
 };

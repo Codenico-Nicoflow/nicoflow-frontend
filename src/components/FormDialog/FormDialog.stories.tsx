@@ -2,6 +2,7 @@ import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { Folder } from 'lucide-react';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,14 @@ const meta: Meta<typeof FormDialog> = {
   component: FormDialog,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  argTypes: {
+    maxWidth: { control: 'select', options: ['sm', 'md', 'lg', 'xl', '2xl'] },
+    isEditMode: { control: 'boolean' },
+    isLoading: { control: 'boolean' },
+    hasChanges: { control: 'boolean' },
+    title: { control: 'text' },
+    description: { control: 'text' },
+  },
 };
 export default meta;
 
@@ -66,6 +75,13 @@ export const CreateMode: Story = {
       )}
     </DialogWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+    await expect(canvas.getByText('Create Project')).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /create/i })).toBeInTheDocument();
+  },
 };
 
 export const EditMode: Story = {
@@ -86,6 +102,13 @@ export const EditMode: Story = {
       )}
     </DialogWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+    await expect(canvas.getByText('Edit Project')).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
+  },
 };
 
 export const EditModeNoChanges: Story = {
@@ -106,6 +129,13 @@ export const EditModeNoChanges: Story = {
       )}
     </DialogWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+    const submitBtn = canvas.getByRole('button', { name: /save changes/i });
+    await expect(submitBtn).toBeDisabled();
+  },
 };
 
 export const Loading: Story = {
@@ -114,6 +144,12 @@ export const Loading: Story = {
       <SampleFields />
     </FormDialog>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const submitBtn = canvas.getByRole('button', { name: /creating/i });
+    await expect(submitBtn).toBeDisabled();
+    await expect(canvas.getByText(/creating\.\.\./i)).toBeInTheDocument();
+  },
 };
 
 export const WideDialog: Story = {

@@ -1,4 +1,4 @@
-import type { IArea, IProject, ITask, IUser } from '@/lib/types';
+import type { IArea, IBucket, IProject, ITask, IUser } from '@/lib/types';
 import type { IconId } from '@/lib/types/icons';
 
 export const mockUser = (overrides?: Partial<IUser>): IUser => ({
@@ -46,6 +46,21 @@ export const mockTask = (overrides?: Partial<ITask>): ITask => ({
   description: 'A sample task description',
   status: 'inbox',
   priority: 'medium',
+  dueDate: null,
+  scheduledFor: null,
+  estimatedMinutes: null,
+  url: undefined,
+  sortOrder: 1,
+  completedAt: undefined,
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z',
+  ...overrides,
+});
+
+export const mockBucketItem = (overrides?: Partial<IBucket>): IBucket => ({
+  id: 1,
+  userId: 1,
+  content: 'Sample bucket item content',
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
   ...overrides,

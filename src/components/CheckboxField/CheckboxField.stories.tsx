@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Star } from 'lucide-react';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { StoryFormWrapper } from '@/stories/helpers';
 
@@ -10,6 +11,12 @@ const meta: Meta<typeof CheckboxField> = {
   component: CheckboxField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  argTypes: {
+    label: { control: 'text' },
+    description: { control: 'text' },
+    optional: { control: 'boolean' },
+    delay: { control: 'number' },
+  },
 };
 export default meta;
 
@@ -23,6 +30,14 @@ export const Unchecked: Story = {
       {control => <CheckboxField control={control} label="Mark as Favorite" icon={Star} fieldName="isFavorite" />}
     </StoryFormWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+    const checkbox = canvas.getByRole('checkbox');
+    await expect(checkbox).not.toBeChecked();
+    await user.click(checkbox);
+    await expect(checkbox).toBeChecked();
+  },
 };
 
 export const Checked: Story = {
@@ -31,6 +46,10 @@ export const Checked: Story = {
       {control => <CheckboxField control={control} label="Mark as Favorite" icon={Star} fieldName="isFavorite" />}
     </StoryFormWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('checkbox')).toBeChecked();
+  },
 };
 
 export const WithDescription: Story = {
@@ -47,6 +66,10 @@ export const WithDescription: Story = {
       )}
     </StoryFormWrapper>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/favorited projects appear/i)).toBeInTheDocument();
+  },
 };
 
 export const Optional: Story = {

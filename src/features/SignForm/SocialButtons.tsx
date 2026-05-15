@@ -8,7 +8,7 @@ export default function SocialButtons() {
     <React.Fragment>
       <div className="flex items-center justify-center w-full my-6">
         <Divider />
-        <span className="px-4 text-sm text-muted-foreground bg-background cursor-default">Social accounts</span>
+        <span className="px-8 text-sm text-muted-foreground cursor-default">Social accounts</span>
         <Divider />
       </div>
 

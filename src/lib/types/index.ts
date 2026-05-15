@@ -20,3 +20,4 @@ export { AREA_API, AUTH_API, BUCKET_API, PROJECT_API, TASKS_API } from './endpoi
 export type { IconId } from './icons';
 export { ICON_IDS } from './icons';
 export type { IArea, IBucket, IProject, ITask, IUser, ProcessingOption } from './interfaces';
+export type { ApiEnvelope } from './interfaces';

@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BottomText, SignForm, SocialButtons } from '@/features/SignForm';
-import { useRegisterMutation } from '@/lib/store';
+import { useAppDispatch, useRegisterMutation } from '@/lib/store';
+import { setToken, setUser } from '@/lib/store/slices/auth/authSlice';
 import { type RegisterFormData, registerSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
@@ -30,6 +31,7 @@ const getPasswordStrength = (password: string): { score: number; label: string; 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [register, { isLoading }] = useRegisterMutation();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const form = useForm<RegisterFormData>({
@@ -42,7 +44,9 @@ export default function SignUp() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      await register(data).unwrap();
+      const result = await register(data).unwrap();
+      dispatch(setToken(result.token));
+      dispatch(setUser(result.user));
       showSuccessToast(ToastMessages.SIGN_UP_SUCCESSFULLY, toast);
       navigate('/', { replace: true });
     } catch (error) {

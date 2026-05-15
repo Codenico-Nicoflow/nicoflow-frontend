@@ -10,12 +10,14 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BottomText, RememberMe, SignForm, SocialButtons } from '@/features/SignForm';
-import { useLoginMutation } from '@/lib/store';
+import { useAppDispatch, useLoginMutation } from '@/lib/store';
+import { setToken, setUser } from '@/lib/store/slices/auth/authSlice';
 import { type LoginFormData, loginSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
@@ -27,10 +29,13 @@ export default function SignIn() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data).unwrap();
+      const result = await login(data).unwrap();
+      dispatch(setToken(result.token));
+      dispatch(setUser(result.user));
       showSuccessToast(ToastMessages.SIGN_IN_SUCCESSFULLY, toast);
       navigate(from, { replace: true });
     } catch (error) {
+      console.error('[SignIn] login error:', error);
       showErrorToast(error, toast);
     }
   };

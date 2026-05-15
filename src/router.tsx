@@ -11,9 +11,6 @@ const PrivateRoutes = () => {
   const location = useLocation();
   const user = useAppUser();
 
-  // You can add loading logic here if needed
-  // For now, we'll assume auth state is managed elsewhere
-
   return user ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
 };
 

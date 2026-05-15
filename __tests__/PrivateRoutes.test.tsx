@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -21,7 +19,7 @@ const mockUser: IUser = {
 
 describe('PrivateRoutes', () => {
   it('redirects unauthenticated user to /sign-in', async () => {
-    const store = createMockStore({ auth: { user: null, isLoading: false } });
+    const store = createMockStore({ auth: { user: null, token: null, isLoading: false } });
     renderComponent(<AppRoutes />, { store, initialRoute: '/quick-access/bucket' });
 
     const heading = await screen.findByRole('heading', { name: /sign in/i });
@@ -29,7 +27,7 @@ describe('PrivateRoutes', () => {
   });
 
   it('renders protected content for authenticated user', async () => {
-    const store = createMockStore({ auth: { user: mockUser, isLoading: false } });
+    const store = createMockStore({ auth: { user: mockUser, token: 'mock-token', isLoading: false } });
     renderComponent(<AppRoutes />, { store, initialRoute: '/' });
 
     // Redirects to /quick-access/bucket — PageStub renders "Coming soon"
@@ -38,7 +36,7 @@ describe('PrivateRoutes', () => {
   });
 
   it('preserves state.from after redirect to /sign-in', async () => {
-    const store = createMockStore({ auth: { user: null, isLoading: false } });
+    const store = createMockStore({ auth: { user: null, token: null, isLoading: false } });
     renderComponent(<AppRoutes />, { store, initialRoute: '/profile' });
 
     const heading = await screen.findByRole('heading', { name: /sign in/i });

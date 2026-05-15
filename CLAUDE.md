@@ -158,6 +158,36 @@ Auth guard is in `PrivateRoutes` (`src/router.tsx`): reads `useAppUser()` — if
 
 ---
 
+## API Response Envelope
+
+**Every** response from the backend is wrapped in this envelope — no exceptions:
+
+```typescript
+type ApiResponse<T> = {
+  data: T;
+  error: string | null;
+};
+```
+
+RTK Query endpoints **must** use `transformResponse` to unwrap:
+
+```typescript
+// ✅ correct
+builder.query<IArea[], void>({
+  query: () => '/areas',
+  transformResponse: (raw: ApiResponse<IArea[]>) => raw.data,
+});
+
+// ❌ wrong — result.data will be the whole envelope, not the payload
+builder.query<IArea[], void>({
+  query: () => '/areas',
+});
+```
+
+The `ApiEnvelope<T>` type lives in `src/lib/store/slices/auth/type.ts` — import and reuse it. MSW handlers in `src/mocks/handlers.ts` use the `envelope()` helper to match this shape.
+
+---
+
 ## API & Auth
 
 **Base URL:** `http://localhost:8080/v1` — hardcoded in `src/lib/store/slices/baseQuery.ts`

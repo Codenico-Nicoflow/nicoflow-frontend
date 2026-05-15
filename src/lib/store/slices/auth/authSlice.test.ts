@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { IUser } from '@/lib/types';
 
 import type { AuthState } from './authSlice';
-import authReducer, { clearAuth, selectIsLoading, selectUser, setIsLoading, setUser } from './authSlice';
+import authReducer, { clearAuth, selectIsLoading, selectUser, setIsLoading, setToken, setUser } from './authSlice';
 
 const mockUser: IUser = {
   id: 1,
@@ -16,7 +16,7 @@ const mockUser: IUser = {
   status: 'regular',
 };
 
-const initialState: AuthState = { user: null, isLoading: false };
+const initialState: AuthState = { user: null, token: null, isLoading: false };
 
 describe('authSlice reducer', () => {
   it('returns initial state when called with undefined', () => {
@@ -30,9 +30,20 @@ describe('authSlice reducer', () => {
   });
 
   it('setUser accepts null to clear user', () => {
-    const withUser: AuthState = { user: mockUser, isLoading: false };
+    const withUser: AuthState = { user: mockUser, token: null, isLoading: false };
     const state = authReducer(withUser, setUser(null));
     expect(state.user).toBeNull();
+  });
+
+  it('setToken stores the token', () => {
+    const state = authReducer(initialState, setToken('abc123'));
+    expect(state.token).toBe('abc123');
+  });
+
+  it('setToken accepts null to clear token', () => {
+    const withToken: AuthState = { user: null, token: 'abc123', isLoading: false };
+    const state = authReducer(withToken, setToken(null));
+    expect(state.token).toBeNull();
   });
 
   it('setIsLoading sets loading flag', () => {
@@ -41,7 +52,7 @@ describe('authSlice reducer', () => {
   });
 
   it('clearAuth resets everything to initial state', () => {
-    const withUser: AuthState = { user: mockUser, isLoading: true };
+    const withUser: AuthState = { user: mockUser, token: 'abc123', isLoading: true };
     const state = authReducer(withUser, clearAuth());
     expect(state).toEqual(initialState);
   });
@@ -49,7 +60,7 @@ describe('authSlice reducer', () => {
 
 describe('authSlice selectors', () => {
   const rootState = {
-    auth: { user: mockUser, isLoading: false },
+    auth: { user: mockUser, token: 'abc123', isLoading: false },
   };
 
   it('selectUser returns the user', () => {

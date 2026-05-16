@@ -1,6 +1,32 @@
+import { useEffect, useState } from 'react';
+
 import { Link, Outlet } from 'react-router-dom';
 
+const SLIDES = [
+  {
+    headline: 'Your tasks,\norganized.',
+    body: 'Capture everything. Focus on what matters. Ship faster.',
+  },
+  {
+    headline: 'Projects &\nareas in sync.',
+    body: 'Group your work into areas and projects that reflect how you actually think.',
+  },
+  {
+    headline: 'Your inbox,\nzero friction.',
+    body: "Drop anything into the Bucket. Process it when you're ready.",
+  },
+];
+
 const AuthLayout = () => {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setCurrent(c => (c + 1) % SLIDES.length), 4000);
+    return () => clearInterval(id);
+  }, []);
+
+  const slide = SLIDES[current];
+
   return (
     <div className="min-h-screen flex">
       {/* Left hero panel — hidden on mobile */}
@@ -13,20 +39,24 @@ const AuthLayout = () => {
         </Link>
 
         <div className="flex flex-1 flex-col justify-center gap-4">
-          <p className="text-4xl font-bold leading-tight tracking-tight">
-            Your tasks,
-            <br />
-            organized.
-          </p>
-          <p className="text-primary-foreground/70 text-lg max-w-xs">
-            Capture everything. Focus on what matters. Ship faster.
-          </p>
+          <p className="text-4xl font-bold leading-tight tracking-tight whitespace-pre-line">{slide?.headline}</p>
+          <p className="text-primary-foreground/70 text-lg max-w-xs">{slide?.body}</p>
         </div>
 
         <div className="flex gap-2">
-          <span className="h-2 w-2 rounded-full bg-primary-foreground/40" />
-          <span className="h-2 w-2 rounded-full bg-primary-foreground/25" />
-          <span className="h-2 w-2 rounded-full bg-primary-foreground/15" />
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setCurrent(i)}
+              aria-label={`Slide ${i + 1}`}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === current
+                  ? 'w-6 bg-primary-foreground/80'
+                  : 'w-2 bg-primary-foreground/30 hover:bg-primary-foreground/50'
+              }`}
+            />
+          ))}
         </div>
       </div>
 

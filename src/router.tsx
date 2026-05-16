@@ -44,6 +44,10 @@ const AppRoutes = () => {
       ],
     },
 
+    // Publicly accessible — no auth required
+    { path: '/privacy-policy', element: <PrivacyPolicy /> },
+    { path: '/terms-of-service', element: <TermsOfService /> },
+
     {
       path: '*',
       element: <ErrorPage />,

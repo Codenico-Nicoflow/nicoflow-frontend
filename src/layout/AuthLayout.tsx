@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { Link, Outlet } from 'react-router-dom';
 
 const SLIDES = [
@@ -38,9 +39,20 @@ const AuthLayout = () => {
           <span className="text-xl font-bold tracking-tight">Nicoflow</span>
         </Link>
 
-        <div className="flex flex-1 flex-col justify-center gap-4">
-          <p className="text-4xl font-bold leading-tight tracking-tight whitespace-pre-line">{slide?.headline}</p>
-          <p className="text-primary-foreground/70 text-lg max-w-xs">{slide?.body}</p>
+        <div className="flex flex-1 flex-col justify-center gap-4 overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
+              className="flex flex-col gap-3"
+            >
+              <p className="text-4xl font-bold leading-tight tracking-tight whitespace-pre-line">{slide?.headline}</p>
+              <p className="text-primary-foreground/70 text-lg max-w-xs">{slide?.body}</p>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         <div className="flex gap-2">

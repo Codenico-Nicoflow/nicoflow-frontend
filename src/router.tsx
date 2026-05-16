@@ -27,8 +27,6 @@ const AppRoutes = () => {
         { path: '/quick-access/tomorrow', element: <Tomorrow /> },
         { path: '/projects/new', element: <div>New Project</div> },
         { path: '/projects/:projectId', element: <ProjectView /> },
-        { path: '/terms-of-service', element: <TermsOfService /> },
-        { path: '/privacy-policy', element: <PrivacyPolicy /> },
         { path: '/help-information', element: <HelpAndInformation /> },
         { path: '/profile', element: <Profile /> },
       ],

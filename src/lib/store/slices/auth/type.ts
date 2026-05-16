@@ -20,6 +20,8 @@ export type AuthResponse = {
   user: IUser;
 };
 
+export type { ApiEnvelope } from '@/lib/types';
+
 export type ForgotPasswordRequest = {
   email: string;
 };

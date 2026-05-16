@@ -11,9 +11,6 @@ const PrivateRoutes = () => {
   const location = useLocation();
   const user = useAppUser();
 
-  // You can add loading logic here if needed
-  // For now, we'll assume auth state is managed elsewhere
-
   return user ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
 };
 
@@ -30,8 +27,6 @@ const AppRoutes = () => {
         { path: '/quick-access/tomorrow', element: <Tomorrow /> },
         { path: '/projects/new', element: <div>New Project</div> },
         { path: '/projects/:projectId', element: <ProjectView /> },
-        { path: '/terms-of-service', element: <TermsOfService /> },
-        { path: '/privacy-policy', element: <PrivacyPolicy /> },
         { path: '/help-information', element: <HelpAndInformation /> },
         { path: '/profile', element: <Profile /> },
       ],
@@ -46,6 +41,10 @@ const AppRoutes = () => {
         { path: 'reset-password', element: <ResetPassword /> },
       ],
     },
+
+    // Publicly accessible — no auth required
+    { path: '/privacy-policy', element: <PrivacyPolicy /> },
+    { path: '/terms-of-service', element: <TermsOfService /> },
 
     {
       path: '*',

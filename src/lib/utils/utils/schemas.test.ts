@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   bucketSchema,
   createAreaSchema,
+  forgotPasswordSchema,
   loginSchema,
   projectSchema,
   registerSchema,
@@ -66,6 +67,24 @@ describe('registerSchema', () => {
       email: 'user@example.com',
       password: 'Password1',
     });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('forgotPasswordSchema', () => {
+  it('parses valid email', () => {
+    const result = forgotPasswordSchema.safeParse({ email: 'user@example.com' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid email format', () => {
+    const result = forgotPasswordSchema.safeParse({ email: 'not-an-email' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/valid email/i);
+  });
+
+  it('rejects empty string', () => {
+    const result = forgotPasswordSchema.safeParse({ email: '' });
     expect(result.success).toBe(false);
   });
 });

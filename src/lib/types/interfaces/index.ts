@@ -9,6 +9,11 @@ import type { IconId } from '../icons';
 // INTERFACES
 // ============================================
 
+export type ApiEnvelope<T> = {
+  data: T;
+  error: string | null;
+};
+
 export interface IArea {
   id: number;
   name: string;

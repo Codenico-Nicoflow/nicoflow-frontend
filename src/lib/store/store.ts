@@ -10,12 +10,6 @@ import { bucketApi } from './slices/bucket/bucketApi';
 import { projectApi } from './slices/project/projectApi';
 import { taskApi } from './slices/tasks/taskApi';
 
-const persistConfig = {
-  key: 'root',
-  storage,
-  whitelist: ['auth'], // Only persist the auth slice
-};
-
 const rootReducer = combineReducers({
   auth: authReducer,
   [authApi.reducerPath]: authApi.reducer,
@@ -24,6 +18,12 @@ const rootReducer = combineReducers({
   [taskApi.reducerPath]: taskApi.reducer,
   [bucketApi.reducerPath]: bucketApi.reducer,
 });
+
+const persistConfig = {
+  key: 'root',
+  storage,
+  whitelist: ['auth'],
+};
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

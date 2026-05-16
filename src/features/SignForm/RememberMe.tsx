@@ -7,7 +7,7 @@ import type { LoginFormData } from '@/lib/utils';
 
 const RememberMe = ({ form }: { form: UseFormReturn<LoginFormData> }) => {
   return (
-    <div className="flex justify-between items-center w-80">
+    <div className="flex justify-between items-center w-full">
       <FormField
         control={form.control}
         name="remember"

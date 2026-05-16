@@ -5,7 +5,14 @@ import { AUTH_API, type IUser } from '@/lib/types';
 import { baseQueryWithReauth } from '../baseQuery';
 
 import { clearAuth, setUser } from './authSlice';
-import type { AuthResponse, ForgotPasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest } from './type';
+import type {
+  ApiEnvelope,
+  AuthResponse,
+  ForgotPasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+} from './type';
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -16,16 +23,10 @@ export const authApi = createApi({
       query: userData => ({
         url: AUTH_API.LOGIN,
         method: 'POST',
-        body: {
-          ...userData,
-          platform: 'web',
-        },
+        body: { ...userData, platform: 'web' },
         credentials: 'include',
       }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        dispatch(setUser(data.user));
-      },
+      transformResponse: (raw: ApiEnvelope<AuthResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       invalidatesTags: ['User'],
     }),
@@ -33,16 +34,10 @@ export const authApi = createApi({
       query: userData => ({
         url: AUTH_API.REGISTER,
         method: 'POST',
-        body: {
-          ...userData,
-          platform: 'web',
-        },
+        body: { ...userData, platform: 'web' },
         credentials: 'include',
       }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        dispatch(setUser(data.user));
-      },
+      transformResponse: (raw: ApiEnvelope<AuthResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       invalidatesTags: ['User'],
     }),
@@ -52,8 +47,12 @@ export const authApi = createApi({
         method: 'POST',
         credentials: 'include',
       }),
-      async onQueryStarted(_, { dispatch }) {
-        dispatch(clearAuth());
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } finally {
+          dispatch(clearAuth());
+        }
       },
       transformErrorResponse: error => error.data,
       invalidatesTags: ['User'],
@@ -80,6 +79,11 @@ export const authApi = createApi({
         method: 'GET',
         credentials: 'include',
       }),
+      transformResponse: (raw: ApiEnvelope<IUser>) => raw.data,
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+        dispatch(setUser(data));
+      },
       providesTags: ['User'],
     }),
     refreshToken: builder.mutation<AuthResponse, void>({
@@ -88,6 +92,7 @@ export const authApi = createApi({
         method: 'POST',
         credentials: 'include',
       }),
+      transformResponse: (raw: ApiEnvelope<AuthResponse>) => raw.data,
       transformErrorResponse: error => error.data,
     }),
   }),

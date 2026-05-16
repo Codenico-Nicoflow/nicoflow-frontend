@@ -30,11 +30,15 @@ export const ToastMessages = {
   INVALID_REFRESH_TOKEN: 'Your session has expired. Please log in again.',
   USER_NOT_FOUND: 'User not found. Please check your credentials.',
   INVALID_CREDENTIALS: 'Invalid email or password.',
-  UNAUTHORIZED: 'You are not authorized to perform this action.',
-  USER_EXISTS: 'A user with this email already exists.',
+  UNAUTHORIZED: 'Invalid email or password.',
+  INVALID_TOKEN: 'Your session has expired. Please sign in again.',
+  FORBIDDEN: 'You do not have permission to do that.',
+  USER_EXISTS: 'An account with this email already exists.',
+  EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',
   INVALID_PASSWORD: 'Password is invalid.',
   PASSWORDS_CANNOT_MATCH: 'New password cannot match the old one.',
   PASSWORD_MISMATCH: 'Passwords do not match.',
+  WEAK_PASSWORD: 'Password must be at least 8 characters with uppercase, lowercase, and a number.',
   INVALID_RESET_TOKEN: 'Invalid or expired reset token.',
   INVALID_EMAIL: 'Invalid email address.',
 
@@ -73,7 +77,37 @@ export const ToastMessages = {
   TASK_NAME_REQUIRED: 'Task name is required.',
   TASK_DESCRIPTION_REQUIRED: 'Task description is required',
 
+  // ✅ Plan / quota errors (show upgrade prompt context)
+  PLAN_LIMIT_EXCEEDED: 'You have reached your plan limit. Upgrade to continue.',
+  AI_LIMIT_REACHED: 'You have used all your free AI requests this month. Upgrade for more.',
+
+  // ✅ Conflict errors
+  CONFLICT: 'This item already exists.',
+  DUPLICATE_NAME: 'This name is already taken.',
+
+  // ✅ Not found errors
+  RESOURCE_NOT_FOUND: 'The requested item could not be found.',
+  TASK_NOT_FOUND: 'Task not found.',
+  AREA_NOT_FOUND: 'Area not found.',
+  SESSION_NOT_FOUND: 'Session not found.',
+  MESSAGE_NOT_FOUND: 'Message not found.',
+
+  // ✅ Validation errors
+  INVALID_INPUT: 'Some fields are invalid. Please check your input.',
+  INVALID_PROJECT_ID: 'Invalid project.',
+  INVALID_STATUS: 'Invalid status value.',
+  INVALID_DATE: 'Invalid date.',
+  INVALID_PRIORITY: 'Invalid priority value.',
+  INVALID_AI_CONTEXT: 'Invalid AI request.',
+  REQUIRED: 'A required field is missing.',
+
+  // ✅ Server / availability errors
+  DATABASE_ERROR: 'Something went wrong on our end. Please try again.',
+  INTERNAL_SERVER_ERROR: 'Something went wrong on our end. Please try again.',
+  SERVICE_UNAVAILABLE: 'Service temporarily unavailable. Please try again shortly.',
+
   // ✅ Rate limiting errors
+  RATE_LIMITED: 'Too many requests. Please wait a moment and try again.',
   TOO_MANY_REQUESTS: 'Too many requests. Please try again later.',
   LOGIN_ATTEMPTS_EXCEEDED: 'Too many login attempts. Please try again later.',
   REGISTRATION_ATTEMPTS_EXCEEDED: 'Too many registration attempts. Please try again later.',

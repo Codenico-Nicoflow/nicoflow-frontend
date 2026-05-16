@@ -1,12 +1,11 @@
 import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { ForgotPasswordIcon } from '@/assets/svgs';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -21,6 +20,7 @@ export default function ForgotPassword() {
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
+    mode: 'onBlur',
     defaultValues: { email: '' },
   });
 
@@ -64,7 +64,7 @@ export default function ForgotPassword() {
     <SignForm
       title="Forgot password?"
       description="Enter the email associated with your account and we'll send you a reset link."
-      icon={<ForgotPasswordIcon />}
+      icon={<Mail className="h-6 w-6 text-primary" />}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

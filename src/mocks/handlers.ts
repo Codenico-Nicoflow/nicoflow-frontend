@@ -34,4 +34,6 @@ export const handlers = [
   http.post('http://localhost:8080/v1/auth/refresh-token', () =>
     HttpResponse.json(envelope({ ...mockAuthResponse, token: 'new-mock-access-token' }))
   ),
+  http.post('http://localhost:8080/v1/auth/forgot-password', () => HttpResponse.json(envelope(null))),
+  http.post('http://localhost:8080/v1/auth/reset-password', () => HttpResponse.json(envelope(null))),
 ];

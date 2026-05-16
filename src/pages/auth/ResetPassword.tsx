@@ -1,12 +1,11 @@
 import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { ResetPasswordIcon } from '@/assets/svgs';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -30,6 +29,7 @@ export default function ResetPassword() {
 
   const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
+    mode: 'onBlur',
     defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
@@ -38,7 +38,7 @@ export default function ResetPassword() {
       <SignForm
         title="Invalid link"
         description="This password reset link is missing or has expired."
-        icon={<ResetPasswordIcon />}
+        icon={<KeyRound className="h-6 w-6 text-primary" />}
       >
         <div className="flex flex-col items-center gap-4 pt-2">
           <Button asChild className="w-full">
@@ -70,7 +70,7 @@ export default function ResetPassword() {
     <SignForm
       title="Reset password"
       description="Choose a strong new password for your account."
-      icon={<ResetPasswordIcon />}
+      icon={<KeyRound className="h-6 w-6 text-primary" />}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

@@ -22,7 +22,7 @@ describe('PrivateRoutes', () => {
     const store = createMockStore({ auth: { user: null, token: null, isLoading: false } });
     renderComponent(<AppRoutes />, { store, initialRoute: '/quick-access/bucket' });
 
-    const heading = await screen.findByRole('heading', { name: /sign in/i });
+    const heading = await screen.findByRole('heading', { name: /welcome back/i });
     expect(heading).toBeInTheDocument();
   });
 
@@ -39,7 +39,7 @@ describe('PrivateRoutes', () => {
     const store = createMockStore({ auth: { user: null, token: null, isLoading: false } });
     renderComponent(<AppRoutes />, { store, initialRoute: '/profile' });
 
-    const heading = await screen.findByRole('heading', { name: /sign in/i });
+    const heading = await screen.findByRole('heading', { name: /welcome back/i });
     expect(heading).toBeInTheDocument();
   });
 });

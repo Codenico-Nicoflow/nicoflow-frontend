@@ -24,6 +24,7 @@ export default function SignIn() {
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: 'onBlur',
     defaultValues: { email: '', password: '', remember: false },
   });
 
@@ -35,13 +36,12 @@ export default function SignIn() {
       showSuccessToast(ToastMessages.SIGN_IN_SUCCESSFULLY, toast);
       navigate(from, { replace: true });
     } catch (error) {
-      console.error('[SignIn] login error:', error);
       showErrorToast(error, toast);
     }
   };
 
   return (
-    <SignForm title="Sign in" description="Welcome back — sign in to your account">
+    <SignForm title="Welcome back" description="Sign in to your Nicoflow account">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

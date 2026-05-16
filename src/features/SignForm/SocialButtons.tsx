@@ -2,30 +2,46 @@ import React from 'react';
 
 import { FacebookIcon, GmailIcon } from '@/assets/svgs';
 import { Divider } from '@/components';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function SocialButtons() {
   return (
     <React.Fragment>
       <div className="flex items-center justify-center w-full my-6">
         <Divider />
-        <span className="px-8 text-sm text-muted-foreground cursor-default">Social accounts</span>
+        <span className="px-8 text-sm text-muted-foreground cursor-default whitespace-nowrap">or continue with</span>
         <Divider />
       </div>
 
-      <div className="flex items-center justify-center gap-4 w-full my-6">
-        <div
-          onClick={() => console.log('Facebook login')}
-          className="cursor-pointer p-2 hover:opacity-80 transition-opacity"
-        >
-          <FacebookIcon />
+      <TooltipProvider>
+        <div className="flex items-center justify-center gap-4 w-full">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label="Continue with Google"
+                className="p-2.5 rounded-lg border border-border hover:bg-muted transition-colors cursor-not-allowed opacity-60"
+              >
+                <GmailIcon />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Coming soon</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label="Continue with Facebook"
+                className="p-2.5 rounded-lg border border-border hover:bg-muted transition-colors cursor-not-allowed opacity-60"
+              >
+                <FacebookIcon />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Coming soon</TooltipContent>
+          </Tooltip>
         </div>
-        <div
-          onClick={() => console.log('Gmail login')}
-          className="cursor-pointer p-2 hover:opacity-80 transition-opacity"
-        >
-          <GmailIcon />
-        </div>
-      </div>
+      </TooltipProvider>
     </React.Fragment>
   );
 }

@@ -36,6 +36,7 @@ export default function SignUp() {
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    mode: 'onBlur',
     defaultValues: { username: '', email: '', password: '' },
   });
 
@@ -55,7 +56,7 @@ export default function SignUp() {
   };
 
   return (
-    <SignForm title="Create account" description="Sign up to get started with Nicoflow">
+    <SignForm title="Create your account" description="Join Nicoflow and get organized">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

@@ -3,6 +3,7 @@ name: Deploy Staging
 on:
   push:
     branches: [staging]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -20,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Deploy to Vercel (staging)
-        run: npx vercel deploy --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel deploy --yes --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STAGING }}

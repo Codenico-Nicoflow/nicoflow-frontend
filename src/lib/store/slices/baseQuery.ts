@@ -4,19 +4,24 @@ import { Mutex } from 'async-mutex';
 
 import { AUTH_API } from '@/lib/types';
 
-export const rawBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> =
-  fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1',
-    credentials: 'include',
-    prepareHeaders: async headers => {
-      // Get token from localStorage or your auth store
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  });
+import type { RootState } from '../store';
+
+import { clearAuth, setToken } from './auth/authSlice';
+
+// Global mutex for coordinating refresh calls across requests
+const authMutex = new Mutex();
+
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1',
+  credentials: 'include',
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).auth.token;
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
 
 export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
@@ -25,7 +30,12 @@ export const baseQueryWithReauth: BaseQueryFn<
   object,
   FetchBaseQueryMeta
 > = async (args, api, extraOptions) => {
-  // Ensure only one refresh runs at a time
+  // Never intercept refresh-token requests — would cause infinite loop
+  const url = typeof args === 'string' ? args : args.url;
+  if (url === AUTH_API.REFRESH_TOKEN) {
+    return rawBaseQuery(args, api, extraOptions);
+  }
+
   if (authMutex.isLocked()) {
     await authMutex.waitForUnlock();
   }
@@ -35,28 +45,25 @@ export const baseQueryWithReauth: BaseQueryFn<
   if (result.error?.status === 401) {
     if (!authMutex.isLocked()) {
       await authMutex.runExclusive(async () => {
-        // Attempt to refresh token
         const refreshResult = await rawBaseQuery({ url: AUTH_API.REFRESH_TOKEN, method: 'POST' }, api, extraOptions);
 
         if (refreshResult.error) {
-          // Refresh failed -> clear and redirect to sign-in
-          localStorage.removeItem('authToken');
+          api.dispatch(clearAuth());
           if (typeof window !== 'undefined') {
             window.location.href = '/sign-in';
           }
           return;
         }
+
+        const { token } = refreshResult.data as { token: string };
+        api.dispatch(setToken(token));
       });
     } else {
       await authMutex.waitForUnlock();
     }
 
-    // Retry original request after refresh (or wait)
     result = await rawBaseQuery(args, api, extraOptions);
   }
 
   return result;
 };
-
-// Global mutex for coordinating refresh calls across requests
-const authMutex = new Mutex();

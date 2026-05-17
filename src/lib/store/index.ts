@@ -1,6 +1,6 @@
 // Store exports
 export type { AppDispatch, RootState } from './store';
-export { store } from './store';
+export { persistor, store } from './store';
 
 // Hooks exports
 export { useAppDispatch, useAppSelector, useAppUser } from './hooks';
@@ -19,7 +19,7 @@ export {
   useRegisterMutation,
   useResetPasswordMutation,
 } from './slices/auth/authApi';
-export { clearAuth, setUser } from './slices/auth/authSlice';
+export { clearAuth, setToken, setUser } from './slices/auth/authSlice';
 export { selectUser } from './slices/auth/authSlice';
 export { selectIsLoading } from './slices/auth/authSlice';
 export { selectAuth } from './slices/auth/authSlice';

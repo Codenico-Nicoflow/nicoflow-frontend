@@ -1,4 +1,6 @@
-import { afterEach, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+
+import { server } from './server';
 
 import '@testing-library/jest-dom';
 
@@ -130,8 +132,13 @@ if (!HTMLElement.prototype.scrollIntoView) {
   HTMLElement.prototype.scrollIntoView = () => {};
 }
 
+beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
+
 afterEach(() => {
   vi.clearAllMocks();
   localStorageMock.clear();
   sessionStorageMock.clear();
+  server.resetHandlers();
 });
+
+afterAll(() => server.close());

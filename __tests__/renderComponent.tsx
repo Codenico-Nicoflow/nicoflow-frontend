@@ -7,25 +7,8 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { LoadingOverlayProvider, ThemeProvider } from '@/components';
 import { areaApi, authApi, bucketApi, projectApi, taskApi } from '@/lib/store';
-
-type AuthState = { user: null; token: null; isAuthenticated: boolean };
-type AuthAction =
-  | { type: 'auth/setUser'; payload: null }
-  | { type: 'auth/clearAuth' }
-  | { type: string; [key: string]: unknown };
-
-const authReducer = (
-  state: AuthState = { user: null, token: null, isAuthenticated: false },
-  action: AuthAction
-): AuthState => {
-  if (action.type === 'auth/setUser') {
-    return { ...state, user: action.payload as null, isAuthenticated: true };
-  }
-  if (action.type === 'auth/clearAuth') {
-    return { user: null, token: null, isAuthenticated: false };
-  }
-  return state;
-};
+import type { AuthState } from '@/lib/store/slices/auth/authSlice';
+import authReducer from '@/lib/store/slices/auth/authSlice';
 
 const createRootReducer = () =>
   combineReducers({
@@ -40,13 +23,12 @@ const createRootReducer = () =>
 type RootReducer = ReturnType<typeof createRootReducer>;
 type MockRootState = ReturnType<RootReducer>;
 
-// Create a mock store helper for testing
-export const createMockStore = (preloadedState?: Partial<MockRootState>) => {
+export const createMockStore = (preloadedState?: { auth?: Partial<AuthState> }) => {
   const rootReducer = createRootReducer();
 
   return configureStore({
     reducer: rootReducer,
-    preloadedState,
+    preloadedState: preloadedState as Partial<MockRootState>,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         serializableCheck: false,
@@ -68,9 +50,7 @@ interface RenderWithProvidersOptions extends Omit<RenderOptions, 'wrapper'> {
 export const renderComponent = (ui: React.ReactElement, options?: RenderWithProvidersOptions) => {
   const { store = createMockStore(), initialRoute = '/', ...renderOptions } = options || {};
 
-  if (initialRoute !== '/') {
-    window.history.pushState({}, 'Test page', initialRoute);
-  }
+  window.history.pushState({}, 'Test page', initialRoute);
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <Provider store={store}>

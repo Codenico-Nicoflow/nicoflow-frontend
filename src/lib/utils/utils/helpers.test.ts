@@ -54,22 +54,51 @@ describe('showErrorToast', () => {
     expect(mockToast.error).toHaveBeenCalledWith('Server error. Please try again later.');
   });
 
-  it('shows GENERAL_ERROR for FetchBaseQueryError with data but unknown code', () => {
-    showErrorToast({ status: 500, data: { error: 'UNKNOWN_CODE' } }, mockToast);
+  // Shape 1: unwrapped backend envelope — most common (from transformErrorResponse: e => e.data)
+  it('resolves backend envelope { error: { code } } — EMAIL_ALREADY_EXISTS', () => {
+    showErrorToast({ error: { code: 'EMAIL_ALREADY_EXISTS', message: 'email in use' } }, mockToast);
+    expect(mockToast.error).toHaveBeenCalledWith('An account with this email already exists.');
+  });
+
+  it('resolves backend envelope { error: { code } } — UNAUTHORIZED', () => {
+    showErrorToast({ error: { code: 'UNAUTHORIZED', message: 'bad credentials' } }, mockToast);
+    expect(mockToast.error).toHaveBeenCalledWith('Invalid email or password.');
+  });
+
+  it('resolves backend envelope { error: { code } } — DUPLICATE_NAME', () => {
+    showErrorToast({ error: { code: 'DUPLICATE_NAME', message: 'duplicate' } }, mockToast);
+    expect(mockToast.error).toHaveBeenCalledWith('This name is already taken.');
+  });
+
+  it('resolves backend envelope { error: { code } } — RATE_LIMITED', () => {
+    showErrorToast({ error: { code: 'RATE_LIMITED', message: 'slow down' } }, mockToast);
+    expect(mockToast.error).toHaveBeenCalledWith('Too many requests. Please wait a moment and try again.');
+  });
+
+  it('falls back to GENERAL_ERROR for unknown code in envelope', () => {
+    showErrorToast({ error: { code: 'TOTALLY_UNKNOWN', message: '?' } }, mockToast);
     expect(mockToast.error).toHaveBeenCalledWith('Server error. Please try again later.');
   });
 
-  it('resolves known FetchBaseQueryError data error code to ToastMessages', () => {
-    showErrorToast({ status: 401, data: { error: 'UNAUTHORIZED' } }, mockToast);
-    expect(mockToast.error).toHaveBeenCalledWith('You are not authorized to perform this action.');
+  // Shape 2: FetchBaseQueryError with nested data envelope
+  it('resolves FetchBaseQueryError { status, data: { error: { code } } }', () => {
+    showErrorToast({ status: 409, data: { error: { code: 'EMAIL_ALREADY_EXISTS' } } }, mockToast);
+    expect(mockToast.error).toHaveBeenCalledWith('An account with this email already exists.');
   });
 
-  it('resolves FetchBaseQueryError with string error field', () => {
+  it('resolves FetchBaseQueryError with string data.error fallback', () => {
+    showErrorToast({ status: 401, data: { error: 'UNAUTHORIZED' } }, mockToast);
+    expect(mockToast.error).toHaveBeenCalledWith('Invalid email or password.');
+  });
+
+  // Shape 3: network error string field
+  it('resolves FetchBaseQueryError with string error field (network error)', () => {
     showErrorToast({ status: 'FETCH_ERROR', error: 'GENERAL_ERROR' }, mockToast);
     expect(mockToast.error).toHaveBeenCalledWith('Server error. Please try again later.');
   });
 
-  it('shows toast for plain string error key', () => {
+  // Shape 4: plain string
+  it('resolves plain string error key', () => {
     showErrorToast('INVALID_CREDENTIALS', mockToast);
     expect(mockToast.error).toHaveBeenCalledWith('Invalid email or password.');
   });
@@ -79,7 +108,8 @@ describe('showErrorToast', () => {
     expect(mockToast.error).toHaveBeenCalledWith('Server error. Please try again later.');
   });
 
-  it('resolves isErrorWithMessage shape to ToastMessages key', () => {
+  // Shape 5: { message: string }
+  it('resolves { message } shape to ToastMessages key', () => {
     showErrorToast({ message: 'USER_NOT_FOUND' }, mockToast);
     expect(mockToast.error).toHaveBeenCalledWith('User not found. Please check your credentials.');
   });

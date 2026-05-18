@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: staging
-      url: https://nicoflow-staging-codenico05s-projects.vercel.app
+      url: https://nicoflow-staging.vercel.app
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

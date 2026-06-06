@@ -10,13 +10,12 @@ const usernameSchema = z
   .max(20, 'Username must be less than 20 characters')
   .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers');
 
+// Matches the backend policy (NIST SP 800-63B): length is the strength signal,
+// no character-composition rules. 72 is bcrypt's truncation limit. See API §4.2.
 const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
-  .max(20, 'Password must be less than 20 characters')
-  .regex(/(?=.*[0-9])/, 'Password must contain at least one number')
-  .regex(/(?=.*[a-z])/, 'Password must contain at least one lowercase letter')
-  .regex(/(?=.*[A-Z])/, 'Password must contain at least one uppercase letter');
+  .max(72, 'Password must be at most 72 characters');
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),

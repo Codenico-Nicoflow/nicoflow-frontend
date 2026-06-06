@@ -31,7 +31,7 @@ Nicoflow is a task management platform inspired by GTD (Getting Things Done) pri
 | Web App      | React 19, Vite 7, TypeScript 5.8, Tailwind 4 | Vercel           |
 | Mobile App   | Expo ~52, React Native (planned)             | EAS / App Stores |
 | API          | Go (REST)                                    | Render.com       |
-| Database     | PostgreSQL 15                                | Render.com       |
+| Database     | PostgreSQL 16                                | Render.com       |
 | File Storage | AWS S3                                       | AWS              |
 | Auth Tokens  | JWT (Bearer) + HttpOnly refresh cookie       | —                |
 | Billing      | Lemon Squeezy                                | —                |
@@ -1701,7 +1701,7 @@ Critical updates that require a native rebuild (e.g., new native dependency) fol
 
 ---
 
-### 8.1 Database Schema (PostgreSQL 15)
+### 8.1 Database Schema (PostgreSQL 16)
 
 #### Design Principles
 
@@ -2514,7 +2514,7 @@ func Error(w http.ResponseWriter, err *apperror.AppError) {
 | Component     | Provider      | Details                                                                        |
 | ------------- | ------------- | ------------------------------------------------------------------------------ |
 | Go API        | Render.com    | Web Service, Go buildpack, port `3001` (env: `PORT`)                           |
-| PostgreSQL 15 | Render.com    | Managed PostgreSQL 15, internal hostname only (no public access)               |
+| PostgreSQL 16 | Render.com    | Managed PostgreSQL 16, internal hostname only (no public access)               |
 | Frontend      | Vercel        | React 19 SPA; `staging` auto-deploy, `main` manual deploy                      |
 | File storage  | AWS S3        | Bucket `nicoflow-attachments`, presigned URLs only (no public access)          |
 | Billing       | Lemon Squeezy | Subscription webhooks → `POST /v1/billing/webhook`                             |

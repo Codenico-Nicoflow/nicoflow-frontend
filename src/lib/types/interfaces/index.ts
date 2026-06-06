@@ -9,41 +9,45 @@ import type { IconId } from '../icons';
 // INTERFACES
 // ============================================
 
+export type ApiErrorBody = {
+  code: string;
+  message: string;
+};
+
 export type ApiEnvelope<T> = {
   data: T;
-  error: string | null;
+  error: ApiErrorBody | null;
 };
 
 export interface IArea {
-  id: number;
+  id: string;
   name: string;
+  color: string;
   icon?: IconId;
-  sortOrder?: number;
-  userId: number;
+  displayOrder?: number;
   createdAt: string;
   updatedAt: string;
   projects?: IProject[];
 }
 
 export interface IProject {
-  id: number;
+  id: string;
   name: string;
+  areaId: string | null;
+  status: 'active' | 'archived' | 'completed';
+  folderIcon: string;
+  dueDate?: string | null;
+  isFavorite?: boolean;
+  description?: string | null;
+  displayOrder?: number;
   createdAt: string;
   updatedAt: string;
-  userId: number;
-  area: IArea;
-  areaId: number;
-  status: 'active' | 'archived' | 'completed';
-  icon?: IconId;
-  sortOrder?: number;
-  dueDate?: string;
-  isFavorite?: boolean;
 }
 
 export interface ITask {
-  id: number;
+  id: string;
   name: string;
-  projectId: number;
+  projectId: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
@@ -58,7 +62,7 @@ export interface ITask {
 }
 
 export interface IUser {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -69,14 +73,14 @@ export interface IUser {
 }
 
 export interface IBucket {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   content: string;
   processedAt?: string | null;
   processingResult?: ProcessingResult | null;
-  createdTaskId?: number | null;
-  createdNoteId?: number | null;
-  projectId?: number | null;
+  createdTaskId?: string | null;
+  createdNoteId?: string | null;
+  projectId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

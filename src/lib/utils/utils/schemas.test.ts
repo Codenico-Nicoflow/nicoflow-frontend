@@ -104,28 +104,43 @@ describe('resetPasswordSchema', () => {
 
 describe('projectSchema', () => {
   it('parses valid project data', () => {
-    const result = projectSchema.safeParse({ name: 'My Project', areaId: 1, icon: 'folder', status: 'active' });
+    const result = projectSchema.safeParse({
+      name: 'My Project',
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'active',
+    });
     expect(result.success).toBe(true);
   });
 
   it('rejects empty name', () => {
-    const result = projectSchema.safeParse({ name: '', areaId: 1, icon: 'folder', status: 'active' });
+    const result = projectSchema.safeParse({ name: '', areaId: 'abc-123', folderIcon: 'folder', status: 'active' });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toMatch(/required/i);
   });
 
   it('rejects name over 50 chars', () => {
-    const result = projectSchema.safeParse({ name: 'a'.repeat(51), areaId: 1, icon: 'folder', status: 'active' });
+    const result = projectSchema.safeParse({
+      name: 'a'.repeat(51),
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'active',
+    });
     expect(result.success).toBe(false);
   });
 
-  it('rejects areaId of 0', () => {
-    const result = projectSchema.safeParse({ name: 'Project', areaId: 0, icon: 'folder', status: 'active' });
+  it('rejects empty areaId', () => {
+    const result = projectSchema.safeParse({ name: 'Project', areaId: '', folderIcon: 'folder', status: 'active' });
     expect(result.success).toBe(false);
   });
 
   it('rejects invalid status', () => {
-    const result = projectSchema.safeParse({ name: 'Project', areaId: 1, icon: 'folder', status: 'unknown' });
+    const result = projectSchema.safeParse({
+      name: 'Project',
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'unknown',
+    });
     expect(result.success).toBe(false);
   });
 });

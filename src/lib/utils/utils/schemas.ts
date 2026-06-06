@@ -46,8 +46,8 @@ const registerSchema = z.object({
 
 const projectSchema = z.object({
   name: z.string().min(1, 'Project name is required').max(50, 'Project name must be less than 50 characters'),
-  areaId: z.number().min(1, 'Please select an Area'),
-  icon: z.enum(ICON_IDS),
+  areaId: z.string().min(1, 'Please select an Area'),
+  folderIcon: z.enum(ICON_IDS),
   status: z.enum(['active', 'completed', 'archived']),
   dueDate: z.date().optional(),
   isFavorite: z.boolean().optional(),
@@ -87,7 +87,7 @@ const bucketSchema = z.object({
 
 const processBucketSchema = z.object({
   processingResult: z.enum(['task', 'note', 'trash']),
-  projectId: z.number().optional(),
+  projectId: z.string().optional(),
   taskDetails: taskSchema.optional(),
 });
 

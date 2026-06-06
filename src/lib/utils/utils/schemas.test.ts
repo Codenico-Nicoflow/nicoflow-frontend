@@ -29,14 +29,19 @@ describe('loginSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects password without uppercase', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'password1', remember: false });
+  it('rejects password over 72 chars', () => {
+    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'a'.repeat(73), remember: false });
     expect(result.success).toBe(false);
   });
 
-  it('rejects password without number', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'PasswordABC', remember: false });
-    expect(result.success).toBe(false);
+  // Policy is length-only (NIST SP 800-63B) — no character-composition rules.
+  it('accepts a long passphrase with no digits or mixed case', () => {
+    const result = loginSchema.safeParse({
+      email: 'user@example.com',
+      password: 'correct horse battery staple',
+      remember: false,
+    });
+    expect(result.success).toBe(true);
   });
 });
 

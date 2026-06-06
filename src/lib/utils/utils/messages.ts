@@ -47,7 +47,7 @@ export const ToastMessages = {
   USERNAME_RULE_ERROR: 'Username must be at least 3 characters, letters and numbers only (no special chars)',
 
   // ✅ Password validation errors
-  PASSWORD_RULE_ERROR: 'Password must be at least 8 characters, at least one uppercase, one lowercase',
+  PASSWORD_RULE_ERROR: 'Password must be between 8 and 72 characters',
 
   // ✅ Project errors
   PROJECT_ALREADY_EXISTS: 'A Project with this name already exists.',

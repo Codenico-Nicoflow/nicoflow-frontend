@@ -9,18 +9,17 @@ export interface UpdateBucketDto {
 }
 
 export interface TaskDetails {
-  name: string;
-  description?: string;
+  title: string;
+  notes?: string;
   priority?: TaskPriority;
   dueDate?: string;
   estimatedMinutes?: number;
   url?: string;
-  sortOrder?: number;
 }
 
 export interface ProcessBucketDto {
   processingResult: ProcessingResult;
-  projectId?: number;
+  projectId?: string;
   taskDetails?: TaskDetails;
 }
 

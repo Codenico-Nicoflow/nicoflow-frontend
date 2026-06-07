@@ -54,20 +54,19 @@ const projectSchema = z.object({
 
 const createAreaSchema = z.object({
   name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters'),
+  color: z.string().optional(),
   icon: z.enum(ICON_IDS).default('briefcase'),
 });
 
 const updateAreaSchema = z.object({
   name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters').optional(),
+  color: z.string().optional(),
   icon: z.enum(ICON_IDS).optional(),
 });
 
 const taskSchema = z.object({
-  name: z.string().min(1, 'Task name is required').max(100, 'Task name must be less than 100 characters'),
-  description: z
-    .string()
-    .min(1, 'Task description is required')
-    .max(500, 'Description must be less than 500 characters'),
+  title: z.string().min(1, 'Task title is required').max(255, 'Task title must be less than 255 characters'),
+  notes: z.string().optional().nullable(),
   priority: z.enum(['low', 'medium', 'high']),
   dueDate: z.date().optional().nullable(),
   scheduledFor: z.enum(['today', 'tomorrow', 'this_week']).optional().nullable(),
@@ -77,7 +76,7 @@ const taskSchema = z.object({
     .max(1440, 'Estimated time must be less than 24 hours')
     .optional()
     .nullable(),
-  url: z.string().url('Please enter a valid URL').or(z.literal('')).optional(),
+  url: z.string().url('Please enter a valid URL').or(z.literal('')).optional().nullable(),
 });
 
 const bucketSchema = z.object({

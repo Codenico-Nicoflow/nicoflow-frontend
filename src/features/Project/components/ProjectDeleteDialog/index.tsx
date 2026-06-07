@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components';
-import { areaApi, invalidateApiTags, useDeleteProjectMutation } from '@/lib/store';
+import { areaApi, invalidateApiTags, projectApi, useDeleteProjectMutation } from '@/lib/store';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 interface DeleteDialogProps {
@@ -11,7 +11,7 @@ interface DeleteDialogProps {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
   projectName?: string;
-  projectId: number;
+  projectId: string;
 }
 
 export const ProjectDeleteDialog = ({ open, onOpenChange, onSuccess, projectName, projectId }: DeleteDialogProps) => {
@@ -22,10 +22,10 @@ export const ProjectDeleteDialog = ({ open, onOpenChange, onSuccess, projectName
     try {
       await deleteProject(projectId).unwrap();
       showSuccessToast(ToastMessages.PROJECT_DELETED, toast);
+      invalidateApiTags(dispatch, projectApi, ['Project']);
       invalidateApiTags(dispatch, areaApi, ['Area']);
       onSuccess?.();
     } catch (error) {
-      console.error('Error:', error);
       showErrorToast(error, toast);
     }
   };
@@ -39,7 +39,7 @@ export const ProjectDeleteDialog = ({ open, onOpenChange, onSuccess, projectName
         <>
           Are you sure you want to delete{' '}
           <span className="font-semibold text-foreground">{projectName || 'this Project'}</span>? This action cannot be
-          undone.
+          undone. This will permanently delete all tasks in this project.
         </>
       }
       icon={Trash2}

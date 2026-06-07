@@ -192,8 +192,7 @@ describe('updateAreaSchema', () => {
 
 describe('taskSchema', () => {
   const validTask = {
-    name: 'Fix bug',
-    description: 'There is a bug to fix',
+    title: 'Fix bug',
     priority: 'medium' as const,
   };
 
@@ -202,13 +201,13 @@ describe('taskSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('rejects empty name', () => {
-    const result = taskSchema.safeParse({ ...validTask, name: '' });
+  it('rejects empty title', () => {
+    const result = taskSchema.safeParse({ ...validTask, title: '' });
     expect(result.success).toBe(false);
   });
 
-  it('rejects name over 100 chars', () => {
-    const result = taskSchema.safeParse({ ...validTask, name: 'a'.repeat(101) });
+  it('rejects title over 255 chars', () => {
+    const result = taskSchema.safeParse({ ...validTask, title: 'a'.repeat(256) });
     expect(result.success).toBe(false);
   });
 

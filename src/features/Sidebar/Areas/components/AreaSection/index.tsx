@@ -17,7 +17,7 @@ import ShowMore from '../ShowMore';
 interface AreaSectionProps {
   area: IArea;
   isCollapsed: boolean;
-  onToggleArea: (areaId: number) => void;
+  onToggleArea: (areaId: string) => void;
   areaIndex: number;
   isAreaCollapsed: boolean;
 }

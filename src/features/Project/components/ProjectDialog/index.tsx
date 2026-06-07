@@ -11,6 +11,7 @@ import { Form } from '@/components/ui/form.tsx';
 import {
   areaApi,
   invalidateApiTags,
+  projectApi,
   useCreateProjectMutation,
   useGetAreasQuery,
   useUpdateProjectMutation,
@@ -29,6 +30,16 @@ interface ProjectDialogProps {
   onSuccess?: () => void;
 }
 
+function getApiErrorCode(error: unknown): string | undefined {
+  if (error === null || typeof error !== 'object') return undefined;
+  const obj = error as Record<string, unknown>;
+  if (typeof obj['error'] === 'object' && obj['error'] !== null) {
+    const inner = obj['error'] as Record<string, unknown>;
+    if (typeof inner['code'] === 'string') return inner['code'];
+  }
+  return undefined;
+}
+
 export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialogProps) => {
   const isEditMode = !!project;
 
@@ -40,8 +51,8 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
   const form = useForm<ProjectFormData>({
     defaultValues: {
       name: project?.name || '',
-      areaId: project?.areaId || areas?.[0]?.id || undefined,
-      icon: project?.icon || 'folder',
+      areaId: project?.areaId ?? areas?.[0]?.id ?? undefined,
+      folderIcon: (project?.folderIcon as ProjectFormData['folderIcon']) || 'folder',
       status: project?.status || 'active',
       isFavorite: project?.isFavorite || false,
       dueDate: project?.dueDate ? new Date(project.dueDate) : undefined,
@@ -54,7 +65,11 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
   useEffect(() => {
     if (project) {
       form.reset({
-        ...project,
+        name: project.name,
+        areaId: project.areaId ?? undefined,
+        folderIcon: project.folderIcon as ProjectFormData['folderIcon'],
+        status: project.status,
+        isFavorite: project.isFavorite ?? false,
         dueDate: project.dueDate ? new Date(project.dueDate) : undefined,
       });
     }
@@ -62,14 +77,14 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
 
   useEffect(() => {
     if (!project && areas && areas.length > 0 && !form.getValues('areaId')) {
-      form.setValue('areaId', areas[0]?.id || 0);
+      form.setValue('areaId', areas[0].id);
     }
   }, [areas, project, form]);
 
   const hasChanges = hasFormChanges(isEditMode, project, watchedValues as Partial<IProject>, [
     'name',
     'areaId',
-    'icon',
+    'folderIcon',
     'status',
     'dueDate',
     'isFavorite',
@@ -83,31 +98,41 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
 
     try {
       if (isEditMode) {
-        const updateData = {
-          ...data,
-          dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : undefined,
-        };
-
-        await updateProject({ id: project?.id, body: updateData }).unwrap();
+        await updateProject({
+          id: project.id,
+          name: data.name,
+          areaId: data.areaId,
+          status: data.status,
+          folderIcon: data.folderIcon,
+          dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : null,
+          isFavorite: data.isFavorite,
+        }).unwrap();
+        invalidateApiTags(dispatch, projectApi, ['Project']);
         invalidateApiTags(dispatch, areaApi, ['Area']);
         showSuccessToast(ToastMessages.PROJECT_UPDATED, toast);
       } else {
-        const createData = {
-          ...data,
-          status: data.status ?? 'active',
+        await createProject({
+          areaId: data.areaId,
+          name: data.name,
+          status: data.status,
+          folderIcon: data.folderIcon,
           dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : undefined,
-        };
-
-        await createProject(createData).unwrap();
+          isFavorite: data.isFavorite,
+        }).unwrap();
+        invalidateApiTags(dispatch, projectApi, ['Project']);
         invalidateApiTags(dispatch, areaApi, ['Area']);
         showSuccessToast(ToastMessages.PROJECT_CREATED, toast);
       }
       onSuccess?.();
       onOpenChange(false);
-    } catch (error) {
-      showErrorToast(error, toast);
-    } finally {
       form.reset();
+    } catch (error) {
+      const code = getApiErrorCode(error);
+      if (code === 'PLAN_LIMIT_EXCEEDED') {
+        toast.error(ToastMessages.PLAN_LIMIT_EXCEEDED);
+      } else {
+        showErrorToast(error, toast);
+      }
     }
   };
 
@@ -136,7 +161,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
 
           <DialogFieldGrid columns={2}>
             <ProjectAreaField control={form.control} />
-            <IconField control={form.control} label="Project Icon" delay={0.25} />
+            <IconField control={form.control} label="Project Icon" fieldName="folderIcon" delay={0.25} />
           </DialogFieldGrid>
 
           {isEditMode && <ProjectStatusField control={form.control} />}

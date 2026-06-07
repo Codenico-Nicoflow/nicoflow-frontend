@@ -18,12 +18,12 @@ export default function Areas() {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
   const [isOpen, setIsOpen] = useState(true);
-  const [collapsedAreas, setCollapsedAreas] = useState<Set<number>>(new Set());
+  const [collapsedAreas, setCollapsedAreas] = useState<Set<string>>(new Set());
   const [isAreaDialogOpen, setIsAreaDialogOpen] = useState(false);
 
   const { data: areas, isLoading } = useGetAreasWithProjectsQuery();
 
-  const toggleArea = (areaId: number) => {
+  const toggleArea = (areaId: string) => {
     setCollapsedAreas(prev => {
       const newSet = new Set(prev);
       if (newSet.has(areaId)) {
@@ -46,15 +46,9 @@ export default function Areas() {
   const sortedAreas = areas
     .map(area => ({
       ...area,
-      projects: area.projects
-        ? [...area.projects].sort((a, b) => {
-            if (a.isFavorite && !b.isFavorite) return -1;
-            if (!a.isFavorite && b.isFavorite) return 1;
-            return 0;
-          })
-        : [],
+      projects: area.projects ? [...area.projects].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)) : [],
     }))
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
   return (
     <DragAndDropContext>

@@ -46,17 +46,17 @@ export interface IProject {
 
 export interface ITask {
   id: string;
-  name: string;
   projectId: string;
-  description: string;
+  title: string;
+  notes?: string | null;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate?: string | null;
   scheduledFor?: 'today' | 'tomorrow' | 'this_week' | null;
   estimatedMinutes?: number | null;
-  url?: string;
-  sortOrder?: number;
-  completedAt?: string;
+  url?: string | null;
+  displayOrder?: number;
+  completedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

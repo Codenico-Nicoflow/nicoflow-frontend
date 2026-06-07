@@ -132,15 +132,16 @@ Auth guard is `PrivateRoutes` (`src/router.tsx`): reads `useAppUser()` — if `n
 
 ---
 
-## API Response Envelope ⚠️ (read the drift note)
+## API Response Envelope
 
 **Every** backend response is wrapped:
 
 ```typescript
 // src/lib/types/interfaces/index.ts  (re-exported from src/lib/types)
+export type ApiErrorBody = { code: string; message: string };
 export type ApiEnvelope<T> = {
   data: T;
-  error: string | null; // ⚠️ DRIFT — see below
+  error: ApiErrorBody | null;
 };
 ```
 
@@ -156,7 +157,7 @@ builder.query<IArea[], void>({
 builder.query<IArea[], void>({ query: () => '/areas' });
 ```
 
-> **⚠️ Contract drift to fix:** the backend actually returns `error` as a **structured object** `{ code: string; message: string } | null`, not a bare string. `ApiEnvelope.error` here is still typed `string | null`. Align it to `{ code, message } | null` so error handling can branch on `error.code` (which is how the backend signals failures — not the HTTP status alone). Tracked in `../CLAUDE.md` §3.
+Error handling keys off `error.code` (the string from §4), **not** the HTTP status alone.
 
 `ApiEnvelope<T>` lives in **`src/lib/types/interfaces/index.ts`** and is re-exported from `src/lib/types` and `src/lib/store/slices/auth/type.ts`. Import it; don't redefine. MSW handlers in `src/mocks/handlers.ts` use an `envelope()` helper to match this shape.
 
@@ -218,17 +219,17 @@ const user = useAppUser(); // shorthand for auth.user
 
 ## Data Types (`src/lib/types/interfaces/index.ts`)
 
-> **⚠️ ID-type drift:** these interfaces type all IDs as `number` (`id`, `userId`, `areaId`, `projectId`, …). The backend uses **string** IDs (`TEXT` PKs — UUID/NanoID). When wiring real endpoints, **IDs are strings** — change these to `string`; don't add `Number()` coercion. Tracked in `../CLAUDE.md` §3.
+All IDs are `string` (TEXT PKs — UUID/NanoID). Never add `Number()` coercion.
 
 ```typescript
-IArea    { id; name; icon?; sortOrder?; userId; createdAt; updatedAt; projects?: IProject[] }
-IProject { id; name; area: IArea; areaId; status: 'active'|'archived'|'completed'; icon?; sortOrder?; dueDate?; isFavorite?; userId; createdAt; updatedAt }
-ITask    { id; name; projectId; description; status: TaskStatus; priority: TaskPriority; dueDate?|null; scheduledFor?: 'today'|'tomorrow'|'this_week'|null; estimatedMinutes?|null; url?; sortOrder?; completedAt?; createdAt; updatedAt }
-IBucket  { id; userId; content; processedAt?|null; processingResult?|null; createdTaskId?|null; createdNoteId?|null; projectId?|null; createdAt; updatedAt }
-IUser    { id; email; firstName; lastName; username; theme: 'light'|'dark'; imageUrl; status: 'premium'|'regular' }
+IArea    { id: string; name; color; icon?; displayOrder?; createdAt; updatedAt; projects?: IProject[] }
+IProject { id: string; areaId: string|null; name; status: 'active'|'archived'|'completed'; folderIcon; dueDate?|null; isFavorite?; description?|null; displayOrder?; createdAt; updatedAt }
+ITask    { id: string; projectId: string; title; notes?|null; status: TaskStatus; priority: TaskPriority; dueDate?|null; scheduledFor?: 'today'|'tomorrow'|'this_week'|null; estimatedMinutes?|null; url?|null; displayOrder?; completedAt?|null; createdAt; updatedAt }
+IBucket  { id: string; userId: string; content; processedAt?|null; processingResult?|null; createdTaskId?|null; createdNoteId?|null; projectId?|null; createdAt; updatedAt }
+IUser    { id: string; email; firstName; lastName; username; theme: 'light'|'dark'; imageUrl; status: 'premium'|'regular' }
 ```
 
-(Note: `ITask` no longer carries `recurrence`/`notifications`; it gained `scheduledFor`. `IBucket` gained `createdNoteId`.)
+Task fields: `title` (VARCHAR 255) and `notes` (TEXT, optional/nullable) — **not** `name`/`description`.
 
 Key constants (`src/lib/types/constants.ts`):
 

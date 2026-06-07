@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
+import type { ApiEnvelope } from '@/lib/types';
 import { TASKS_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
@@ -7,6 +8,7 @@ import { baseQueryWithReauth } from '../baseQuery';
 import type {
   CreateTaskRequest,
   CreateTaskResponse,
+  DeleteTaskRequest,
   DeleteTaskResponse,
   GetTaskRequest,
   GetTaskResponse,
@@ -22,20 +24,23 @@ export const taskApi = createApi({
   endpoints: builder => ({
     getTasks: builder.query<GetTasksResponse, void>({
       query: () => TASKS_API.GET_TASKS,
+      transformResponse: (raw: ApiEnvelope<GetTasksResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       providesTags: ['Task'],
     }),
     getTask: builder.query<GetTaskResponse, GetTaskRequest>({
       query: id => `${TASKS_API.GET_TASK}${id}`,
+      transformResponse: (raw: ApiEnvelope<GetTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       providesTags: ['Task'],
     }),
     createTask: builder.mutation<CreateTaskResponse, CreateTaskRequest>({
-      query: body => ({
-        url: TASKS_API.CREATE_TASK,
+      query: ({ projectId, ...body }) => ({
+        url: `/projects/${projectId}/tasks`,
         method: 'POST',
         body,
       }),
+      transformResponse: (raw: ApiEnvelope<CreateTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Task'],
     }),
@@ -45,10 +50,11 @@ export const taskApi = createApi({
         method: 'PATCH',
         body,
       }),
+      transformResponse: (raw: ApiEnvelope<UpdateTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Task'],
     }),
-    deleteTask: builder.mutation<DeleteTaskResponse, number>({
+    deleteTask: builder.mutation<DeleteTaskResponse, DeleteTaskRequest>({
       query: id => ({
         url: `${TASKS_API.DELETE_TASK}${id}`,
         method: 'DELETE',

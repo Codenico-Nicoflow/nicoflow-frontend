@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import { Plus, Sparkles } from 'lucide-react';
 
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { AreaDialog } from '@/features/Area/components/AreaDialog';
 import { ProjectDialog } from '@/features/Project';
 
 const NewProject = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAreaDialogOpen, setIsAreaDialogOpen] = useState(false);
 
   return (
     <>
@@ -42,7 +44,16 @@ const NewProject = () => {
         </SidebarMenuItem>
       </motion.div>
 
-      <ProjectDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+      <ProjectDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onCreateArea={() => setIsAreaDialogOpen(true)}
+      />
+      <AreaDialog
+        open={isAreaDialogOpen}
+        onOpenChange={setIsAreaDialogOpen}
+        onSuccess={() => setIsAreaDialogOpen(false)}
+      />
     </>
   );
 };

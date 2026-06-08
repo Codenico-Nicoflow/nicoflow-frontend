@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FolderKanban, FolderOpen, Star } from 'lucide-react';
@@ -6,7 +6,16 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { CheckboxField, DialogFieldGrid, DueDateField, FormDialog, IconField, NameField } from '@/components';
+import {
+  CheckboxField,
+  CustomDialog,
+  DialogFieldGrid,
+  DueDateField,
+  FormDialog,
+  IconField,
+  NameField,
+  PlanLimitAlert,
+} from '@/components';
 import { Form } from '@/components/ui/form.tsx';
 import {
   areaApi,
@@ -18,7 +27,14 @@ import {
 } from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { ProjectFormData } from '@/lib/utils';
-import { hasFormChanges, projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
+import {
+  getApiErrorCode,
+  hasFormChanges,
+  projectSchema,
+  showErrorToast,
+  showSuccessToast,
+  ToastMessages,
+} from '@/lib/utils';
 
 import { ProjectAreaField } from '../ProjectAreaField';
 import { ProjectStatusField } from '../ProjectStatusField';
@@ -28,25 +44,21 @@ interface ProjectDialogProps {
   onOpenChange: (open: boolean) => void;
   project?: IProject;
   onSuccess?: () => void;
+  /** Invoked when the user has no areas and chooses to create one first. */
+  onCreateArea?: () => void;
 }
 
-function getApiErrorCode(error: unknown): string | undefined {
-  if (error === null || typeof error !== 'object') return undefined;
-  const obj = error as Record<string, unknown>;
-  if (typeof obj['error'] === 'object' && obj['error'] !== null) {
-    const inner = obj['error'] as Record<string, unknown>;
-    if (typeof inner['code'] === 'string') return inner['code'];
-  }
-  return undefined;
-}
-
-export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialogProps) => {
+export const ProjectDialog = ({ open, onOpenChange, project, onSuccess, onCreateArea }: ProjectDialogProps) => {
   const isEditMode = !!project;
 
   const [createProject, { isLoading: isCreateLoading }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdateLoading }] = useUpdateProjectMutation();
   const { data: areas, isLoading: isAreasLoading } = useGetAreasQuery();
   const dispatch = useDispatch();
+  const [planLimitHit, setPlanLimitHit] = useState(false);
+
+  // A project must belong to an area; block the form entirely when none exist.
+  const hasNoAreas = !isEditMode && !isAreasLoading && (!areas || areas.length === 0);
 
   const form = useForm<ProjectFormData>({
     defaultValues: {
@@ -81,6 +93,12 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
     }
   }, [areas, project, form]);
 
+  useEffect(() => {
+    if (!open) {
+      setPlanLimitHit(false);
+    }
+  }, [open]);
+
   const hasChanges = hasFormChanges(isEditMode, project, watchedValues as Partial<IProject>, [
     'name',
     'areaId',
@@ -95,6 +113,8 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
       onOpenChange(false);
       return;
     }
+
+    setPlanLimitHit(false);
 
     try {
       if (isEditMode) {
@@ -127,14 +147,36 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
       onOpenChange(false);
       form.reset();
     } catch (error) {
-      const code = getApiErrorCode(error);
-      if (code === 'PLAN_LIMIT_EXCEEDED') {
-        toast.error(ToastMessages.PLAN_LIMIT_EXCEEDED);
-      } else {
-        showErrorToast(error, toast);
+      if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
+        setPlanLimitHit(true);
       }
+      showErrorToast(error, toast);
     }
   };
+
+  if (hasNoAreas) {
+    return (
+      <CustomDialog
+        open={open}
+        onOpenChange={onOpenChange}
+        title="Create an Area first"
+        description="Projects live inside Areas. Create an Area before adding a project."
+        data-testid="project-needs-area-dialog"
+        cancelButton={{ text: 'Cancel', onClick: () => onOpenChange(false) }}
+        acceptButton={
+          onCreateArea
+            ? {
+                text: 'Create Area',
+                onClick: () => {
+                  onOpenChange(false);
+                  onCreateArea();
+                },
+              }
+            : undefined
+        }
+      />
+    );
+  }
 
   return (
     <FormDialog
@@ -151,6 +193,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
     >
       <Form {...form}>
         <div className="space-y-4">
+          {planLimitHit && <PlanLimitAlert />}
           <NameField
             control={form.control}
             label="Project Name"

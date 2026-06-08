@@ -40,7 +40,16 @@ export default function Areas() {
   }
 
   if (!areas || areas.length === 0) {
-    return <AreasEmptyState />;
+    return (
+      <>
+        <AreasEmptyState onCreateArea={() => setIsAreaDialogOpen(true)} />
+        <AreaDialog
+          open={isAreaDialogOpen}
+          onOpenChange={setIsAreaDialogOpen}
+          onSuccess={() => setIsAreaDialogOpen(false)}
+        />
+      </>
+    );
   }
 
   const sortedAreas = areas

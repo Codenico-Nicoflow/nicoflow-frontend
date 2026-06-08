@@ -32,7 +32,7 @@ export function isErrorWithMessage(error: unknown): error is { message: string }
 // 3. FetchBaseQueryError with string error field (network errors)
 // 4. Plain string
 // 5. { message: string }
-function extractErrorCode(err: unknown): string | undefined {
+export function getApiErrorCode(err: unknown): string | undefined {
   if (err === null || typeof err !== 'object') {
     return typeof err === 'string' ? err : undefined;
   }
@@ -66,7 +66,7 @@ function extractErrorCode(err: unknown): string | undefined {
 }
 
 export function showErrorToast(err: unknown, toast: Toast) {
-  const code = extractErrorCode(err);
+  const code = getApiErrorCode(err);
   const text =
     code && code in ToastMessages ? ToastMessages[code as keyof typeof ToastMessages] : ToastMessages.GENERAL_ERROR;
   toast.error(text);

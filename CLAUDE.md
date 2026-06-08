@@ -1,4 +1,6 @@
-# CLAUDE.md — nicoflow-frontend (`nicoflow-monorepo`)
+# CLAUDE.md — nicoflow-frontend
+
+> **Repo names:** GitHub remote = `nicoflow-frontend` · local clone folder = `nicoflow-monorepo`
 
 React 19 SPA for the Nicoflow task-management platform.
 
@@ -6,7 +8,7 @@ React 19 SPA for the Nicoflow task-management platform.
 
 > **Umbrella context:** this repo sits under `../CLAUDE.md` (the Nicoflow workspace root), which owns the **cross-repo contract** with the backend (`nicoflow-api`). Read it for the response envelope, auth handshake, base URLs, and known contract drift.
 
-**Backend:** `nicoflow-api` (Go) — local `http://localhost:8080/v1`, prod `https://api.nicoflow.com/v1`.
+**Backend:** `nicoflow-api` (Go) — local `http://localhost:8080/v1`, prod `https://api.nicoflow.app/v1`.
 
 For any third-party library, fetch current docs via **Context7 MCP** before writing code.
 

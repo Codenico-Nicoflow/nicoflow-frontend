@@ -54,12 +54,14 @@ Create a new user account.
 }
 ```
 
-| Field      | Type   | Required | Constraints                                   |
-| ---------- | ------ | -------- | --------------------------------------------- |
-| `email`    | string | Yes      | Valid email format                            |
-| `password` | string | Yes      | 8–20 chars, 1 uppercase, 1 lowercase, 1 digit |
-| `username` | string | Yes      | 3–20 chars, alphanumeric only                 |
-| `platform` | string | No       | `"web"` \| `"mobile"` — defaults to `"web"`   |
+| Field      | Type   | Required | Constraints                                 |
+| ---------- | ------ | -------- | ------------------------------------------- |
+| `email`    | string | Yes      | Valid email format                          |
+| `password` | string | Yes      | 8–72 chars, ≥1 uppercase, ≥1 lowercase      |
+| `username` | string | Yes      | 3–20 chars, alphanumeric only               |
+| `platform` | string | No       | `"web"` \| `"mobile"` — defaults to `"web"` |
+
+> **Email verification (scaffolded):** registration succeeds immediately and is **not** blocked on verification. On register, the API issues an email-verification token and (if SMTP is configured) sends a verification link. Verification is completed via `POST /v1/auth/verify-email`; a new link can be requested via `POST /v1/auth/resend-verification`. Gating login on `email_verified` is a future step (TODO in `auth/service.go`).
 
 **Response — 201 Created**
 
@@ -82,11 +84,14 @@ Create a new user account.
 
 **Errors**
 
-| Code            | HTTP | Meaning                          |
-| --------------- | ---- | -------------------------------- |
-| `CONFLICT`      | 409  | Email or username already exists |
-| `INVALID_INPUT` | 422  | Validation failed                |
-| `RATE_LIMITED`  | 429  | Too many registration attempts   |
+| Code                      | HTTP | Meaning                                 |
+| ------------------------- | ---- | --------------------------------------- |
+| `EMAIL_ALREADY_EXISTS`    | 409  | Email already in use                    |
+| `USERNAME_ALREADY_EXISTS` | 409  | Username already taken                  |
+| `INVALID_EMAIL`           | 422  | Email failed format validation          |
+| `WEAK_PASSWORD`           | 400  | Password fails the policy above         |
+| `INVALID_INPUT`           | 422  | Other validation failed (e.g. username) |
+| `RATE_LIMITED`            | 429  | Too many registration attempts          |
 
 ---
 
@@ -100,19 +105,19 @@ Authenticate and receive tokens.
 
 ```json
 {
-  "email": "user@example.com",
+  "identifier": "user@example.com",
   "password": "Secret1234",
   "remember": true,
   "platform": "web"
 }
 ```
 
-| Field      | Type    | Required |
-| ---------- | ------- | -------- |
-| `email`    | string  | Yes      |
-| `password` | string  | Yes      |
-| `remember` | boolean | Yes      |
-| `platform` | string  | No       |
+| Field        | Type    | Required | Notes                                                           |
+| ------------ | ------- | -------- | --------------------------------------------------------------- |
+| `identifier` | string  | Yes      | Email address **or** username. (Legacy `email` still accepted.) |
+| `password`   | string  | Yes      |                                                                 |
+| `remember`   | boolean | Yes      | `true` → 7-day refresh token; `false` → 24-hour                 |
+| `platform`   | string  | No       | `"web"` \| `"mobile"`                                           |
 
 **Response — 200 OK**
 
@@ -124,7 +129,7 @@ Authenticate and receive tokens.
 }
 ```
 
-**Errors:** `UNAUTHORIZED` (401), `INVALID_INPUT` (422), `RATE_LIMITED` (429)
+**Errors:** `UNAUTHORIZED` (401, invalid credentials — identical for unknown user and wrong password, by design, to prevent account enumeration), `INVALID_INPUT` (422), `RATE_LIMITED` (429 — IP rate limit or account lockout after repeated failures)
 
 ---
 
@@ -144,7 +149,11 @@ Exchange a refresh token for a new access token. Refresh token is read from the 
 }
 ```
 
-**Errors:** `INVALID_TOKEN` (401), `INVALID_TOKEN` (401)
+**Errors:** `INVALID_TOKEN` (401 — missing, malformed, expired, already-consumed, or tampered refresh token; on a detected reuse all of the user's refresh tokens are revoked)
+
+> **Refresh token (dual-hash rotation):** 32 random bytes → 64-char hex raw token, returned to the client and set as an `HttpOnly` cookie. The DB stores `SHA-256(raw)` (fingerprint, O(1) lookup) and `bcrypt(raw)` (tamper check). Each refresh atomically deletes the old row and inserts a new one (single-use rotation); 0 rows deleted ⇒ reuse ⇒ revoke all. Cookie: `HttpOnly; Secure (prod); SameSite=Strict; Path=/v1/auth; Max-Age` 7 days (`remember=true`) or 24 h.
+
+> **JWT (access token):** HS256, default 15-min TTL, claims `{ sub, email, plan: "free"|"pro", iss: "nicoflow-api", iat, exp }`. Plan is read from the claim — no per-request DB lookup.
 
 ---
 
@@ -155,6 +164,38 @@ Invalidate the current session.
 - **Auth required:** Yes
 
 **Response — 204 No Content**
+
+---
+
+#### POST /v1/auth/verify-email
+
+Confirm a user's email address using the token from the verification email. _(Scaffolded — not yet enforced at login.)_
+
+- **Auth required:** No
+
+**Request body**
+
+```json
+{ "token": "<raw-verification-token>" }
+```
+
+**Response — 200 OK** · **Errors:** `INVALID_TOKEN` (401 — invalid, expired, or already-used token), `INVALID_INPUT` (422), `RATE_LIMITED` (429)
+
+---
+
+#### POST /v1/auth/resend-verification
+
+Re-send the email-verification link. Always returns 200 (no user enumeration).
+
+- **Auth required:** No
+
+**Request body**
+
+```json
+{ "email": "user@example.com" }
+```
+
+**Response — 200 OK** · **Errors:** `RATE_LIMITED` (429)
 
 ---
 
@@ -1331,37 +1372,38 @@ All API errors return a consistent envelope:
 
 These are the exact constants defined in `internal/apperror/errors.go` of the Go API:
 
-| Code                    | HTTP Status | Description                                                                |
-| ----------------------- | ----------- | -------------------------------------------------------------------------- |
-| `INVALID_INPUT`         | 400         | Request body or query parameters failed validation                         |
-| `INVALID_TOKEN`         | 401         | JWT is malformed, tampered, or not recognised                              |
-| `UNAUTHORIZED`          | 401         | No valid token provided, or credentials are incorrect                      |
-| `FORBIDDEN`             | 403         | Authenticated but not permitted to access the resource                     |
-| `PLAN_LIMIT_EXCEEDED`   | 403         | Action blocked by the user's plan (areas/projects/AI quota)                |
-| `PERMISSION_DENIED`     | 403         | Resource belongs to another user                                           |
-| `RESOURCE_NOT_FOUND`    | 404         | Generic — resource does not exist or is not visible to the requesting user |
-| `TASK_NOT_FOUND`        | 404         | Specific task resource not found                                           |
-| `PROJECT_NOT_FOUND`     | 404         | Specific project resource not found                                        |
-| `AREA_NOT_FOUND`        | 404         | Specific area resource not found                                           |
-| `USER_NOT_FOUND`        | 404         | Specific user not found                                                    |
-| `SESSION_NOT_FOUND`     | 404         | AI session not found                                                       |
-| `MESSAGE_NOT_FOUND`     | 404         | AI message not found                                                       |
-| `CONFLICT`              | 409         | A resource with the same unique field already exists                       |
-| `EMAIL_ALREADY_EXISTS`  | 409         | Registration attempted with an email already in use                        |
-| `DUPLICATE_NAME`        | 409         | Area or project name already exists for this user                          |
-| `IDEMPOTENCY_CONFLICT`  | 409         | Duplicate webhook event already processed                                  |
-| `RATE_LIMITED`          | 429         | Too many requests — back off and retry after `Retry-After` header          |
-| `AI_LIMIT_REACHED`      | 403         | Free-tier AI monthly quota (10 requests) exhausted                         |
-| `INVALID_PROJECT_ID`    | 400         | Project ID provided is not valid or does not belong to this user           |
-| `INVALID_STATUS`        | 400         | Unrecognised status value for the resource type                            |
-| `INVALID_DATE`          | 400         | Date string failed parsing or is out of acceptable range                   |
-| `INVALID_PRIORITY`      | 400         | Unrecognised priority value                                                |
-| `INVALID_AI_CONTEXT`    | 400         | AI request payload is structurally invalid                                 |
-| `INVALID_EMAIL`         | 400         | Email address failed format validation                                     |
-| `WEAK_PASSWORD`         | 400         | Password does not meet strength requirements                               |
-| `REQUIRED`              | 400         | A required field is missing from the request                               |
-| `DATABASE_ERROR`        | 500         | Unhandled database error                                                   |
-| `INTERNAL_SERVER_ERROR` | 500         | Unhandled server error                                                     |
-| `SERVICE_UNAVAILABLE`   | 503         | Downstream service (AI provider, S3, etc.) is unreachable                  |
+| Code                      | HTTP Status | Description                                                                |
+| ------------------------- | ----------- | -------------------------------------------------------------------------- |
+| `INVALID_INPUT`           | 400         | Request body or query parameters failed validation                         |
+| `INVALID_TOKEN`           | 401         | JWT is malformed, tampered, or not recognised                              |
+| `UNAUTHORIZED`            | 401         | No valid token provided, or credentials are incorrect                      |
+| `FORBIDDEN`               | 403         | Authenticated but not permitted to access the resource                     |
+| `PLAN_LIMIT_EXCEEDED`     | 403         | Action blocked by the user's plan (areas/projects/AI quota)                |
+| `PERMISSION_DENIED`       | 403         | Resource belongs to another user                                           |
+| `RESOURCE_NOT_FOUND`      | 404         | Generic — resource does not exist or is not visible to the requesting user |
+| `TASK_NOT_FOUND`          | 404         | Specific task resource not found                                           |
+| `PROJECT_NOT_FOUND`       | 404         | Specific project resource not found                                        |
+| `AREA_NOT_FOUND`          | 404         | Specific area resource not found                                           |
+| `USER_NOT_FOUND`          | 404         | Specific user not found                                                    |
+| `SESSION_NOT_FOUND`       | 404         | AI session not found                                                       |
+| `MESSAGE_NOT_FOUND`       | 404         | AI message not found                                                       |
+| `CONFLICT`                | 409         | A resource with the same unique field already exists                       |
+| `EMAIL_ALREADY_EXISTS`    | 409         | Registration attempted with an email already in use                        |
+| `USERNAME_ALREADY_EXISTS` | 409         | Registration attempted with a username already taken                       |
+| `DUPLICATE_NAME`          | 409         | Area or project name already exists for this user                          |
+| `IDEMPOTENCY_CONFLICT`    | 409         | Duplicate webhook event already processed                                  |
+| `RATE_LIMITED`            | 429         | Too many requests — back off and retry after `Retry-After` header          |
+| `AI_LIMIT_REACHED`        | 403         | Free-tier AI monthly quota (10 requests) exhausted                         |
+| `INVALID_PROJECT_ID`      | 400         | Project ID provided is not valid or does not belong to this user           |
+| `INVALID_STATUS`          | 400         | Unrecognised status value for the resource type                            |
+| `INVALID_DATE`            | 400         | Date string failed parsing or is out of acceptable range                   |
+| `INVALID_PRIORITY`        | 400         | Unrecognised priority value                                                |
+| `INVALID_AI_CONTEXT`      | 400         | AI request payload is structurally invalid                                 |
+| `INVALID_EMAIL`           | 400         | Email address failed format validation                                     |
+| `WEAK_PASSWORD`           | 400         | Password fails policy: 8–72 chars with ≥1 uppercase and ≥1 lowercase       |
+| `REQUIRED`                | 400         | A required field is missing from the request                               |
+| `DATABASE_ERROR`          | 500         | Unhandled database error                                                   |
+| `INTERNAL_SERVER_ERROR`   | 500         | Unhandled server error                                                     |
+| `SERVICE_UNAVAILABLE`     | 503         | Downstream service (AI provider, S3, etc.) is unreachable                  |
 
 > **Frontend note:** All RTK Query error responses will have `error.data.error.code` set to one of the above strings. Use these constants (not HTTP status codes) for conditional error handling in the UI.

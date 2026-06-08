@@ -13,34 +13,31 @@ import {
 } from './schemas';
 
 describe('loginSchema', () => {
-  it('parses valid credentials', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'Password1', remember: false });
+  it('parses valid credentials with an email identifier', () => {
+    const result = loginSchema.safeParse({ identifier: 'user@example.com', password: 'Password1', remember: false });
     expect(result.success).toBe(true);
   });
 
-  it('rejects invalid email', () => {
-    const result = loginSchema.safeParse({ email: 'not-an-email', password: 'Password1', remember: false });
-    expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/valid email/i);
+  it('parses valid credentials with a username identifier', () => {
+    const result = loginSchema.safeParse({ identifier: 'codenico', password: 'Password1', remember: false });
+    expect(result.success).toBe(true);
   });
 
-  it('rejects password under 8 chars', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'Ab1', remember: false });
+  it('rejects an empty identifier', () => {
+    const result = loginSchema.safeParse({ identifier: '   ', password: 'Password1', remember: false });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/email or username/i);
+  });
+
+  it('rejects an empty password', () => {
+    const result = loginSchema.safeParse({ identifier: 'user@example.com', password: '', remember: false });
     expect(result.success).toBe(false);
   });
 
-  it('rejects password over 72 chars', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'a'.repeat(73), remember: false });
-    expect(result.success).toBe(false);
-  });
-
-  // Policy is length-only (NIST SP 800-63B) — no character-composition rules.
-  it('accepts a long passphrase with no digits or mixed case', () => {
-    const result = loginSchema.safeParse({
-      email: 'user@example.com',
-      password: 'correct horse battery staple',
-      remember: false,
-    });
+  // Login must NOT enforce the password composition policy — an existing
+  // account with any stored password must still be able to sign in.
+  it('accepts a short/legacy password at the login gate', () => {
+    const result = loginSchema.safeParse({ identifier: 'user@example.com', password: 'old', remember: false });
     expect(result.success).toBe(true);
   });
 });
@@ -72,6 +69,23 @@ describe('registerSchema', () => {
       email: 'user@example.com',
       password: 'Password1',
     });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a password with no uppercase letter', () => {
+    const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'password1' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/uppercase/i);
+  });
+
+  it('rejects a password with no lowercase letter', () => {
+    const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'PASSWORD1' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/lowercase/i);
+  });
+
+  it('rejects a password under 8 chars', () => {
+    const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'Ab1' });
     expect(result.success).toBe(false);
   });
 });

@@ -5,6 +5,8 @@ export const AUTH_API = {
   RESET_PASSWORD: '/auth/reset-password',
   LOGOUT: '/auth/logout',
   REFRESH_TOKEN: '/auth/refresh-token',
+  VERIFY_EMAIL: '/auth/verify-email',
+  RESEND_VERIFICATION: '/auth/resend-verification',
   GET_CURRENT_USER: '/users/profile',
 };
 

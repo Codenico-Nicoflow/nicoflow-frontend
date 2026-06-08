@@ -25,7 +25,7 @@ export default function SignIn() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: 'onBlur',
-    defaultValues: { email: '', password: '', remember: false },
+    defaultValues: { identifier: '', password: '', remember: false },
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -46,12 +46,20 @@ export default function SignIn() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="email"
+            name="identifier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Email or username</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="you@example.com" autoComplete="email" {...field} />
+                  <Input
+                    type="text"
+                    placeholder="you@example.com or yourname"
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

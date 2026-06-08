@@ -35,10 +35,11 @@ export const ToastMessages = {
   FORBIDDEN: 'You do not have permission to do that.',
   USER_EXISTS: 'An account with this email already exists.',
   EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',
+  USERNAME_ALREADY_EXISTS: 'This username is already taken.',
   INVALID_PASSWORD: 'Password is invalid.',
   PASSWORDS_CANNOT_MATCH: 'New password cannot match the old one.',
   PASSWORD_MISMATCH: 'Passwords do not match.',
-  WEAK_PASSWORD: 'Password must be at least 8 characters with uppercase, lowercase, and a number.',
+  WEAK_PASSWORD: 'Password must be at least 8 characters with an uppercase and a lowercase letter.',
   INVALID_RESET_TOKEN: 'Invalid or expired reset token.',
   INVALID_EMAIL: 'Invalid email address.',
 
@@ -51,7 +52,7 @@ export const ToastMessages = {
   USERNAME_RULE_ERROR: 'Username must be at least 3 characters, letters and numbers only (no special chars)',
 
   // ✅ Password validation errors
-  PASSWORD_RULE_ERROR: 'Password must be between 8 and 72 characters',
+  PASSWORD_RULE_ERROR: 'Password must be 8–72 characters with an uppercase and a lowercase letter',
 
   // ✅ Project errors
   PROJECT_ALREADY_EXISTS: 'A Project with this name already exists.',

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Layers, Tag } from 'lucide-react';
@@ -6,12 +6,13 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { FormDialog, IconField, NameField } from '@/components';
+import { FormDialog, IconField, NameField, PlanLimitAlert } from '@/components';
 import { Form } from '@/components/ui/form.tsx';
 import { areaApi, invalidateApiTags, useCreateAreaMutation, useUpdateAreaMutation } from '@/lib/store';
 import type { IArea } from '@/lib/types';
 import {
   createAreaSchema,
+  getApiErrorCode,
   hasFormChanges,
   showErrorToast,
   showSuccessToast,
@@ -32,6 +33,7 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
   const [createArea, { isLoading: isCreateLoading }] = useCreateAreaMutation();
   const [updateArea, { isLoading: isUpdateLoading }] = useUpdateAreaMutation();
   const dispatch = useDispatch();
+  const [planLimitHit, setPlanLimitHit] = useState(false);
 
   const form = useForm<Partial<IArea>>({
     defaultValues: {
@@ -49,6 +51,12 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
     }
   }, [area, form]);
 
+  useEffect(() => {
+    if (!open) {
+      setPlanLimitHit(false);
+    }
+  }, [open]);
+
   const hasChanges = hasFormChanges(isEditMode, area, watchedValues, ['name', 'icon']);
 
   const onSubmit = async (data: Partial<IArea>) => {
@@ -56,6 +64,8 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
       onOpenChange(false);
       return;
     }
+
+    setPlanLimitHit(false);
 
     try {
       if (isEditMode) {
@@ -70,6 +80,9 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
+      if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
+        setPlanLimitHit(true);
+      }
       showErrorToast(error, toast);
     }
   };
@@ -89,6 +102,7 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
     >
       <Form {...form}>
         <div className="space-y-4">
+          {planLimitHit && <PlanLimitAlert />}
           <NameField control={form.control} label="Area Name" icon={Tag} placeholder="Enter area name" delay={0.1} />
           <IconField control={form.control} label="Area Icon" delay={0.2} />
         </div>

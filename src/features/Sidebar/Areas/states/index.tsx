@@ -1,7 +1,12 @@
 import { motion } from 'framer-motion';
-import { FolderOpen, Loader2, Plus, Sparkles } from 'lucide-react';
+import { FolderOpen, Loader2, Plus } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
+
+interface AreasEmptyStateProps {
+  onCreateArea?: () => void;
+}
 
 export function AreasLoadingState() {
   const { state } = useSidebar();
@@ -77,7 +82,7 @@ export function AreasLoadingState() {
   );
 }
 
-export function AreasEmptyState() {
+export function AreasEmptyState({ onCreateArea }: AreasEmptyStateProps) {
   const { state } = useSidebar();
   const sidebarCollapsed = state === 'collapsed';
 
@@ -150,11 +155,10 @@ export function AreasEmptyState() {
           transition={{ duration: 0.3, delay: 0.4 }}
           className="pt-2"
         >
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Sparkles className="w-3 h-3" />
-            <span>Start by creating a new project</span>
-            <Plus className="w-3 h-3" />
-          </div>
+          <Button size="sm" onClick={onCreateArea} className="gap-2" data-testid="areas-empty-create">
+            <Plus className="w-4 h-4" />
+            Create your first Area
+          </Button>
         </motion.div>
 
         {/* Decorative elements */}

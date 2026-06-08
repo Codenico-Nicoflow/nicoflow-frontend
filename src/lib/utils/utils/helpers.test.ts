@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   capitalize,
+  getApiErrorCode,
   isDateInPast,
   isErrorWithMessage,
   isFetchBaseQueryError,
@@ -27,6 +28,30 @@ describe('isFetchBaseQueryError', () => {
 
   it('returns false for object without status', () => {
     expect(isFetchBaseQueryError({ message: 'oops' })).toBe(false);
+  });
+});
+
+describe('getApiErrorCode', () => {
+  it('extracts code from an unwrapped envelope { error: { code } }', () => {
+    expect(getApiErrorCode({ error: { code: 'PLAN_LIMIT_EXCEEDED', message: 'nope' } })).toBe('PLAN_LIMIT_EXCEEDED');
+  });
+
+  it('extracts code from a FetchBaseQueryError { status, data: { error: { code } } }', () => {
+    expect(getApiErrorCode({ status: 403, data: { error: { code: 'PLAN_LIMIT_EXCEEDED' } } })).toBe(
+      'PLAN_LIMIT_EXCEEDED'
+    );
+  });
+
+  it('returns the string itself when given a plain string', () => {
+    expect(getApiErrorCode('FETCH_ERROR')).toBe('FETCH_ERROR');
+  });
+
+  it('falls back to message when no code present', () => {
+    expect(getApiErrorCode({ message: 'boom' })).toBe('boom');
+  });
+
+  it('returns undefined for null', () => {
+    expect(getApiErrorCode(null)).toBeUndefined();
   });
 });
 

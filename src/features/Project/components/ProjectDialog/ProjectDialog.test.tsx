@@ -95,6 +95,38 @@ describe('ProjectDialog — create mode', () => {
   });
 });
 
+describe('ProjectDialog — no areas guard', () => {
+  it('shows the "create an area first" guard instead of the form when there are no areas', async () => {
+    server.use(http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))));
+
+    renderComponent(<ProjectDialog open onOpenChange={vi.fn()} onCreateArea={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Create an Area first')).toBeInTheDocument();
+    });
+    // The project form must not be reachable with zero areas.
+    expect(screen.queryByPlaceholderText('Enter your project name')).not.toBeInTheDocument();
+  });
+
+  it('closes the dialog and invokes onCreateArea when the user chooses to create an area', async () => {
+    server.use(http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))));
+
+    const onOpenChange = vi.fn();
+    const onCreateArea = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(<ProjectDialog open onOpenChange={onOpenChange} onCreateArea={onCreateArea} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Create an Area first')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Create Area' }));
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onCreateArea).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('ProjectDialog — edit mode', () => {
   it('shows success toast after successful project update', async () => {
     server.use(

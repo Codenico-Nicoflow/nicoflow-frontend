@@ -3,7 +3,7 @@ import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 import { AuthLayout, PrivateLayout } from '@/layout';
 import { useAppUser } from '@/lib/store';
 import { ErrorPage, HelpAndInformation, PrivacyPolicy, Profile, TermsOfService } from '@/pages';
-import { ForgotPassword, ResetPassword, SignIn, SignUp } from '@/pages/auth';
+import { ForgotPassword, ResetPassword, SignIn, SignUp, VerifyEmail } from '@/pages/auth';
 import { ProjectView } from '@/pages/project';
 import { Bucket, NextSevenDays, Today, Tomorrow } from '@/pages/quick-access';
 
@@ -39,6 +39,7 @@ const AppRoutes = () => {
         { path: 'sign-up', element: <SignUp /> },
         { path: 'forgot-password', element: <ForgotPassword /> },
         { path: 'reset-password', element: <ResetPassword /> },
+        { path: 'verify-email', element: <VerifyEmail /> },
       ],
     },
 

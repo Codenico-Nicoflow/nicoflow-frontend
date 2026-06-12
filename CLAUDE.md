@@ -171,10 +171,14 @@ Error handling keys off `error.code` (the string from §4), **not** the HTTP sta
 
 **Token flow:**
 
-1. Access token in `localStorage('authToken')` → `Authorization: Bearer <token>` on every request.
-2. On `401`: `async-mutex` ensures only one refresh fires — calls `POST /auth/refresh-token`.
-3. Refresh failure → `localStorage.removeItem('authToken')` + redirect to `/sign-in`.
-4. Refresh success → retry original request.
+The access token lives **in memory only** — in the Redux `auth` slice (`state.auth.token`), read in `prepareHeaders` (`baseQuery.ts`). It is **NOT persisted**: redux-persist whitelists `auth`, but only `user` survives a reload — the token is deliberately dropped (kept out of `localStorage` for XSS safety). The refresh token is an `HttpOnly` cookie the browser sends automatically; the JS never sees it.
+
+1. On login, the access token is stored in the `auth` slice → `Authorization: Bearer <token>` is attached to every request via `prepareHeaders`.
+2. **On reload the access token is gone** (memory cleared). `user` rehydrates from `persist:root`, so the app thinks you're logged in — but there's no token yet. `SessionRestorer` (`Providers.tsx`) therefore **blocks rendering of protected content** until it re-obtains a token via `POST /auth/refresh-token` (the HttpOnly cookie authenticates that call). This ordering is load-bearing: if a protected query fires before the token is restored, it goes out with **no Authorization header** and 401s instantly.
+3. On `401` mid-session: `baseQuery` runs a **single-flight** refresh (shared `refreshSession` + `async-mutex` + an in-flight-promise guard) so concurrent 401s and the on-load restore never fire two `/refresh-token` calls — a duplicate would replay the rotated (consumed) token and trip backend reuse-detection, revoking all sessions.
+4. Refresh success → store the new token, retry the original request. Refresh failure → only on a **definitive** auth error (`INVALID_TOKEN` / `UNAUTHORIZED` / `INVALID_REFRESH_TOKEN`) clear auth + redirect to `/sign-in`; a transient (network/5xx) failure keeps the persisted session.
+
+> ⚠️ Do **not** reintroduce `localStorage('authToken')` (or `nicoflow_access_token` / `nicoflow_refresh_token`) — those are an **old, removed** token flow. Stale copies may linger in a dev browser's localStorage and are dead (nothing reads them). The token is memory-only by design.
 
 **Endpoint constants** (`src/lib/types/endpoints.ts`) — note these are **explicit paths**, e.g.:
 

@@ -59,6 +59,22 @@ export const authApi = createApi({
       transformErrorResponse: error => error.data,
       invalidatesTags: ['User'],
     }),
+    logoutAll: builder.mutation<void, void>({
+      query: () => ({
+        url: AUTH_API.LOGOUT_ALL,
+        method: 'POST',
+        credentials: 'include',
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } finally {
+          dispatch(clearAuth());
+        }
+      },
+      transformErrorResponse: error => error.data,
+      invalidatesTags: ['User'],
+    }),
     forgotPassword: builder.mutation<void, ForgotPasswordRequest>({
       query: body => ({
         url: AUTH_API.FORGOT_PASSWORD,
@@ -120,6 +136,7 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
+  useLogoutAllMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useVerifyEmailMutation,

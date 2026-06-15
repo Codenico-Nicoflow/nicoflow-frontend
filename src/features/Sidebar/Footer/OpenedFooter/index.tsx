@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react';
+import { FileText, HelpCircle, LogOut, MonitorSmartphone, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { CustomDialog } from '@/components/CustomDialog';
@@ -33,10 +33,14 @@ const OpenedFooter = ({
   user,
   handleLogout,
   isLoading,
+  handleLogoutAll,
+  isLoadingAll,
 }: {
   user: IUser;
   handleLogout: () => void;
   isLoading: boolean;
+  handleLogoutAll: () => void;
+  isLoadingAll: boolean;
 }) => {
   const { openDialog, dialogProps, closeDialog } = useCustomDialog();
   const isMobile = useIsMobile();
@@ -98,6 +102,34 @@ const OpenedFooter = ({
           >
             <LogOut className="w-4 h-4 mr-2" />
             <span>{isLoading ? 'Logging out...' : 'Log out'}</span>
+          </Button>
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              'w-full justify-start transition-colors',
+              'hover:bg-destructive/10 text-destructive hover:text-destructive'
+            )}
+            onClick={() =>
+              openDialog({
+                title: 'Sign out of all devices',
+                description: 'This ends every active session on all devices. You will need to sign in again.',
+                acceptButton: {
+                  text: 'Sign out everywhere',
+                  onClick: handleLogoutAll,
+                },
+                cancelButton: {
+                  text: 'Cancel',
+                  onClick: closeDialog,
+                },
+              })
+            }
+            disabled={isLoadingAll}
+          >
+            <MonitorSmartphone className="w-4 h-4 mr-2" />
+            <span>{isLoadingAll ? 'Signing out…' : 'Sign out of all devices'}</span>
           </Button>
         </motion.div>
       </motion.div>

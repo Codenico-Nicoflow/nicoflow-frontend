@@ -14,6 +14,7 @@ export {
   useForgotPasswordMutation,
   useGetCurrentUserQuery,
   useLoginMutation,
+  useLogoutAllMutation,
   useLogoutMutation,
   useRefreshTokenMutation,
   useRegisterMutation,

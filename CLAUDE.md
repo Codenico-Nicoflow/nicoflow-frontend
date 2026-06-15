@@ -263,7 +263,7 @@ const form = useForm<ProjectFormData>({ resolver: zodResolver(projectSchema) });
 
 Available: `loginSchema`, `registerSchema`, `forgotPasswordSchema`, `resetPasswordSchema`, `projectSchema` (has `areaId`), `areaSchema`, `updateAreaSchema`, `taskSchema`, `bucketSchema`, `processBucketSchema`.
 
-Password rules (`passwordSchema`): min 8, max 20, ≥1 number + ≥1 lowercase + ≥1 uppercase. Username: min 3, max 20, alphanumeric.
+Password rules (`passwordSchema`): min 8, max 72 (bcrypt truncation limit), ≥1 uppercase + ≥1 lowercase (no digit requirement) — matches the backend `validatePassword` and SPEC §3. Username: min 3, max 20, alphanumeric.
 
 ---
 

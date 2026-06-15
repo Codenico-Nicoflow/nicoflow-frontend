@@ -19,7 +19,9 @@ export default function SocialButtons() {
             <TooltipTrigger asChild>
               <button
                 type="button"
-                aria-label="Continue with Google"
+                disabled
+                aria-disabled="true"
+                aria-label="Continue with Google (coming soon)"
                 className="p-2.5 rounded-lg border border-border hover:bg-muted transition-colors cursor-not-allowed opacity-60"
               >
                 <GmailIcon />
@@ -32,7 +34,9 @@ export default function SocialButtons() {
             <TooltipTrigger asChild>
               <button
                 type="button"
-                aria-label="Continue with Facebook"
+                disabled
+                aria-disabled="true"
+                aria-label="Continue with Facebook (coming soon)"
                 className="p-2.5 rounded-lg border border-border hover:bg-muted transition-colors cursor-not-allowed opacity-60"
               >
                 <FacebookIcon />

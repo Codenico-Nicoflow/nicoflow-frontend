@@ -127,7 +127,7 @@ export default function SignUp() {
                   </div>
                 </FormControl>
                 {passwordValue && (
-                  <div className="space-y-1 pt-1">
+                  <div className="space-y-1 pt-1" aria-live="polite">
                     <div className="flex gap-1">
                       {[1, 2, 3, 4].map(i => (
                         <div
@@ -136,7 +136,7 @@ export default function SignUp() {
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground">{strength.label}</p>
+                    <p className="text-xs text-muted-foreground">Password strength: {strength.label}</p>
                   </div>
                 )}
                 <FormMessage />

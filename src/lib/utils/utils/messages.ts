@@ -6,6 +6,8 @@ export const ToastMessages = {
   LOGGED_OUT_SUCCESSFULLY: 'You have been logged out.',
   LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY: 'Logged out from all devices.',
   PASSWORD_RESET_EMAIL_SENT_SUCCESSFULLY: 'Password reset email sent successfully!',
+  EMAIL_VERIFIED_SUCCESSFULLY: 'Email verified! You can now sign in.',
+  VERIFICATION_EMAIL_SENT: 'Verification email sent. Check your inbox.',
 
   PROJECT_DELETED: 'Project deleted successfully!',
   PROJECT_CREATED: 'Project created successfully!',
@@ -32,6 +34,7 @@ export const ToastMessages = {
   INVALID_CREDENTIALS: 'Invalid email or password.',
   UNAUTHORIZED: 'Invalid email or password.',
   INVALID_TOKEN: 'Your session has expired. Please sign in again.',
+  EMAIL_NOT_VERIFIED: 'Please verify your email before signing in.',
   FORBIDDEN: 'You do not have permission to do that.',
   USER_EXISTS: 'An account with this email already exists.',
   EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',

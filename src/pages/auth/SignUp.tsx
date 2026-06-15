@@ -1,18 +1,17 @@
 import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, MailCheck } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BottomText, SignForm, SocialButtons } from '@/features/SignForm';
-import { useAppDispatch, useRegisterMutation } from '@/lib/store';
-import { setToken, setUser } from '@/lib/store/slices/auth/authSlice';
-import { type RegisterFormData, registerSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
+import { useRegisterMutation } from '@/lib/store';
+import { type RegisterFormData, registerSchema, showErrorToast } from '@/lib/utils';
 
 const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
   if (!password) return { score: 0, label: '', color: '' };
@@ -30,9 +29,10 @@ const getPasswordStrength = (password: string): { score: number; label: string; 
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
+  // Email of a just-registered account. Register no longer logs the user in —
+  // they must verify first — so on success we show a "check your email" panel.
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
   const [register, { isLoading }] = useRegisterMutation();
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -45,15 +45,28 @@ export default function SignUp() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const result = await register(data).unwrap();
-      dispatch(setToken(result.token));
-      dispatch(setUser(result.user));
-      showSuccessToast(ToastMessages.SIGN_UP_SUCCESSFULLY, toast);
-      navigate('/', { replace: true });
+      await register(data).unwrap();
+      setRegisteredEmail(data.email);
     } catch (error) {
       showErrorToast(error, toast);
     }
   };
+
+  if (registeredEmail) {
+    return (
+      <SignForm
+        title="Check your email"
+        description={`We sent a verification link to ${registeredEmail}. Verify your email, then sign in.`}
+        icon={<MailCheck className="h-6 w-6 text-primary" />}
+      >
+        <div className="flex flex-col items-center gap-4 pt-2">
+          <Button asChild className="w-full">
+            <Link to="/sign-in">Go to sign in</Link>
+          </Button>
+        </div>
+      </SignForm>
+    );
+  }
 
   return (
     <SignForm title="Create your account" description="Join Nicoflow and get organized">

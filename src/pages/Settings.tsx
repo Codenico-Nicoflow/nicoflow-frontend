@@ -41,18 +41,16 @@ const Settings = () => {
       </Card>
 
       {isFree && (
-        <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-purple-100 dark:border-purple-900 dark:from-purple-950 dark:to-purple-900">
+        <Card className="border-primary/20 bg-accent">
           <CardContent className="flex flex-col items-center gap-2 py-6 text-center">
             <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <h3 className="font-semibold text-purple-900 dark:text-purple-100">Upgrade to PRO</h3>
+              <Star className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold text-accent-foreground">Upgrade to PRO</h3>
             </div>
-            <p className="max-w-sm text-sm text-purple-700 dark:text-purple-300">
+            <p className="max-w-sm text-sm text-muted-foreground">
               Get a 1-month free trial and unlock unlimited areas, projects, AI, and more.
             </p>
-            <Button className="mt-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700">
-              Upgrade
-            </Button>
+            <Button className="mt-1">Upgrade</Button>
           </CardContent>
         </Card>
       )}

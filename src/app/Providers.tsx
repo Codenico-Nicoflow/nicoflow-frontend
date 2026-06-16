@@ -20,7 +20,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     <Provider store={store}>
       <PersistGate loading={<div />} persistor={persistor}>
         <BrowserRouter>
-          <ThemeProvider defaultTheme="system" storageKey="nicoflow-theme">
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
             <LoadingOverlayProvider>
               {children}
               <Toaster />

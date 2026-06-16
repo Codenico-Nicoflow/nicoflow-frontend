@@ -11,8 +11,9 @@ import { cn } from '@/lib/utils';
 // Curated presets that harmonize with the warm theme; first is the API default,
 // second the ember primary. Users can still pick any color via the native input.
 const PRESET_COLORS = [
-  '#3B82F6', // default blue
-  '#c4622d', // ember (primary)
+  '#4f46e5', // indigo (theme primary)
+  '#3B82F6', // blue
+  '#c4622d', // ember
   '#10B981', // emerald
   '#8B5CF6', // violet
   '#EC4899', // pink

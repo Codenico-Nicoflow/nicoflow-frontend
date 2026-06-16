@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FolderKanban, FolderOpen, Star } from 'lucide-react';
@@ -63,17 +63,18 @@ export const ProjectDialog = ({
 
   const [createProject, { isLoading: isCreateLoading }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdateLoading }] = useUpdateProjectMutation();
-  const { data: areas, isLoading: isAreasLoading } = useGetAreasQuery();
+  const { data: areasData, isLoading: isAreasLoading } = useGetAreasQuery();
+  const areas = useMemo(() => areasData?.items ?? [], [areasData]);
   const dispatch = useDispatch();
   const [planLimitHit, setPlanLimitHit] = useState(false);
 
   // A project must belong to an area; block the form entirely when none exist.
-  const hasNoAreas = !isEditMode && !isAreasLoading && (!areas || areas.length === 0);
+  const hasNoAreas = !isEditMode && !isAreasLoading && areas.length === 0;
 
   const form = useForm<ProjectFormData>({
     defaultValues: {
       name: project?.name || '',
-      areaId: project?.areaId ?? defaultAreaId ?? areas?.[0]?.id ?? undefined,
+      areaId: project?.areaId ?? defaultAreaId ?? areas[0]?.id ?? undefined,
       folderIcon: (project?.folderIcon as ProjectFormData['folderIcon']) || 'folder',
       status: project?.status || 'active',
       isFavorite: project?.isFavorite || false,
@@ -100,7 +101,7 @@ export const ProjectDialog = ({
   }, [project, form]);
 
   useEffect(() => {
-    if (!project && areas && areas.length > 0 && !form.getValues('areaId')) {
+    if (!project && areas.length > 0 && !form.getValues('areaId')) {
       form.setValue('areaId', defaultAreaId ?? areas[0].id);
     }
   }, [areas, project, form, defaultAreaId]);

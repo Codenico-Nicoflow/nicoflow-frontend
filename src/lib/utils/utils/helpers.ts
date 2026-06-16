@@ -81,6 +81,20 @@ export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// Badge classes for a project status, shared by the board, row and detail header.
+export function getProjectStatusColor(status: string) {
+  switch (status) {
+    case 'active':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+    case 'completed':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+    case 'archived':
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+  }
+}
+
 export function isDateInPast(date: Date) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

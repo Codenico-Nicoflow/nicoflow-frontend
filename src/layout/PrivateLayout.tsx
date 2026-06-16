@@ -1,26 +1,28 @@
 import { Outlet } from 'react-router-dom';
 
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/features/Sidebar';
+import { BottomNav } from '@/features/BottomNav';
+import { Rail } from '@/features/Rail';
+import { Topbar } from '@/features/Topbar';
 import { useIsMobile } from '@/hooks';
+import { cn } from '@/lib/utils';
 
-import { CustomSidebarTrigger } from './CustomSidebarTrigger';
 import QuickAddButton from './QuickAddButton';
 
 const PrivateLayout = () => {
   const isMobile = useIsMobile();
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <CustomSidebarTrigger />
-        <div className={isMobile ? 'flex-1 p-4 pt-20' : 'flex-1 p-4'}>
+    <div className="flex h-dvh flex-col">
+      <Topbar />
+      <div className="flex flex-1 overflow-hidden">
+        {!isMobile && <Rail />}
+        <main className={cn('flex-1 overflow-y-auto p-4', isMobile && 'pb-20')}>
           <Outlet />
-        </div>
-        <QuickAddButton />
-      </SidebarInset>
-    </SidebarProvider>
+        </main>
+      </div>
+      {isMobile && <BottomNav />}
+      <QuickAddButton />
+    </div>
   );
 };
 

@@ -13,7 +13,8 @@ interface ProjectAreaFieldProps {
 }
 
 export const ProjectAreaField = ({ control }: ProjectAreaFieldProps) => {
-  const { data: areas } = useGetAreasQuery();
+  const { data } = useGetAreasQuery();
+  const areas = data?.items ?? [];
 
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
@@ -33,7 +34,7 @@ export const ProjectAreaField = ({ control }: ProjectAreaFieldProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {areas?.map(area => (
+                {areas.map(area => (
                   <SelectItem key={area.id} value={area.id}>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-primary" />

@@ -6,7 +6,7 @@ import { LazyIcon } from '@/components';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { type IconId, type IProject } from '@/lib/types';
-import { capitalize, cn } from '@/lib/utils';
+import { capitalize, cn, getProjectStatusColor } from '@/lib/utils';
 
 interface ProjectHeaderProps {
   project: IProject;
@@ -15,19 +15,6 @@ interface ProjectHeaderProps {
 }
 
 export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'archived':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-    }
-  };
-
   const isOverdue = project?.dueDate && new Date() > new Date(project.dueDate) && project.status === 'active';
 
   return (
@@ -45,7 +32,7 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
             transition={{ delay: 0.1, duration: 0.3 }}
             className="p-3 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20"
           >
-            <LazyIcon iconId={project?.icon as IconId} className="h-8 w-8 text-primary" />
+            <LazyIcon iconId={project?.folderIcon as IconId} className="h-8 w-8 text-primary" />
           </motion.div>
 
           <div className="flex-1 min-w-0">
@@ -71,7 +58,10 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
             </div>
 
             <div className="flex items-center gap-4 flex-wrap">
-              <Badge variant="secondary" className={cn('text-xs font-medium', getStatusColor(project?.status || ''))}>
+              <Badge
+                variant="secondary"
+                className={cn('text-xs font-medium', getProjectStatusColor(project?.status || ''))}
+              >
                 {capitalize(project?.status || '')}
               </Badge>
 

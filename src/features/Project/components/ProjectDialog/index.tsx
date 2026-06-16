@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FolderKanban, FolderOpen, Star } from 'lucide-react';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import {
   CheckboxField,
   CustomDialog,
+  DescriptionField,
   DialogFieldGrid,
   DueDateField,
   FormDialog,
@@ -46,28 +47,39 @@ interface ProjectDialogProps {
   onSuccess?: () => void;
   /** Invoked when the user has no areas and chooses to create one first. */
   onCreateArea?: () => void;
+  /** Pre-selects an area in create mode (e.g. "Add project" inside an area card). */
+  defaultAreaId?: string;
 }
 
-export const ProjectDialog = ({ open, onOpenChange, project, onSuccess, onCreateArea }: ProjectDialogProps) => {
+export const ProjectDialog = ({
+  open,
+  onOpenChange,
+  project,
+  onSuccess,
+  onCreateArea,
+  defaultAreaId,
+}: ProjectDialogProps) => {
   const isEditMode = !!project;
 
   const [createProject, { isLoading: isCreateLoading }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdateLoading }] = useUpdateProjectMutation();
-  const { data: areas, isLoading: isAreasLoading } = useGetAreasQuery();
+  const { data: areasData, isLoading: isAreasLoading } = useGetAreasQuery();
+  const areas = useMemo(() => areasData?.items ?? [], [areasData]);
   const dispatch = useDispatch();
   const [planLimitHit, setPlanLimitHit] = useState(false);
 
   // A project must belong to an area; block the form entirely when none exist.
-  const hasNoAreas = !isEditMode && !isAreasLoading && (!areas || areas.length === 0);
+  const hasNoAreas = !isEditMode && !isAreasLoading && areas.length === 0;
 
   const form = useForm<ProjectFormData>({
     defaultValues: {
       name: project?.name || '',
-      areaId: project?.areaId ?? areas?.[0]?.id ?? undefined,
+      areaId: project?.areaId ?? defaultAreaId ?? areas[0]?.id ?? undefined,
       folderIcon: (project?.folderIcon as ProjectFormData['folderIcon']) || 'folder',
       status: project?.status || 'active',
       isFavorite: project?.isFavorite || false,
       dueDate: project?.dueDate ? new Date(project.dueDate) : undefined,
+      description: project?.description ?? '',
     },
     resolver: zodResolver(projectSchema),
   });
@@ -83,15 +95,16 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess, onCreate
         status: project.status,
         isFavorite: project.isFavorite ?? false,
         dueDate: project.dueDate ? new Date(project.dueDate) : undefined,
+        description: project.description ?? '',
       });
     }
   }, [project, form]);
 
   useEffect(() => {
-    if (!project && areas && areas.length > 0 && !form.getValues('areaId')) {
-      form.setValue('areaId', areas[0].id);
+    if (!project && areas.length > 0 && !form.getValues('areaId')) {
+      form.setValue('areaId', defaultAreaId ?? areas[0].id);
     }
-  }, [areas, project, form]);
+  }, [areas, project, form, defaultAreaId]);
 
   useEffect(() => {
     if (!open) {
@@ -106,6 +119,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess, onCreate
     'status',
     'dueDate',
     'isFavorite',
+    'description',
   ]);
 
   const onSubmit = async (data: ProjectFormData) => {
@@ -126,6 +140,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess, onCreate
           folderIcon: data.folderIcon,
           dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : null,
           isFavorite: data.isFavorite,
+          description: data.description?.trim() ? data.description.trim() : null,
         }).unwrap();
         invalidateApiTags(dispatch, projectApi, ['Project']);
         invalidateApiTags(dispatch, areaApi, ['Area']);
@@ -138,6 +153,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess, onCreate
           folderIcon: data.folderIcon,
           dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : undefined,
           isFavorite: data.isFavorite,
+          description: data.description?.trim() ? data.description.trim() : undefined,
         }).unwrap();
         invalidateApiTags(dispatch, projectApi, ['Project']);
         invalidateApiTags(dispatch, areaApi, ['Area']);
@@ -209,7 +225,15 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess, onCreate
 
           {isEditMode && <ProjectStatusField control={form.control} />}
 
-          <DueDateField control={form.control} delay={0.3} />
+          <DescriptionField
+            control={form.control}
+            label="Description"
+            placeholder="What's this project about?"
+            optional
+            delay={0.3}
+          />
+
+          <DueDateField control={form.control} delay={0.35} />
           <CheckboxField
             control={form.control}
             label="Mark as favorite"

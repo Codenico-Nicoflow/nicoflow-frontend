@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { FormDialog, IconField, NameField, PlanLimitAlert } from '@/components';
+import { ColorField, FormDialog, IconField, NameField, PlanLimitAlert } from '@/components';
 import { Form } from '@/components/ui/form.tsx';
 import { areaApi, invalidateApiTags, useCreateAreaMutation, useUpdateAreaMutation } from '@/lib/store';
 import type { IArea } from '@/lib/types';
@@ -38,6 +38,7 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
   const form = useForm<Partial<IArea>>({
     defaultValues: {
       name: area?.name || '',
+      color: area?.color || '#3B82F6',
       icon: area?.icon || 'briefcase',
     },
     resolver: zodResolver(isEditMode ? updateAreaSchema : createAreaSchema),
@@ -57,7 +58,7 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
     }
   }, [open]);
 
-  const hasChanges = hasFormChanges(isEditMode, area, watchedValues, ['name', 'icon']);
+  const hasChanges = hasFormChanges(isEditMode, area, watchedValues, ['name', 'color', 'icon']);
 
   const onSubmit = async (data: Partial<IArea>) => {
     if (isEditMode && !hasChanges) {
@@ -104,6 +105,7 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
         <div className="space-y-4">
           {planLimitHit && <PlanLimitAlert />}
           <NameField control={form.control} label="Area Name" icon={Tag} placeholder="Enter area name" delay={0.1} />
+          <ColorField control={form.control} label="Area Color" delay={0.15} />
           <IconField control={form.control} label="Area Icon" delay={0.2} />
         </div>
       </Form>

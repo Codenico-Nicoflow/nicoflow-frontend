@@ -1,5 +1,6 @@
 export { AnimatedListItem } from './AnimatedListItem';
 export { CheckboxField } from './CheckboxField';
+export { ColorField } from './ColorField';
 export { ConfirmDialog } from './ConfirmDialog';
 export { CustomDialog } from './CustomDialog';
 export { DescriptionField } from './DescriptionField';

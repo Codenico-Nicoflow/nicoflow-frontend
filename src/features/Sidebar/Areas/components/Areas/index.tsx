@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, FolderOpen, Plus } from 'lucide-react';
+import { ChevronDown, FolderOpen, LayoutGrid, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { DragAndDropContext } from '@/components';
 import { Button } from '@/components/ui/button.tsx';
@@ -20,6 +21,7 @@ export default function Areas() {
   const [isOpen, setIsOpen] = useState(true);
   const [collapsedAreas, setCollapsedAreas] = useState<Set<string>>(new Set());
   const [isAreaDialogOpen, setIsAreaDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { data: areas, isLoading } = useGetAreasWithProjectsQuery();
 
@@ -92,6 +94,21 @@ export default function Areas() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-label="Open Areas board"
+                      onClick={e => {
+                        e.stopPropagation();
+                        navigate('/areas');
+                      }}
+                      className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {!isCollapsed && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label="Create area"
                       onClick={e => {
                         e.stopPropagation();
                         setIsAreaDialogOpen(true);

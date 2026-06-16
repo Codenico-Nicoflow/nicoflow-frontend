@@ -1,3 +1,4 @@
+export * from './area';
 export * from './auth';
 export { default as ErrorPage } from './ErrorPage';
 export { default as HelpAndInformation } from './HelpAndInformation';

@@ -54,17 +54,23 @@ const projectSchema = z.object({
   status: z.enum(['active', 'completed', 'archived']),
   dueDate: z.date().optional(),
   isFavorite: z.boolean().optional(),
+  description: z.string().max(2000, 'Description must be less than 2000 characters').optional().nullable(),
 });
+
+const hexColorSchema = z
+  .string()
+  .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color (e.g. #3B82F6)')
+  .optional();
 
 const createAreaSchema = z.object({
   name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters'),
-  color: z.string().optional(),
+  color: hexColorSchema,
   icon: z.enum(ICON_IDS).default('briefcase'),
 });
 
 const updateAreaSchema = z.object({
   name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters').optional(),
-  color: z.string().optional(),
+  color: hexColorSchema,
   icon: z.enum(ICON_IDS).optional(),
 });
 

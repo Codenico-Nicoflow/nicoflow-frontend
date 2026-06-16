@@ -1,0 +1,140 @@
+import { useMemo, useState } from 'react';
+
+import { Layers, Plus } from 'lucide-react';
+
+import { DragAndDropContext, EmptyState, PlanLimitAlert } from '@/components';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { AreaCard } from '@/features/Area/components/AreaCard';
+import { AreaDialog } from '@/features/Area/components/AreaDialog';
+import { ProjectDialog } from '@/features/Project';
+import { useAppUser, useGetAreasWithProjectsQuery } from '@/lib/store';
+import { FREE_PLAN_AREA_LIMIT, FREE_PLAN_PROJECT_LIMIT, USER_STATUS } from '@/lib/types';
+
+const AreasBoard = () => {
+  const user = useAppUser();
+  const { data: areas, isLoading } = useGetAreasWithProjectsQuery();
+
+  const [createAreaOpen, setCreateAreaOpen] = useState(false);
+  const [createProjectOpen, setCreateProjectOpen] = useState(false);
+
+  const sortedAreas = useMemo(
+    () =>
+      (areas ?? [])
+        .map(area => ({
+          ...area,
+          projects: [...(area.projects ?? [])].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
+        }))
+        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
+    [areas]
+  );
+
+  const isFree = user?.status !== USER_STATUS.PREMIUM;
+  const projectCount = sortedAreas.reduce((sum, area) => sum + (area.projects?.length ?? 0), 0);
+  const atAreaLimit = isFree && sortedAreas.length >= FREE_PLAN_AREA_LIMIT;
+  const atProjectLimit = isFree && projectCount >= FREE_PLAN_PROJECT_LIMIT;
+
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <Skeleton className="mb-6 h-10 w-48" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 w-full rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DragAndDropContext>
+      <div className="p-6">
+        <header className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Your Areas</h1>
+            <p className="text-sm text-muted-foreground">
+              {sortedAreas.length} {sortedAreas.length === 1 ? 'area' : 'areas'} · {projectCount}{' '}
+              {projectCount === 1 ? 'project' : 'projects'}
+            </p>
+          </div>
+
+          {sortedAreas.length > 0 && (
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button
+                        variant="outline"
+                        onClick={() => setCreateProjectOpen(true)}
+                        disabled={atProjectLimit}
+                        data-testid="board-new-project"
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        New Project
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {atProjectLimit && <TooltipContent>Free plan limit reached — upgrade to add more.</TooltipContent>}
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button
+                        onClick={() => setCreateAreaOpen(true)}
+                        disabled={atAreaLimit}
+                        data-testid="board-new-area"
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        New Area
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {atAreaLimit && <TooltipContent>Free plan limit reached — upgrade to add more.</TooltipContent>}
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+          )}
+        </header>
+
+        {(atAreaLimit || atProjectLimit) && (
+          <div className="mb-6">
+            <PlanLimitAlert />
+          </div>
+        )}
+
+        {sortedAreas.length === 0 ? (
+          <EmptyState
+            icon={Layers}
+            title="Create your first area"
+            description="Areas group related projects. Add one to get started."
+            action={
+              <Button onClick={() => setCreateAreaOpen(true)} data-testid="board-empty-create">
+                <Plus className="mr-2 h-4 w-4" />
+                New Area
+              </Button>
+            }
+            data-testid="board-empty"
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="areas-grid">
+            {sortedAreas.map((area, index) => (
+              <AreaCard key={area.id} area={area} index={index} data-testid={`area-card-${area.id}`} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <AreaDialog open={createAreaOpen} onOpenChange={setCreateAreaOpen} />
+      <ProjectDialog
+        open={createProjectOpen}
+        onOpenChange={setCreateProjectOpen}
+        onCreateArea={() => setCreateAreaOpen(true)}
+      />
+    </DragAndDropContext>
+  );
+};
+
+export default AreasBoard;

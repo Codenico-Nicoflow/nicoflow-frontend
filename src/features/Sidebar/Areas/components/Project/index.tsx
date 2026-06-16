@@ -59,7 +59,7 @@ const Project = ({ project }: { project: IProject }) => {
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <LazyIcon
                   className="w-4 h-4 text-primary group-hover:text-primary/80 transition-colors"
-                  iconId={(project.icon as IconId) || 'folder'}
+                  iconId={(project.folderIcon as IconId) || 'folder'}
                 />
                 <span className="text-sm font-medium text-foreground group-hover:text-foreground/90 transition-colors truncate">
                   {project.name}

@@ -11,6 +11,10 @@ export const USER_STATUS = {
 
 export const GENERAL_AREA = 'general';
 
+// Free-plan limits (mirror backend SPEC §5). Pro is unlimited.
+export const FREE_PLAN_AREA_LIMIT = 3;
+export const FREE_PLAN_PROJECT_LIMIT = 5;
+
 // ============================================
 // PROJECT CONSTANTS
 // ============================================

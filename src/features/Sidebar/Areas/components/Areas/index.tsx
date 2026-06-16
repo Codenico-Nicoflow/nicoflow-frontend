@@ -41,7 +41,7 @@ export default function Areas() {
     return <AreasLoadingState />;
   }
 
-  if (!areas || areas.length === 0) {
+  if (!Array.isArray(areas) || areas.length === 0) {
     return (
       <>
         <AreasEmptyState onCreateArea={() => setIsAreaDialogOpen(true)} />

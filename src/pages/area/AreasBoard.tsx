@@ -21,7 +21,7 @@ const AreasBoard = () => {
 
   const sortedAreas = useMemo(
     () =>
-      (areas ?? [])
+      (Array.isArray(areas) ? areas : [])
         .map(area => ({
           ...area,
           projects: [...(area.projects ?? [])].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),

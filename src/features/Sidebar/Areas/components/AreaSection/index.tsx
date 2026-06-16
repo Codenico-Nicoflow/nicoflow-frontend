@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useDroppable } from '@dnd-kit/core';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -7,12 +7,11 @@ import { ChevronRight } from 'lucide-react';
 import { LazyIcon } from '@/components';
 import { AreaContextMenu } from '@/features/Area/components/AreaContextMenu';
 import { AreaDialog } from '@/features/Area/components/AreaDialog';
-import type { IArea } from '@/lib/types';
+import { GENERAL_AREA, type IArea } from '@/lib/types';
 import type { IconId } from '@/lib/utils';
 import { capitalize, cn } from '@/lib/utils';
 
 import Project from '../Project';
-import ShowMore from '../ShowMore';
 
 interface AreaSectionProps {
   area: IArea;
@@ -23,133 +22,80 @@ interface AreaSectionProps {
 }
 
 const AreaSection = ({ area, isCollapsed, onToggleArea, areaIndex, isAreaCollapsed }: AreaSectionProps) => {
-  const [showAllProjects, setShowAllProjects] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const maxInitialProjects = 3;
 
-  const projects = area.projects || [];
-  const displayedProjects = showAllProjects ? projects : projects.slice(0, maxInitialProjects);
-  const hasMoreProjects = projects.length > maxInitialProjects;
+  const projects = area.projects ?? [];
+  const color = area.color || 'var(--primary)';
+  const isExpanded = !isAreaCollapsed;
 
-  const { isOver, setNodeRef } = useDroppable({
-    id: `area-${area.id}`,
-  });
+  const { isOver, setNodeRef } = useDroppable({ id: `area-${area.id}` });
 
-  const AreaIcon = useMemo(() => {
-    return (
-      <LazyIcon
-        iconId={(area?.icon as IconId) || 'briefcase'}
-        className="w-4 h-4 text-primary group-hover/area:text-primary/80 transition-colors"
-      />
-    );
-  }, [area?.icon]);
+  if (isCollapsed) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay: areaIndex * 0.1 }}
-      className={cn('group/area', isCollapsed && 'hidden')}
-      style={{
-        backgroundColor: isOver ? 'var(--primary-light)' : 'transparent',
-        border: isOver ? '2px dashed var(--primary)' : '2px dashed transparent',
-        borderRadius: '12px',
-        padding: isOver ? '12px' : '8px',
-        transform: isOver ? 'scale(1.02)' : 'scale(1)',
-        boxShadow: isOver ? '0 4px 12px var(--primary-light)' : 'none',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      }}
       ref={setNodeRef}
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.2, delay: areaIndex * 0.04 }}
+      className={cn(
+        'group/area relative rounded-lg transition-colors',
+        isOver && 'bg-primary/5 ring-1 ring-primary/30'
+      )}
     >
-      <motion.div
-        className={cn(
-          'flex items-center gap-3 cursor-pointer transition-all duration-300 rounded-xl px-3 py-2.5 mb-2',
-          'hover:bg-primary/10 hover:shadow-sm',
-          isCollapsed && 'justify-center p-2'
-        )}
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
+      {/* color rail */}
+      <span
+        aria-hidden
+        className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full"
+        style={{ backgroundColor: color }}
+      />
+
+      <button
+        type="button"
         onClick={() => onToggleArea(area.id)}
+        className="flex w-full items-center gap-2 rounded-lg py-1.5 pl-3 pr-1.5 text-left hover:bg-muted/50 transition-colors"
       >
-        {!isCollapsed && (
-          <>
-            <motion.div
-              animate={{ rotate: isAreaCollapsed ? 0 : 90 }}
-              transition={{ duration: 0.2 }}
-              className="flex-shrink-0"
-            >
-              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-            </motion.div>
-            <div className="p-2 rounded-lg bg-primary/15 group-hover/area:bg-primary/25 transition-all duration-300 shadow-sm group-hover/area:shadow-md">
-              {AreaIcon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <span className="text-sm font-medium text-foreground block truncate">{capitalize(area.name)}</span>
-              <span className="text-xs text-muted-foreground">
-                {projects.length > 1 ? `${projects.length} projects` : `${projects.length} project`}
-              </span>
-            </div>
-            {area.name !== 'general' && <AreaContextMenu area={area} onEdit={() => setIsEditDialogOpen(true)} />}
-          </>
+        <ChevronRight
+          className={cn(
+            'h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200',
+            isExpanded && 'rotate-90'
+          )}
+        />
+        <LazyIcon iconId={(area.icon as IconId) || 'briefcase'} className="h-4 w-4 shrink-0" style={{ color }} />
+        <span className="flex-1 min-w-0 truncate text-sm font-medium text-foreground">{capitalize(area.name)}</span>
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{projects.length}</span>
+        {area.name !== GENERAL_AREA && (
+          <span className="shrink-0 opacity-0 transition-opacity group-hover/area:opacity-100 focus-within:opacity-100">
+            <AreaContextMenu area={area} onEdit={() => setIsEditDialogOpen(true)} />
+          </span>
         )}
-        {isCollapsed && (
+      </button>
+
+      <AnimatePresence initial={false}>
+        {isExpanded && (
           <motion.div
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="p-2 rounded-lg bg-primary/15 hover:bg-primary/25 transition-all duration-300 shadow-sm hover:shadow-md"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.18 }}
+            className="overflow-hidden"
           >
-            {AreaIcon}
+            <div className="ml-[1.45rem] flex flex-col gap-0.5 border-l border-border/60 pb-1 pl-2">
+              {projects.length === 0 ? (
+                <p className="px-2 py-1 text-xs text-muted-foreground/70">No projects</p>
+              ) : (
+                projects.map(project => <Project key={project.id} project={project} />)
+              )}
+            </div>
           </motion.div>
         )}
-      </motion.div>
-
-      {!isCollapsed && !isAreaCollapsed && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.2 }}
-          className="space-y-1 ml-6 pl-4 border-l border-muted/20"
-        >
-          <AnimatePresence>
-            {displayedProjects?.map((project, projectIndex) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2, delay: projectIndex * 0.05 }}
-                exit={{ opacity: 0, x: -10 }}
-              >
-                <Project project={project} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          {hasMoreProjects && !showAllProjects && (
-            <ShowMore
-              onClick={() => setShowAllProjects(true)}
-              label="Show more"
-              icon={<ChevronRight className="w-3.5 h-3.5 rotate-90" />}
-            />
-          )}
-
-          {hasMoreProjects && showAllProjects && (
-            <ShowMore
-              onClick={() => setShowAllProjects(false)}
-              label="Show less"
-              icon={<ChevronRight className="w-3.5 h-3.5 rotate-270" />}
-            />
-          )}
-        </motion.div>
-      )}
+      </AnimatePresence>
 
       <AreaDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         area={area}
-        onSuccess={() => {
-          setIsEditDialogOpen(false);
-        }}
+        onSuccess={() => setIsEditDialogOpen(false)}
       />
     </motion.div>
   );

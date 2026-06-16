@@ -6,4 +6,5 @@ export { default as PrivacyPolicy } from './PrivacyPolicy';
 export { default as Profile } from './Profile';
 export * from './project';
 export * from './quick-access';
+export { default as Settings } from './Settings';
 export { default as TermsOfService } from './TermsOfService';

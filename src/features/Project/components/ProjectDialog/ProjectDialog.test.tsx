@@ -42,6 +42,9 @@ const mockProject: IProject = {
 
 const envelope = <T,>(data: T) => ({ data, error: null });
 
+// GET /v1/areas is paginated: { items, nextCursor }.
+const areasPage = (items: IArea[]) => envelope({ items, nextCursor: '' });
+
 const fillProjectName = async (user: ReturnType<typeof userEvent.setup>, value: string) => {
   const nameInput = screen.getByPlaceholderText('Enter your project name');
   await user.clear(nameInput);
@@ -51,7 +54,7 @@ const fillProjectName = async (user: ReturnType<typeof userEvent.setup>, value: 
 describe('ProjectDialog — create mode', () => {
   it('shows success toast after successful project creation', async () => {
     server.use(
-      http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([mockArea]))),
+      http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(areasPage([mockArea]))),
       http.post(`http://localhost:8080/v1/areas/${mockArea.id}/projects`, () =>
         HttpResponse.json(envelope(mockProject), { status: 201 })
       )
@@ -71,7 +74,7 @@ describe('ProjectDialog — create mode', () => {
 
   it('shows plan-limit toast (not generic error) when PLAN_LIMIT_EXCEEDED', async () => {
     server.use(
-      http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([mockArea]))),
+      http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(areasPage([mockArea]))),
       http.post(`http://localhost:8080/v1/areas/${mockArea.id}/projects`, () =>
         HttpResponse.json(
           { data: null, error: { code: 'PLAN_LIMIT_EXCEEDED', message: 'plan limit exceeded' } },
@@ -97,7 +100,7 @@ describe('ProjectDialog — create mode', () => {
 
 describe('ProjectDialog — no areas guard', () => {
   it('shows the "create an area first" guard instead of the form when there are no areas', async () => {
-    server.use(http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))));
+    server.use(http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(areasPage([]))));
 
     renderComponent(<ProjectDialog open onOpenChange={vi.fn()} onCreateArea={vi.fn()} />);
 
@@ -109,7 +112,7 @@ describe('ProjectDialog — no areas guard', () => {
   });
 
   it('closes the dialog and invokes onCreateArea when the user chooses to create an area', async () => {
-    server.use(http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))));
+    server.use(http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(areasPage([]))));
 
     const onOpenChange = vi.fn();
     const onCreateArea = vi.fn();
@@ -130,7 +133,7 @@ describe('ProjectDialog — no areas guard', () => {
 describe('ProjectDialog — edit mode', () => {
   it('shows success toast after successful project update', async () => {
     server.use(
-      http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([mockArea]))),
+      http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(areasPage([mockArea]))),
       http.patch(`http://localhost:8080/v1/projects/${mockProject.id}`, () =>
         HttpResponse.json(envelope({ ...mockProject, name: 'Renamed Project' }))
       )

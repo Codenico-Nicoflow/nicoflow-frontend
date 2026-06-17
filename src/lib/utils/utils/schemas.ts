@@ -109,6 +109,8 @@ export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export type ProjectFormData = z.output<typeof projectSchema>;
 
+export type AreaFormData = z.input<typeof createAreaSchema>;
+
 export type TaskFormData = z.infer<typeof taskSchema>;
 
 export type BucketFormData = z.infer<typeof bucketSchema>;

@@ -12,7 +12,7 @@ interface TaskItemProps {
   index: number;
   onTaskToggle: (task: ITask) => void;
   onEdit: (task: ITask) => void;
-  onDelete: (taskId: number) => void;
+  onDelete: (taskId: string) => void;
 }
 
 const TaskItem = ({ task, index, onTaskToggle, onEdit, onDelete }: TaskItemProps) => {
@@ -30,16 +30,16 @@ const TaskItem = ({ task, index, onTaskToggle, onEdit, onDelete }: TaskItemProps
                   isCompleted && 'line-through text-muted-foreground dark:text-muted-foreground'
                 )}
               >
-                {task.name}
+                {task.title}
               </h3>
               <div className="sm:hidden">
                 <TaskBadges task={task} />
               </div>
             </div>
 
-            {task.description && (
+            {task.notes && (
               <p className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground leading-snug sm:leading-relaxed line-clamp-2">
-                {task.description}
+                {task.notes}
               </p>
             )}
 

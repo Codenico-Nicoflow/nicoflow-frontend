@@ -18,6 +18,7 @@ export {
 
 // Form data types
 export type {
+  AreaFormData,
   BucketFormData,
   ForgotPasswordFormData,
   LoginFormData,

@@ -1,21 +1,24 @@
 import { motion } from 'framer-motion';
 import { ArrowUpDown } from 'lucide-react';
-import { type Control } from 'react-hook-form';
+import { type Control, type FieldValues, type Path } from 'react-hook-form';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import type { IArea } from '@/lib/types';
 
-interface AreaSortOrderFieldProps {
-  control: Control<IArea>;
+interface AreaSortOrderFieldProps<T extends FieldValues> {
+  control: Control<T>;
+  fieldName?: Path<T>;
 }
 
-export const AreaSortOrderField = ({ control }: AreaSortOrderFieldProps) => {
+export const AreaSortOrderField = <T extends FieldValues>({
+  control,
+  fieldName = 'displayOrder' as Path<T>,
+}: AreaSortOrderFieldProps<T>) => {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
       <FormField
         control={control}
-        name="sortOrder"
+        name={fieldName}
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -30,6 +33,7 @@ export const AreaSortOrderField = ({ control }: AreaSortOrderFieldProps) => {
                 placeholder="0"
                 className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors"
                 {...field}
+                value={field.value ?? ''}
                 onChange={e => field.onChange(parseInt(e.target.value) || 0)}
               />
             </FormControl>

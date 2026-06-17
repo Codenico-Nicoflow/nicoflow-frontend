@@ -102,7 +102,8 @@ export const ProjectDialog = ({
 
   useEffect(() => {
     if (!project && areas.length > 0 && !form.getValues('areaId')) {
-      form.setValue('areaId', defaultAreaId ?? areas[0].id);
+      const fallbackAreaId = defaultAreaId ?? areas[0]?.id;
+      if (fallbackAreaId) form.setValue('areaId', fallbackAreaId);
     }
   }, [areas, project, form, defaultAreaId]);
 

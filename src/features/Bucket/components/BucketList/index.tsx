@@ -11,7 +11,7 @@ interface BucketListProps {
   isLoading: boolean;
   onProcess: (bucket: IBucket) => void;
   onEdit: (bucket: IBucket) => void;
-  onDelete: (bucketId: number) => void;
+  onDelete: (bucketId: string) => void;
 }
 
 export const BucketList = ({ buckets, isLoading, onProcess, onEdit, onDelete }: BucketListProps) => {

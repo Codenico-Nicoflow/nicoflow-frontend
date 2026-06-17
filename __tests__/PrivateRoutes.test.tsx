@@ -7,7 +7,7 @@ import AppRoutes from '@/router';
 import { createMockStore, renderComponent } from './renderComponent';
 
 const mockUser: IUser = {
-  id: 1,
+  id: '1',
   email: 'test@example.com',
   firstName: 'Test',
   lastName: 'User',

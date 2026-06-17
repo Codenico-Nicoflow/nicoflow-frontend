@@ -10,6 +10,7 @@ import { ColorField, FormDialog, IconField, NameField, PlanLimitAlert } from '@/
 import { Form } from '@/components/ui/form.tsx';
 import { areaApi, invalidateApiTags, useCreateAreaMutation, useUpdateAreaMutation } from '@/lib/store';
 import type { IArea } from '@/lib/types';
+import type { AreaFormData } from '@/lib/utils';
 import {
   createAreaSchema,
   getApiErrorCode,
@@ -17,7 +18,6 @@ import {
   showErrorToast,
   showSuccessToast,
   ToastMessages,
-  updateAreaSchema,
 } from '@/lib/utils';
 
 interface AreaDialogProps {
@@ -35,20 +35,20 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
   const dispatch = useDispatch();
   const [planLimitHit, setPlanLimitHit] = useState(false);
 
-  const form = useForm<Partial<IArea>>({
+  const form = useForm<AreaFormData>({
     defaultValues: {
       name: area?.name || '',
       color: area?.color || '#3B82F6',
       icon: area?.icon || 'briefcase',
     },
-    resolver: zodResolver(isEditMode ? updateAreaSchema : createAreaSchema),
+    resolver: zodResolver(createAreaSchema),
   });
 
   const watchedValues = form.watch();
 
   useEffect(() => {
     if (area) {
-      form.reset(area);
+      form.reset({ name: area.name, color: area.color, icon: area.icon });
     }
   }, [area, form]);
 
@@ -60,7 +60,7 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
 
   const hasChanges = hasFormChanges(isEditMode, area, watchedValues, ['name', 'color', 'icon']);
 
-  const onSubmit = async (data: Partial<IArea>) => {
+  const onSubmit = async (data: AreaFormData) => {
     if (isEditMode && !hasChanges) {
       onOpenChange(false);
       return;
@@ -69,8 +69,8 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
     setPlanLimitHit(false);
 
     try {
-      if (isEditMode) {
-        await updateArea({ id: area?.id, ...data }).unwrap();
+      if (isEditMode && area) {
+        await updateArea({ id: area.id, ...data }).unwrap();
         invalidateApiTags(dispatch, areaApi, ['Area'] as const);
         showSuccessToast(ToastMessages.AREA_UPDATED, toast);
       } else {

@@ -19,7 +19,7 @@ import TaskSearch from './TaskSearch';
 import TasksHeader from './TasksHeader';
 
 interface TasksSectionProps {
-  projectId: number;
+  projectId: string;
   onAddTask?: () => void;
 }
 
@@ -31,7 +31,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITask | undefined>(undefined);
-  const [taskToDelete, setTaskToDelete] = useState<{ id: number; name: string } | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -58,7 +58,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(task => task.name.toLowerCase().includes(query));
+      filtered = filtered.filter(task => task.title.toLowerCase().includes(query));
     }
 
     return filtered;
@@ -90,10 +90,10 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
     setIsTaskDialogOpen(true);
   };
 
-  const handleDeleteTask = (taskId: number) => {
+  const handleDeleteTask = (taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
-      setTaskToDelete({ id: taskId, name: task.name });
+      setTaskToDelete({ id: taskId, name: task.title });
       setIsDeleteDialogOpen(true);
     }
   };

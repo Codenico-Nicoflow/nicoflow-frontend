@@ -6,7 +6,7 @@ import { useDeleteBucketMutation } from '@/lib/store';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 interface BucketDeleteDialogProps {
-  bucketId: number | null;
+  bucketId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

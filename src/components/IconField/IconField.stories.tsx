@@ -44,7 +44,9 @@ export const WithIcon: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/folder/i)).toBeInTheDocument();
+    // Select renders the value in the trigger plus a hidden native <option>;
+    // assert on the trigger to avoid the duplicate match.
+    await expect(canvas.getByRole('combobox')).toHaveTextContent(/folder/i);
   },
 };
 

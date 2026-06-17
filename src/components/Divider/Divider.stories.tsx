@@ -21,9 +21,7 @@ export const Default: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const divider =
-      canvas.getByRole('separator', { hidden: true }) ?? canvasElement.querySelector('[data-testid="divider"]');
-    await expect(divider ?? canvasElement.firstElementChild).toBeTruthy();
+    await expect(canvas.getByTestId('divider')).toBeInTheDocument();
   },
 };
 

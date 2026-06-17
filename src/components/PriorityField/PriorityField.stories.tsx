@@ -30,7 +30,9 @@ export const Low: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/low/i)).toBeInTheDocument();
+    // Radix Select renders the value in the trigger (combobox) plus a hidden
+    // native <option>; assert on the trigger to avoid the duplicate match.
+    await expect(canvas.getByRole('combobox')).toHaveTextContent(/low/i);
   },
 };
 
@@ -42,7 +44,7 @@ export const Medium: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/medium/i)).toBeInTheDocument();
+    await expect(canvas.getByRole('combobox')).toHaveTextContent(/medium/i);
   },
 };
 
@@ -54,7 +56,7 @@ export const High: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/high/i)).toBeInTheDocument();
+    await expect(canvas.getByRole('combobox')).toHaveTextContent(/high/i);
   },
 };
 

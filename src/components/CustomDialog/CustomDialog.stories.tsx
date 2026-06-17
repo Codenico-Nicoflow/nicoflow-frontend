@@ -1,7 +1,7 @@
 import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 
@@ -56,9 +56,9 @@ export const WithBothButtons: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button', { name: /open dialog/i }));
-    await expect(canvas.getByText('Confirm Action')).toBeInTheDocument();
-    await expect(canvas.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
-    await expect(canvas.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    await expect(await screen.findByText('Confirm Action')).toBeInTheDocument();
+    await expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
+    await expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
   },
 };
 
@@ -79,7 +79,7 @@ export const TitleOnly: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button', { name: /open dialog/i }));
-    await expect(canvas.getByText('Information')).toBeInTheDocument();
+    await expect(await screen.findByText('Information')).toBeInTheDocument();
   },
 };
 
@@ -111,9 +111,8 @@ export const OpenByDefault: Story = {
       cancelButton={{ text: 'Cancel', onClick: () => {} }}
     />
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText('Confirm Action')).toBeInTheDocument();
-    await expect(canvas.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
+  play: async () => {
+    await expect(await screen.findByText('Confirm Action')).toBeInTheDocument();
+    await expect(screen.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
   },
 };

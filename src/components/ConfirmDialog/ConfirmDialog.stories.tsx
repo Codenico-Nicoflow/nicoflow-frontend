@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { AlertTriangle, Info, Trash2 } from 'lucide-react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 
@@ -65,8 +65,8 @@ export const DangerVariant: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button', { name: /open dialog/i }));
-    await expect(canvas.getByText('Delete Project')).toBeInTheDocument();
-    await expect(canvas.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+    await expect(await screen.findByText('Delete Project')).toBeInTheDocument();
+    await expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
   },
 };
 
@@ -91,7 +91,7 @@ export const WarningVariant: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button', { name: /open dialog/i }));
-    await expect(canvas.getByText('Archive Project')).toBeInTheDocument();
+    await expect(await screen.findByText('Archive Project')).toBeInTheDocument();
   },
 };
 
@@ -129,9 +129,8 @@ export const Loading: Story = {
       onConfirm={() => {}}
     />
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole('button', { name: /confirm\.\.\./i })).toBeDisabled();
+  play: async () => {
+    await expect(await screen.findByRole('button', { name: /delete\.\.\./i })).toBeDisabled();
   },
 };
 
@@ -149,9 +148,8 @@ export const OpenByDefault: Story = {
       onConfirm={() => {}}
     />
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText('Delete Project')).toBeInTheDocument();
-    await expect(canvas.getByText('This action cannot be undone.')).toBeInTheDocument();
+  play: async () => {
+    await expect(await screen.findByText('Delete Project')).toBeInTheDocument();
+    await expect(screen.getByText('This action cannot be undone.')).toBeInTheDocument();
   },
 };

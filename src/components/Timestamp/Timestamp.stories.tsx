@@ -24,9 +24,7 @@ export const RecentDate: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const el = canvasElement.querySelector('time') ?? canvasElement.firstElementChild;
-    await expect(el).toBeTruthy();
-    await expect(canvas.getByRole('time', { hidden: true }) ?? el).toBeTruthy();
+    await expect(canvas.getByTestId('timestamp')).toBeInTheDocument();
   },
 };
 

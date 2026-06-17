@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { Folder } from 'lucide-react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,8 +79,8 @@ export const CreateMode: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button', { name: /open dialog/i }));
-    await expect(canvas.getByText('Create Project')).toBeInTheDocument();
-    await expect(canvas.getByRole('button', { name: /create/i })).toBeInTheDocument();
+    await expect(await screen.findByText('Create Project')).toBeInTheDocument();
+    await expect(screen.getByRole('button', { name: /create/i })).toBeInTheDocument();
   },
 };
 
@@ -106,8 +106,8 @@ export const EditMode: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button', { name: /open dialog/i }));
-    await expect(canvas.getByText('Edit Project')).toBeInTheDocument();
-    await expect(canvas.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
+    await expect(await screen.findByText('Edit Project')).toBeInTheDocument();
+    await expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
   },
 };
 
@@ -133,7 +133,7 @@ export const EditModeNoChanges: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button', { name: /open dialog/i }));
-    const submitBtn = canvas.getByRole('button', { name: /save changes/i });
+    const submitBtn = await screen.findByRole('button', { name: /save changes/i });
     await expect(submitBtn).toBeDisabled();
   },
 };
@@ -144,11 +144,10 @@ export const Loading: Story = {
       <SampleFields />
     </FormDialog>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const submitBtn = canvas.getByRole('button', { name: /creating/i });
+  play: async () => {
+    const submitBtn = await screen.findByRole('button', { name: /creating/i });
     await expect(submitBtn).toBeDisabled();
-    await expect(canvas.getByText(/creating\.\.\./i)).toBeInTheDocument();
+    await expect(screen.getByText(/creating\.\.\./i)).toBeInTheDocument();
   },
 };
 

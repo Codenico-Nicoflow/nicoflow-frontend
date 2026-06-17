@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { toast } from 'sonner';
-import { expect, within } from 'storybook/test';
+import { expect, screen, within } from 'storybook/test';
 
 import { Button } from '@/components/ui/button';
 
@@ -40,10 +40,9 @@ export const Default: Story = {
 
 export const WithSuccessToast: Story = {
   render: () => <Toaster />,
-  play: async ({ canvasElement }) => {
+  play: async () => {
     toast.success('Project created successfully');
-    const toastRegion = document.querySelector('[data-sonner-toaster]');
-    await expect(toastRegion ?? canvasElement).toBeTruthy();
+    await expect(await screen.findByText('Project created successfully')).toBeInTheDocument();
   },
 };
 
@@ -51,8 +50,7 @@ export const WithErrorToast: Story = {
   render: () => <Toaster />,
   play: async () => {
     toast.error('An unexpected error occurred');
-    const toastRegion = document.querySelector('[data-sonner-toaster]');
-    await expect(toastRegion).toBeTruthy();
+    await expect(await screen.findByText('An unexpected error occurred')).toBeInTheDocument();
   },
 };
 
@@ -60,7 +58,6 @@ export const WithWarningToast: Story = {
   render: () => <Toaster />,
   play: async () => {
     toast.warning('You are approaching your task limit');
-    const toastRegion = document.querySelector('[data-sonner-toaster]');
-    await expect(toastRegion).toBeTruthy();
+    await expect(await screen.findByText('You are approaching your task limit')).toBeInTheDocument();
   },
 };

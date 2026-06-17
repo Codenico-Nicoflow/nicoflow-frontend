@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 
 import { StoryFormWrapper } from '@/stories/helpers';
 
@@ -51,6 +51,6 @@ export const PaletteOpen: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByTestId('color-trigger'));
-    await expect(await canvas.findByTestId('color-swatches')).toBeInTheDocument();
+    await expect(await screen.findByTestId('color-swatches')).toBeInTheDocument();
   },
 };

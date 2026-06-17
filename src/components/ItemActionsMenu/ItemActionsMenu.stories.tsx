@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Edit, Star, Trash2 } from 'lucide-react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
 
 import { ItemActionsMenu } from '.';
 
@@ -30,9 +30,9 @@ export const Default: Story = {
     const user = userEvent.setup();
     const trigger = canvas.getByRole('button');
     await user.click(trigger);
-    await expect(canvas.getByText('Edit')).toBeInTheDocument();
-    await expect(canvas.getByText('Favourite')).toBeInTheDocument();
-    await expect(canvas.getByText('Delete')).toBeInTheDocument();
+    await expect(await screen.findByText('Edit')).toBeInTheDocument();
+    await expect(screen.getByText('Favourite')).toBeInTheDocument();
+    await expect(screen.getByText('Delete')).toBeInTheDocument();
   },
 };
 
@@ -44,7 +44,7 @@ export const SingleAction: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button'));
-    await expect(canvas.getByText('Edit')).toBeInTheDocument();
+    await expect(await screen.findByText('Edit')).toBeInTheDocument();
   },
 };
 
@@ -59,7 +59,7 @@ export const DisabledAction: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
     await user.click(canvas.getByRole('button'));
-    const deleteItem = canvas.getByText('Delete').closest('[role="menuitem"]');
+    const deleteItem = (await screen.findByText('Delete')).closest('[role="menuitem"]');
     await expect(deleteItem).toHaveAttribute('data-disabled');
   },
 };
@@ -84,9 +84,8 @@ export const OpenByDefault: Story = {
       { label: 'Delete', icon: Trash2, onClick: () => {}, destructive: true },
     ],
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByText('Edit')).toBeInTheDocument();
-    await expect(canvas.getByText('Delete')).toBeInTheDocument();
+  play: async () => {
+    await expect(await screen.findByText('Edit')).toBeInTheDocument();
+    await expect(screen.getByText('Delete')).toBeInTheDocument();
   },
 };

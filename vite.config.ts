@@ -58,6 +58,9 @@ export default defineConfig({
         plugins: [storybookTest({ configDir: path.join(__dirname, '.storybook') })],
         test: {
           name: 'storybook',
+          // Run story files serially: parallel browser contexts race on the
+          // shared MSW worker / portal root and flake intermittently.
+          fileParallelism: false,
           browser: {
             enabled: true,
             provider: 'playwright',

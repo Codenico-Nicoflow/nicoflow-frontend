@@ -11,7 +11,7 @@ type IconForm = { icon?: string };
 
 type StoryArgs = {
   value?: string;
-  label: string;
+  label?: string;
   optional: boolean;
   delay: number;
 };
@@ -20,7 +20,7 @@ const meta: Meta<StoryArgs> = {
   title: 'Components/Fields/IconField',
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
-  args: { value: undefined, label: 'Icon', optional: false, delay: 0.2 },
+  args: { value: undefined, label: '', optional: false, delay: 0.2 },
   argTypes: {
     value: { control: 'select', options: [undefined, ...ICON_IDS], description: 'Seeds the selected icon.' },
     label: { control: 'text' },
@@ -46,6 +46,15 @@ export default meta;
 type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // No label by default; assert the select trigger renders.
+    await expect(canvas.getByRole('combobox')).toBeInTheDocument();
+  },
+};
+
+export const WithLabel: Story = {
+  args: { label: 'Icon' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('Icon')).toBeInTheDocument();

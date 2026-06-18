@@ -105,8 +105,8 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
         <div className="space-y-4">
           {planLimitHit && <PlanLimitAlert />}
           <NameField control={form.control} label="Area Name" icon={Tag} placeholder="Enter area name" delay={0.1} />
-          <ColorField control={form.control} label="Area Color" delay={0.15} />
-          <IconField control={form.control} label="Area Icon" delay={0.2} />
+          <ColorField control={form.control} delay={0.15} />
+          <IconField control={form.control} delay={0.2} />
         </div>
       </Form>
     </FormDialog>

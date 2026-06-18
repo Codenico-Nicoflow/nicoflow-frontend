@@ -12,7 +12,7 @@ type ColorForm = { color: string };
 // and edits the current color. The rest are real ColorField props.
 type StoryArgs = {
   value: string;
-  label: string;
+  label?: string;
   delay: number;
 };
 
@@ -22,7 +22,7 @@ const meta: Meta<StoryArgs> = {
   parameters: { layout: 'centered' },
   args: {
     value: '#3b82f6',
-    label: 'Area Color',
+    label: '',
     delay: 0.15,
   },
   argTypes: {
@@ -67,9 +67,16 @@ type Story = StoryObj<StoryArgs>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText('Area Color')).toBeInTheDocument();
-    // Trigger shows the friendly preset name, not the raw hex.
+    // No label by default; the trigger shows the friendly preset name (not hex).
     await expect(canvas.getByTestId('color-trigger')).toHaveTextContent('Blue');
+  },
+};
+
+export const WithLabel: Story = {
+  args: { label: 'Area Color' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Area Color')).toBeInTheDocument();
   },
 };
 

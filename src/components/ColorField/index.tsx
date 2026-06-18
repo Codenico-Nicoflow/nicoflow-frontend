@@ -39,7 +39,7 @@ interface ColorFieldProps<T extends FieldValues> {
 
 export const ColorField = <T extends FieldValues>({
   control,
-  label = 'Color',
+  label,
   fieldName = 'color' as Path<T>,
   delay = 0.15,
   'data-testid': testId,
@@ -55,10 +55,12 @@ export const ColorField = <T extends FieldValues>({
           const value = (field.value as string) || '#3B82F6';
           return (
             <FormItem data-testid={testId ? `${testId}-color-item` : 'color-item'}>
-              <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                {label}
-              </FormLabel>
+              {label && (
+                <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Palette className="h-4 w-4" />
+                  {label}
+                </FormLabel>
+              )}
               <Popover open={open} onOpenChange={setOpen}>
                 <FormControl>
                   <PopoverTrigger

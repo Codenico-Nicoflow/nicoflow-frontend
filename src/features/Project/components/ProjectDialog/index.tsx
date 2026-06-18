@@ -221,7 +221,7 @@ export const ProjectDialog = ({
 
           <DialogFieldGrid columns={2}>
             <ProjectAreaField control={form.control} />
-            <IconField control={form.control} label="Project Icon" fieldName="folderIcon" delay={0.25} />
+            <IconField control={form.control} fieldName="folderIcon" delay={0.25} />
           </DialogFieldGrid>
 
           {isEditMode && <ProjectStatusField control={form.control} />}

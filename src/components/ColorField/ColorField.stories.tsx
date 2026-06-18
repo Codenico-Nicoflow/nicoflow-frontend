@@ -1,32 +1,70 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useForm } from 'react-hook-form';
 import { expect, screen, userEvent, within } from 'storybook/test';
 
-import { StoryFormWrapper } from '@/stories/helpers';
+import { Form } from '@/components/ui/form';
 
 import { ColorField } from '.';
 
-const meta: Meta<typeof ColorField> = {
+type ColorForm = { color: string };
+
+// `value` is a story-only arg that seeds the form, so the Controls panel shows
+// and edits the current color. The rest are real ColorField props.
+type StoryArgs = {
+  value: string;
+  label: string;
+  delay: number;
+};
+
+const meta: Meta<StoryArgs> = {
   title: 'Components/Fields/ColorField',
-  component: ColorField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  args: {
+    value: '#3b82f6',
+    label: 'Area Color',
+    delay: 0.15,
+  },
   argTypes: {
+    value: {
+      control: 'select',
+      options: [
+        '#4f46e5',
+        '#3b82f6',
+        '#c4622d',
+        '#10b981',
+        '#8b5cf6',
+        '#ec4899',
+        '#f59e0b',
+        '#ef4444',
+        '#14b8a6',
+        '#6366f1',
+        '#64748b',
+      ],
+      description: 'Seeds the form value (Indigo, Blue, Ember, …).',
+    },
     label: { control: 'text' },
     delay: { control: 'number' },
+  },
+  render: ({ value, ...props }) => {
+    const Demo = () => {
+      const form = useForm<ColorForm>({ defaultValues: { color: value } });
+      return (
+        <Form {...form}>
+          <form className="w-[360px]">
+            <ColorField control={form.control} {...props} />
+          </form>
+        </Form>
+      );
+    };
+    return <Demo />;
   },
 };
 export default meta;
 
-type Story = StoryObj<typeof ColorField>;
-
-type ColorForm = { color?: string };
+type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
-  render: () => (
-    <StoryFormWrapper<ColorForm> defaultValues={{ color: '#3B82F6' }}>
-      {control => <ColorField control={control} label="Area Color" />}
-    </StoryFormWrapper>
-  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('Area Color')).toBeInTheDocument();
@@ -35,20 +73,11 @@ export const Default: Story = {
   },
 };
 
-export const EmberSelected: Story = {
-  render: () => (
-    <StoryFormWrapper<ColorForm> defaultValues={{ color: '#c4622d' }}>
-      {control => <ColorField control={control} label="Area Color" />}
-    </StoryFormWrapper>
-  ),
-};
+export const Indigo: Story = { args: { value: '#4f46e5' } };
+
+export const Ember: Story = { args: { value: '#c4622d' } };
 
 export const PaletteOpen: Story = {
-  render: () => (
-    <StoryFormWrapper<ColorForm> defaultValues={{ color: '#3B82F6' }}>
-      {control => <ColorField control={control} label="Area Color" />}
-    </StoryFormWrapper>
-  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByTestId('color-trigger'));

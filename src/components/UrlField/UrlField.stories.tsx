@@ -5,33 +5,48 @@ import { useForm } from 'react-hook-form';
 import { expect, within } from 'storybook/test';
 
 import { Form } from '@/components/ui/form';
-import { StoryFormWrapper } from '@/stories/helpers';
 
 import { UrlField } from '.';
 
-const meta: Meta<typeof UrlField> = {
+type UrlForm = { url?: string };
+
+type StoryArgs = {
+  value: string;
+  label: string;
+  optional: boolean;
+  delay: number;
+};
+
+const meta: Meta<StoryArgs> = {
   title: 'Components/Fields/UrlField',
-  component: UrlField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  args: { value: '', label: 'Reference URL', optional: false, delay: 0.15 },
   argTypes: {
+    value: { control: 'text', description: 'Seeds the form value.' },
     label: { control: 'text' },
     optional: { control: 'boolean' },
     delay: { control: 'number' },
   },
+  render: ({ value, ...props }) => {
+    const Demo = () => {
+      const form = useForm<UrlForm>({ defaultValues: { url: value } });
+      return (
+        <Form {...form}>
+          <form className="w-[400px]">
+            <UrlField control={form.control} {...props} />
+          </form>
+        </Form>
+      );
+    };
+    return <Demo />;
+  },
 };
 export default meta;
 
-type Story = StoryObj<typeof UrlField>;
-
-type UrlForm = { url?: string };
+type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
-  render: () => (
-    <StoryFormWrapper<UrlForm> defaultValues={{ url: '' }}>
-      {control => <UrlField control={control} label="Reference URL" />}
-    </StoryFormWrapper>
-  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText(/reference url/i)).toBeInTheDocument();
@@ -39,11 +54,7 @@ export const Default: Story = {
 };
 
 export const WithUrl: Story = {
-  render: () => (
-    <StoryFormWrapper<UrlForm> defaultValues={{ url: 'https://nicoflow.app' }}>
-      {control => <UrlField control={control} label="Reference URL" />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'https://nicoflow.app' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByDisplayValue('https://nicoflow.app')).toBeInTheDocument();
@@ -73,10 +84,4 @@ export const InvalidUrl: Story = {
   },
 };
 
-export const Optional: Story = {
-  render: () => (
-    <StoryFormWrapper<UrlForm> defaultValues={{ url: '' }}>
-      {control => <UrlField control={control} label="Reference URL" optional />}
-    </StoryFormWrapper>
-  ),
-};
+export const Optional: Story = { args: { optional: true } };

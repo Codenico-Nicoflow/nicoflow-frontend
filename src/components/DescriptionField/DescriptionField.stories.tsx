@@ -1,73 +1,79 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useForm } from 'react-hook-form';
 import { expect, userEvent, within } from 'storybook/test';
 
-import { StoryFormWrapper } from '@/stories/helpers';
+import { Form } from '@/components/ui/form';
 
 import { DescriptionField } from '.';
 
-const meta: Meta<typeof DescriptionField> = {
+type DescriptionForm = { description: string };
+
+type StoryArgs = {
+  value: string;
+  label: string;
+  placeholder: string;
+  minHeight: string;
+  optional: boolean;
+  delay: number;
+};
+
+const meta: Meta<StoryArgs> = {
   title: 'Components/Fields/DescriptionField',
-  component: DescriptionField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  args: {
+    value: '',
+    label: 'Description',
+    placeholder: 'Describe this project...',
+    minHeight: '100px',
+    optional: false,
+    delay: 0.15,
+  },
   argTypes: {
+    value: { control: 'text', description: 'Seeds the form value.' },
     label: { control: 'text' },
     placeholder: { control: 'text' },
-    optional: { control: 'boolean' },
     minHeight: { control: 'text' },
+    optional: { control: 'boolean' },
     delay: { control: 'number' },
+  },
+  render: ({ value, ...props }) => {
+    const Demo = () => {
+      const form = useForm<DescriptionForm>({ defaultValues: { description: value } });
+      return (
+        <Form {...form}>
+          <form className="w-[400px]">
+            <DescriptionField control={form.control} {...props} />
+          </form>
+        </Form>
+      );
+    };
+    return <Demo />;
   },
 };
 export default meta;
 
-type Story = StoryObj<typeof DescriptionField>;
-
-type DescriptionForm = { description: string };
+type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
-  render: () => (
-    <StoryFormWrapper<DescriptionForm> defaultValues={{ description: '' }}>
-      {control => <DescriptionField control={control} label="Description" placeholder="Describe this project..." />}
-    </StoryFormWrapper>
-  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const user = userEvent.setup();
     const textarea = canvas.getByPlaceholderText(/describe this project/i);
-    await user.click(textarea);
-    await user.type(textarea, 'A well-organized productivity project.');
+    await userEvent.type(textarea, 'A well-organized productivity project.');
     await expect(canvas.getByDisplayValue('A well-organized productivity project.')).toBeInTheDocument();
   },
 };
 
 export const WithValue: Story = {
-  render: () => (
-    <StoryFormWrapper<DescriptionForm> defaultValues={{ description: 'Manage all frontend tasks for Q2 release.' }}>
-      {control => <DescriptionField control={control} label="Description" placeholder="Describe this project..." />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'Manage all frontend tasks for Q2 release.' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByDisplayValue('Manage all frontend tasks for Q2 release.')).toBeInTheDocument();
   },
 };
 
-export const Optional: Story = {
-  render: () => (
-    <StoryFormWrapper<DescriptionForm> defaultValues={{ description: '' }}>
-      {control => (
-        <DescriptionField control={control} label="Description" placeholder="Optional description..." optional />
-      )}
-    </StoryFormWrapper>
-  ),
-};
+export const Optional: Story = { args: { optional: true, placeholder: 'Optional description...' } };
 
 export const CustomMinHeight: Story = {
-  render: () => (
-    <StoryFormWrapper<DescriptionForm> defaultValues={{ description: '' }}>
-      {control => (
-        <DescriptionField control={control} label="Notes" placeholder="Add detailed notes..." minHeight="200px" />
-      )}
-    </StoryFormWrapper>
-  ),
+  args: { label: 'Notes', placeholder: 'Add detailed notes...', minHeight: '200px' },
 };

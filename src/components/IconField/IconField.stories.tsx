@@ -1,35 +1,51 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useForm } from 'react-hook-form';
 import { expect, within } from 'storybook/test';
 
+import { Form } from '@/components/ui/form';
 import { ICON_IDS } from '@/lib/utils';
-import { StoryFormWrapper } from '@/stories/helpers';
 
 import { IconField } from '.';
 
-const meta: Meta<typeof IconField> = {
+type IconForm = { icon?: string };
+
+type StoryArgs = {
+  value?: string;
+  label: string;
+  optional: boolean;
+  delay: number;
+};
+
+const meta: Meta<StoryArgs> = {
   title: 'Components/Fields/IconField',
-  component: IconField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  args: { value: undefined, label: 'Icon', optional: false, delay: 0.2 },
   argTypes: {
+    value: { control: 'select', options: [undefined, ...ICON_IDS], description: 'Seeds the selected icon.' },
     label: { control: 'text' },
     optional: { control: 'boolean' },
     delay: { control: 'number' },
-    fieldName: { control: 'text', options: ICON_IDS },
+  },
+  render: ({ value, ...props }) => {
+    const Demo = () => {
+      const form = useForm<IconForm>({ defaultValues: { icon: value } });
+      return (
+        <Form {...form}>
+          <form className="w-[360px]">
+            <IconField control={form.control} {...props} />
+          </form>
+        </Form>
+      );
+    };
+    return <Demo />;
   },
 };
 export default meta;
 
-type Story = StoryObj<typeof IconField>;
-
-type IconForm = { icon?: string };
+type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
-  render: () => (
-    <StoryFormWrapper<IconForm> defaultValues={{ icon: undefined }}>
-      {control => <IconField control={control} label="Icon" />}
-    </StoryFormWrapper>
-  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('Icon')).toBeInTheDocument();
@@ -37,11 +53,7 @@ export const Default: Story = {
 };
 
 export const WithIcon: Story = {
-  render: () => (
-    <StoryFormWrapper<IconForm> defaultValues={{ icon: 'folder' }}>
-      {control => <IconField control={control} label="Icon" />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'folder' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     // Select renders the value in the trigger plus a hidden native <option>;
@@ -50,10 +62,4 @@ export const WithIcon: Story = {
   },
 };
 
-export const Optional: Story = {
-  render: () => (
-    <StoryFormWrapper<IconForm> defaultValues={{ icon: undefined }}>
-      {control => <IconField control={control} label="Icon" optional />}
-    </StoryFormWrapper>
-  ),
-};
+export const Optional: Story = { args: { optional: true } };

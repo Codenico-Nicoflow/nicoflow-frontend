@@ -62,7 +62,7 @@ export const EstimatedTimeField = <T extends FieldValues>({
                   />
                 </FormControl>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-muted-foreground pointer-events-none">
-                  super minutes
+                  minutes
                 </div>
               </div>
               {field.value && (

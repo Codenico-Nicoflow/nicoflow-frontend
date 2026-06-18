@@ -30,7 +30,8 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('Area Color')).toBeInTheDocument();
-    await expect(canvas.getByTestId('color-trigger')).toHaveTextContent('#3B82F6');
+    // Trigger shows the friendly preset name, not the raw hex.
+    await expect(canvas.getByTestId('color-trigger')).toHaveTextContent('Blue');
   },
 };
 

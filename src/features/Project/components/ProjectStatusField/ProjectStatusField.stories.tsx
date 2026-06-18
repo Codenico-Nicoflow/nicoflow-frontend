@@ -1,34 +1,49 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useForm } from 'react-hook-form';
 import { expect, within } from 'storybook/test';
 
+import { Form } from '@/components/ui/form';
 import type { ProjectFormData } from '@/lib/utils';
-import { StoryFormWrapper } from '@/stories/helpers';
 
 import { ProjectStatusField } from '.';
 
-const meta: Meta<typeof ProjectStatusField> = {
-  title: 'Project/ProjectStatusField',
-  component: ProjectStatusField,
-  tags: ['autodocs'],
-  parameters: { layout: 'centered' },
-};
-export default meta;
+type StoryArgs = { value: 'active' | 'completed' | 'archived' };
 
-type Story = StoryObj<typeof ProjectStatusField>;
-
-const defaults: Partial<ProjectFormData> = {
+const seed = (status: StoryArgs['value']): Partial<ProjectFormData> => ({
   name: 'Demo',
   areaId: 'area-1',
   folderIcon: 'folder',
-  status: 'active',
+  status,
+});
+
+const meta: Meta<StoryArgs> = {
+  title: 'Project/ProjectStatusField',
+  tags: ['autodocs'],
+  parameters: { layout: 'centered' },
+  args: { value: 'active' },
+  argTypes: {
+    value: { control: 'select', options: ['active', 'completed', 'archived'], description: 'Seeds the status.' },
+  },
+  render: ({ value }) => {
+    const Demo = () => {
+      const form = useForm<ProjectFormData>({ defaultValues: seed(value) });
+      return (
+        <Form {...form}>
+          <form className="w-[360px]">
+            <ProjectStatusField control={form.control} />
+          </form>
+        </Form>
+      );
+    };
+    return <Demo />;
+  },
 };
+export default meta;
+
+type Story = StoryObj<StoryArgs>;
 
 export const Active: Story = {
-  render: () => (
-    <StoryFormWrapper<ProjectFormData> defaultValues={defaults}>
-      {control => <ProjectStatusField control={control} />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'active' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('combobox')).toHaveTextContent(/active/i);
@@ -36,13 +51,11 @@ export const Active: Story = {
 };
 
 export const Completed: Story = {
-  render: () => (
-    <StoryFormWrapper<ProjectFormData> defaultValues={{ ...defaults, status: 'completed' }}>
-      {control => <ProjectStatusField control={control} />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'completed' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('combobox')).toHaveTextContent(/completed/i);
   },
 };
+
+export const Archived: Story = { args: { value: 'archived' } };

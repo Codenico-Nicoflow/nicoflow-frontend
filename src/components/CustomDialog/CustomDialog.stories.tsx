@@ -1,61 +1,50 @@
-import React from 'react';
-
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, screen, userEvent, within } from 'storybook/test';
-
-import { Button } from '@/components/ui/button';
+import { expect, screen } from 'storybook/test';
 
 import { CustomDialog } from '.';
 
-const meta: Meta<typeof CustomDialog> = {
+type StoryArgs = {
+  title: string;
+  description?: string;
+  acceptText: string;
+  cancelText?: string;
+};
+
+// Renders open so the Controls panel drives the live dialog. Button objects are
+// built from the text args.
+const meta: Meta<StoryArgs> = {
   title: 'Components/Dialogs/CustomDialog',
-  component: CustomDialog,
   tags: ['autodocs'],
-  parameters: { layout: 'centered' },
+  parameters: { layout: 'fullscreen' },
+  args: {
+    title: 'Confirm Action',
+    description: 'Are you sure you want to proceed with this action?',
+    acceptText: 'Confirm',
+    cancelText: 'Cancel',
+  },
   argTypes: {
     title: { control: 'text' },
     description: { control: 'text' },
+    acceptText: { control: 'text' },
+    cancelText: { control: 'text' },
   },
+  render: ({ title, description, acceptText, cancelText }) => (
+    <CustomDialog
+      open
+      onOpenChange={() => {}}
+      title={title}
+      description={description}
+      acceptButton={{ text: acceptText, onClick: () => {} }}
+      cancelButton={cancelText ? { text: cancelText, onClick: () => {} } : undefined}
+    />
+  ),
 };
 export default meta;
 
-type Story = StoryObj<typeof CustomDialog>;
-
-const DialogWrapper = ({
-  children,
-}: {
-  children: (props: { open: boolean; onOpenChange: (v: boolean) => void }) => React.ReactNode;
-}) => {
-  const [open, setOpen] = React.useState(false);
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <Button variant="outline" onClick={() => setOpen(true)}>
-        Open Dialog
-      </Button>
-      {children({ open, onOpenChange: setOpen })}
-    </div>
-  );
-};
+type Story = StoryObj<StoryArgs>;
 
 export const WithBothButtons: Story = {
-  render: () => (
-    <DialogWrapper>
-      {({ open, onOpenChange }) => (
-        <CustomDialog
-          open={open}
-          onOpenChange={onOpenChange}
-          title="Confirm Action"
-          description="Are you sure you want to proceed with this action?"
-          acceptButton={{ text: 'Confirm', onClick: () => onOpenChange(false) }}
-          cancelButton={{ text: 'Cancel', onClick: () => onOpenChange(false) }}
-        />
-      )}
-    </DialogWrapper>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const user = userEvent.setup();
-    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+  play: async () => {
     await expect(await screen.findByText('Confirm Action')).toBeInTheDocument();
     await expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
     await expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
@@ -63,56 +52,17 @@ export const WithBothButtons: Story = {
 };
 
 export const TitleOnly: Story = {
-  render: () => (
-    <DialogWrapper>
-      {({ open, onOpenChange }) => (
-        <CustomDialog
-          open={open}
-          onOpenChange={onOpenChange}
-          title="Information"
-          acceptButton={{ text: 'OK', onClick: () => onOpenChange(false) }}
-        />
-      )}
-    </DialogWrapper>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const user = userEvent.setup();
-    await user.click(canvas.getByRole('button', { name: /open dialog/i }));
+  args: { title: 'Information', description: undefined, acceptText: 'OK', cancelText: undefined },
+  play: async () => {
     await expect(await screen.findByText('Information')).toBeInTheDocument();
   },
 };
 
-export const WithDescription: Story = {
-  render: () => (
-    <DialogWrapper>
-      {({ open, onOpenChange }) => (
-        <CustomDialog
-          open={open}
-          onOpenChange={onOpenChange}
-          title="Session Expired"
-          description="Your session has expired. Please sign in again to continue."
-          acceptButton={{ text: 'Sign In', onClick: () => onOpenChange(false) }}
-          cancelButton={{ text: 'Dismiss', onClick: () => onOpenChange(false) }}
-        />
-      )}
-    </DialogWrapper>
-  ),
-};
-
-export const OpenByDefault: Story = {
-  render: () => (
-    <CustomDialog
-      open
-      onOpenChange={() => {}}
-      title="Confirm Action"
-      description="Are you sure you want to proceed?"
-      acceptButton={{ text: 'Confirm', onClick: () => {} }}
-      cancelButton={{ text: 'Cancel', onClick: () => {} }}
-    />
-  ),
-  play: async () => {
-    await expect(await screen.findByText('Confirm Action')).toBeInTheDocument();
-    await expect(screen.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
+export const SessionExpired: Story = {
+  args: {
+    title: 'Session Expired',
+    description: 'Your session has expired. Please sign in again to continue.',
+    acceptText: 'Sign In',
+    cancelText: 'Dismiss',
   },
 };

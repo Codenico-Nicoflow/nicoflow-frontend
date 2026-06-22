@@ -13,6 +13,7 @@ import {
   FormDialog,
   NameField,
   PriorityField,
+  StatusField,
   UrlField,
 } from '@/components';
 import { Form } from '@/components/ui/form';
@@ -39,6 +40,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     defaultValues: {
       title: task?.title || '',
       notes: task?.notes || '',
+      status: task?.status || 'inbox',
       priority: task?.priority || 'low',
       dueDate: task?.dueDate ? new Date(task.dueDate) : undefined,
       estimatedMinutes: task?.estimatedMinutes || undefined,
@@ -54,6 +56,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       form.reset({
         title: task.title,
         notes: task.notes || '',
+        status: task.status || 'inbox',
         priority: task.priority || 'low',
         dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
         estimatedMinutes: task.estimatedMinutes || undefined,
@@ -63,6 +66,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       form.reset({
         title: '',
         notes: '',
+        status: 'inbox',
         priority: 'low',
         dueDate: undefined,
         estimatedMinutes: undefined,
@@ -148,6 +152,9 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
             minHeight="100px"
             delay={0.15}
           />
+
+          {/* Status is only settable on existing tasks — new tasks default to inbox server-side. */}
+          {isEditMode && <StatusField control={form.control} delay={0.18} />}
 
           <DialogFieldGrid columns={2}>
             <PriorityField control={form.control} delay={0.2} />

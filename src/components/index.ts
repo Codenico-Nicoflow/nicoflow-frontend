@@ -20,6 +20,7 @@ export { ModeToggle } from './ModeToggle';
 export { NameField } from './NameField';
 export { PlanLimitAlert } from './PlanLimitAlert';
 export { PriorityField } from './PriorityField';
+export { StatusField } from './StatusField';
 export { ThemeProvider, useTheme } from './ThemeProvider';
 export { Timestamp } from './Timestamp';
 export { Toaster } from './Toaster';

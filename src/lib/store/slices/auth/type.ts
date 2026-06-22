@@ -1,7 +1,8 @@
 import type { IUser } from '@/lib/types';
 
 export type LoginRequest = {
-  email: string;
+  /** Email address or username. */
+  identifier: string;
   password: string;
   remember: boolean;
   platform?: 'web' | 'mobile';
@@ -38,4 +39,12 @@ export type VerifyResetTokenRequest = {
 
 export type VerifyResetTokenResponse = {
   valid: boolean;
+};
+
+export type VerifyEmailRequest = {
+  token: string;
+};
+
+export type ResendVerificationRequest = {
+  email: string;
 };

@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { mockAuthResponse } from '@/mocks/handlers';
 import AppRoutes from '@/router';
 
 import { createMockStore, renderComponent } from '../../../__tests__/renderComponent';
@@ -37,28 +36,32 @@ describe('SignUp page', () => {
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
   });
 
-  it('navigates away after successful registration', async () => {
+  it('shows the check-your-email panel after successful registration (no auto-login)', async () => {
     const user = userEvent.setup();
     renderSignUp();
 
     await fillAndSubmitSignUp(user);
 
     await waitFor(() => {
-      expect(window.location.pathname).not.toBe('/sign-up');
+      expect(screen.getByText(/check your email/i)).toBeInTheDocument();
     });
+    // Register no longer logs the user in — stays on the sign-up route, not into the app.
+    expect(window.location.pathname).toBe('/sign-up');
+    expect(screen.getByRole('link', { name: /go to sign in/i })).toBeInTheDocument();
   });
 
-  it('dispatches token and user into store after successful registration', async () => {
+  it('does not put a token or user into the store after registration', async () => {
     const user = userEvent.setup();
     const { store } = renderSignUp();
 
     await fillAndSubmitSignUp(user);
 
     await waitFor(() => {
-      const auth = store.getState().auth;
-      expect(auth.token).toBe(mockAuthResponse.token);
-      expect(auth.user).toEqual(mockAuthResponse.user);
+      expect(screen.getByText(/check your email/i)).toBeInTheDocument();
     });
+    const auth = store.getState().auth;
+    expect(auth.token).toBeNull();
+    expect(auth.user).toBeNull();
   });
 
   it('stays on sign-up when registration fails', async () => {

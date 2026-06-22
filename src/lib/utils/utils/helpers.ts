@@ -25,30 +25,50 @@ export function isErrorWithMessage(error: unknown): error is { message: string }
   return typeof error === 'object' && error != null && 'message' in error && typeof error.message === 'string';
 }
 
-export function showErrorToast(err: unknown, toast: Toast) {
-  let text: string;
-
-  if (isFetchBaseQueryError(err)) {
-    if ('error' in err && typeof err.error === 'string') {
-      text = ToastMessages[err.error as keyof typeof ToastMessages] || ToastMessages.GENERAL_ERROR;
-    } else if ('data' in err) {
-      const code =
-        typeof err.data === 'object' && err.data !== null && 'error' in err.data ? err.data.error : undefined;
-      text =
-        code && ToastMessages[code as keyof typeof ToastMessages]
-          ? ToastMessages[code as keyof typeof ToastMessages]
-          : ToastMessages.GENERAL_ERROR;
-    } else {
-      text = ToastMessages.GENERAL_ERROR;
-    }
-  } else if (isErrorWithMessage(err)) {
-    text = ToastMessages[err.message as keyof typeof ToastMessages] || ToastMessages.GENERAL_ERROR;
-  } else if (typeof err === 'string') {
-    text = ToastMessages[err as keyof typeof ToastMessages] || ToastMessages.GENERAL_ERROR;
-  } else {
-    text = ToastMessages.GENERAL_ERROR;
+// Extracts the error code string from whatever shape arrives.
+// Priority order:
+// 1. Unwrapped backend envelope: { error: { code, message } }  — from transformErrorResponse: e => e.data
+// 2. FetchBaseQueryError with data envelope: { status, data: { error: { code } } }
+// 3. FetchBaseQueryError with string error field (network errors)
+// 4. Plain string
+// 5. { message: string }
+export function getApiErrorCode(err: unknown): string | undefined {
+  if (err === null || typeof err !== 'object') {
+    return typeof err === 'string' ? err : undefined;
   }
 
+  const obj = err as Record<string, unknown>;
+
+  // Shape 1: unwrapped envelope { error: { code } } — most common via transformErrorResponse
+  if (typeof obj['error'] === 'object' && obj['error'] !== null) {
+    const inner = obj['error'] as Record<string, unknown>;
+    if (typeof inner['code'] === 'string') return inner['code'];
+  }
+
+  // Shape 2: FetchBaseQueryError { status, data: { error: { code } } }
+  if ('status' in obj && typeof obj['data'] === 'object' && obj['data'] !== null) {
+    const data = obj['data'] as Record<string, unknown>;
+    if (typeof data['error'] === 'object' && data['error'] !== null) {
+      const inner = data['error'] as Record<string, unknown>;
+      if (typeof inner['code'] === 'string') return inner['code'];
+    }
+    // Fallback: data.error is a plain string code
+    if (typeof data['error'] === 'string') return data['error'];
+  }
+
+  // Shape 3: FetchBaseQueryError network error { status: 'FETCH_ERROR', error: string }
+  if ('status' in obj && typeof obj['error'] === 'string') return obj['error'];
+
+  // Shape 4: { message: string }
+  if (typeof obj['message'] === 'string') return obj['message'];
+
+  return undefined;
+}
+
+export function showErrorToast(err: unknown, toast: Toast) {
+  const code = getApiErrorCode(err);
+  const text =
+    code && code in ToastMessages ? ToastMessages[code as keyof typeof ToastMessages] : ToastMessages.GENERAL_ERROR;
   toast.error(text);
 }
 
@@ -59,6 +79,20 @@ export function showSuccessToast(msg: string, toast: Toast) {
 
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Badge classes for a project status, shared by the board, row and detail header.
+export function getProjectStatusColor(status: string) {
+  switch (status) {
+    case 'active':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+    case 'completed':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+    case 'archived':
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+  }
 }
 
 export function isDateInPast(date: Date) {

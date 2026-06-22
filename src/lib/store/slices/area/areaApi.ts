@@ -1,16 +1,21 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
+import type { ApiEnvelope } from '@/lib/types';
 import { AREA_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 
 import type {
+  AreaWithProjects,
   CreateAreaRequest,
   CreateAreaResponse,
   DeleteAreaResponse,
   GetAllAreasResponse,
   GetAreaRequest,
   GetAreaResponse,
+  GetAreasWithProjectsResponse,
+  ReorderAreasRequest,
+  ReorderAreasResponse,
   UpdateAreaRequest,
   UpdateAreaResponse,
 } from './type';
@@ -22,16 +27,19 @@ export const areaApi = createApi({
   endpoints: builder => ({
     getAreas: builder.query<GetAllAreasResponse, void>({
       query: () => AREA_API.GET_AREAS,
+      transformResponse: (raw: ApiEnvelope<GetAllAreasResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       providesTags: ['Area'],
     }),
-    getAreasWithProjects: builder.query<GetAllAreasResponse, void>({
+    getAreasWithProjects: builder.query<GetAreasWithProjectsResponse, void>({
       query: () => AREA_API.GET_AREAS_WITH_PROJECTS,
+      transformResponse: (raw: ApiEnvelope<AreaWithProjects[]>) => raw.data,
       transformErrorResponse: error => error.data,
       providesTags: ['Area'],
     }),
     getArea: builder.query<GetAreaResponse, GetAreaRequest>({
       query: id => `${AREA_API.GET_AREA}${id}`,
+      transformResponse: (raw: ApiEnvelope<GetAreaResponse>) => raw.data,
       transformErrorResponse: error => error.data,
     }),
     createArea: builder.mutation<CreateAreaResponse, CreateAreaRequest>({
@@ -40,6 +48,7 @@ export const areaApi = createApi({
         method: 'POST',
         body,
       }),
+      transformResponse: (raw: ApiEnvelope<CreateAreaResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Area'],
     }),
@@ -49,14 +58,25 @@ export const areaApi = createApi({
         method: 'PATCH',
         body,
       }),
+      transformResponse: (raw: ApiEnvelope<UpdateAreaResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Area'],
     }),
-    deleteArea: builder.mutation<DeleteAreaResponse, number>({
+    deleteArea: builder.mutation<DeleteAreaResponse, string>({
       query: id => ({
         url: `${AREA_API.DELETE_AREA}${id}`,
         method: 'DELETE',
       }),
+      transformErrorResponse: error => error.data,
+      invalidatesTags: ['Area'],
+    }),
+    reorderAreas: builder.mutation<ReorderAreasResponse, ReorderAreasRequest>({
+      query: body => ({
+        url: AREA_API.REORDER_AREAS,
+        method: 'PATCH',
+        body,
+      }),
+      transformResponse: (raw: ApiEnvelope<ReorderAreasResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Area'],
     }),
@@ -70,4 +90,5 @@ export const {
   useCreateAreaMutation,
   useDeleteAreaMutation,
   useUpdateAreaMutation,
+  useReorderAreasMutation,
 } = areaApi;

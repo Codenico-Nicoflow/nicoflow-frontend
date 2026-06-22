@@ -100,7 +100,7 @@ function DialogContent({
               <div className="relative flex items-center justify-center h-full w-full">
                 {/* Subtle glow effect */}
                 <motion.div
-                  className="absolute inset-0 rounded-full bg-gradient-to-r from-destructive/20 to-orange-500/20 opacity-0 group-hover:opacity-100"
+                  className="absolute inset-0 rounded-full bg-gradient-to-r from-destructive/20 to-destructive/10 opacity-0 group-hover:opacity-100"
                   transition={{ duration: 0.3 }}
                 />
 

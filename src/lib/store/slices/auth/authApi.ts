@@ -11,7 +11,9 @@ import type {
   ForgotPasswordRequest,
   LoginRequest,
   RegisterRequest,
+  ResendVerificationRequest,
   ResetPasswordRequest,
+  VerifyEmailRequest,
 } from './type';
 
 export const authApi = createApi({
@@ -57,11 +59,43 @@ export const authApi = createApi({
       transformErrorResponse: error => error.data,
       invalidatesTags: ['User'],
     }),
+    logoutAll: builder.mutation<void, void>({
+      query: () => ({
+        url: AUTH_API.LOGOUT_ALL,
+        method: 'POST',
+        credentials: 'include',
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+        } finally {
+          dispatch(clearAuth());
+        }
+      },
+      transformErrorResponse: error => error.data,
+      invalidatesTags: ['User'],
+    }),
     forgotPassword: builder.mutation<void, ForgotPasswordRequest>({
-      query: email => ({
+      query: body => ({
         url: AUTH_API.FORGOT_PASSWORD,
         method: 'POST',
-        body: email,
+        body,
+      }),
+      transformErrorResponse: error => error.data,
+    }),
+    verifyEmail: builder.mutation<void, VerifyEmailRequest>({
+      query: body => ({
+        url: AUTH_API.VERIFY_EMAIL,
+        method: 'POST',
+        body,
+      }),
+      transformErrorResponse: error => error.data,
+    }),
+    resendVerification: builder.mutation<void, ResendVerificationRequest>({
+      query: body => ({
+        url: AUTH_API.RESEND_VERIFICATION,
+        method: 'POST',
+        body,
       }),
       transformErrorResponse: error => error.data,
     }),
@@ -102,8 +136,11 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
+  useLogoutAllMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useVerifyEmailMutation,
+  useResendVerificationMutation,
   useGetCurrentUserQuery,
   useRefreshTokenMutation,
 } = authApi;

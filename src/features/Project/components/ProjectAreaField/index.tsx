@@ -13,7 +13,8 @@ interface ProjectAreaFieldProps {
 }
 
 export const ProjectAreaField = ({ control }: ProjectAreaFieldProps) => {
-  const { data: areas } = useGetAreasQuery();
+  const { data } = useGetAreasQuery();
+  const areas = data?.items ?? [];
 
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
@@ -26,15 +27,15 @@ export const ProjectAreaField = ({ control }: ProjectAreaFieldProps) => {
               <Sparkles className="h-4 w-4" />
               Area
             </FormLabel>
-            <Select onValueChange={value => field.onChange(Number(value))} value={field.value?.toString()}>
+            <Select onValueChange={field.onChange} value={field.value ?? ''}>
               <FormControl>
                 <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors">
                   <SelectValue placeholder="Choose an area for your project" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {areas?.map(area => (
-                  <SelectItem key={area.id} value={area.id.toString()}>
+                {areas.map(area => (
+                  <SelectItem key={area.id} value={area.id}>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-primary" />
                       {capitalize(area.name)}

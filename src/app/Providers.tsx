@@ -1,42 +1,27 @@
-import React from 'react';
-
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import { LoadingOverlayProvider, ThemeProvider, Toaster } from '@/components';
-import { persistor, store, useAppDispatch, useAppUser, useRefreshTokenMutation } from '@/lib/store';
-import { clearAuth, setToken } from '@/lib/store/slices/auth/authSlice';
+import { persistor, store } from '@/lib/store';
 
-const SessionRestorer = () => {
-  const user = useAppUser();
-  const dispatch = useAppDispatch();
-  const [refreshToken] = useRefreshTokenMutation();
-
-  React.useEffect(() => {
-    if (!user) return;
-    refreshToken()
-      .unwrap()
-      .then(data => {
-        dispatch(setToken(data.token));
-      })
-      .catch(() => {
-        dispatch(clearAuth());
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return null;
-};
+// Session handling: the access token is memory-only (not persisted) — on reload
+// only the `user` rehydrates. We deliberately do NOT eagerly refresh the token
+// on load. Instead the app renders, trusting the persisted user, and the first
+// authed request that 401s triggers a single (mutex-guarded) refresh + retry in
+// baseQuery. This is what prevents the reload-mash logout: rapid reloads no
+// longer each fire /refresh-token and rotate the token out from under each other
+// (which made the loser's now-consumed token 401 and bounce the user). The
+// genuine "session is dead" path still logs out — baseQuery clears auth on a
+// definitive INVALID_TOKEN/UNAUTHORIZED from the refresh.
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <Provider store={store}>
       <PersistGate loading={<div />} persistor={persistor}>
         <BrowserRouter>
-          <ThemeProvider defaultTheme="system" storageKey="nicoflow-theme">
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
             <LoadingOverlayProvider>
-              <SessionRestorer />
               {children}
               <Toaster />
             </LoadingOverlayProvider>

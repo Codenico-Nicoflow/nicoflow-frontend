@@ -13,30 +13,32 @@ import {
 } from './schemas';
 
 describe('loginSchema', () => {
-  it('parses valid credentials', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'Password1', remember: false });
+  it('parses valid credentials with an email identifier', () => {
+    const result = loginSchema.safeParse({ identifier: 'user@example.com', password: 'Password1', remember: false });
     expect(result.success).toBe(true);
   });
 
-  it('rejects invalid email', () => {
-    const result = loginSchema.safeParse({ email: 'not-an-email', password: 'Password1', remember: false });
-    expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/valid email/i);
+  it('parses valid credentials with a username identifier', () => {
+    const result = loginSchema.safeParse({ identifier: 'codenico', password: 'Password1', remember: false });
+    expect(result.success).toBe(true);
   });
 
-  it('rejects password under 8 chars', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'Ab1', remember: false });
+  it('rejects an empty identifier', () => {
+    const result = loginSchema.safeParse({ identifier: '   ', password: 'Password1', remember: false });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/email or username/i);
+  });
+
+  it('rejects an empty password', () => {
+    const result = loginSchema.safeParse({ identifier: 'user@example.com', password: '', remember: false });
     expect(result.success).toBe(false);
   });
 
-  it('rejects password without uppercase', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'password1', remember: false });
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects password without number', () => {
-    const result = loginSchema.safeParse({ email: 'user@example.com', password: 'PasswordABC', remember: false });
-    expect(result.success).toBe(false);
+  // Login must NOT enforce the password composition policy — an existing
+  // account with any stored password must still be able to sign in.
+  it('accepts a short/legacy password at the login gate', () => {
+    const result = loginSchema.safeParse({ identifier: 'user@example.com', password: 'old', remember: false });
+    expect(result.success).toBe(true);
   });
 });
 
@@ -67,6 +69,23 @@ describe('registerSchema', () => {
       email: 'user@example.com',
       password: 'Password1',
     });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a password with no uppercase letter', () => {
+    const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'password1' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/uppercase/i);
+  });
+
+  it('rejects a password with no lowercase letter', () => {
+    const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'PASSWORD1' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/lowercase/i);
+  });
+
+  it('rejects a password under 8 chars', () => {
+    const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'Ab1' });
     expect(result.success).toBe(false);
   });
 });
@@ -104,28 +123,43 @@ describe('resetPasswordSchema', () => {
 
 describe('projectSchema', () => {
   it('parses valid project data', () => {
-    const result = projectSchema.safeParse({ name: 'My Project', areaId: 1, icon: 'folder', status: 'active' });
+    const result = projectSchema.safeParse({
+      name: 'My Project',
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'active',
+    });
     expect(result.success).toBe(true);
   });
 
   it('rejects empty name', () => {
-    const result = projectSchema.safeParse({ name: '', areaId: 1, icon: 'folder', status: 'active' });
+    const result = projectSchema.safeParse({ name: '', areaId: 'abc-123', folderIcon: 'folder', status: 'active' });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toMatch(/required/i);
   });
 
   it('rejects name over 50 chars', () => {
-    const result = projectSchema.safeParse({ name: 'a'.repeat(51), areaId: 1, icon: 'folder', status: 'active' });
+    const result = projectSchema.safeParse({
+      name: 'a'.repeat(51),
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'active',
+    });
     expect(result.success).toBe(false);
   });
 
-  it('rejects areaId of 0', () => {
-    const result = projectSchema.safeParse({ name: 'Project', areaId: 0, icon: 'folder', status: 'active' });
+  it('rejects empty areaId', () => {
+    const result = projectSchema.safeParse({ name: 'Project', areaId: '', folderIcon: 'folder', status: 'active' });
     expect(result.success).toBe(false);
   });
 
   it('rejects invalid status', () => {
-    const result = projectSchema.safeParse({ name: 'Project', areaId: 1, icon: 'folder', status: 'unknown' });
+    const result = projectSchema.safeParse({
+      name: 'Project',
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'unknown',
+    });
     expect(result.success).toBe(false);
   });
 });
@@ -172,8 +206,7 @@ describe('updateAreaSchema', () => {
 
 describe('taskSchema', () => {
   const validTask = {
-    name: 'Fix bug',
-    description: 'There is a bug to fix',
+    title: 'Fix bug',
     priority: 'medium' as const,
   };
 
@@ -182,13 +215,13 @@ describe('taskSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('rejects empty name', () => {
-    const result = taskSchema.safeParse({ ...validTask, name: '' });
+  it('rejects empty title', () => {
+    const result = taskSchema.safeParse({ ...validTask, title: '' });
     expect(result.success).toBe(false);
   });
 
-  it('rejects name over 100 chars', () => {
-    const result = taskSchema.safeParse({ ...validTask, name: 'a'.repeat(101) });
+  it('rejects title over 255 chars', () => {
+    const result = taskSchema.safeParse({ ...validTask, title: 'a'.repeat(256) });
     expect(result.success).toBe(false);
   });
 

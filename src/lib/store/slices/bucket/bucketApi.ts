@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
+import type { ApiEnvelope } from '@/lib/types';
 import { BUCKET_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
@@ -16,16 +17,20 @@ export const bucketApi = createApi({
         url: BUCKET_API.GET_BUCKETS,
         method: 'GET',
       }),
+      transformResponse: (raw: ApiEnvelope<BucketsResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
       providesTags: result =>
         result
           ? [...result.map(({ id }) => ({ type: 'Bucket' as const, id })), { type: 'Bucket', id: 'LIST' }]
           : [{ type: 'Bucket', id: 'LIST' }],
     }),
-    getBucket: builder.query<BucketResponse, number>({
+    getBucket: builder.query<BucketResponse, string>({
       query: id => ({
         url: `${BUCKET_API.GET_BUCKET}${id}`,
         method: 'GET',
       }),
+      transformResponse: (raw: ApiEnvelope<BucketResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
       providesTags: (_, _error, id) => [{ type: 'Bucket', id }],
     }),
     createBucket: builder.mutation<BucketResponse, CreateBucketDto>({
@@ -34,35 +39,42 @@ export const bucketApi = createApi({
         method: 'POST',
         body,
       }),
+      transformResponse: (raw: ApiEnvelope<BucketResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
       invalidatesTags: [{ type: 'Bucket', id: 'LIST' }],
     }),
-    updateBucket: builder.mutation<BucketResponse, { id: number; data: UpdateBucketDto }>({
+    updateBucket: builder.mutation<BucketResponse, { id: string; data: UpdateBucketDto }>({
       query: ({ id, data }) => ({
         url: `${BUCKET_API.UPDATE_BUCKET}${id}`,
         method: 'PATCH',
         body: data,
       }),
+      transformResponse: (raw: ApiEnvelope<BucketResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
       invalidatesTags: (_, _error, { id }) => [
         { type: 'Bucket', id },
         { type: 'Bucket', id: 'LIST' },
       ],
     }),
-    deleteBucket: builder.mutation<void, number>({
+    deleteBucket: builder.mutation<void, string>({
       query: id => ({
         url: `${BUCKET_API.DELETE_BUCKET}${id}`,
         method: 'DELETE',
       }),
+      transformErrorResponse: error => error.data,
       invalidatesTags: (_, _error, id) => [
         { type: 'Bucket', id },
         { type: 'Bucket', id: 'LIST' },
       ],
     }),
-    processBucket: builder.mutation<BucketResponse, { id: number; data: ProcessBucketDto }>({
+    processBucket: builder.mutation<BucketResponse, { id: string; data: ProcessBucketDto }>({
       query: ({ id, data }) => ({
         url: `${BUCKET_API.GET_BUCKET}${id}/process`,
         method: 'POST',
         body: data,
       }),
+      transformResponse: (raw: ApiEnvelope<BucketResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
       invalidatesTags: (_, _error, { id }) => [
         { type: 'Bucket', id },
         { type: 'Bucket', id: 'LIST' },

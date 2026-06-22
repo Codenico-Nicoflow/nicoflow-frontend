@@ -32,6 +32,8 @@ export type {
 export { ICON_IMPORTS } from './utils/get-icons';
 export {
   capitalize,
+  getApiErrorCode,
+  getProjectStatusColor,
   isDateInPast,
   isErrorWithMessage,
   isFetchBaseQueryError,

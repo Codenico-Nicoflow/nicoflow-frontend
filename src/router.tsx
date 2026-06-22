@@ -2,8 +2,8 @@ import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 
 import { AuthLayout, PrivateLayout } from '@/layout';
 import { useAppUser } from '@/lib/store';
-import { ErrorPage, HelpAndInformation, PrivacyPolicy, Profile, TermsOfService } from '@/pages';
-import { ForgotPassword, ResetPassword, SignIn, SignUp } from '@/pages/auth';
+import { AreasBoard, ErrorPage, HelpAndInformation, PrivacyPolicy, Profile, Settings, TermsOfService } from '@/pages';
+import { ForgotPassword, ResetPassword, SignIn, SignUp, VerifyEmail } from '@/pages/auth';
 import { ProjectView } from '@/pages/project';
 import { Bucket, NextSevenDays, Today, Tomorrow } from '@/pages/quick-access';
 
@@ -20,13 +20,14 @@ const AppRoutes = () => {
       path: '/',
       element: <PrivateRoutes />,
       children: [
-        { index: true, element: <Navigate to="/quick-access/bucket" replace /> },
-        { path: '/quick-access/Bucket', element: <Bucket /> },
+        { index: true, element: <Navigate to="/quick-access/today" replace /> },
+        { path: '/quick-access/bucket', element: <Bucket /> },
         { path: '/quick-access/next-7-days', element: <NextSevenDays /> },
         { path: '/quick-access/today', element: <Today /> },
         { path: '/quick-access/tomorrow', element: <Tomorrow /> },
-        { path: '/projects/new', element: <div>New Project</div> },
+        { path: '/areas', element: <AreasBoard /> },
         { path: '/projects/:projectId', element: <ProjectView /> },
+        { path: '/settings', element: <Settings /> },
         { path: '/help-information', element: <HelpAndInformation /> },
         { path: '/profile', element: <Profile /> },
       ],
@@ -39,6 +40,7 @@ const AppRoutes = () => {
         { path: 'sign-up', element: <SignUp /> },
         { path: 'forgot-password', element: <ForgotPassword /> },
         { path: 'reset-password', element: <ResetPassword /> },
+        { path: 'verify-email', element: <VerifyEmail /> },
       ],
     },
 

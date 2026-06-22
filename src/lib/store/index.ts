@@ -14,10 +14,13 @@ export {
   useForgotPasswordMutation,
   useGetCurrentUserQuery,
   useLoginMutation,
+  useLogoutAllMutation,
   useLogoutMutation,
   useRefreshTokenMutation,
   useRegisterMutation,
+  useResendVerificationMutation,
   useResetPasswordMutation,
+  useVerifyEmailMutation,
 } from './slices/auth/authApi';
 export { clearAuth, setToken, setUser } from './slices/auth/authSlice';
 export { selectUser } from './slices/auth/authSlice';

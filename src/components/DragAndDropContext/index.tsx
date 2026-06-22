@@ -55,10 +55,10 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
 
     try {
       if (activeIdValue.startsWith('project-') && overIdValue.startsWith('area-')) {
-        const projectId = Number(activeIdValue.replace('project-', ''));
-        const targetAreaId = Number(overIdValue.replace('area-', ''));
+        const projectId = activeIdValue.replace('project-', '');
+        const targetAreaId = overIdValue.replace('area-', '');
 
-        if (Number.isNaN(projectId) || Number.isNaN(targetAreaId)) {
+        if (!projectId || !targetAreaId) {
           showErrorToast(ToastMessages.INVALID_DROP_TARGET, toast);
           return;
         }
@@ -72,7 +72,7 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
 
         await updateProject({
           id: projectId,
-          body: { areaId: targetAreaId },
+          areaId: targetAreaId,
         }).unwrap();
 
         invalidateApiTags(dispatch, areaApi, ['Area'] as const);
@@ -124,7 +124,7 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
                 <LazyIcon
-                  iconId={(activeProject.icon as IconId) || 'folder'}
+                  iconId={(activeProject.folderIcon as IconId) || 'folder'}
                   className="w-4 h-4 text-primary-foreground"
                 />
               </div>

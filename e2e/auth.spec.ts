@@ -71,14 +71,17 @@ test.describe('Register flow', () => {
     await expect(page.getByRole('button', { name: /create account/i })).toBeVisible();
   });
 
-  test.skip('register with valid data navigates to app', async ({ page }) => {
-    // Requires backend; each run needs a unique email.
+  test.skip('register shows the check-your-email panel (no auto-login)', async ({ page }) => {
+    // Requires a live backend; each run needs a unique email.
+    // Register no longer logs the user in — it stays on /sign-up and shows a
+    // "check your email" confirmation; the user must verify, then sign in.
     const uniqueEmail = `e2e+${Date.now()}@nicoflow.test`;
     await page.goto('/sign-up');
     await page.getByLabel(/username/i).fill(TEST_USERNAME);
     await page.getByLabel(/email/i).fill(uniqueEmail);
     await page.getByPlaceholder(PASSWORD_PLACEHOLDER).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: /create account/i }).click();
-    await expect(page).not.toHaveURL(/sign-up/);
+    await expect(page.getByText(/check your email/i)).toBeVisible();
+    await expect(page).toHaveURL(/sign-up/);
   });
 });

@@ -74,4 +74,51 @@ describe('SignIn page', () => {
       expect(auth.user).toEqual(mockAuthResponse.user);
     });
   });
+
+  it('shows the resend panel (not a redirect) when login returns EMAIL_NOT_VERIFIED', async () => {
+    server.use(
+      http.post('http://localhost:8080/v1/auth/login', () =>
+        HttpResponse.json(
+          { data: null, error: { code: 'EMAIL_NOT_VERIFIED', message: 'email not verified' } },
+          { status: 403 }
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    renderSignIn();
+
+    await fillAndSubmitSignIn(user, 'unverified@example.com');
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /resend verification email/i })).toBeInTheDocument();
+    });
+    // Stays on sign-in — not logged in.
+    expect(window.location.pathname).toBe('/sign-in');
+  });
+
+  it('calls the resend endpoint when the resend button is clicked', async () => {
+    let resendCalled = false;
+    server.use(
+      http.post('http://localhost:8080/v1/auth/login', () =>
+        HttpResponse.json(
+          { data: null, error: { code: 'EMAIL_NOT_VERIFIED', message: 'email not verified' } },
+          { status: 403 }
+        )
+      ),
+      http.post('http://localhost:8080/v1/auth/resend-verification', () => {
+        resendCalled = true;
+        return HttpResponse.json({ data: null, error: null });
+      })
+    );
+
+    const user = userEvent.setup();
+    renderSignIn();
+
+    await fillAndSubmitSignIn(user, 'unverified@example.com');
+    const resendBtn = await screen.findByRole('button', { name: /resend verification email/i });
+    await user.click(resendBtn);
+
+    await waitFor(() => expect(resendCalled).toBe(true));
+  });
 });

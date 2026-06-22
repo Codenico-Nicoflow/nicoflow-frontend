@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FolderKanban, FolderOpen, Star } from 'lucide-react';
@@ -6,18 +6,36 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-import { CheckboxField, DialogFieldGrid, DueDateField, FormDialog, IconField, NameField } from '@/components';
+import {
+  CheckboxField,
+  CustomDialog,
+  DescriptionField,
+  DialogFieldGrid,
+  DueDateField,
+  FormDialog,
+  IconField,
+  NameField,
+  PlanLimitAlert,
+} from '@/components';
 import { Form } from '@/components/ui/form.tsx';
 import {
   areaApi,
   invalidateApiTags,
+  projectApi,
   useCreateProjectMutation,
   useGetAreasQuery,
   useUpdateProjectMutation,
 } from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { ProjectFormData } from '@/lib/utils';
-import { hasFormChanges, projectSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
+import {
+  getApiErrorCode,
+  hasFormChanges,
+  projectSchema,
+  showErrorToast,
+  showSuccessToast,
+  ToastMessages,
+} from '@/lib/utils';
 
 import { ProjectAreaField } from '../ProjectAreaField';
 import { ProjectStatusField } from '../ProjectStatusField';
@@ -27,24 +45,41 @@ interface ProjectDialogProps {
   onOpenChange: (open: boolean) => void;
   project?: IProject;
   onSuccess?: () => void;
+  /** Invoked when the user has no areas and chooses to create one first. */
+  onCreateArea?: () => void;
+  /** Pre-selects an area in create mode (e.g. "Add project" inside an area card). */
+  defaultAreaId?: string;
 }
 
-export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: ProjectDialogProps) => {
+export const ProjectDialog = ({
+  open,
+  onOpenChange,
+  project,
+  onSuccess,
+  onCreateArea,
+  defaultAreaId,
+}: ProjectDialogProps) => {
   const isEditMode = !!project;
 
   const [createProject, { isLoading: isCreateLoading }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdateLoading }] = useUpdateProjectMutation();
-  const { data: areas, isLoading: isAreasLoading } = useGetAreasQuery();
+  const { data: areasData, isLoading: isAreasLoading } = useGetAreasQuery();
+  const areas = useMemo(() => areasData?.items ?? [], [areasData]);
   const dispatch = useDispatch();
+  const [planLimitHit, setPlanLimitHit] = useState(false);
+
+  // A project must belong to an area; block the form entirely when none exist.
+  const hasNoAreas = !isEditMode && !isAreasLoading && areas.length === 0;
 
   const form = useForm<ProjectFormData>({
     defaultValues: {
       name: project?.name || '',
-      areaId: project?.areaId || areas?.[0]?.id || undefined,
-      icon: project?.icon || 'folder',
+      areaId: project?.areaId ?? defaultAreaId ?? areas[0]?.id ?? undefined,
+      folderIcon: (project?.folderIcon as ProjectFormData['folderIcon']) || 'folder',
       status: project?.status || 'active',
       isFavorite: project?.isFavorite || false,
       dueDate: project?.dueDate ? new Date(project.dueDate) : undefined,
+      description: project?.description ?? '',
     },
     resolver: zodResolver(projectSchema),
   });
@@ -54,25 +89,37 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
   useEffect(() => {
     if (project) {
       form.reset({
-        ...project,
+        name: project.name,
+        areaId: project.areaId ?? undefined,
+        folderIcon: project.folderIcon as ProjectFormData['folderIcon'],
+        status: project.status,
+        isFavorite: project.isFavorite ?? false,
         dueDate: project.dueDate ? new Date(project.dueDate) : undefined,
+        description: project.description ?? '',
       });
     }
   }, [project, form]);
 
   useEffect(() => {
-    if (!project && areas && areas.length > 0 && !form.getValues('areaId')) {
-      form.setValue('areaId', areas[0]?.id || 0);
+    if (!project && areas.length > 0 && !form.getValues('areaId')) {
+      form.setValue('areaId', defaultAreaId ?? areas[0].id);
     }
-  }, [areas, project, form]);
+  }, [areas, project, form, defaultAreaId]);
+
+  useEffect(() => {
+    if (!open) {
+      setPlanLimitHit(false);
+    }
+  }, [open]);
 
   const hasChanges = hasFormChanges(isEditMode, project, watchedValues as Partial<IProject>, [
     'name',
     'areaId',
-    'icon',
+    'folderIcon',
     'status',
     'dueDate',
     'isFavorite',
+    'description',
   ]);
 
   const onSubmit = async (data: ProjectFormData) => {
@@ -81,35 +128,71 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
       return;
     }
 
+    setPlanLimitHit(false);
+
     try {
       if (isEditMode) {
-        const updateData = {
-          ...data,
-          dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : undefined,
-        };
-
-        await updateProject({ id: project?.id, body: updateData }).unwrap();
+        await updateProject({
+          id: project.id,
+          name: data.name,
+          areaId: data.areaId,
+          status: data.status,
+          folderIcon: data.folderIcon,
+          dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : null,
+          isFavorite: data.isFavorite,
+          description: data.description?.trim() ? data.description.trim() : null,
+        }).unwrap();
+        invalidateApiTags(dispatch, projectApi, ['Project']);
         invalidateApiTags(dispatch, areaApi, ['Area']);
         showSuccessToast(ToastMessages.PROJECT_UPDATED, toast);
       } else {
-        const createData = {
-          ...data,
-          status: data.status ?? 'active',
+        await createProject({
+          areaId: data.areaId,
+          name: data.name,
+          status: data.status,
+          folderIcon: data.folderIcon,
           dueDate: data.dueDate instanceof Date ? data.dueDate.toISOString() : undefined,
-        };
-
-        await createProject(createData).unwrap();
+          isFavorite: data.isFavorite,
+          description: data.description?.trim() ? data.description.trim() : undefined,
+        }).unwrap();
+        invalidateApiTags(dispatch, projectApi, ['Project']);
         invalidateApiTags(dispatch, areaApi, ['Area']);
         showSuccessToast(ToastMessages.PROJECT_CREATED, toast);
       }
       onSuccess?.();
       onOpenChange(false);
-    } catch (error) {
-      showErrorToast(error, toast);
-    } finally {
       form.reset();
+    } catch (error) {
+      if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
+        setPlanLimitHit(true);
+      }
+      showErrorToast(error, toast);
     }
   };
+
+  if (hasNoAreas) {
+    return (
+      <CustomDialog
+        open={open}
+        onOpenChange={onOpenChange}
+        title="Create an Area first"
+        description="Projects live inside Areas. Create an Area before adding a project."
+        data-testid="project-needs-area-dialog"
+        cancelButton={{ text: 'Cancel', onClick: () => onOpenChange(false) }}
+        acceptButton={
+          onCreateArea
+            ? {
+                text: 'Create Area',
+                onClick: () => {
+                  onOpenChange(false);
+                  onCreateArea();
+                },
+              }
+            : undefined
+        }
+      />
+    );
+  }
 
   return (
     <FormDialog
@@ -126,6 +209,7 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
     >
       <Form {...form}>
         <div className="space-y-4">
+          {planLimitHit && <PlanLimitAlert />}
           <NameField
             control={form.control}
             label="Project Name"
@@ -136,12 +220,20 @@ export const ProjectDialog = ({ open, onOpenChange, project, onSuccess }: Projec
 
           <DialogFieldGrid columns={2}>
             <ProjectAreaField control={form.control} />
-            <IconField control={form.control} label="Project Icon" delay={0.25} />
+            <IconField control={form.control} label="Project Icon" fieldName="folderIcon" delay={0.25} />
           </DialogFieldGrid>
 
           {isEditMode && <ProjectStatusField control={form.control} />}
 
-          <DueDateField control={form.control} delay={0.3} />
+          <DescriptionField
+            control={form.control}
+            label="Description"
+            placeholder="What's this project about?"
+            optional
+            delay={0.3}
+          />
+
+          <DueDateField control={form.control} delay={0.35} />
           <CheckboxField
             control={form.control}
             label="Mark as favorite"

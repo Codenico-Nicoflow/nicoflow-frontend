@@ -7,13 +7,15 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { BucketQuickInput } from '@/features/Bucket/components/BucketQuickInput';
+import { useIsMobile } from '@/hooks';
 import { cn } from '@/lib/utils';
 
 const QuickAddButton = () => {
   const location = useLocation();
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (location.pathname === '/quick-access/Bucket') {
+  if (location.pathname === '/quick-access/bucket') {
     return null;
   }
 
@@ -23,7 +25,7 @@ const QuickAddButton = () => {
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3, delay: 0.5 }}
-        className="fixed bottom-6 right-6 z-40"
+        className={cn('fixed right-6 z-40', isMobile ? 'bottom-20' : 'bottom-6')}
       >
         <Button
           onClick={() => setIsOpen(true)}

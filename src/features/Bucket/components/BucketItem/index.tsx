@@ -11,7 +11,7 @@ interface BucketItemProps {
   index: number;
   onProcess: (bucket: IBucket) => void;
   onEdit: (bucket: IBucket) => void;
-  onDelete: (bucketId: number) => void;
+  onDelete: (bucketId: string) => void;
 }
 
 export const BucketItem = ({ bucket, index, onProcess, onEdit, onDelete }: BucketItemProps) => {

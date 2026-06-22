@@ -1,67 +1,73 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useForm } from 'react-hook-form';
 import { expect, within } from 'storybook/test';
 
-import { StoryFormWrapper } from '@/stories/helpers';
+import { Form } from '@/components/ui/form';
 
 import { PriorityField } from '.';
 
-const meta: Meta<typeof PriorityField> = {
+type PriorityForm = { priority: 'low' | 'medium' | 'high' };
+
+type StoryArgs = {
+  value: 'low' | 'medium' | 'high';
+  label: string;
+  optional: boolean;
+  delay: number;
+};
+
+const meta: Meta<StoryArgs> = {
   title: 'Components/Fields/PriorityField',
-  component: PriorityField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  args: { value: 'medium', label: 'Priority', optional: false, delay: 0.15 },
   argTypes: {
+    value: { control: 'select', options: ['low', 'medium', 'high'], description: 'Seeds the form value.' },
     label: { control: 'text' },
     optional: { control: 'boolean' },
     delay: { control: 'number' },
   },
+  render: ({ value, ...props }) => {
+    const Demo = () => {
+      const form = useForm<PriorityForm>({ defaultValues: { priority: value } });
+      return (
+        <Form {...form}>
+          <form className="w-[360px]">
+            <PriorityField control={form.control} {...props} />
+          </form>
+        </Form>
+      );
+    };
+    return <Demo />;
+  },
 };
 export default meta;
 
-type Story = StoryObj<typeof PriorityField>;
-
-type PriorityForm = { priority: 'low' | 'medium' | 'high' };
+type Story = StoryObj<StoryArgs>;
 
 export const Low: Story = {
-  render: () => (
-    <StoryFormWrapper<PriorityForm> defaultValues={{ priority: 'low' }}>
-      {control => <PriorityField control={control} />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'low' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/low/i)).toBeInTheDocument();
+    // Radix Select renders the value in the trigger plus a hidden native
+    // <option>; assert on the trigger to avoid the duplicate match.
+    await expect(canvas.getByRole('combobox')).toHaveTextContent(/low/i);
   },
 };
 
 export const Medium: Story = {
-  render: () => (
-    <StoryFormWrapper<PriorityForm> defaultValues={{ priority: 'medium' }}>
-      {control => <PriorityField control={control} />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'medium' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/medium/i)).toBeInTheDocument();
+    await expect(canvas.getByRole('combobox')).toHaveTextContent(/medium/i);
   },
 };
 
 export const High: Story = {
-  render: () => (
-    <StoryFormWrapper<PriorityForm> defaultValues={{ priority: 'high' }}>
-      {control => <PriorityField control={control} />}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'high' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/high/i)).toBeInTheDocument();
+    await expect(canvas.getByRole('combobox')).toHaveTextContent(/high/i);
   },
 };
 
-export const Optional: Story = {
-  render: () => (
-    <StoryFormWrapper<PriorityForm> defaultValues={{ priority: 'medium' }}>
-      {control => <PriorityField control={control} optional />}
-    </StoryFormWrapper>
-  ),
-};
+export const Optional: Story = { args: { optional: true } };

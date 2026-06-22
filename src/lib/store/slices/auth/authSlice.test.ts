@@ -6,7 +6,7 @@ import type { AuthState } from './authSlice';
 import authReducer, { clearAuth, selectIsLoading, selectUser, setIsLoading, setToken, setUser } from './authSlice';
 
 const mockUser: IUser = {
-  id: 1,
+  id: '1',
   email: 'test@example.com',
   firstName: 'Test',
   lastName: 'User',

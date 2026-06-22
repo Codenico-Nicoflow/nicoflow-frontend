@@ -23,7 +23,8 @@ export const WithToken: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByPlaceholderText('••••••••')).toBeInTheDocument();
+    // Reset form has two password inputs (new + confirm).
+    await expect(canvas.getAllByPlaceholderText('••••••••')).toHaveLength(2);
   },
 };
 

@@ -14,7 +14,7 @@ import { type ITask } from '@/lib/types';
 interface TaskActionsProps {
   task: ITask;
   onEdit?: (task: ITask) => void;
-  onDelete?: (taskId: number) => void;
+  onDelete?: (taskId: string) => void;
 }
 
 const TaskActions = ({ task, onEdit, onDelete }: TaskActionsProps) => {

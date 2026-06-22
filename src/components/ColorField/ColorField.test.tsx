@@ -33,7 +33,8 @@ describe('ColorField', () => {
     renderComponent(<TestForm>{control => <ColorField control={control} label="Area Color" />}</TestForm>);
 
     expect(screen.getByText('Area Color')).toBeInTheDocument();
-    expect(screen.getByTestId('color-trigger')).toHaveTextContent('#3B82F6');
+    // Trigger shows the friendly preset name, not the raw hex.
+    expect(screen.getByTestId('color-trigger')).toHaveTextContent('Blue');
   });
 
   it('opens the swatch palette and selecting a swatch updates the form value', async () => {
@@ -45,8 +46,8 @@ describe('ColorField', () => {
     await user.click(screen.getByTestId('color-trigger'));
     expect(screen.getByTestId('color-swatches')).toBeInTheDocument();
 
-    // Ember preset
-    await user.click(screen.getByLabelText('#c4622d'));
+    // Ember preset (swatches are labelled by name now).
+    await user.click(screen.getByLabelText('Ember'));
 
     expect(onState).toHaveBeenLastCalledWith('#c4622d');
   });

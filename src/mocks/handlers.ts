@@ -1,7 +1,8 @@
 import { http, HttpResponse } from 'msw';
 
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-import type { IProject, IUser } from '@/lib/types';
+import type { IArea, IBucket, IProject, ITask, IUser } from '@/lib/types';
+import { TaskPriority, TaskStatus } from '@/lib/types/constants';
 
 export const mockUser: IUser = {
   id: '1',
@@ -44,6 +45,61 @@ export const mockAreaWithProjects: AreaWithProjects = {
   updatedAt: '2026-01-01T00:00:00Z',
   projects: [mockProject],
 };
+
+// ── Factory helpers ───────────────────────────────────────────────────────
+// Current string-ID contract; override per call. Shared by tests and stories
+// so the two never drift (the old src/stories/mocks copy was a stale dupe).
+export const makeUser = (overrides?: Partial<IUser>): IUser => ({ ...mockUser, ...overrides });
+
+export const makeProject = (overrides?: Partial<IProject>): IProject => ({ ...mockProject, ...overrides });
+
+export const makeArea = (overrides?: Partial<IArea>): IArea => ({
+  id: 'area-1',
+  name: 'Work',
+  color: '#c4622d',
+  icon: 'briefcase',
+  displayOrder: 0,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  ...overrides,
+});
+
+export const makeAreaWithProjects = (overrides?: Partial<AreaWithProjects>): AreaWithProjects => ({
+  ...mockAreaWithProjects,
+  ...overrides,
+});
+
+export const makeTask = (overrides?: Partial<ITask>): ITask => ({
+  id: 'task-1',
+  projectId: 'project-1',
+  title: 'Sample Task',
+  notes: null,
+  status: TaskStatus.INBOX,
+  priority: TaskPriority.MEDIUM,
+  dueDate: null,
+  scheduledFor: null,
+  estimatedMinutes: null,
+  url: null,
+  displayOrder: 0,
+  completedAt: null,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  ...overrides,
+});
+
+export const makeBucket = (overrides?: Partial<IBucket>): IBucket => ({
+  id: 'bucket-1',
+  userId: '1',
+  content: 'Sample bucket item content',
+  processedAt: null,
+  processingResult: null,
+  createdTaskId: null,
+  createdNoteId: null,
+  projectId: null,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  ...overrides,
+});
 
 const envelope = <T>(data: T) => ({ data, error: null });
 

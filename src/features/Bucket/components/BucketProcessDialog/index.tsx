@@ -33,11 +33,12 @@ interface BucketProcessDialogProps {
 }
 
 export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProcessDialogProps) => {
-  const { data: projects = [] } = useGetProjectsQuery();
+  const { data: projectsData } = useGetProjectsQuery();
+  const projects = projectsData?.items ?? [];
   const [processBucket, { isLoading }] = useProcessBucketMutation();
   const dispatch = useDispatch();
   const [selectedType, setSelectedType] = useState<ProcessingResult>(ProcessingResult.TASK);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined);
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -53,7 +54,8 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
         setSelectedProjectId(projects[0]?.id);
       }
     }
-  }, [bucket, open, form, projects, selectedProjectId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bucket, open, form, projectsData, selectedProjectId]);
 
   const onSubmit = async (data: TaskFormData) => {
     if (!bucket) return;
@@ -130,6 +132,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
 
                 <NameField
                   control={form.control}
+                  fieldName="title"
                   label="Task Name"
                   icon={CheckSquare}
                   placeholder="Enter task name"
@@ -137,6 +140,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
                 />
                 <DescriptionField
                   control={form.control}
+                  fieldName="notes"
                   label="Description"
                   placeholder="Add task details..."
                   minHeight="100px"

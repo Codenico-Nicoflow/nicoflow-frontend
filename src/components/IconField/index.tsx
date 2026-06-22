@@ -9,7 +9,8 @@ import { ICON_IDS, type IconId } from '@/lib/utils';
 
 interface IconFieldProps<T extends FieldValues> {
   control: Control<T>;
-  label: string;
+  /** Optional label; when omitted the field renders without a label. */
+  label?: string;
   fieldName?: Path<T>;
   delay?: number;
   optional?: boolean;
@@ -31,14 +32,16 @@ export const IconField = <T extends FieldValues>({
         name={fieldName}
         render={({ field }) => (
           <FormItem data-testid={testId ? `${testId}-icon-item` : 'icon-item'}>
-            <FormLabel
-              data-testid={testId ? `${testId}-icon-label` : 'icon-label'}
-              className="text-sm font-semibold text-foreground flex items-center gap-2"
-            >
-              <Sparkles className="h-4 w-4" />
-              {label}
-              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
-            </FormLabel>
+            {label && (
+              <FormLabel
+                data-testid={testId ? `${testId}-icon-label` : 'icon-label'}
+                className="text-sm font-semibold text-foreground flex items-center gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                {label}
+                {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
+              </FormLabel>
+            )}
             <Select onValueChange={field.onChange} value={field.value}>
               <FormControl>
                 <SelectTrigger

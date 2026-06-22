@@ -77,6 +77,7 @@ const updateAreaSchema = z.object({
 const taskSchema = z.object({
   title: z.string().min(1, 'Task title is required').max(255, 'Task title must be less than 255 characters'),
   notes: z.string().optional().nullable(),
+  status: z.enum(['inbox', 'active', 'done', 'cancelled']).optional(),
   priority: z.enum(['low', 'medium', 'high']),
   dueDate: z.date().optional().nullable(),
   scheduledFor: z.enum(['today', 'tomorrow', 'this_week']).optional().nullable(),
@@ -108,6 +109,8 @@ export type RegisterFormData = z.infer<typeof registerSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export type ProjectFormData = z.output<typeof projectSchema>;
+
+export type AreaFormData = z.input<typeof createAreaSchema>;
 
 export type TaskFormData = z.infer<typeof taskSchema>;
 

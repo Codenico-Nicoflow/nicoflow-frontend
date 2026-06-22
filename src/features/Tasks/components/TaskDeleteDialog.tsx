@@ -9,7 +9,7 @@ interface TaskDeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskName: string;
-  taskId: number;
+  taskId: string;
   onSuccess?: () => void;
 }
 

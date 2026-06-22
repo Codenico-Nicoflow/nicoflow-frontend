@@ -7,11 +7,12 @@ import { ICON_IMPORTS, type IconId } from '@/lib/utils';
 interface LazyIconProps {
   iconId: IconId;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 const iconCache = new Map<IconId, React.LazyExoticComponent<React.ComponentType<React.ComponentProps<LucideIcon>>>>();
 
-export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
+export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className, style }) => {
   const LazyIconComponent = useMemo(() => {
     if (!iconId || !ICON_IMPORTS[iconId]) {
       console.error(`Invalid iconId: ${iconId}`);
@@ -43,7 +44,7 @@ export const LazyIcon: React.FC<LazyIconProps> = ({ iconId, className }) => {
 
   return (
     <Suspense fallback={<div className="w-6 h-6 bg-muted rounded animate-pulse" />}>
-      <LazyIconComponent className={className} />
+      <LazyIconComponent className={className} style={style} />
     </Suspense>
   );
 };

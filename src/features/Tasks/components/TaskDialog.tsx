@@ -13,6 +13,7 @@ import {
   FormDialog,
   NameField,
   PriorityField,
+  StatusField,
   UrlField,
 } from '@/components';
 import { Form } from '@/components/ui/form';
@@ -25,7 +26,7 @@ interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: ITask;
-  projectId: number;
+  projectId: string;
   onSuccess?: () => void;
 }
 
@@ -37,8 +38,9 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
 
   const form = useForm<TaskFormData>({
     defaultValues: {
-      name: task?.name || '',
-      description: task?.description || '',
+      title: task?.title || '',
+      notes: task?.notes || '',
+      status: task?.status || 'inbox',
       priority: task?.priority || 'low',
       dueDate: task?.dueDate ? new Date(task.dueDate) : undefined,
       estimatedMinutes: task?.estimatedMinutes || undefined,
@@ -52,8 +54,9 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   useEffect(() => {
     if (task) {
       form.reset({
-        name: task.name,
-        description: task.description || '',
+        title: task.title,
+        notes: task.notes || '',
+        status: task.status || 'inbox',
         priority: task.priority || 'low',
         dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
         estimatedMinutes: task.estimatedMinutes || undefined,
@@ -61,8 +64,9 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       });
     } else {
       form.reset({
-        name: '',
-        description: '',
+        title: '',
+        notes: '',
+        status: 'inbox',
         priority: 'low',
         dueDate: undefined,
         estimatedMinutes: undefined,
@@ -99,11 +103,13 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
       } else {
         await createTask({
-          ...data,
           projectId,
-          dueDate: data.dueDate ? data.dueDate.toISOString() : null,
-          estimatedMinutes:
-            data.estimatedMinutes === null || data.estimatedMinutes === undefined ? null : data.estimatedMinutes,
+          title: data.title,
+          priority: data.priority,
+          notes: data.notes ?? undefined,
+          dueDate: data.dueDate ? data.dueDate.toISOString() : undefined,
+          estimatedMinutes: data.estimatedMinutes ?? undefined,
+          scheduledFor: data.scheduledFor ?? undefined,
           url: data.url || '',
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
@@ -132,6 +138,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         <div className="space-y-4">
           <NameField
             control={form.control}
+            fieldName="title"
             label="Task Name"
             icon={CheckSquare}
             placeholder="Enter task name"
@@ -139,11 +146,15 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           />
           <DescriptionField
             control={form.control}
+            fieldName="notes"
             label="Description"
             placeholder="Add task details..."
             minHeight="100px"
             delay={0.15}
           />
+
+          {/* Status is only settable on existing tasks — new tasks default to inbox server-side. */}
+          {isEditMode && <StatusField control={form.control} delay={0.18} />}
 
           <DialogFieldGrid columns={2}>
             <PriorityField control={form.control} delay={0.2} />

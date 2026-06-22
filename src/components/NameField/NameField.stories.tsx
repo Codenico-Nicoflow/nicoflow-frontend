@@ -6,36 +6,56 @@ import { useForm } from 'react-hook-form';
 import { expect, within } from 'storybook/test';
 
 import { Form } from '@/components/ui/form';
-import { StoryFormWrapper } from '@/stories/helpers';
 
 import { NameField } from '.';
 
-const meta: Meta<typeof NameField> = {
+type NameForm = { name: string };
+
+type StoryArgs = {
+  value: string;
+  label: string;
+  placeholder: string;
+  optional: boolean;
+  delay: number;
+};
+
+const meta: Meta<StoryArgs> = {
   title: 'Components/Fields/NameField',
-  component: NameField,
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
+  args: {
+    value: '',
+    label: 'Project Name',
+    placeholder: 'Enter project name...',
+    optional: false,
+    delay: 0.1,
+  },
   argTypes: {
+    value: { control: 'text', description: 'Seeds the form value.' },
     label: { control: 'text' },
     placeholder: { control: 'text' },
     optional: { control: 'boolean' },
     delay: { control: 'number' },
   },
+  render: ({ value, ...props }) => {
+    const Demo = () => {
+      const form = useForm<NameForm>({ defaultValues: { name: value } });
+      return (
+        <Form {...form}>
+          <form className="w-[400px]">
+            <NameField control={form.control} icon={Folder} {...props} />
+          </form>
+        </Form>
+      );
+    };
+    return <Demo />;
+  },
 };
 export default meta;
 
-type Story = StoryObj<typeof NameField>;
-
-type NameForm = { name: string };
+type Story = StoryObj<StoryArgs>;
 
 export const Default: Story = {
-  render: () => (
-    <StoryFormWrapper<NameForm> defaultValues={{ name: '' }}>
-      {control => (
-        <NameField control={control} label="Project Name" icon={Folder} placeholder="Enter project name..." />
-      )}
-    </StoryFormWrapper>
-  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText(/project name/i)).toBeInTheDocument();
@@ -43,17 +63,10 @@ export const Default: Story = {
 };
 
 export const WithValue: Story = {
-  render: () => (
-    <StoryFormWrapper<NameForm> defaultValues={{ name: 'My Awesome Project' }}>
-      {control => (
-        <NameField control={control} label="Project Name" icon={Folder} placeholder="Enter project name..." />
-      )}
-    </StoryFormWrapper>
-  ),
+  args: { value: 'My Awesome Project' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = canvas.getByDisplayValue('My Awesome Project');
-    await expect(input).toBeInTheDocument();
+    await expect(canvas.getByDisplayValue('My Awesome Project')).toBeInTheDocument();
   },
 };
 
@@ -80,12 +93,4 @@ export const WithError: Story = {
   },
 };
 
-export const Optional: Story = {
-  render: () => (
-    <StoryFormWrapper<NameForm> defaultValues={{ name: '' }}>
-      {control => (
-        <NameField control={control} label="Project Name" icon={Folder} placeholder="Enter project name..." optional />
-      )}
-    </StoryFormWrapper>
-  ),
-};
+export const Optional: Story = { args: { optional: true } };

@@ -27,10 +27,10 @@ describe('EstimatedTimeField', () => {
     expect(screen.getByTestId('estimated-time-input')).toBeInTheDocument();
   });
 
-  it('shows "super minutes" suffix label', () => {
+  it('shows the "minutes" unit suffix', () => {
     renderComponent(<TestForm>{control => <EstimatedTimeField control={control} />}</TestForm>);
 
-    expect(screen.getByText('super minutes')).toBeInTheDocument();
+    expect(screen.getByText('minutes')).toBeInTheDocument();
   });
 
   it('shows "(Optional)" when optional={true}', () => {

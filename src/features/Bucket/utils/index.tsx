@@ -6,7 +6,7 @@ import { showErrorToast, showSuccessToast, type TaskFormData, ToastMessages } fr
 
 /**
  * Parses Bucket content into task form fields
- * First line becomes the task name, rest becomes description
+ * First line becomes the task title, rest becomes notes
  */
 export const parseBucketContent = (content: string) => {
   const lines = content.split('\n');
@@ -14,8 +14,8 @@ export const parseBucketContent = (content: string) => {
   const restLines = lines.slice(1).join('\n').trim();
 
   return {
-    name: firstLine,
-    description: restLines || '',
+    title: firstLine,
+    notes: restLines || '',
   };
 };
 
@@ -24,7 +24,7 @@ export const parseBucketContent = (content: string) => {
  */
 export const canProcessBucket = (
   selectedType: ProcessingResult,
-  selectedProjectId: number | undefined,
+  selectedProjectId: string | undefined,
   hasProjects: boolean
 ): boolean => {
   switch (selectedType) {
@@ -44,9 +44,9 @@ export const canProcessBucket = (
 // ============================================
 
 export interface ProcessBucketParams {
-  bucketId: number;
+  bucketId: string;
   selectedType: ProcessingResult;
-  selectedProjectId?: number;
+  selectedProjectId?: string;
   taskData?: TaskFormData;
 }
 
@@ -66,8 +66,8 @@ export const buildProcessBucketDto = ({
       }
 
       const taskDetails: TaskDetails = {
-        name: taskData.name,
-        description: taskData.description || undefined,
+        title: taskData.title,
+        notes: taskData.notes || undefined,
         priority: taskData.priority,
         dueDate: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined,
         estimatedMinutes: taskData.estimatedMinutes || undefined,
@@ -103,7 +103,7 @@ export const handleBucketProcess = async ({
   processBucketMutation,
   onSuccess,
 }: ProcessBucketParams & {
-  processBucketMutation: (args: { id: number; data: ProcessBucketDto }) => Promise<unknown>;
+  processBucketMutation: (args: { id: string; data: ProcessBucketDto }) => Promise<unknown>;
   onSuccess: () => void;
 }): Promise<void> => {
   try {
@@ -147,10 +147,10 @@ export const handleBucketProcess = async ({
  */
 export const getDefaultTaskFormValues = (bucketContent?: string): TaskFormData => {
   if (bucketContent) {
-    const { name, description } = parseBucketContent(bucketContent);
+    const { title, notes } = parseBucketContent(bucketContent);
     return {
-      name,
-      description,
+      title,
+      notes,
       priority: 'low',
       dueDate: null,
       estimatedMinutes: null,
@@ -159,8 +159,8 @@ export const getDefaultTaskFormValues = (bucketContent?: string): TaskFormData =
   }
 
   return {
-    name: '',
-    description: '',
+    title: '',
+    notes: '',
     priority: 'low',
     dueDate: null,
     estimatedMinutes: null,

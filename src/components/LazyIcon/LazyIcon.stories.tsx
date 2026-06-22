@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { expect, within } from 'storybook/test';
+import { expect, waitFor } from 'storybook/test';
 
 import { ICON_IDS } from '@/lib/utils';
 
@@ -25,9 +25,9 @@ export const SingleIcon: Story = {
     className: 'w-6 h-6 text-foreground',
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const svg = await canvas.findByRole('img', { hidden: true });
-    await expect(svg ?? canvasElement.querySelector('svg')).toBeTruthy();
+    // Lucide renders an aria-hidden <svg> (no img role); LazyIcon loads it
+    // lazily, so wait until the svg mounts.
+    await waitFor(() => expect(canvasElement.querySelector('svg')).toBeTruthy());
   },
 };
 

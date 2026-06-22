@@ -17,6 +17,7 @@ const renderResetPassword = (token?: string) => {
 
 const fillAndSubmitReset = async (user: ReturnType<typeof userEvent.setup>, password = 'NewPassword1') => {
   const [newPass, confirmPass] = screen.getAllByPlaceholderText('••••••••');
+  if (!newPass || !confirmPass) throw new Error('Expected two password inputs');
   await user.type(newPass, password);
   await user.type(confirmPass, password);
   await user.click(screen.getByRole('button', { name: /reset password/i }));

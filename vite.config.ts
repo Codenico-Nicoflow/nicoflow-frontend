@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
@@ -24,17 +25,6 @@ export default defineConfig({
     },
   },
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./__tests__/setup.ts'],
-    exclude: ['node_modules', 'dist', 'e2e/**'],
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      __tests__: path.resolve(__dirname, './__tests__'),
-    },
-    globals: true,
-    typecheck: {
-      tsconfig: './tsconfig.test.json',
-    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov', 'cobertura'],
@@ -43,9 +33,43 @@ export default defineConfig({
         '__tests__/',
         '**/*.test.{ts,tsx}',
         '**/*.spec.{ts,tsx}',
+        '**/*.stories.{ts,tsx}',
         '**/dist/**',
         '**/coverage/**',
       ],
     },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          setupFiles: ['./__tests__/setup.ts'],
+          include: ['src/**/*.test.{ts,tsx}', '__tests__/**/*.test.{ts,tsx}'],
+          exclude: ['node_modules', 'dist', 'e2e/**'],
+          globals: true,
+          typecheck: {
+            tsconfig: './tsconfig.test.json',
+          },
+        },
+      },
+      {
+        extends: true,
+        plugins: [storybookTest({ configDir: path.join(__dirname, '.storybook') })],
+        test: {
+          name: 'storybook',
+          // Run story files serially: parallel browser contexts race on the
+          // shared MSW worker / portal root and flake intermittently.
+          fileParallelism: false,
+          browser: {
+            enabled: true,
+            provider: 'playwright',
+            headless: true,
+            instances: [{ browser: 'chromium' }],
+          },
+          setupFiles: ['./.storybook/vitest.setup.ts'],
+        },
+      },
+    ],
   },
 });

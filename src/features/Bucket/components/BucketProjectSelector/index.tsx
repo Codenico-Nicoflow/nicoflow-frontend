@@ -2,8 +2,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { IProject } from '@/lib/types';
 
 interface BucketProjectSelectorProps {
-  selectedProjectId: number | undefined;
-  setSelectedProjectId: (projectId: number) => void;
+  selectedProjectId: string | undefined;
+  setSelectedProjectId: (projectId: string) => void;
   projects: IProject[];
 }
 
@@ -15,13 +15,13 @@ export const BucketProjectSelector = ({
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Project *</label>
-      <Select value={selectedProjectId?.toString()} onValueChange={value => setSelectedProjectId(Number(value))}>
+      <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
         <SelectTrigger className="h-10">
           <SelectValue placeholder="Select a project" />
         </SelectTrigger>
         <SelectContent>
           {projects.map(project => (
-            <SelectItem key={project.id} value={project.id.toString()}>
+            <SelectItem key={project.id} value={project.id}>
               {project.name}
             </SelectItem>
           ))}

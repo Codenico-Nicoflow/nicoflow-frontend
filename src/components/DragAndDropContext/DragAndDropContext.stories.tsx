@@ -1,6 +1,7 @@
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Folder } from 'lucide-react';
+import { expect, within } from 'storybook/test';
 
 import { mockProject } from '@/stories/mocks';
 
@@ -16,7 +17,7 @@ export default meta;
 
 type Story = StoryObj<typeof DragAndDropContext>;
 
-const project = mockProject({ id: 1, name: 'Website Redesign', areaId: 1 });
+const project = mockProject({ id: 'project-1', name: 'Website Redesign', areaId: 'area-1' });
 
 const DraggableProject = () => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -65,4 +66,10 @@ export const Default: Story = {
       </div>
     </DragAndDropContext>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Website Redesign')).toBeInTheDocument();
+    await expect(canvas.getByText('Work')).toBeInTheDocument();
+    await expect(canvas.getByText('Personal')).toBeInTheDocument();
+  },
 };

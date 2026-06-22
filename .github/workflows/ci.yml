@@ -44,6 +44,10 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        # Vitest browser-mode (Storybook addon-vitest) runs story play() tests in a real
+        # browser, so the unit-test job needs Chromium installed just like test-e2e does.
+        run: npx playwright install chromium --with-deps
       - name: Run tests
         run: pnpm test
       - uses: actions/upload-artifact@v4

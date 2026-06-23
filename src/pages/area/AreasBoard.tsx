@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 
+import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { Layers, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { DragAndDropContext, EmptyState, PlanLimitAlert } from '@/components';
+import { areaDragId } from '@/components/DragAndDropContext/resolveDragEnd';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -121,11 +123,13 @@ const AreasBoard = () => {
             data-testid="board-empty"
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="areas-grid">
-            {sortedAreas.map((area, index) => (
-              <AreaCard key={area.id} area={area} index={index} data-testid={`area-card-${area.id}`} />
-            ))}
-          </div>
+          <SortableContext items={sortedAreas.map(a => areaDragId(a.id))} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="areas-grid">
+              {sortedAreas.map((area, index) => (
+                <AreaCard key={area.id} area={area} index={index} data-testid={`area-card-${area.id}`} />
+              ))}
+            </div>
+          </SortableContext>
         )}
       </div>
 

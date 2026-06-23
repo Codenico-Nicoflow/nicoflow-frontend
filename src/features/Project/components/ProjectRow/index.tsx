@@ -1,9 +1,12 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { format } from 'date-fns';
-import { Calendar, Pencil, SquareArrowOutUpRight, Star, Trash2 } from 'lucide-react';
+import { Calendar, GripVertical, Pencil, SquareArrowOutUpRight, Star, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { ItemActionsMenu, LazyIcon } from '@/components';
+import { projectDragId } from '@/components/DragAndDropContext/resolveDragEnd';
 import { Badge } from '@/components/ui/badge';
 import type { IconId, IProject } from '@/lib/types';
 import { cn, getProjectStatusColor } from '@/lib/utils';
@@ -20,10 +23,18 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
   const navigate = useNavigate();
   const open = () => navigate(`/projects/${project.id}`);
 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: projectDragId(project.id),
+    data: { project },
+  });
+  const style = { transform: CSS.Translate.toString(transform), transition, opacity: isDragging ? 0.4 : 1 };
+
   const isOverdue = !!project.dueDate && new Date() > new Date(project.dueDate) && project.status === 'active';
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       role="button"
       tabIndex={0}
       onClick={open}
@@ -31,6 +42,17 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
       data-testid={testId || 'project-row'}
       className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors cursor-pointer"
     >
+      <button
+        type="button"
+        aria-label={t('row.dragHandle')}
+        className="shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity touch-none"
+        onClick={e => e.stopPropagation()}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+
       <LazyIcon iconId={(project.folderIcon as IconId) || 'folder'} className="h-4 w-4 shrink-0 text-primary" />
 
       <span className="flex-1 min-w-0 truncate text-sm font-medium text-foreground">{project.name}</span>

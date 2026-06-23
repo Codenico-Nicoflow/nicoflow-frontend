@@ -33,8 +33,9 @@
   "card": {
     "noProjects": "Проектов пока нет — добавьте один ниже.",
     "addProject": "Добавить проект",
+    "dragHandle": "Перетащите, чтобы изменить порядок области",
     "confirmDeleteTitle": "Удалить область",
-    "confirmDeleteDescription": "Вы уверены, что хотите удалить <name>{{name}}</name>? Её проекты будут отвязаны, но не удалены.",
+    "confirmDeleteDescription": "Вы уверены, что хотите удалить <name>{{name}}</name>? Все проекты в этой области будут безвозвратно удалены.",
     "confirmDeleteButton": "Удалить область"
   },
   "contextMenu": {

@@ -78,6 +78,24 @@ export const areaApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<ReorderAreasResponse>) => raw.data,
       transformErrorResponse: error => error.data,
+      // Optimistically reorder the board cache; roll back on failure.
+      onQueryStarted: async ({ items }, { dispatch, queryFulfilled }) => {
+        const orderById = new Map(items.map(i => [i.id, i.displayOrder]));
+        const patch = dispatch(
+          areaApi.util.updateQueryData('getAreasWithProjects', undefined, draft => {
+            for (const area of draft) {
+              const next = orderById.get(area.id);
+              if (next !== undefined) area.displayOrder = next;
+            }
+            draft.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
       invalidatesTags: ['Area'],
     }),
   }),

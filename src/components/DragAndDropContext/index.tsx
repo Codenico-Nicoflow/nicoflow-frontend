@@ -12,18 +12,26 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
-import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 import { LazyIcon } from '@/components';
-import { areaApi, invalidateApiTags, useUpdateProjectMutation } from '@/lib/store';
+import {
+  useGetAreasWithProjectsQuery,
+  useReorderAreasMutation,
+  useReorderProjectsMutation,
+  useUpdateProjectMutation,
+} from '@/lib/store';
 import type { IProject } from '@/lib/types';
 import type { IconId } from '@/lib/utils';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
+import { resolveDragEnd } from './resolveDragEnd';
+
 export const DragAndDropContext = ({ children }: { children: React.ReactNode }) => {
+  const { data: areas } = useGetAreasWithProjectsQuery();
   const [updateProject] = useUpdateProjectMutation();
-  const dispatch = useDispatch();
+  const [reorderProjects] = useReorderProjectsMutation();
+  const [reorderAreas] = useReorderAreasMutation();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeProject, setActiveProject] = useState<IProject | null>(null);
 
@@ -34,79 +42,38 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
-    setActiveProject(event.active.data.current?.project);
+    setActiveProject(event.active.data.current?.project ?? null);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
+    resetActiveState();
     const { active, over } = event;
-
-    if (!over) {
-      resetActiveState();
-      return;
-    }
-
-    if (active.id === over.id) {
-      resetActiveState();
-      return;
-    }
-
-    const activeIdValue = active.id.toString();
-    const overIdValue = over.id.toString();
+    const action = resolveDragEnd(active.id?.toString(), over?.id?.toString(), areas ?? []);
 
     try {
-      if (activeIdValue.startsWith('project-') && overIdValue.startsWith('area-')) {
-        const projectId = activeIdValue.replace('project-', '');
-        const targetAreaId = overIdValue.replace('area-', '');
-
-        if (!projectId || !targetAreaId) {
-          showErrorToast(ToastMessages.INVALID_DROP_TARGET, toast);
-          return;
-        }
-
-        const projectData = active.data.current?.project;
-        const currentAreaId = projectData?.areaId;
-
-        if (currentAreaId === targetAreaId) {
-          return;
-        }
-
-        await updateProject({
-          id: projectId,
-          areaId: targetAreaId,
-        }).unwrap();
-
-        invalidateApiTags(dispatch, areaApi, ['Area'] as const);
-
-        showSuccessToast(ToastMessages.PROJECT_MOVED, toast);
-      } else {
-        showErrorToast(ToastMessages.INVALID_DROP_TARGET, toast);
+      switch (action.kind) {
+        case 'move-project':
+          await updateProject({ id: action.projectId, areaId: action.targetAreaId }).unwrap();
+          showSuccessToast(ToastMessages.PROJECT_MOVED, toast);
+          break;
+        case 'reorder-projects':
+          // Optimistic cache update + rollback live in the mutation's onQueryStarted.
+          await reorderProjects({ items: action.items }).unwrap();
+          break;
+        case 'reorder-areas':
+          await reorderAreas({ items: action.items }).unwrap();
+          break;
+        case 'noop':
+          break;
       }
     } catch (error) {
       showErrorToast(error, toast);
-    } finally {
-      resetActiveState();
     }
   };
 
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: {
-      distance: 8,
-    },
-  });
-
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 150,
-      tolerance: 10,
-    },
-  });
-
-  const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 8,
-    },
-  });
-
+  const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 8 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 10 } });
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 8 } });
   const sensors = useSensors(pointerSensor, mouseSensor, touchSensor);
 
   return (

@@ -11,6 +11,7 @@ export const mockUser: IUser = {
   lastName: 'User',
   username: 'testuser',
   theme: 'light',
+  language: 'en',
   imageUrl: '',
   status: 'regular',
 };
@@ -110,6 +111,10 @@ export const handlers = [
   http.get('http://localhost:8080/v1/tasks', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/bucket', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/users/profile', () => HttpResponse.json(envelope(mockUser))),
+  http.patch('http://localhost:8080/v1/users/me', async ({ request }) => {
+    const body = (await request.json()) as Partial<IUser>;
+    return HttpResponse.json(envelope({ ...mockUser, ...body }));
+  }),
 
   http.post('http://localhost:8080/v1/auth/login', () => HttpResponse.json(envelope(mockAuthResponse))),
   http.post('http://localhost:8080/v1/auth/register', () => HttpResponse.json(envelope(mockAuthResponse))),

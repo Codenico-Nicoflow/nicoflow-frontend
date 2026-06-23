@@ -13,6 +13,7 @@ import type {
   RegisterRequest,
   ResendVerificationRequest,
   ResetPasswordRequest,
+  UpdateProfileRequest,
   VerifyEmailRequest,
 } from './type';
 
@@ -120,6 +121,22 @@ export const authApi = createApi({
       },
       providesTags: ['User'],
     }),
+    updateProfile: builder.mutation<IUser, UpdateProfileRequest>({
+      query: body => ({
+        url: AUTH_API.UPDATE_PROFILE,
+        method: 'PATCH',
+        body,
+        credentials: 'include',
+      }),
+      transformResponse: (raw: ApiEnvelope<IUser>) => raw.data,
+      // Persist the returned user back into the auth slice so the rest of the app
+      // (and the persisted store) immediately reflects the new theme/language.
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+        dispatch(setUser(data));
+      },
+      invalidatesTags: ['User'],
+    }),
     refreshToken: builder.mutation<AuthResponse, void>({
       query: () => ({
         url: AUTH_API.REFRESH_TOKEN,
@@ -142,5 +159,6 @@ export const {
   useVerifyEmailMutation,
   useResendVerificationMutation,
   useGetCurrentUserQuery,
+  useUpdateProfileMutation,
   useRefreshTokenMutation,
 } = authApi;

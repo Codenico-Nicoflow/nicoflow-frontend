@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PreferencesCard } from '@/features/Settings/PreferencesCard';
 import { useAppUser } from '@/lib/store';
 import { USER_STATUS } from '@/lib/types';
 
@@ -43,6 +44,8 @@ const Settings = () => {
           </div>
         </CardContent>
       </Card>
+
+      <PreferencesCard />
 
       {isFree && (
         <Card className="border-primary/20 bg-accent">

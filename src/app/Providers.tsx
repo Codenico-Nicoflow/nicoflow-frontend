@@ -7,6 +7,8 @@ import { LoadingOverlayProvider, ThemeProvider, Toaster } from '@/components';
 import i18n from '@/lib/i18n';
 import { persistor, store } from '@/lib/store';
 
+import { PreferencesSync } from './PreferencesSync';
+
 // Session handling: the access token is memory-only (not persisted) — on reload
 // only the `user` rehydrates. We deliberately do NOT eagerly refresh the token
 // on load. Instead the app renders, trusting the persisted user, and the first
@@ -25,6 +27,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           <BrowserRouter>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
               <LoadingOverlayProvider>
+                <PreferencesSync />
                 {children}
                 <Toaster />
               </LoadingOverlayProvider>

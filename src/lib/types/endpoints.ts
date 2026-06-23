@@ -9,6 +9,7 @@ export const AUTH_API = {
   VERIFY_EMAIL: '/auth/verify-email',
   RESEND_VERIFICATION: '/auth/resend-verification',
   GET_CURRENT_USER: '/users/profile',
+  UPDATE_PROFILE: '/users/me',
 };
 
 export const PROJECT_API = {

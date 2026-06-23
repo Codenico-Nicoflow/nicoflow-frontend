@@ -1,0 +1,54 @@
+{
+  "title": "Inbox",
+  "addPlaceholder": "Capture a thought…",
+  "empty": "Your inbox is empty",
+  "actions": {
+    "process": "Process",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "process": {
+    "title": "Process item",
+    "asTask": "Task",
+    "asNote": "Note",
+    "asTrash": "Trash"
+  },
+  "deleteDialog": {
+    "title": "Delete Bucket Item",
+    "description": "Are you sure you want to delete this bucket item? This action cannot be undone.",
+    "confirmLabel": "Delete"
+  },
+  "editDialog": {
+    "title": "Edit Bucket",
+    "description": "Update the content of your bucket item.",
+    "contentLabel": "Content",
+    "contentPlaceholder": "What's on your mind?"
+  },
+  "quickInput": {
+    "defaultPlaceholder": "Capture anything on your mind...",
+    "submit": "Add to Bucket",
+    "submitting": "Adding..."
+  },
+  "processDialog": {
+    "title": "Process Bucket Item",
+    "description": "Transform this item into a task, note, or idea for later.",
+    "originalContent": "Original Content:",
+    "processAs": "Process as:",
+    "noProjects": "You need to create at least one project before converting bucket items to tasks.",
+    "taskNameLabel": "Task Name",
+    "taskNamePlaceholder": "Enter task name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Add task details...",
+    "trashAlert": "This item will be marked as trash for analytics purposes.",
+    "noteAlert": "This feature is coming soon! Stay tuned.",
+    "soon": "Soon"
+  },
+  "projectSelector": {
+    "label": "Project *",
+    "placeholder": "Select a project"
+  },
+  "list": {
+    "emptyTitle": "Your bucket is empty",
+    "emptyDescription": "Capture anything on your mind using the quick input above. Process it later into tasks, notes, or ideas."
+  }
+}

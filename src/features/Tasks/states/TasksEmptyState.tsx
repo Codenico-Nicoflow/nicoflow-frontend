@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { CheckSquare, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +10,8 @@ interface TasksEmptyStateProps {
 }
 
 const TasksEmptyState = ({ onAddTask }: TasksEmptyStateProps) => {
+  const { t } = useTranslation('task');
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -34,10 +37,8 @@ const TasksEmptyState = ({ onAddTask }: TasksEmptyStateProps) => {
             transition={{ delay: 0.6, duration: 0.4 }}
             className="space-y-4"
           >
-            <h3 className="text-xl font-semibold text-foreground">No tasks yet</h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Start organizing your work by creating your first task. Break down your project into manageable pieces.
-            </p>
+            <h3 className="text-xl font-semibold text-foreground">{t('empty.title')}</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">{t('empty.description')}</p>
           </motion.div>
 
           <motion.div
@@ -51,8 +52,8 @@ const TasksEmptyState = ({ onAddTask }: TasksEmptyStateProps) => {
               size="lg"
               className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              <Plus className="h-5 w-5 mr-2" />
-              Create Your First Task
+              <Plus className="h-5 w-5 me-2" />
+              {t('empty.createFirstTask')}
             </Button>
           </motion.div>
         </CardContent>

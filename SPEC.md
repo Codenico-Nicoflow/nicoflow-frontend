@@ -1424,3 +1424,32 @@ These are the exact constants defined in `internal/apperror/errors.go` of the Go
 | `SERVICE_UNAVAILABLE`     | 503         | Downstream service (AI provider, S3, etc.) is unreachable                         |
 
 > **Frontend note:** All RTK Query error responses will have `error.data.error.code` set to one of the above strings. Use these constants (not HTTP status codes) for conditional error handling in the UI.
+
+---
+
+## §10 Internationalization (i18n)
+
+> Code-canonical summary of the i18n architecture. Product rationale and the deferred email-localization epic live in Confluence space `NI`.
+
+Nicoflow ships in **English (`en`)**, **Hebrew (`he`)**, and **Russian (`ru`)**. `en` is the source-of-record and the fallback (`fallbackLng: 'en'`). Hebrew is **RTL**.
+
+### Ownership
+
+- **The frontend owns ~all user-facing copy.** It uses `react-i18next` with namespaced JSON locale files; UI strings, form labels, and toast/error messages are resolved client-side via `t('...')`.
+- **The backend emits almost no user-facing prose.** API error `message` fields are **developer-facing only** — the frontend localizes by mapping `error.code` (§4) to its own string and ignores the backend `message`. The only user-facing prose the API produces is the **2 transactional emails** (verify, reset), which remain **English-only for now** (see "Deferred").
+
+### Frontend architecture (`nicoflow-frontend`, live app in `src/`)
+
+- Library: `react-i18next` + `i18next` + `i18next-browser-languagedetector`. Config: `src/lib/i18n/index.ts`.
+- **Namespaces:** `common`, `auth`, `area`, `project`, `task`, `bucket`, `nav`, `errors` (`defaultNS: 'common'`). Locale files: `src/lib/i18n/locales/{en,he,ru}/<ns>.json`.
+- **Type-safe keys:** `src/lib/i18n/i18next.d.ts` derives the key type from the EN resource shape, so a missing/typo'd key fails `tsc` (consistent with the no-`any` rule). he/ru barrels are checked `satisfies Record<keyof Resources, unknown>` (permits CLDR plural variants like Russian `_few`/`_many`).
+- **`errors.json` ≡ error codes.** The `errors` namespace keys are exactly the §4 error-code strings (plus success-toast keys). `showErrorToast`/`showSuccessToast` (`src/lib/utils/utils/helpers.ts`) resolve `error.code` → `errors:<CODE>` with a `GENERAL_ERROR` fallback. **`error.code` (§4) is therefore the localization key** — adding/renaming an error code is a cross-repo change that must also land in the three `errors.json` files.
+- **Language preference:** stored in `localStorage('nicoflow-lang')` (mirrors the `next-themes` `nicoflow-theme` convention); detected via `localStorage` → `navigator`. **No server-side persistence** (see Deferred).
+- **RTL:** on language change an `i18n.on('languageChanged')` listener sets `<html lang>` and `<html dir>` from `i18n.dir(lng)` (`'rtl'` for `he`). Layout mirroring uses **logical Tailwind properties** (`ms-/me-/ps-/pe-/start-/end-/text-start/text-end`), not physical `left/right`. Directional icons use `rtl:rotate-180`.
+- **Switcher:** `src/components/LanguageSwitcher` (en/he/ru in native script), mounted in the Topbar.
+
+### Deferred (documented, not built)
+
+- **Localized transactional emails.** Requires a `users.language` column (migration), exposing it on the profile `PATCH`/`UserView`, plumbing stored language (or `Accept-Language`) into `pkg/emailutil/email.go`, and translating the 2 templates. Until then emails are English. This also enables **cross-device** language persistence (vs. the current `localStorage`-only).
+- Locale-aware number/date/currency formatting beyond i18next defaults (revisit with billing).
+- Languages beyond en/he/ru.

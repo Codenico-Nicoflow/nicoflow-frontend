@@ -1,11 +1,12 @@
 import { format } from 'date-fns';
 import { Calendar, Pencil, SquareArrowOutUpRight, Star, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { ItemActionsMenu, LazyIcon } from '@/components';
 import { Badge } from '@/components/ui/badge';
 import type { IconId, IProject } from '@/lib/types';
-import { capitalize, cn, getProjectStatusColor } from '@/lib/utils';
+import { cn, getProjectStatusColor } from '@/lib/utils';
 
 interface ProjectRowProps {
   project: IProject;
@@ -15,6 +16,7 @@ interface ProjectRowProps {
 }
 
 export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }: ProjectRowProps) => {
+  const { t } = useTranslation('project');
   const navigate = useNavigate();
   const open = () => navigate(`/projects/${project.id}`);
 
@@ -48,16 +50,20 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
       )}
 
       <Badge variant="secondary" className={cn('hidden sm:inline-flex text-xs', getProjectStatusColor(project.status))}>
-        {capitalize(project.status)}
+        {
+          { active: t('status.active'), completed: t('status.completed'), archived: t('status.archived') }[
+            project.status
+          ]
+        }
       </Badge>
 
       <ItemActionsMenu
         triggerClassName="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
         data-testid={testId ? `${testId}-actions` : 'project-row-actions'}
         actions={[
-          { label: 'Open', icon: SquareArrowOutUpRight, onClick: open },
-          { label: 'Edit', icon: Pencil, onClick: onEdit },
-          { label: 'Delete', icon: Trash2, onClick: onDelete, destructive: true },
+          { label: t('row.open'), icon: SquareArrowOutUpRight, onClick: open },
+          { label: t('row.edit'), icon: Pencil, onClick: onEdit },
+          { label: t('row.delete'), icon: Trash2, onClick: onDelete, destructive: true },
         ]}
       />
     </div>

@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components';
@@ -12,6 +13,7 @@ interface BucketDeleteDialogProps {
 }
 
 export const BucketDeleteDialog = ({ bucketId, open, onOpenChange }: BucketDeleteDialogProps) => {
+  const { t } = useTranslation('bucket');
   const [deleteBucket, { isLoading }] = useDeleteBucketMutation();
 
   const handleDelete = async () => {
@@ -29,11 +31,11 @@ export const BucketDeleteDialog = ({ bucketId, open, onOpenChange }: BucketDelet
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete Bucket Item"
-      description="Are you sure you want to delete this bucket item? This action cannot be undone."
+      title={t('deleteDialog.title')}
+      description={t('deleteDialog.description')}
       icon={Trash2}
       variant="danger"
-      confirmLabel="Delete"
+      confirmLabel={t('deleteDialog.confirmLabel')}
       onConfirm={handleDelete}
       isLoading={isLoading}
       destructive

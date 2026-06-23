@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FolderKanban, FolderOpen, Star } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -59,6 +60,7 @@ export const ProjectDialog = ({
   onCreateArea,
   defaultAreaId,
 }: ProjectDialogProps) => {
+  const { t } = useTranslation(['project', 'common']);
   const isEditMode = !!project;
 
   const [createProject, { isLoading: isCreateLoading }] = useCreateProjectMutation();
@@ -176,14 +178,14 @@ export const ProjectDialog = ({
       <CustomDialog
         open={open}
         onOpenChange={onOpenChange}
-        title="Create an Area first"
-        description="Projects live inside Areas. Create an Area before adding a project."
+        title={t('project:dialog.noAreaTitle')}
+        description={t('project:dialog.noAreaDescription')}
         data-testid="project-needs-area-dialog"
-        cancelButton={{ text: 'Cancel', onClick: () => onOpenChange(false) }}
+        cancelButton={{ text: t('common:actions.cancel'), onClick: () => onOpenChange(false) }}
         acceptButton={
           onCreateArea
             ? {
-                text: 'Create Area',
+                text: t('project:dialog.createAreaButton'),
                 onClick: () => {
                   onOpenChange(false);
                   onCreateArea();
@@ -199,8 +201,8 @@ export const ProjectDialog = ({
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEditMode ? 'Edit Project' : 'Create New Project'}
-      description={isEditMode ? 'Update Project details' : 'Add a new Project to organize your Tasks'}
+      title={isEditMode ? t('project:dialog.editTitle') : t('project:dialog.createTitle')}
+      description={isEditMode ? t('project:dialog.editDescription') : t('project:dialog.createDescription')}
       icon={FolderKanban}
       isEditMode={isEditMode}
       isLoading={isCreateLoading || isUpdateLoading || isAreasLoading}
@@ -213,9 +215,9 @@ export const ProjectDialog = ({
           {planLimitHit && <PlanLimitAlert />}
           <NameField
             control={form.control}
-            label="Project Name"
+            label={t('project:dialog.nameLabel')}
             icon={FolderOpen}
-            placeholder="Enter your project name"
+            placeholder={t('project:dialog.namePlaceholder')}
             delay={0.1}
           />
 
@@ -228,8 +230,8 @@ export const ProjectDialog = ({
 
           <DescriptionField
             control={form.control}
-            label="Description"
-            placeholder="What's this project about?"
+            label={t('project:dialog.descriptionLabel')}
+            placeholder={t('project:dialog.descriptionPlaceholder')}
             optional
             delay={0.3}
           />
@@ -237,8 +239,8 @@ export const ProjectDialog = ({
           <DueDateField control={form.control} delay={0.35} />
           <CheckboxField
             control={form.control}
-            label="Mark as favorite"
-            description="This project will appear in your favorites"
+            label={t('project:dialog.favoriteLabel')}
+            description={t('project:dialog.favoriteDescription')}
             icon={Star}
             fieldName="isFavorite"
             delay={0.4}

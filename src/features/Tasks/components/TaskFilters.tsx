@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 import { Badge } from '@/components/ui/badge';
 import { TaskStatus } from '@/lib/types';
@@ -16,19 +17,21 @@ interface TaskFiltersProps {
   };
 }
 
-const filters = [
-  { value: 'all', label: 'All', key: 'all' },
-  { value: TaskStatus.INBOX, label: 'Inbox', key: 'inbox' },
-  { value: TaskStatus.ACTIVE, label: 'Active', key: 'active' },
-  { value: TaskStatus.DONE, label: 'Done', key: 'done' },
-  { value: TaskStatus.CANCELLED, label: 'Cancelled', key: 'cancelled' },
-];
-
 const TaskFilters = ({ activeFilter, onFilterChange, taskCounts }: TaskFiltersProps) => {
+  const { t } = useTranslation('task');
+
+  const filters = [
+    { value: 'all', labelKey: 'filters.all', countKey: 'all' },
+    { value: TaskStatus.INBOX, labelKey: 'filters.inbox', countKey: 'inbox' },
+    { value: TaskStatus.ACTIVE, labelKey: 'filters.active', countKey: 'active' },
+    { value: TaskStatus.DONE, labelKey: 'filters.done', countKey: 'done' },
+    { value: TaskStatus.CANCELLED, labelKey: 'filters.cancelled', countKey: 'cancelled' },
+  ] as const;
+
   return (
     <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full">
       {filters.map(filter => {
-        const count = taskCounts[filter.key as keyof typeof taskCounts];
+        const count = taskCounts[filter.countKey];
         const isActive = activeFilter === filter.value;
 
         return (
@@ -45,7 +48,7 @@ const TaskFilters = ({ activeFilter, onFilterChange, taskCounts }: TaskFiltersPr
                 : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
             )}
           >
-            {filter.label}
+            {t(filter.labelKey)}
             <Badge
               variant={isActive ? 'secondary' : 'outline'}
               className={cn(

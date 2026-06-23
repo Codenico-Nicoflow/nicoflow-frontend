@@ -1,0 +1,89 @@
+{
+  "appName": "Nicoflow",
+  "actions": {
+    "cancel": "ביטול",
+    "save": "שמירת שינויים",
+    "create": "יצירה",
+    "saving": "שומר...",
+    "creating": "יוצר...",
+    "confirm": "אישור",
+    "delete": "מחיקה",
+    "edit": "עריכה",
+    "process": "עיבוד",
+    "goHome": "חזרה לדף הבית",
+    "search": "חיפוש…",
+    "back": "חזרה"
+  },
+  "language": {
+    "label": "שפה",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
+  },
+  "fields": {
+    "dueDateLabel": "תאריך יעד",
+    "pickDate": "בחרו תאריך",
+    "optional": "(אופציונלי)",
+    "priorityLabel": "עדיפות",
+    "priorityPlaceholder": "בחרו עדיפות",
+    "statusLabel": "סטטוס",
+    "statusPlaceholder": "בחרו סטטוס",
+    "estimatedTimeLabel": "זמן משוער",
+    "estimatedTimePlaceholder": "הזינו זמן משוער",
+    "minutes": "דקות",
+    "urlLabel": "קישור"
+  },
+  "loading": "טוען…",
+  "comingSoon": "בקרוב",
+  "pages": {
+    "error404": {
+      "code": "404",
+      "title": "אופס! הדף לא נמצא",
+      "body": "הדף שחיפשתם אינו כאן. בואו נחזיר אתכם ל-Nicoflow שבו הדברים מתבצעים."
+    },
+    "settings": {
+      "title": "הגדרות",
+      "accountSection": "חשבון",
+      "aboutSection": "אודות ומשפטי",
+      "freePlan": "תוכנית חינמית",
+      "proPlan": "תוכנית Pro",
+      "upgradeTitle": "שדרגו ל-PRO",
+      "upgradeDescription": "קבלו ניסיון חינם לחודש ופתחו תחומים, פרויקטים, AI ועוד ללא הגבלה.",
+      "upgradeButton": "שדרוג",
+      "links": {
+        "terms": "תנאי שימוש",
+        "privacy": "מדיניות פרטיות",
+        "help": "עזרה ומידע"
+      }
+    },
+    "profile": {
+      "title": "פרופיל"
+    },
+    "helpAndInformation": {
+      "title": "עזרה ומידע"
+    },
+    "termsOfService": {
+      "title": "תנאי שימוש",
+      "lastUpdated": "עודכן לאחרונה: 1 בינואר 2025",
+      "s1Title": "1. קבלת תנאים",
+      "s2Title": "2. שימוש בשירות",
+      "s3Title": "3. חשבונות משתמש",
+      "s4Title": "4. קניין רוחני",
+      "s5Title": "5. סיום שימוש",
+      "s6Title": "6. הגבלת אחריות",
+      "s7Title": "7. שינויים בתנאים",
+      "s8Title": "8. צור קשר"
+    },
+    "privacyPolicy": {
+      "title": "מדיניות פרטיות",
+      "lastUpdated": "עודכן לאחרונה: 1 בינואר 2025",
+      "s1Title": "1. מידע שאנו אוספים",
+      "s2Title": "2. כיצד אנו משתמשים במידע",
+      "s3Title": "3. אחסון נתונים",
+      "s4Title": "4. שיתוף נתונים",
+      "s5Title": "5. עוגיות",
+      "s6Title": "6. הזכויות שלכם",
+      "s7Title": "7. צרו קשר"
+    }
+  }
+}

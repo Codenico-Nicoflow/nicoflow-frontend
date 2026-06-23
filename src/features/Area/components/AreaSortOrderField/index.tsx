@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowUpDown } from 'lucide-react';
 import { type Control, type FieldValues, type Path } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input.tsx';
@@ -14,6 +15,8 @@ export const AreaSortOrderField = <T extends FieldValues>({
   control,
   fieldName = 'displayOrder' as Path<T>,
 }: AreaSortOrderFieldProps<T>) => {
+  const { t } = useTranslation('area');
+
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
       <FormField
@@ -23,8 +26,8 @@ export const AreaSortOrderField = <T extends FieldValues>({
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
               <ArrowUpDown className="h-4 w-4" />
-              Sort Order
-              <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+              {t('sortOrderField.label')}
+              <span className="text-xs text-muted-foreground font-normal">{t('sortOrderField.optional')}</span>
             </FormLabel>
             <FormControl>
               <Input

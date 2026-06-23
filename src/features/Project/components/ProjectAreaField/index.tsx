@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { type Control } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
@@ -13,6 +14,7 @@ interface ProjectAreaFieldProps {
 }
 
 export const ProjectAreaField = ({ control }: ProjectAreaFieldProps) => {
+  const { t } = useTranslation('project');
   const { data } = useGetAreasQuery();
   const areas = data?.items ?? [];
 
@@ -25,12 +27,12 @@ export const ProjectAreaField = ({ control }: ProjectAreaFieldProps) => {
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
-              Area
+              {t('areaField.label')}
             </FormLabel>
             <Select onValueChange={field.onChange} value={field.value ?? ''}>
               <FormControl>
                 <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors">
-                  <SelectValue placeholder="Choose an area for your project" />
+                  <SelectValue placeholder={t('areaField.placeholder')} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>

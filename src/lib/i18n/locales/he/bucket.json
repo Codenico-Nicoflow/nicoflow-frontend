@@ -1,0 +1,54 @@
+{
+  "title": "תיבת נכנס",
+  "addPlaceholder": "רשמו מחשבה…",
+  "empty": "תיבת הנכנס שלכם ריקה",
+  "actions": {
+    "process": "עיבוד",
+    "edit": "עריכה",
+    "delete": "מחיקה"
+  },
+  "process": {
+    "title": "עיבוד פריט",
+    "asTask": "משימה",
+    "asNote": "הערה",
+    "asTrash": "אשפה"
+  },
+  "deleteDialog": {
+    "title": "מחיקת פריט מהסל",
+    "description": "האם למחוק פריט זה מהסל? פעולה זו אינה ניתנת לביטול.",
+    "confirmLabel": "מחיקה"
+  },
+  "editDialog": {
+    "title": "עריכת פריט בסל",
+    "description": "עדכנו את תוכן הפריט בסל.",
+    "contentLabel": "תוכן",
+    "contentPlaceholder": "מה עולה בראשכם?"
+  },
+  "quickInput": {
+    "defaultPlaceholder": "לכידת כל מחשבה...",
+    "submit": "הוספה לסל",
+    "submitting": "מוסיף..."
+  },
+  "processDialog": {
+    "title": "עיבוד פריט מהסל",
+    "description": "הפכו את הפריט הזה למשימה, הערה או רעיון לעיבוד מאוחר יותר.",
+    "originalContent": "תוכן מקורי:",
+    "processAs": "עיבוד כ:",
+    "noProjects": "יש ליצור לפחות פרויקט אחד לפני המרת פריטי סל למשימות.",
+    "taskNameLabel": "שם המשימה",
+    "taskNamePlaceholder": "הזינו שם משימה",
+    "descriptionLabel": "תיאור",
+    "descriptionPlaceholder": "הוסיפו פרטי משימה...",
+    "trashAlert": "פריט זה יסומן כאשפה למטרות ניתוח נתונים.",
+    "noteAlert": "תכונה זו תגיע בקרוב! הישארו מעודכנים.",
+    "soon": "בקרוב"
+  },
+  "projectSelector": {
+    "label": "פרויקט *",
+    "placeholder": "בחרו פרויקט"
+  },
+  "list": {
+    "emptyTitle": "הסל שלכם ריק",
+    "emptyDescription": "לכדו כל מחשבה בשדה הקלט למעלה. עבדו אותה מאוחר יותר למשימות, הערות או רעיונות."
+  }
+}

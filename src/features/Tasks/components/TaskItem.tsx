@@ -1,4 +1,5 @@
 import { Edit, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { AnimatedListItem, ItemActionsMenu, ListItemCard } from '@/components';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -16,6 +17,7 @@ interface TaskItemProps {
 }
 
 const TaskItem = ({ task, index, onTaskToggle, onEdit, onDelete }: TaskItemProps) => {
+  const { t } = useTranslation('task');
   const isCompleted = task.status === TaskStatus.DONE;
 
   return (
@@ -52,12 +54,12 @@ const TaskItem = ({ task, index, onTaskToggle, onEdit, onDelete }: TaskItemProps
             <ItemActionsMenu
               actions={[
                 {
-                  label: 'Edit',
+                  label: t('actions.edit'),
                   icon: Edit,
                   onClick: () => onEdit(task),
                 },
                 {
-                  label: 'Delete',
+                  label: t('actions.delete'),
                   icon: Trash2,
                   onClick: () => onDelete(task.id),
                   destructive: true,

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { ArrowLeft, CheckCircle2, Loader2, MailCheck, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -15,6 +16,7 @@ type VerifyStatus = 'verifying' | 'success' | 'error';
 const REDIRECT_DELAY_MS = 3000;
 
 export default function VerifyEmail() {
+  const { t } = useTranslation('auth');
   const [verifyEmail] = useVerifyEmailMutation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -54,8 +56,8 @@ export default function VerifyEmail() {
   if (status === 'verifying') {
     return (
       <SignForm
-        title="Verifying your email"
-        description="Hang tight while we confirm your email address."
+        title={t('verifyEmail.verifying')}
+        description={t('verifyEmail.verifyingDesc')}
         icon={<Loader2 className="h-6 w-6 text-primary animate-spin" />}
       >
         <div className="flex flex-col items-center gap-4 pt-2">
@@ -68,13 +70,13 @@ export default function VerifyEmail() {
   if (status === 'success') {
     return (
       <SignForm
-        title="Email verified"
-        description="Your email address has been confirmed. Redirecting you to sign in…"
+        title={t('verifyEmail.verified')}
+        description={t('verifyEmail.verifiedDesc')}
         icon={<CheckCircle2 className="h-6 w-6 text-primary" />}
       >
         <div className="flex flex-col items-center gap-4 pt-2">
           <Button asChild className="w-full">
-            <Link to="/sign-in">Continue to sign in</Link>
+            <Link to="/sign-in">{t('verifyEmail.continueToSignIn')}</Link>
           </Button>
         </div>
       </SignForm>
@@ -84,12 +86,8 @@ export default function VerifyEmail() {
   // status === 'error' — missing/invalid/expired token.
   return (
     <SignForm
-      title={token ? 'Verification failed' : 'Invalid link'}
-      description={
-        token
-          ? 'This verification link is invalid or has expired. Request a new one from your account.'
-          : 'This verification link is missing or malformed.'
-      }
+      title={token ? t('verifyEmail.verificationFailed') : t('verifyEmail.invalidLink')}
+      description={token ? t('verifyEmail.verificationFailedDesc') : t('verifyEmail.invalidLinkDesc')}
       icon={token ? <XCircle className="h-6 w-6 text-destructive" /> : <MailCheck className="h-6 w-6 text-primary" />}
     >
       <div className="flex flex-col items-center gap-4 pt-2">
@@ -97,8 +95,8 @@ export default function VerifyEmail() {
           to="/sign-in"
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to sign in
+          <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+          {t('verifyEmail.backToSignIn')}
         </Link>
       </div>
     </SignForm>

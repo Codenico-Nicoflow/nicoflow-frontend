@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Archive, CheckCircle, Clock } from 'lucide-react';
 import { type Control } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
@@ -12,10 +13,12 @@ interface ProjectStatusFieldProps {
 }
 
 export const ProjectStatusField = ({ control }: ProjectStatusFieldProps) => {
+  const { t } = useTranslation('project');
+
   const statusOptions = [
-    { value: PROJECT_STATUS.ACTIVE, label: 'Active', icon: Clock },
-    { value: PROJECT_STATUS.COMPLETED, label: 'Completed', icon: CheckCircle },
-    { value: PROJECT_STATUS.ARCHIVED, label: 'Archived', icon: Archive },
+    { value: PROJECT_STATUS.ACTIVE, label: t('status.active'), icon: Clock },
+    { value: PROJECT_STATUS.COMPLETED, label: t('status.completed'), icon: CheckCircle },
+    { value: PROJECT_STATUS.ARCHIVED, label: t('status.archived'), icon: Archive },
   ];
 
   return (
@@ -27,12 +30,12 @@ export const ProjectStatusField = ({ control }: ProjectStatusFieldProps) => {
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
-              Status
+              {t('statusField.label')}
             </FormLabel>
             <Select onValueChange={field.onChange} value={field.value}>
               <FormControl>
                 <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base border-2 focus:border-primary transition-colors">
-                  <SelectValue placeholder="Select project status" />
+                  <SelectValue placeholder={t('statusField.placeholder')} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>

@@ -1,4 +1,5 @@
 import { LogOut, MonitorSmartphone, Settings, User as UserIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -14,8 +15,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useCustomDialog } from '@/hooks/useCustomDialog';
+import i18n from '@/lib/i18n';
 import { useAppUser, useLogoutAllMutation, useLogoutMutation } from '@/lib/store';
-import { ToastMessages } from '@/lib/utils';
 
 const getInitials = (name: string) =>
   name
@@ -26,6 +27,7 @@ const getInitials = (name: string) =>
     .slice(0, 2);
 
 export const UserMenu = () => {
+  const { t } = useTranslation(['nav', 'common']);
   const user = useAppUser();
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
@@ -39,34 +41,34 @@ export const UserMenu = () => {
       await logout().unwrap();
       navigate('/sign-in');
     } catch {
-      toast.error(ToastMessages.UNEXPECTED_ERROR);
+      toast.error(i18n.t('errors:UNEXPECTED_ERROR'));
     }
   };
 
   const handleLogoutAll = async () => {
     try {
       await logoutAll().unwrap();
-      toast.success(ToastMessages.LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY);
+      toast.success(i18n.t('errors:LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY'));
       navigate('/sign-in');
     } catch {
-      toast.error(ToastMessages.UNEXPECTED_ERROR);
+      toast.error(i18n.t('errors:UNEXPECTED_ERROR'));
     }
   };
 
   const confirmLogout = () =>
     openDialog({
-      title: 'Log out',
-      description: 'Are you sure you want to log out of this device?',
-      cancelButton: { text: 'Cancel', onClick: () => {} },
-      acceptButton: { text: 'Log out', onClick: handleLogout },
+      title: t('nav:logout'),
+      description: t('nav:logoutConfirm'),
+      cancelButton: { text: t('common:actions.cancel'), onClick: () => {} },
+      acceptButton: { text: t('nav:logout'), onClick: handleLogout },
     });
 
   const confirmLogoutAll = () =>
     openDialog({
-      title: 'Log out of all devices',
-      description: 'This signs you out everywhere. You will need to log in again on each device.',
-      cancelButton: { text: 'Cancel', onClick: () => {} },
-      acceptButton: { text: 'Log out everywhere', onClick: handleLogoutAll },
+      title: t('nav:logoutAll'),
+      description: t('nav:logoutAllConfirm'),
+      cancelButton: { text: t('common:actions.cancel'), onClick: () => {} },
+      acceptButton: { text: t('nav:logoutAll'), onClick: handleLogoutAll },
     });
 
   return (
@@ -78,7 +80,7 @@ export const UserMenu = () => {
             variant="ghost"
             size="icon"
             className="rounded-full"
-            aria-label="Account menu"
+            aria-label={t('nav:accountMenu')}
             data-testid="user-menu-trigger"
           >
             <Avatar className="h-8 w-8">
@@ -93,21 +95,21 @@ export const UserMenu = () => {
           <DropdownMenuLabel className="truncate">{user.username || user.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate('/profile')}>
-            <UserIcon className="mr-2 h-4 w-4" />
-            Profile
+            <UserIcon className="me-2 h-4 w-4" />
+            {t('nav:profile')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/settings')}>
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
+            <Settings className="me-2 h-4 w-4" />
+            {t('nav:settings')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={confirmLogout} variant="destructive" data-testid="user-menu-logout">
-            <LogOut className="mr-2 h-4 w-4" />
-            Log out
+            <LogOut className="me-2 h-4 w-4" />
+            {t('nav:logout')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={confirmLogoutAll} variant="destructive" data-testid="user-menu-logout-all">
-            <MonitorSmartphone className="mr-2 h-4 w-4" />
-            Log out of all devices
+            <MonitorSmartphone className="me-2 h-4 w-4" />
+            {t('nav:logoutAll')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

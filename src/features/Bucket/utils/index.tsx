@@ -124,10 +124,10 @@ export const handleBucketProcess = async ({
         showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
         break;
       case ProcessingResult.NOTE:
-        showSuccessToast('Bucket item processed into note', toast);
+        showSuccessToast(ToastMessages.BUCKET_PROCESSED_NOTE, toast);
         break;
       case ProcessingResult.TRASH:
-        showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
+        showSuccessToast(ToastMessages.BUCKET_PROCESSED_TRASH, toast);
         break;
     }
 

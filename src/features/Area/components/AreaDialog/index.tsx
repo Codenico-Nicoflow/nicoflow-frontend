@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Layers, Tag } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -28,6 +29,7 @@ interface AreaDialogProps {
 }
 
 export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogProps) => {
+  const { t } = useTranslation('area');
   const isEditMode = !!area;
 
   const [createArea, { isLoading: isCreateLoading }] = useCreateAreaMutation();
@@ -92,8 +94,8 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEditMode ? 'Edit Area' : 'Create New Area'}
-      description={isEditMode ? 'Update Area details' : 'Add a new Area to organize your projects'}
+      title={isEditMode ? t('dialog.editTitle') : t('dialog.createTitle')}
+      description={isEditMode ? t('dialog.editDescription') : t('dialog.createDescription')}
       icon={Layers}
       isEditMode={isEditMode}
       isLoading={isCreateLoading || isUpdateLoading}
@@ -104,7 +106,13 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
       <Form {...form}>
         <div className="space-y-4">
           {planLimitHit && <PlanLimitAlert />}
-          <NameField control={form.control} label="Area Name" icon={Tag} placeholder="Enter area name" delay={0.1} />
+          <NameField
+            control={form.control}
+            label={t('dialog.nameLabel')}
+            icon={Tag}
+            placeholder={t('dialog.namePlaceholder')}
+            delay={0.1}
+          />
           <ColorField control={form.control} delay={0.15} />
           <IconField control={form.control} delay={0.2} />
         </div>

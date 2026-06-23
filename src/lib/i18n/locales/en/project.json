@@ -1,0 +1,66 @@
+{
+  "dialog": {
+    "createTitle": "Create New Project",
+    "editTitle": "Edit Project",
+    "createDescription": "Add a new project to organize your tasks",
+    "editDescription": "Update project details",
+    "nameLabel": "Project Name",
+    "namePlaceholder": "Enter your project name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What's this project about?",
+    "areaLabel": "Area",
+    "statusLabel": "Status",
+    "dueDateLabel": "Due date",
+    "iconLabel": "Icon",
+    "favoriteLabel": "Mark as favorite",
+    "favoriteDescription": "This project will appear in your favorites",
+    "noAreaTitle": "Create an Area first",
+    "noAreaDescription": "Projects live inside Areas. Create an Area before adding a project.",
+    "createAreaButton": "Create Area"
+  },
+  "status": {
+    "active": "Active",
+    "completed": "Completed",
+    "archived": "Archived"
+  },
+  "statusField": {
+    "label": "Status",
+    "placeholder": "Select project status"
+  },
+  "areaField": {
+    "label": "Area",
+    "placeholder": "Choose an area for your project"
+  },
+  "delete": {
+    "title": "Delete Project",
+    "description": "This will permanently delete the project and all its tasks.",
+    "confirmLabel": "Delete Project",
+    "confirmDescription": "Are you sure you want to delete <name>{{name}}</name>? This action cannot be undone. This will permanently delete all tasks in this project."
+  },
+  "header": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "due": "Due {{date}}",
+    "overdue": "(Overdue)",
+    "created": "Created {{date}}"
+  },
+  "emptyState": {
+    "title": "No projects yet",
+    "description": "Start organizing your work by creating your first project. Group related tasks together for better productivity.",
+    "action": "Create Your First Project"
+  },
+  "row": {
+    "open": "Open",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "view": {
+    "description": "Description",
+    "tasks": "Tasks",
+    "tasksSoon": "Tasks coming soon",
+    "tasksDescription": "Task management lands in a later phase.",
+    "notFound": "Project not found",
+    "notFoundDescription": "This project may have been deleted or you don't have access to it.",
+    "backToAreas": "Back to Areas"
+  }
+}

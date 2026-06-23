@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import type { ProcessingOption, ProcessingResult } from '@/lib/types';
@@ -9,9 +11,11 @@ interface BucketProcessListProps {
 }
 
 export const BucketProcessList = ({ processingOptions, selectedType, setSelectedType }: BucketProcessListProps) => {
+  const { t } = useTranslation('bucket');
+
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">Process as:</label>
+      <label className="text-sm font-medium">{t('processDialog.processAs')}</label>
       <div className="flex flex-wrap gap-2">
         {processingOptions.map(option => (
           <Button
@@ -25,8 +29,8 @@ export const BucketProcessList = ({ processingOptions, selectedType, setSelected
           >
             {option.label}
             {!option.enabled && (
-              <Badge variant="secondary" className="ml-2 text-[10px] px-1">
-                Soon
+              <Badge variant="secondary" className="ms-2 text-[10px] px-1">
+                {t('processDialog.soon')}
               </Badge>
             )}
           </Button>

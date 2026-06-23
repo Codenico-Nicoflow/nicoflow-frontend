@@ -1,8 +1,10 @@
+import { I18nextProvider } from 'react-i18next';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import { LoadingOverlayProvider, ThemeProvider, Toaster } from '@/components';
+import i18n from '@/lib/i18n';
 import { persistor, store } from '@/lib/store';
 
 // Session handling: the access token is memory-only (not persisted) — on reload
@@ -19,14 +21,16 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <Provider store={store}>
       <PersistGate loading={<div />} persistor={persistor}>
-        <BrowserRouter>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
-            <LoadingOverlayProvider>
-              {children}
-              <Toaster />
-            </LoadingOverlayProvider>
-          </ThemeProvider>
-        </BrowserRouter>
+        <I18nextProvider i18n={i18n}>
+          <BrowserRouter>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
+              <LoadingOverlayProvider>
+                {children}
+                <Toaster />
+              </LoadingOverlayProvider>
+            </ThemeProvider>
+          </BrowserRouter>
+        </I18nextProvider>
       </PersistGate>
     </Provider>
   );

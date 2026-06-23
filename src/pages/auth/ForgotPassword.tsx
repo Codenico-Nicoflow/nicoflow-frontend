@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -14,6 +15,7 @@ import { useForgotPasswordMutation } from '@/lib/store';
 import { type ForgotPasswordFormData, forgotPasswordSchema, showErrorToast } from '@/lib/utils';
 
 export default function ForgotPassword() {
+  const { t } = useTranslation('auth');
   const [submitted, setSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
@@ -37,23 +39,21 @@ export default function ForgotPassword() {
   if (submitted) {
     return (
       <SignForm
-        title="Check your inbox"
-        description={`We sent a password reset link to ${submittedEmail}`}
+        title={t('forgotPassword.checkInbox')}
+        description={t('forgotPassword.checkInboxBody', { email: submittedEmail })}
         icon={<CheckCircle2 className="h-10 w-10 text-success" />}
       >
         <div className="flex flex-col items-center gap-4 pt-2">
-          <p className="text-sm text-muted-foreground text-center">
-            Didn't receive it? Check your spam folder or try again.
-          </p>
+          <p className="text-sm text-muted-foreground text-center">{t('forgotPassword.didntReceive')}</p>
           <Button variant="outline" className="w-full" onClick={() => setSubmitted(false)}>
-            Try another email
+            {t('forgotPassword.tryAnotherEmail')}
           </Button>
           <Link
             to="/sign-in"
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to sign in
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+            {t('forgotPassword.backToSignIn')}
           </Link>
         </div>
       </SignForm>
@@ -62,8 +62,8 @@ export default function ForgotPassword() {
 
   return (
     <SignForm
-      title="Forgot password?"
-      description="Enter the email associated with your account and we'll send you a reset link."
+      title={t('forgotPassword.title')}
+      description={t('forgotPassword.subtitle')}
       icon={<Mail className="h-6 w-6 text-primary" />}
     >
       <Form {...form}>
@@ -73,9 +73,14 @@ export default function ForgotPassword() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('forgotPassword.emailLabel')}</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="you@example.com" autoComplete="email" {...field} />
+                  <Input
+                    type="email"
+                    placeholder={t('forgotPassword.emailPlaceholder')}
+                    autoComplete="email"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -85,11 +90,11 @@ export default function ForgotPassword() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending…
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                {t('forgotPassword.sending')}
               </>
             ) : (
-              'Send reset link'
+              t('forgotPassword.submit')
             )}
           </Button>
         </form>
@@ -100,8 +105,8 @@ export default function ForgotPassword() {
           to="/sign-in"
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to sign in
+          <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+          {t('forgotPassword.backToSignIn')}
         </Link>
       </div>
     </SignForm>

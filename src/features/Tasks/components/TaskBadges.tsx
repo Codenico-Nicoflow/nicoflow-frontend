@@ -1,4 +1,5 @@
 import { Clock, ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Badge } from '@/components/ui/badge';
 import { type ITask } from '@/lib/types';
@@ -11,30 +12,51 @@ interface TaskBadgesProps {
 }
 
 const TaskBadges = ({ task }: TaskBadgesProps) => {
-  const formattedDueDate = task.dueDate ? formatTaskDueDate(task.dueDate) : null;
-  const formattedPriority = task.priority ? formatTaskPriority(task.priority) : null;
+  const { t } = useTranslation('task');
+
+  const dueDateResult = task.dueDate ? formatTaskDueDate(task.dueDate) : null;
+  const priorityResult = task.priority ? formatTaskPriority(task.priority) : null;
+
+  const dueDateLabel = (() => {
+    if (!dueDateResult) return null;
+    switch (dueDateResult.kind) {
+      case 'today':
+        return t('dueDate.today');
+      case 'tomorrow':
+        return t('dueDate.tomorrow');
+      case 'overdue':
+        return t('dueDate.overdue', { date: dueDateResult.formattedDate });
+      case 'future':
+        return dueDateResult.formattedDate;
+    }
+  })();
+
+  const priorityLabel = (() => {
+    if (!priorityResult) return null;
+    return t(`priority.${priorityResult.kind}`);
+  })();
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {/* Estimated Minutes */}
       {task.estimatedMinutes && (
         <Badge variant="secondary" className={cn('text-xs font-medium')}>
-          <Clock className="h-3 w-3 mr-1.5" />
-          {task.estimatedMinutes} min
+          <Clock className="h-3 w-3 me-1.5" />
+          {t('badges.min', { count: task.estimatedMinutes })}
         </Badge>
       )}
       {/* Due Date */}
-      {task.dueDate && (
-        <Badge variant="outline" className={cn('text-xs font-medium', formattedDueDate?.className)}>
-          <Clock className="h-3 w-3 mr-1.5" />
-          {formattedDueDate?.date}
+      {task.dueDate && dueDateResult && (
+        <Badge variant="outline" className={cn('text-xs font-medium', dueDateResult.className)}>
+          <Clock className="h-3 w-3 me-1.5" />
+          {dueDateLabel}
         </Badge>
       )}
 
       {/* Priority */}
-      {task.priority && (
-        <Badge variant="outline" className={cn('text-xs font-medium', formattedPriority?.className)}>
-          {formattedPriority?.label}
+      {task.priority && priorityResult && (
+        <Badge variant="outline" className={cn('text-xs font-medium', priorityResult.className)}>
+          {priorityLabel}
         </Badge>
       )}
 
@@ -53,8 +75,8 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
               'text-xs font-medium cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors'
             )}
           >
-            <ExternalLink className="h-3 w-3 mr-1.5" />
-            Link
+            <ExternalLink className="h-3 w-3 me-1.5" />
+            {t('badges.link')}
           </Badge>
         </a>
       )}

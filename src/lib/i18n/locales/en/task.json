@@ -1,0 +1,80 @@
+{
+  "dialog": {
+    "createTitle": "Create New Task",
+    "editTitle": "Edit Task",
+    "createDescription": "Add a new task to your Project",
+    "editDescription": "Update task details",
+    "titleLabel": "Title",
+    "notesLabel": "Notes",
+    "priorityLabel": "Priority",
+    "dueDateLabel": "Due date",
+    "estimatedTimeLabel": "Estimated time",
+    "urlLabel": "URL",
+    "taskNameLabel": "Task Name",
+    "taskNamePlaceholder": "Enter task name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Add task details..."
+  },
+  "actions": {
+    "edit": "Edit Task",
+    "delete": "Delete Task"
+  },
+  "status": {
+    "todo": "To do",
+    "inProgress": "In progress",
+    "done": "Done",
+    "cancelled": "Cancelled",
+    "inbox": "Inbox",
+    "active": "Active"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "unknown": "Unknown"
+  },
+  "filters": {
+    "all": "All",
+    "inbox": "Inbox",
+    "active": "Active",
+    "done": "Done",
+    "cancelled": "Cancelled"
+  },
+  "header": {
+    "title": "Tasks",
+    "taskCount": "{{count}} task",
+    "taskCount_plural": "{{count}} Tasks",
+    "manageTasksHint": "Manage your Tasks",
+    "addTask": "Add Task"
+  },
+  "empty": {
+    "title": "No tasks yet",
+    "description": "Start organizing your work by creating your first task. Break down your project into manageable pieces.",
+    "createFirstTask": "Create Your First Task"
+  },
+  "search": {
+    "placeholder": "Search Tasks..."
+  },
+  "noResults": {
+    "filter": "No tasks match the selected filter.",
+    "search": "No tasks match the selected search."
+  },
+  "deleteDialog": {
+    "title": "Delete Task",
+    "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "confirmLabel": "Delete Task"
+  },
+  "badges": {
+    "min": "{{count}} min",
+    "link": "Link"
+  },
+  "updating": {
+    "title": "Updating task...",
+    "subtitle": "Please wait while we update the task"
+  },
+  "dueDate": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "overdue": "{{date}} • Overdue"
+  }
+}

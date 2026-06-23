@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { motion } from 'framer-motion';
 import { Edit, MoreVertical, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ interface TaskActionsProps {
 }
 
 const TaskActions = ({ task, onEdit, onDelete }: TaskActionsProps) => {
+  const { t } = useTranslation('task');
   const [isOpen, setIsOpen] = useState(false);
 
   const handleEdit = () => {
@@ -31,7 +33,7 @@ const TaskActions = ({ task, onEdit, onDelete }: TaskActionsProps) => {
   };
 
   return (
-    <div className="position-absolute right-0">
+    <div className="position-absolute end-0">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <motion.button
@@ -45,16 +47,16 @@ const TaskActions = ({ task, onEdit, onDelete }: TaskActionsProps) => {
 
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Task
+            <Edit className="h-4 w-4 me-2" />
+            {t('actions.edit')}
           </DropdownMenuItem>
 
           <DropdownMenuItem
             onClick={handleDelete}
             className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Task
+            <Trash2 className="h-4 w-4 me-2" />
+            {t('actions.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

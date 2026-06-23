@@ -13,6 +13,7 @@ export { EstimatedTimeField } from './EstimatedTimeField';
 export { FormDialog } from './FormDialog';
 export { IconField } from './IconField';
 export { ItemActionsMenu } from './ItemActionsMenu';
+export { LanguageSwitcher } from './LanguageSwitcher';
 export { LazyIcon } from './LazyIcon';
 export { ListItemCard } from './ListItemCard';
 export { LoadingOverlayProvider, useLoadingOverlay } from './LoadingOverlayProvider';

@@ -4,8 +4,8 @@ import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
+import i18n from '@/lib/i18n';
 import { CONFIRM_DIALOG_CONFIRM_BUTTON } from '@/lib/test_ids';
-import { ToastMessages } from '@/lib/utils';
 
 import { renderComponent } from '../../../../../__tests__/renderComponent';
 import { server } from '../../../../../__tests__/server';
@@ -44,7 +44,7 @@ describe('ProjectDeleteDialog', () => {
     await user.click(screen.getByTestId(CONFIRM_DIALOG_CONFIRM_BUTTON));
 
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith(ToastMessages.PROJECT_DELETED);
+      expect(toast.success).toHaveBeenCalledWith(i18n.t('errors:PROJECT_DELETED'));
     });
     expect(onSuccess).toHaveBeenCalledTimes(1);
     expect(toast.error).not.toHaveBeenCalled();

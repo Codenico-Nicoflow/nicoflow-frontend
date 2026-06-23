@@ -1,0 +1,89 @@
+{
+  "appName": "Nicoflow",
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "create": "Create",
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "process": "Process",
+    "goHome": "Go Home",
+    "search": "Search…",
+    "back": "Back"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
+  },
+  "fields": {
+    "dueDateLabel": "Due Date",
+    "pickDate": "Pick a date",
+    "optional": "(Optional)",
+    "priorityLabel": "Priority",
+    "priorityPlaceholder": "Select priority",
+    "statusLabel": "Status",
+    "statusPlaceholder": "Select status",
+    "estimatedTimeLabel": "Estimated Time",
+    "estimatedTimePlaceholder": "Enter estimated time",
+    "minutes": "minutes",
+    "urlLabel": "URL"
+  },
+  "loading": "Loading…",
+  "comingSoon": "Coming soon",
+  "pages": {
+    "error404": {
+      "code": "404",
+      "title": "Oops! Page Not Found",
+      "body": "The page you're searching for isn't here. Let's guide you back into Nicoflow where things get done."
+    },
+    "settings": {
+      "title": "Settings",
+      "accountSection": "Account",
+      "aboutSection": "About & legal",
+      "freePlan": "Free plan",
+      "proPlan": "Pro plan",
+      "upgradeTitle": "Upgrade to PRO",
+      "upgradeDescription": "Get a 1-month free trial and unlock unlimited areas, projects, AI, and more.",
+      "upgradeButton": "Upgrade",
+      "links": {
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "help": "Help & Information"
+      }
+    },
+    "profile": {
+      "title": "Profile"
+    },
+    "helpAndInformation": {
+      "title": "Help & Information"
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: January 1, 2025",
+      "s1Title": "1. Acceptance of Terms",
+      "s2Title": "2. Use of Service",
+      "s3Title": "3. User Accounts",
+      "s4Title": "4. Intellectual Property",
+      "s5Title": "5. Termination",
+      "s6Title": "6. Limitation of Liability",
+      "s7Title": "7. Changes to Terms",
+      "s8Title": "8. Contact"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: January 1, 2025",
+      "s1Title": "1. Information We Collect",
+      "s2Title": "2. How We Use Your Information",
+      "s3Title": "3. Data Storage",
+      "s4Title": "4. Data Sharing",
+      "s5Title": "5. Cookies",
+      "s6Title": "6. Your Rights",
+      "s7Title": "7. Contact Us"
+    }
+  }
+}

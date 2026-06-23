@@ -1,4 +1,5 @@
 import { Inbox } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
@@ -15,6 +16,8 @@ interface BucketListProps {
 }
 
 export const BucketList = ({ buckets, isLoading, onProcess, onEdit, onDelete }: BucketListProps) => {
+  const { t } = useTranslation('bucket');
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -26,13 +29,7 @@ export const BucketList = ({ buckets, isLoading, onProcess, onEdit, onDelete }: 
   }
 
   if (buckets.length === 0) {
-    return (
-      <EmptyState
-        icon={Inbox}
-        title="Your bucket is empty"
-        description="Capture anything on your mind using the quick input above. Process it later into tasks, notes, or ideas."
-      />
-    );
+    return <EmptyState icon={Inbox} title={t('list.emptyTitle')} description={t('list.emptyDescription')} />;
   }
 
   return (

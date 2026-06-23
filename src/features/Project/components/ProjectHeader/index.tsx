@@ -1,12 +1,13 @@
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Edit3, Star, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { LazyIcon } from '@/components';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { type IconId, type IProject } from '@/lib/types';
-import { capitalize, cn, getProjectStatusColor } from '@/lib/utils';
+import { cn, getProjectStatusColor } from '@/lib/utils';
 
 interface ProjectHeaderProps {
   project: IProject;
@@ -15,7 +16,16 @@ interface ProjectHeaderProps {
 }
 
 export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps) => {
+  const { t } = useTranslation('project');
+
   const isOverdue = project?.dueDate && new Date() > new Date(project.dueDate) && project.status === 'active';
+
+  const statusLabels = {
+    active: t('status.active'),
+    completed: t('status.completed'),
+    archived: t('status.archived'),
+  };
+  const statusLabel = statusLabels[project?.status ?? 'active'] ?? t('status.active');
 
   return (
     <motion.div
@@ -62,7 +72,7 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
                 variant="secondary"
                 className={cn('text-xs font-medium', getProjectStatusColor(project?.status || ''))}
               >
-                {capitalize(project?.status || '')}
+                {statusLabel}
               </Badge>
 
               {project?.dueDate && (
@@ -77,8 +87,8 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
                 >
                   <Calendar className="h-4 w-4" />
                   <span>
-                    Due {format(project?.dueDate, 'MMM dd, yyyy')}
-                    {isOverdue && ' (Overdue)'}
+                    {t('header.due', { date: format(project.dueDate, 'MMM dd, yyyy') })}
+                    {isOverdue && ` ${t('header.overdue')}`}
                   </span>
                 </motion.div>
               )}
@@ -90,7 +100,7 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
                 className="flex items-center gap-1.5 text-sm text-muted-foreground"
               >
                 <Clock className="h-4 w-4" />
-                <span>Created {format(new Date(), 'MMM dd, yyyy')}</span>
+                <span>{t('header.created', { date: format(new Date(), 'MMM dd, yyyy') })}</span>
               </motion.div>
             </div>
           </div>
@@ -103,8 +113,8 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
           className="flex items-center gap-4 sm:justify-between justify-between w-full sm:w-auto"
         >
           <Button variant="outline" size="sm" onClick={onEdit} className="h-9 px-3">
-            <Edit3 className="h-4 w-4 mr-2" />
-            Edit
+            <Edit3 className="h-4 w-4 me-2" />
+            {t('header.edit')}
           </Button>
           <Button
             variant="ghost"
@@ -112,8 +122,8 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
             className="h-9 px-3 hover:bg-transparent hover:shadow-sm"
             onClick={onDelete}
           >
-            <Trash2 className="h-4 w-4 mr-2 text-destructive" />
-            <p className="text-destructive">Delete</p>
+            <Trash2 className="h-4 w-4 me-2 text-destructive" />
+            <p className="text-destructive">{t('header.delete')}</p>
           </Button>
         </motion.div>
       </div>

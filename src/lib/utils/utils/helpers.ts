@@ -1,6 +1,18 @@
 import { type FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
-import { ToastMessages } from './messages';
+import i18n from '@/lib/i18n';
+import enErrors from '@/lib/i18n/locales/en/errors.json';
+
+// Keys of the `errors` namespace (success + error toast copy). Derived from the
+// EN source so it can never drift from the actual locale files.
+type ErrorMessageKey = keyof typeof enErrors;
+
+// A namespace-bound translator. Resolving against a fixed namespace lets us pass
+// a runtime-built key (the backend error code) without fighting i18next's
+// literal-key typing — the cast is narrowed to the real key set, not `any`.
+const tErrors = i18n.getFixedT(null, 'errors');
+const resolveErrorMessage = (key: ErrorMessageKey): string => tErrors(key);
+const isErrorMessageKey = (key: string): key is ErrorMessageKey => Object.prototype.hasOwnProperty.call(enErrors, key);
 
 /**
  * Toast interface for cross-platform compatibility
@@ -65,15 +77,23 @@ export function getApiErrorCode(err: unknown): string | undefined {
   return undefined;
 }
 
+// All toast copy lives in the `errors` i18n namespace, keyed by the backend
+// error code (e.g. 'PLAN_LIMIT_EXCEEDED') and success-message key (e.g.
+// 'PROJECT_CREATED'). Resolving through `i18n.t` (not the React hook — these are
+// plain functions called from thunks/handlers) localizes every toast in the
+// active language, and re-resolves on each call so a language switch takes
+// effect immediately. An unknown code falls back to the generic error.
 export function showErrorToast(err: unknown, toast: Toast) {
   const code = getApiErrorCode(err);
-  const text =
-    code && code in ToastMessages ? ToastMessages[code as keyof typeof ToastMessages] : ToastMessages.GENERAL_ERROR;
+  // An unknown/unmapped code falls back to the generic error message.
+  const text = code && isErrorMessageKey(code) ? resolveErrorMessage(code) : resolveErrorMessage('GENERAL_ERROR');
   toast.error(text);
 }
 
 export function showSuccessToast(msg: string, toast: Toast) {
-  const text = ToastMessages[msg as keyof typeof ToastMessages] || msg;
+  // `msg` is an `errors`-namespace key (success keys live there too); if it isn't
+  // a known key, fall back to showing the passed string verbatim.
+  const text = isErrorMessageKey(msg) ? resolveErrorMessage(msg) : msg;
   return toast.success(text);
 }
 

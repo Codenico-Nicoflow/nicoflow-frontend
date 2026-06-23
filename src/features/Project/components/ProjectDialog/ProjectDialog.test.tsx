@@ -4,9 +4,9 @@ import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
+import i18n from '@/lib/i18n';
 import { FORM_DIALOG_SUBMIT_BUTTON } from '@/lib/test_ids';
 import type { IArea, IProject } from '@/lib/types';
-import { ToastMessages } from '@/lib/utils';
 
 import { renderComponent } from '../../../../../__tests__/renderComponent';
 import { server } from '../../../../../__tests__/server';
@@ -67,7 +67,7 @@ describe('ProjectDialog — create mode', () => {
     await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
 
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith(ToastMessages.PROJECT_CREATED);
+      expect(toast.success).toHaveBeenCalledWith(i18n.t('errors:PROJECT_CREATED'));
     });
     expect(toast.error).not.toHaveBeenCalled();
   });
@@ -90,7 +90,7 @@ describe('ProjectDialog — create mode', () => {
     await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(ToastMessages.PLAN_LIMIT_EXCEEDED);
+      expect(toast.error).toHaveBeenCalledWith(i18n.t('errors:PLAN_LIMIT_EXCEEDED'));
     });
     // Generic error toast must NOT fire — only the plan-limit one
     expect(toast.error).toHaveBeenCalledTimes(1);
@@ -146,7 +146,7 @@ describe('ProjectDialog — edit mode', () => {
     await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
 
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith(ToastMessages.PROJECT_UPDATED);
+      expect(toast.success).toHaveBeenCalledWith(i18n.t('errors:PROJECT_UPDATED'));
     });
     expect(toast.error).not.toHaveBeenCalled();
   });

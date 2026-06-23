@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { ConfirmDialog } from '@/components';
@@ -14,6 +15,7 @@ interface TaskDeleteDialogProps {
 }
 
 const TaskDeleteDialog = ({ open, onOpenChange, taskName, taskId, onSuccess }: TaskDeleteDialogProps) => {
+  const { t } = useTranslation('task');
   const [deleteTask, { isLoading }] = useDeleteTaskMutation();
 
   const handleDelete = async () => {
@@ -30,16 +32,11 @@ const TaskDeleteDialog = ({ open, onOpenChange, taskName, taskId, onSuccess }: T
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete Task"
-      description={
-        <>
-          Are you sure you want to delete <span className="font-semibold text-foreground">"{taskName}"</span>? This
-          action cannot be undone.
-        </>
-      }
+      title={t('deleteDialog.title')}
+      description={t('deleteDialog.description', { name: taskName })}
       icon={Trash2}
       variant="danger"
-      confirmLabel="Delete Task"
+      confirmLabel={t('deleteDialog.confirmLabel')}
       onConfirm={handleDelete}
       isLoading={isLoading}
       destructive

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -20,6 +21,7 @@ import {
 } from '@/lib/utils';
 
 export default function ResetPassword() {
+  const { t } = useTranslation('auth');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
@@ -36,20 +38,20 @@ export default function ResetPassword() {
   if (!token) {
     return (
       <SignForm
-        title="Invalid link"
-        description="This password reset link is missing or has expired."
+        title={t('resetPassword.invalidLink')}
+        description={t('resetPassword.invalidLinkDesc')}
         icon={<KeyRound className="h-6 w-6 text-primary" />}
       >
         <div className="flex flex-col items-center gap-4 pt-2">
           <Button asChild className="w-full">
-            <Link to="/forgot-password">Request a new link</Link>
+            <Link to="/forgot-password">{t('resetPassword.requestNewLink')}</Link>
           </Button>
           <Link
             to="/sign-in"
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to sign in
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+            {t('resetPassword.backToSignIn')}
           </Link>
         </div>
       </SignForm>
@@ -68,8 +70,8 @@ export default function ResetPassword() {
 
   return (
     <SignForm
-      title="Reset password"
-      description="Choose a strong new password for your account."
+      title={t('resetPassword.title')}
+      description={t('resetPassword.subtitle')}
       icon={<KeyRound className="h-6 w-6 text-primary" />}
     >
       <Form {...form}>
@@ -79,22 +81,22 @@ export default function ResetPassword() {
             name="newPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>New password</FormLabel>
+                <FormLabel>{t('resetPassword.newPasswordLabel')}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
                       type={showNewPassword ? 'text' : 'password'}
                       placeholder="••••••••"
                       autoComplete="new-password"
-                      className="pr-10"
+                      className="pe-10"
                       {...field}
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       tabIndex={-1}
-                      aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showNewPassword ? t('form.hidePassword') : t('form.showPassword')}
                     >
                       {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -110,22 +112,22 @@ export default function ResetPassword() {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirm password</FormLabel>
+                <FormLabel>{t('resetPassword.confirmPasswordLabel')}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
                       type={showConfirmPassword ? 'text' : 'password'}
                       placeholder="••••••••"
                       autoComplete="new-password"
-                      className="pr-10"
+                      className="pe-10"
                       {...field}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       tabIndex={-1}
-                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showConfirmPassword ? t('form.hidePassword') : t('form.showPassword')}
                     >
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -139,11 +141,11 @@ export default function ResetPassword() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Resetting…
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                {t('resetPassword.resetting')}
               </>
             ) : (
-              'Reset password'
+              t('resetPassword.submit')
             )}
           </Button>
         </form>
@@ -154,8 +156,8 @@ export default function ResetPassword() {
           to="/sign-in"
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back to sign in
+          <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+          {t('resetPassword.backToSignIn')}
         </Link>
       </div>
     </SignForm>

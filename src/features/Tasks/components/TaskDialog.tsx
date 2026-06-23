@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import {
@@ -31,6 +32,7 @@ interface TaskDialogProps {
 }
 
 const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDialogProps) => {
+  const { t } = useTranslation('task');
   const isEditMode = !!task;
 
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
@@ -125,8 +127,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEditMode ? 'Edit Task' : 'Create New Task'}
-      description={isEditMode ? 'Update task details' : 'Add a new task to your Project'}
+      title={isEditMode ? t('dialog.editTitle') : t('dialog.createTitle')}
+      description={isEditMode ? t('dialog.editDescription') : t('dialog.createDescription')}
       icon={CheckSquare}
       isEditMode={isEditMode}
       isLoading={isCreateLoading || isUpdateLoading}
@@ -139,16 +141,16 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           <NameField
             control={form.control}
             fieldName="title"
-            label="Task Name"
+            label={t('dialog.taskNameLabel')}
             icon={CheckSquare}
-            placeholder="Enter task name"
+            placeholder={t('dialog.taskNamePlaceholder')}
             delay={0.1}
           />
           <DescriptionField
             control={form.control}
             fieldName="notes"
-            label="Description"
-            placeholder="Add task details..."
+            label={t('dialog.descriptionLabel')}
+            placeholder={t('dialog.descriptionPlaceholder')}
             minHeight="100px"
             delay={0.15}
           />

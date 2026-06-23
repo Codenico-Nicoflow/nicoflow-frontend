@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Loader2, MailWarning } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -22,6 +23,7 @@ import {
 } from '@/lib/utils';
 
 export default function SignIn() {
+  const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   // The email of an account that logged in but isn't verified yet. When set, we
   // show the resend panel instead of a generic error toast.
@@ -67,23 +69,21 @@ export default function SignIn() {
   };
 
   return (
-    <SignForm title="Welcome back" description="Sign in to your Nicoflow account">
+    <SignForm title={t('signIn.title')} description={t('signIn.subtitle')}>
       {unverifiedEmail && (
         <div className="mb-4 flex flex-col gap-3 rounded-lg border border-warning/40 bg-warning/10 p-4">
           <div className="flex items-start gap-2">
             <MailWarning className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
-            <p className="text-sm text-muted-foreground">
-              Your email isn’t verified yet. Check your inbox for the verification link, or resend it below.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('signIn.unverifiedBanner')}</p>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={onResend} disabled={isResending}>
             {isResending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending…
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                {t('signIn.sending')}
               </>
             ) : (
-              'Resend verification email'
+              t('signIn.resendVerification')
             )}
           </Button>
         </div>
@@ -96,11 +96,11 @@ export default function SignIn() {
             name="identifier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email or username</FormLabel>
+                <FormLabel>{t('signIn.identifierLabel')}</FormLabel>
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="you@example.com or yourname"
+                    placeholder={t('signIn.identifierPlaceholder')}
                     autoComplete="username"
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -118,22 +118,22 @@ export default function SignIn() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{t('signIn.passwordLabel')}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       placeholder="••••••••"
                       autoComplete="current-password"
-                      className="pr-10"
+                      className="pe-10"
                       {...field}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       tabIndex={-1}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showPassword ? t('form.hidePassword') : t('form.showPassword')}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -149,11 +149,11 @@ export default function SignIn() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in…
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                {t('signIn.signingIn')}
               </>
             ) : (
-              'Sign in'
+              t('signIn.submit')
             )}
           </Button>
         </form>

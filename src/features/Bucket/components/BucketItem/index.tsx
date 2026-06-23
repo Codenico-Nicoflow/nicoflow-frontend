@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { Edit, Trash2, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { AnimatedListItem, ItemActionsMenu, ListItemCard, Timestamp } from '@/components';
 import { ExpandableText } from '@/components/ui/expandable-text.tsx';
@@ -15,20 +16,21 @@ interface BucketItemProps {
 }
 
 export const BucketItem = ({ bucket, index, onProcess, onEdit, onDelete }: BucketItemProps) => {
+  const { t } = useTranslation('bucket');
   const [menuOpen, setMenuOpen] = useState(false);
   const itemActions = [
     {
-      label: 'Process',
+      label: t('actions.process'),
       icon: Zap,
       onClick: () => onProcess(bucket),
     },
     {
-      label: 'Edit',
+      label: t('actions.edit'),
       icon: Edit,
       onClick: () => onEdit(bucket),
     },
     {
-      label: 'Delete',
+      label: t('actions.delete'),
       icon: Trash2,
       onClick: () => onDelete(bucket.id),
       destructive: true,

@@ -20,6 +20,13 @@
     "he": "עברית",
     "ru": "Русский"
   },
+  "theme": {
+    "toggle": "החלפת ערכת נושא",
+    "label": "ערכת נושא",
+    "light": "בהיר",
+    "dark": "כהה",
+    "system": "מערכת"
+  },
   "fields": {
     "dueDateLabel": "תאריך יעד",
     "pickDate": "בחרו תאריך",
@@ -44,6 +51,9 @@
     "settings": {
       "title": "הגדרות",
       "accountSection": "חשבון",
+      "preferencesSection": "העדפות",
+      "languageLabel": "שפה",
+      "themeLabel": "ערכת נושא",
       "aboutSection": "אודות ומשפטי",
       "freePlan": "תוכנית חינמית",
       "proPlan": "תוכנית Pro",

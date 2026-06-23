@@ -67,6 +67,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   theme: 'light' | 'dark';
+  language: 'en' | 'he' | 'ru';
   imageUrl: string;
   username: string;
   status: 'premium' | 'regular';

@@ -48,3 +48,14 @@ export type VerifyEmailRequest = {
 export type ResendVerificationRequest = {
   email: string;
 };
+
+// PATCH /v1/users/me — all fields optional (omit a field to leave it unchanged).
+// Mirrors the backend UpdateMeRequest; this story wires theme + language.
+export type UpdateProfileRequest = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  timezone?: string;
+  theme?: IUser['theme'];
+  language?: IUser['language'];
+};

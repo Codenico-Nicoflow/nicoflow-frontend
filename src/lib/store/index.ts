@@ -20,6 +20,7 @@ export {
   useRegisterMutation,
   useResendVerificationMutation,
   useResetPasswordMutation,
+  useUpdateProfileMutation,
   useVerifyEmailMutation,
 } from './slices/auth/authApi';
 export { clearAuth, setToken, setUser } from './slices/auth/authSlice';

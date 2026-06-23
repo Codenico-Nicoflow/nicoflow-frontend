@@ -20,6 +20,13 @@
     "he": "עברית",
     "ru": "Русский"
   },
+  "theme": {
+    "toggle": "Переключить тему",
+    "label": "Тема",
+    "light": "Светлая",
+    "dark": "Тёмная",
+    "system": "Системная"
+  },
   "fields": {
     "dueDateLabel": "Срок",
     "pickDate": "Выберите дату",
@@ -44,6 +51,9 @@
     "settings": {
       "title": "Настройки",
       "accountSection": "Аккаунт",
+      "preferencesSection": "Предпочтения",
+      "languageLabel": "Язык",
+      "themeLabel": "Тема",
       "aboutSection": "О приложении и правовая информация",
       "freePlan": "Бесплатный план",
       "proPlan": "Pro план",

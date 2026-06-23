@@ -96,5 +96,5 @@
   "UNEXPECTED_ERROR": "Something went wrong. Please try again.",
   "GENERAL_ERROR": "Server error. Please try again later.",
   "INVALID_DROP_TARGET": "Invalid drop target.",
-  "PREFERENCES_SYNC_FAILED": "Saved on this device, but couldn't sync to your account. It may not apply on your other devices."
+  "PREFERENCES_UPDATE_FAILED": "Couldn't update your preference. Check your connection and try again."
 }

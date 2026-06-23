@@ -4,15 +4,41 @@
     "editTitle": "Edit Area",
     "createDescription": "Add a new Area to organize your projects",
     "editDescription": "Update Area details",
-    "nameLabel": "Name",
+    "nameLabel": "Area Name",
+    "namePlaceholder": "Enter area name",
     "colorLabel": "Color",
     "iconLabel": "Icon"
   },
+  "sortOrderField": {
+    "label": "Sort Order",
+    "optional": "(Optional)"
+  },
   "board": {
     "title": "Areas",
+    "yourAreas": "Your Areas",
     "empty": "Create your first area",
+    "emptyDescription": "Areas group related projects. Add one to get started.",
+    "newArea": "New Area",
+    "newProject": "New Project",
+    "planLimitTooltip": "Free plan limit reached — upgrade to add more.",
     "projectCount_one": "{{count}} project",
-    "projectCount_other": "{{count}} projects"
+    "projectCount_other": "{{count}} projects",
+    "areaCount_one": "{{count}} area",
+    "areaCount_other": "{{count}} areas"
+  },
+  "card": {
+    "noProjects": "No projects yet — add one below.",
+    "addProject": "Add project",
+    "confirmDeleteTitle": "Delete Area",
+    "confirmDeleteDescription": "Are you sure you want to delete <name>{{name}}</name>? Its projects will be detached, not deleted.",
+    "confirmDeleteButton": "Delete Area"
+  },
+  "contextMenu": {
+    "edit": "Edit Area",
+    "delete": "Delete Area",
+    "deleting": "Deleting...",
+    "confirmTitle": "Delete Area",
+    "confirmDescription": "Are you sure you want to delete this Area?"
   },
   "delete": {
     "title": "Delete Area",

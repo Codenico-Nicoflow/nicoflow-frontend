@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { Edit, MoreVertical, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -23,6 +24,7 @@ interface AreaContextMenuProps {
 }
 
 export const AreaContextMenu: React.FC<AreaContextMenuProps> = ({ area, onEdit }) => {
+  const { t } = useTranslation(['area', 'common']);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteArea, { isLoading: isDeleteLoading }] = useDeleteAreaMutation();
   const dispatch = useDispatch();
@@ -60,20 +62,20 @@ export const AreaContextMenu: React.FC<AreaContextMenuProps> = ({ area, onEdit }
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
-          <Edit className="h-4 w-4 mr-2" />
-          Edit Area
+          <Edit className="h-4 w-4 me-2" />
+          {t('contextMenu.edit')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() =>
             openDialog({
-              title: 'Delete Area',
-              description: 'Are you sure you want to delete this Area?',
+              title: t('contextMenu.confirmTitle'),
+              description: t('contextMenu.confirmDescription'),
               acceptButton: {
-                text: 'Delete',
+                text: t('contextMenu.delete'),
                 onClick: handleDelete,
               },
               cancelButton: {
-                text: 'Cancel',
+                text: t('common:actions.cancel'),
                 onClick: closeDialog,
               },
             })
@@ -81,8 +83,8 @@ export const AreaContextMenu: React.FC<AreaContextMenuProps> = ({ area, onEdit }
           className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
           disabled={isDeleting || isDeleteLoading}
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          {isDeleting || isDeleteLoading ? 'Deleting...' : 'Delete Area'}
+          <Trash2 className="h-4 w-4 me-2" />
+          {isDeleting || isDeleteLoading ? t('contextMenu.deleting') : t('contextMenu.delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

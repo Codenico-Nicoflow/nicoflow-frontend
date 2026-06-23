@@ -4,15 +4,41 @@
     "editTitle": "עריכת תחום",
     "createDescription": "הוסיפו תחום חדש כדי לארגן את הפרויקטים שלכם",
     "editDescription": "עדכון פרטי התחום",
-    "nameLabel": "שם",
+    "nameLabel": "שם התחום",
+    "namePlaceholder": "הזינו שם לתחום",
     "colorLabel": "צבע",
     "iconLabel": "סמל"
   },
+  "sortOrderField": {
+    "label": "סדר מיון",
+    "optional": "(אופציונלי)"
+  },
   "board": {
     "title": "תחומים",
+    "yourAreas": "התחומים שלכם",
     "empty": "צרו את התחום הראשון שלכם",
+    "emptyDescription": "תחומים מקבצים פרויקטים קשורים. הוסיפו אחד כדי להתחיל.",
+    "newArea": "תחום חדש",
+    "newProject": "פרויקט חדש",
+    "planLimitTooltip": "הגעתם למגבלת התוכנית החינמית — שדרגו להוסיף עוד.",
     "projectCount_one": "פרויקט {{count}}",
-    "projectCount_other": "{{count}} פרויקטים"
+    "projectCount_other": "{{count}} פרויקטים",
+    "areaCount_one": "תחום {{count}}",
+    "areaCount_other": "{{count}} תחומים"
+  },
+  "card": {
+    "noProjects": "אין פרויקטים עדיין — הוסיפו אחד למטה.",
+    "addProject": "הוספת פרויקט",
+    "confirmDeleteTitle": "מחיקת תחום",
+    "confirmDeleteDescription": "האם אתם בטוחים שברצונכם למחוק את <name>{{name}}</name>? הפרויקטים שלו יינותקו ולא יימחקו.",
+    "confirmDeleteButton": "מחיקת תחום"
+  },
+  "contextMenu": {
+    "edit": "עריכת תחום",
+    "delete": "מחיקת תחום",
+    "deleting": "מוחק...",
+    "confirmTitle": "מחיקת תחום",
+    "confirmDescription": "האם אתם בטוחים שברצונכם למחוק את התחום הזה?"
   },
   "delete": {
     "title": "מחיקת תחום",

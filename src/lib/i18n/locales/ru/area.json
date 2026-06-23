@@ -4,17 +4,45 @@
     "editTitle": "Изменить область",
     "createDescription": "Добавьте область, чтобы упорядочить проекты",
     "editDescription": "Обновить данные области",
-    "nameLabel": "Название",
+    "nameLabel": "Название области",
+    "namePlaceholder": "Введите название области",
     "colorLabel": "Цвет",
     "iconLabel": "Значок"
   },
+  "sortOrderField": {
+    "label": "Порядок сортировки",
+    "optional": "(Необязательно)"
+  },
   "board": {
     "title": "Области",
+    "yourAreas": "Ваши области",
     "empty": "Создайте первую область",
+    "emptyDescription": "Области объединяют связанные проекты. Добавьте одну, чтобы начать.",
+    "newArea": "Новая область",
+    "newProject": "Новый проект",
+    "planLimitTooltip": "Достигнут лимит бесплатного плана — обновитесь, чтобы добавить больше.",
     "projectCount_one": "{{count}} проект",
     "projectCount_few": "{{count}} проекта",
     "projectCount_many": "{{count}} проектов",
-    "projectCount_other": "{{count}} проектов"
+    "projectCount_other": "{{count}} проектов",
+    "areaCount_one": "{{count}} область",
+    "areaCount_few": "{{count}} области",
+    "areaCount_many": "{{count}} областей",
+    "areaCount_other": "{{count}} областей"
+  },
+  "card": {
+    "noProjects": "Проектов пока нет — добавьте один ниже.",
+    "addProject": "Добавить проект",
+    "confirmDeleteTitle": "Удалить область",
+    "confirmDeleteDescription": "Вы уверены, что хотите удалить <name>{{name}}</name>? Её проекты будут отвязаны, но не удалены.",
+    "confirmDeleteButton": "Удалить область"
+  },
+  "contextMenu": {
+    "edit": "Изменить область",
+    "delete": "Удалить область",
+    "deleting": "Удаление...",
+    "confirmTitle": "Удалить область",
+    "confirmDescription": "Вы уверены, что хотите удалить эту область?"
   },
   "delete": {
     "title": "Удалить область",

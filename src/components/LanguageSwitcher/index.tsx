@@ -1,4 +1,4 @@
-import { Languages } from 'lucide-react';
+import { Languages, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -22,17 +22,17 @@ const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
 
 export function LanguageSwitcher() {
   const { t } = useTranslation('common');
-  const { language: active, changeLanguage } = usePreferences();
-
-  // changeLanguage applies the choice locally (the lib/i18n languageChanged
-  // listener persists to localStorage and flips <html dir> for RTL) and, when
-  // logged in, PATCHes the profile so it syncs across devices.
+  const { language: active, changeLanguage, isUpdating } = usePreferences();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" aria-label={t('language.label')}>
-          <Languages className="h-[1.2rem] w-[1.2rem]" />
+        <Button variant="outline" size="icon" aria-label={t('language.label')} disabled={isUpdating}>
+          {isUpdating ? (
+            <Loader2 className="h-[1.2rem] w-[1.2rem] animate-spin" />
+          ) : (
+            <Languages className="h-[1.2rem] w-[1.2rem]" />
+          )}
           <span className="sr-only">{t('language.label')}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
         {SUPPORTED_LANGUAGES.map(lng => (
           <DropdownMenuItem
             key={lng}
-            onClick={() => changeLanguage(lng)}
+            onClick={() => void changeLanguage(lng)}
             disabled={lng === active}
             data-testid={`language-option-${lng}`}
           >

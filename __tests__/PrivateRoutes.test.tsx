@@ -13,6 +13,7 @@ const mockUser: IUser = {
   lastName: 'User',
   username: 'testuser',
   theme: 'light',
+  language: 'en',
   imageUrl: '',
   status: 'regular',
 };

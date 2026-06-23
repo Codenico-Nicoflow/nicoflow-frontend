@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { usePreferences } from '@/hooks/usePreferences';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '@/lib/i18n';
 
 // Native language names, shown in each language's own script so a user always
@@ -20,13 +21,12 @@ const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
 };
 
 export function LanguageSwitcher() {
-  const { t, i18n } = useTranslation('common');
-  const active = (i18n.resolvedLanguage ?? 'en') as SupportedLanguage;
+  const { t } = useTranslation('common');
+  const { language: active, changeLanguage } = usePreferences();
 
-  // changeLanguage triggers the `languageChanged` listener in lib/i18n, which
-  // persists the choice (localStorage) and flips <html dir> for RTL — so there's
-  // nothing else to wire here.
-  const changeLanguage = (lng: SupportedLanguage) => i18n.changeLanguage(lng);
+  // changeLanguage applies the choice locally (the lib/i18n languageChanged
+  // listener persists to localStorage and flips <html dir> for RTL) and, when
+  // logged in, PATCHes the profile so it syncs across devices.
 
   return (
     <DropdownMenu>

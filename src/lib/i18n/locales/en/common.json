@@ -20,6 +20,13 @@
     "he": "עברית",
     "ru": "Русский"
   },
+  "theme": {
+    "toggle": "Toggle theme",
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
   "fields": {
     "dueDateLabel": "Due Date",
     "pickDate": "Pick a date",
@@ -44,6 +51,9 @@
     "settings": {
       "title": "Settings",
       "accountSection": "Account",
+      "preferencesSection": "Preferences",
+      "languageLabel": "Language",
+      "themeLabel": "Theme",
       "aboutSection": "About & legal",
       "freePlan": "Free plan",
       "proPlan": "Pro plan",

@@ -1,0 +1,29 @@
+{
+  "dialog": {
+    "createTitle": "יצירת משימה חדשה",
+    "editTitle": "עריכת משימה",
+    "createDescription": "הוסיפו משימה חדשה לפרויקט שלכם",
+    "editDescription": "עדכון פרטי המשימה",
+    "titleLabel": "כותרת",
+    "notesLabel": "הערות",
+    "priorityLabel": "עדיפות",
+    "dueDateLabel": "תאריך יעד",
+    "estimatedTimeLabel": "זמן משוער",
+    "urlLabel": "קישור"
+  },
+  "actions": {
+    "edit": "עריכת משימה",
+    "delete": "מחיקת משימה"
+  },
+  "status": {
+    "todo": "לביצוע",
+    "inProgress": "בתהליך",
+    "done": "הושלם",
+    "cancelled": "בוטל"
+  },
+  "priority": {
+    "low": "נמוכה",
+    "medium": "בינונית",
+    "high": "גבוהה"
+  }
+}

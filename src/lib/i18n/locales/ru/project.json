@@ -1,0 +1,23 @@
+{
+  "dialog": {
+    "createTitle": "Создать проект",
+    "editTitle": "Изменить проект",
+    "createDescription": "Добавьте проект, чтобы упорядочить задачи",
+    "editDescription": "Обновить данные проекта",
+    "nameLabel": "Название",
+    "descriptionLabel": "Описание",
+    "areaLabel": "Область",
+    "statusLabel": "Статус",
+    "dueDateLabel": "Срок",
+    "iconLabel": "Значок"
+  },
+  "status": {
+    "active": "Активный",
+    "completed": "Завершён",
+    "archived": "В архиве"
+  },
+  "delete": {
+    "title": "Удалить проект",
+    "description": "Проект и все его задачи будут удалены без возможности восстановления."
+  }
+}

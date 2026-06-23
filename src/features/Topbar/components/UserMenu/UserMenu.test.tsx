@@ -5,8 +5,8 @@ import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
+import i18n from '@/lib/i18n';
 import { DIALOG_ACCEPT_BUTTON } from '@/lib/test_ids';
-import { ToastMessages } from '@/lib/utils';
 import { mockUser } from '@/mocks/handlers';
 
 import { server } from '../../../../../__tests__/server';
@@ -43,6 +43,6 @@ describe('UserMenu', () => {
     await user.click(await screen.findByTestId(DIALOG_ACCEPT_BUTTON));
 
     await waitFor(() => expect(called).toBe(true));
-    expect(toast.success).toHaveBeenCalledWith(ToastMessages.LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY);
+    expect(toast.success).toHaveBeenCalledWith(i18n.t('errors:LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY'));
   });
 });

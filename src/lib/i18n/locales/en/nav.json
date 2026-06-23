@@ -1,0 +1,13 @@
+{
+  "today": "Today",
+  "inbox": "Inbox",
+  "areas": "Areas",
+  "settings": "Settings",
+  "notifications": "Notifications",
+  "profile": "Profile",
+  "logout": "Log out",
+  "logoutAll": "Log out of all devices",
+  "logoutConfirm": "Are you sure you want to log out of this device?",
+  "logoutAllConfirm": "This signs you out everywhere. You will need to log in again on each device.",
+  "accountMenu": "Account menu"
+}

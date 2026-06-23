@@ -1,0 +1,23 @@
+{
+  "appName": "Nicoflow",
+  "actions": {
+    "cancel": "ביטול",
+    "save": "שמירת שינויים",
+    "create": "יצירה",
+    "saving": "שומר...",
+    "creating": "יוצר...",
+    "confirm": "אישור",
+    "delete": "מחיקה",
+    "edit": "עריכה",
+    "process": "עיבוד",
+    "goHome": "חזרה לדף הבית",
+    "search": "חיפוש…"
+  },
+  "language": {
+    "label": "שפה",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
+  },
+  "loading": "טוען…"
+}

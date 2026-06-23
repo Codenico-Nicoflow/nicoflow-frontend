@@ -1,0 +1,23 @@
+{
+  "dialog": {
+    "createTitle": "Create New Project",
+    "editTitle": "Edit Project",
+    "createDescription": "Add a new project to organize your tasks",
+    "editDescription": "Update project details",
+    "nameLabel": "Name",
+    "descriptionLabel": "Description",
+    "areaLabel": "Area",
+    "statusLabel": "Status",
+    "dueDateLabel": "Due date",
+    "iconLabel": "Icon"
+  },
+  "status": {
+    "active": "Active",
+    "completed": "Completed",
+    "archived": "Archived"
+  },
+  "delete": {
+    "title": "Delete Project",
+    "description": "This will permanently delete the project and all its tasks."
+  }
+}

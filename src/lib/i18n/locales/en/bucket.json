@@ -1,0 +1,16 @@
+{
+  "title": "Inbox",
+  "addPlaceholder": "Capture a thought…",
+  "empty": "Your inbox is empty",
+  "actions": {
+    "process": "Process",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "process": {
+    "title": "Process item",
+    "asTask": "Task",
+    "asNote": "Note",
+    "asTrash": "Trash"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "dialog": {
+    "createTitle": "יצירת תחום חדש",
+    "editTitle": "עריכת תחום",
+    "createDescription": "הוסיפו תחום חדש כדי לארגן את הפרויקטים שלכם",
+    "editDescription": "עדכון פרטי התחום",
+    "nameLabel": "שם",
+    "colorLabel": "צבע",
+    "iconLabel": "סמל"
+  },
+  "board": {
+    "title": "תחומים",
+    "empty": "צרו את התחום הראשון שלכם",
+    "projectCount_one": "פרויקט {{count}}",
+    "projectCount_other": "{{count}} פרויקטים"
+  },
+  "delete": {
+    "title": "מחיקת תחום",
+    "description": "פעולה זו תמחק את התחום. הפרויקטים שלו יישמרו ויוצאו מהתחום."
+  }
+}

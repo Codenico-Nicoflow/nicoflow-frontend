@@ -1,0 +1,23 @@
+{
+  "dialog": {
+    "createTitle": "Создать область",
+    "editTitle": "Изменить область",
+    "createDescription": "Добавьте область, чтобы упорядочить проекты",
+    "editDescription": "Обновить данные области",
+    "nameLabel": "Название",
+    "colorLabel": "Цвет",
+    "iconLabel": "Значок"
+  },
+  "board": {
+    "title": "Области",
+    "empty": "Создайте первую область",
+    "projectCount_one": "{{count}} проект",
+    "projectCount_few": "{{count}} проекта",
+    "projectCount_many": "{{count}} проектов",
+    "projectCount_other": "{{count}} проектов"
+  },
+  "delete": {
+    "title": "Удалить область",
+    "description": "Область будет удалена. Её проекты сохранятся и будут перемещены из области."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "dialog": {
+    "createTitle": "Create New Task",
+    "editTitle": "Edit Task",
+    "createDescription": "Add a new task to your Project",
+    "editDescription": "Update task details",
+    "titleLabel": "Title",
+    "notesLabel": "Notes",
+    "priorityLabel": "Priority",
+    "dueDateLabel": "Due date",
+    "estimatedTimeLabel": "Estimated time",
+    "urlLabel": "URL"
+  },
+  "actions": {
+    "edit": "Edit Task",
+    "delete": "Delete Task"
+  },
+  "status": {
+    "todo": "To do",
+    "inProgress": "In progress",
+    "done": "Done",
+    "cancelled": "Cancelled"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "dialog": {
+    "createTitle": "Создать задачу",
+    "editTitle": "Изменить задачу",
+    "createDescription": "Добавьте задачу в проект",
+    "editDescription": "Обновить данные задачи",
+    "titleLabel": "Название",
+    "notesLabel": "Заметки",
+    "priorityLabel": "Приоритет",
+    "dueDateLabel": "Срок",
+    "estimatedTimeLabel": "Оценка времени",
+    "urlLabel": "Ссылка"
+  },
+  "actions": {
+    "edit": "Изменить задачу",
+    "delete": "Удалить задачу"
+  },
+  "status": {
+    "todo": "К выполнению",
+    "inProgress": "В работе",
+    "done": "Готово",
+    "cancelled": "Отменено"
+  },
+  "priority": {
+    "low": "Низкий",
+    "medium": "Средний",
+    "high": "Высокий"
+  }
+}

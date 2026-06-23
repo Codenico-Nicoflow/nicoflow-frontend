@@ -1,0 +1,23 @@
+{
+  "appName": "Nicoflow",
+  "actions": {
+    "cancel": "Отмена",
+    "save": "Сохранить изменения",
+    "create": "Создать",
+    "saving": "Сохранение...",
+    "creating": "Создание...",
+    "confirm": "Подтвердить",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "process": "Обработать",
+    "goHome": "На главную",
+    "search": "Поиск…"
+  },
+  "language": {
+    "label": "Язык",
+    "en": "English",
+    "he": "עברית",
+    "ru": "Русский"
+  },
+  "loading": "Загрузка…"
+}

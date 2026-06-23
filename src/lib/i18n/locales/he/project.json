@@ -1,0 +1,23 @@
+{
+  "dialog": {
+    "createTitle": "יצירת פרויקט חדש",
+    "editTitle": "עריכת פרויקט",
+    "createDescription": "הוסיפו פרויקט חדש כדי לארגן את המשימות שלכם",
+    "editDescription": "עדכון פרטי הפרויקט",
+    "nameLabel": "שם",
+    "descriptionLabel": "תיאור",
+    "areaLabel": "תחום",
+    "statusLabel": "סטטוס",
+    "dueDateLabel": "תאריך יעד",
+    "iconLabel": "סמל"
+  },
+  "status": {
+    "active": "פעיל",
+    "completed": "הושלם",
+    "archived": "בארכיון"
+  },
+  "delete": {
+    "title": "מחיקת פרויקט",
+    "description": "פעולה זו תמחק לצמיתות את הפרויקט ואת כל המשימות שבו."
+  }
+}

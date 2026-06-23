@@ -1,0 +1,21 @@
+{
+  "dialog": {
+    "createTitle": "Create New Area",
+    "editTitle": "Edit Area",
+    "createDescription": "Add a new Area to organize your projects",
+    "editDescription": "Update Area details",
+    "nameLabel": "Name",
+    "colorLabel": "Color",
+    "iconLabel": "Icon"
+  },
+  "board": {
+    "title": "Areas",
+    "empty": "Create your first area",
+    "projectCount_one": "{{count}} project",
+    "projectCount_other": "{{count}} projects"
+  },
+  "delete": {
+    "title": "Delete Area",
+    "description": "This will delete the area. Its projects will be kept and moved out of the area."
+  }
+}

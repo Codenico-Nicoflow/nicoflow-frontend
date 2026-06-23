@@ -1,4 +1,4 @@
-import { Moon, Sun } from 'lucide-react';
+import { Loader2, Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -12,14 +12,20 @@ import { usePreferences } from '@/hooks/usePreferences';
 
 export function ModeToggle() {
   const { t } = useTranslation('common');
-  const { changeTheme, setSystemTheme } = usePreferences();
+  const { changeTheme, setSystemTheme, isUpdating } = usePreferences();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" aria-label={t('theme.toggle')}>
-          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+        <Button variant="outline" size="icon" aria-label={t('theme.toggle')} disabled={isUpdating}>
+          {isUpdating ? (
+            <Loader2 className="h-[1.2rem] w-[1.2rem] animate-spin" />
+          ) : (
+            <>
+              <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+              <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+            </>
+          )}
           <span className="sr-only">{t('theme.toggle')}</span>
         </Button>
       </DropdownMenuTrigger>

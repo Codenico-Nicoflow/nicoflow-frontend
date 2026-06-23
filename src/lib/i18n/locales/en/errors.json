@@ -95,5 +95,6 @@
   "PROFILE_ACCESS_LIMIT_EXCEEDED": "Too many profile access attempts. Please try again later.",
   "UNEXPECTED_ERROR": "Something went wrong. Please try again.",
   "GENERAL_ERROR": "Server error. Please try again later.",
-  "INVALID_DROP_TARGET": "Invalid drop target."
+  "INVALID_DROP_TARGET": "Invalid drop target.",
+  "PREFERENCES_UPDATE_FAILED": "Couldn't update your preference. Check your connection and try again."
 }

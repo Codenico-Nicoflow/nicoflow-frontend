@@ -1,4 +1,5 @@
 import { CheckSquare, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 
@@ -8,6 +9,8 @@ interface TasksHeaderProps {
 }
 
 const TasksHeader = ({ taskCount, onAddTask }: TasksHeaderProps) => {
+  const { t } = useTranslation('task');
+
   return (
     <div className="mb-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -16,9 +19,9 @@ const TasksHeader = ({ taskCount, onAddTask }: TasksHeaderProps) => {
             <CheckSquare className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Tasks</h2>
+            <h2 className="text-xl font-semibold text-foreground">{t('header.title')}</h2>
             <p className="text-sm text-muted-foreground">
-              {taskCount > 0 ? `${taskCount} ${taskCount === 1 ? 'task' : 'Tasks'}` : 'Manage your Tasks'}
+              {taskCount > 0 ? t('header.taskCount', { count: taskCount }) : t('header.manageTasksHint')}
             </p>
           </div>
         </div>
@@ -28,8 +31,8 @@ const TasksHeader = ({ taskCount, onAddTask }: TasksHeaderProps) => {
             onClick={onAddTask}
             className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 w-full sm:w-auto"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Task
+            <Plus className="h-4 w-4 me-2" />
+            {t('header.addTask')}
           </Button>
         )}
       </div>

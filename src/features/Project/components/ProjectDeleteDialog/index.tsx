@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -15,6 +16,7 @@ interface DeleteDialogProps {
 }
 
 export const ProjectDeleteDialog = ({ open, onOpenChange, onSuccess, projectName, projectId }: DeleteDialogProps) => {
+  const { t } = useTranslation('project');
   const [deleteProject, { isLoading }] = useDeleteProjectMutation();
   const dispatch = useDispatch();
 
@@ -34,17 +36,18 @@ export const ProjectDeleteDialog = ({ open, onOpenChange, onSuccess, projectName
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete Project"
+      title={t('delete.title')}
       description={
-        <>
-          Are you sure you want to delete{' '}
-          <span className="font-semibold text-foreground">{projectName || 'this Project'}</span>? This action cannot be
-          undone. This will permanently delete all tasks in this project.
-        </>
+        <Trans
+          t={t}
+          i18nKey="delete.confirmDescription"
+          values={{ name: projectName || t('delete.title') }}
+          components={{ name: <span className="font-semibold text-foreground" /> }}
+        />
       }
       icon={Trash2}
       variant="danger"
-      confirmLabel="Delete Project"
+      confirmLabel={t('delete.confirmLabel')}
       onConfirm={handleDelete}
       isLoading={isLoading}
       destructive

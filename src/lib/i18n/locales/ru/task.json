@@ -9,7 +9,11 @@
     "priorityLabel": "Приоритет",
     "dueDateLabel": "Срок",
     "estimatedTimeLabel": "Оценка времени",
-    "urlLabel": "Ссылка"
+    "urlLabel": "Ссылка",
+    "taskNameLabel": "Название задачи",
+    "taskNamePlaceholder": "Введите название задачи",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Добавьте детали задачи..."
   },
   "actions": {
     "edit": "Изменить задачу",
@@ -19,11 +23,58 @@
     "todo": "К выполнению",
     "inProgress": "В работе",
     "done": "Готово",
-    "cancelled": "Отменено"
+    "cancelled": "Отменено",
+    "inbox": "Входящие",
+    "active": "Активна"
   },
   "priority": {
     "low": "Низкий",
     "medium": "Средний",
-    "high": "Высокий"
+    "high": "Высокий",
+    "unknown": "Неизвестно"
+  },
+  "filters": {
+    "all": "Все",
+    "inbox": "Входящие",
+    "active": "Активные",
+    "done": "Готово",
+    "cancelled": "Отменённые"
+  },
+  "header": {
+    "title": "Задачи",
+    "taskCount": "{{count}} задача",
+    "taskCount_plural": "{{count}} задач",
+    "manageTasksHint": "Управляйте своими задачами",
+    "addTask": "Добавить задачу"
+  },
+  "empty": {
+    "title": "Задач пока нет",
+    "description": "Начните организовывать работу, создав первую задачу. Разбейте проект на управляемые части.",
+    "createFirstTask": "Создать первую задачу"
+  },
+  "search": {
+    "placeholder": "Поиск задач..."
+  },
+  "noResults": {
+    "filter": "Нет задач, соответствующих выбранному фильтру.",
+    "search": "Нет задач, соответствующих поисковому запросу."
+  },
+  "deleteDialog": {
+    "title": "Удалить задачу",
+    "description": "Удалить «{{name}}»? Это действие нельзя отменить.",
+    "confirmLabel": "Удалить задачу"
+  },
+  "badges": {
+    "min": "{{count}} мин",
+    "link": "Ссылка"
+  },
+  "updating": {
+    "title": "Обновление задачи...",
+    "subtitle": "Подождите, идёт обновление задачи"
+  },
+  "dueDate": {
+    "today": "Сегодня",
+    "tomorrow": "Завтра",
+    "overdue": "{{date}} • Просрочено"
   }
 }

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Inbox, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button.tsx';
@@ -16,11 +17,9 @@ interface BucketQuickInputProps {
   compact?: boolean;
 }
 
-export const BucketQuickInput = ({
-  onSuccess,
-  placeholder = 'Capture anything on your mind...',
-  compact = false,
-}: BucketQuickInputProps) => {
+export const BucketQuickInput = ({ onSuccess, placeholder, compact = false }: BucketQuickInputProps) => {
+  const { t } = useTranslation('bucket');
+  const resolvedPlaceholder = placeholder ?? t('quickInput.defaultPlaceholder');
   const [createBucket, { isLoading }] = useCreateBucketMutation();
 
   const form = useForm<BucketFormData>({
@@ -33,7 +32,7 @@ export const BucketQuickInput = ({
   const onSubmit = async (data: BucketFormData) => {
     try {
       await createBucket(data).unwrap();
-      toast.success('Added to Bucket');
+      toast.success(t('addPlaceholder'));
       form.reset();
       onSuccess?.();
     } catch (error) {
@@ -60,7 +59,7 @@ export const BucketQuickInput = ({
               <FormControl>
                 <Textarea
                   {...field}
-                  placeholder={placeholder}
+                  placeholder={resolvedPlaceholder}
                   className={cn(
                     'resize-none min-h-[60px] sm:min-h-[80px]',
                     compact && 'min-h-[50px] text-sm',
@@ -81,13 +80,13 @@ export const BucketQuickInput = ({
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Adding...
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+              {t('quickInput.submitting')}
             </>
           ) : (
             <>
-              <Inbox className="mr-2 h-4 w-4" />
-              Add to Bucket
+              <Inbox className="me-2 h-4 w-4" />
+              {t('quickInput.submit')}
             </>
           )}
         </Button>

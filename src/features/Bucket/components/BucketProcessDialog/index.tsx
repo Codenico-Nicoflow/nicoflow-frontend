@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -33,6 +34,7 @@ interface BucketProcessDialogProps {
 }
 
 export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProcessDialogProps) => {
+  const { t } = useTranslation(['bucket', 'task']);
   const { data: projectsData } = useGetProjectsQuery();
   const projects = projectsData?.items ?? [];
   const [processBucket, { isLoading }] = useProcessBucketMutation();
@@ -93,8 +95,8 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Process Bucket Item"
-      description="Transform this item into a task, note, or idea for later."
+      title={t('bucket:processDialog.title')}
+      description={t('bucket:processDialog.description')}
       icon={CheckSquare}
       isLoading={isLoading}
       onSubmit={handleSubmit}
@@ -102,7 +104,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
       maxWidth="lg"
     >
       <div className="rounded-lg bg-muted/50 p-3 border">
-        <p className="text-xs text-muted-foreground mb-1.5">Original Content:</p>
+        <p className="text-xs text-muted-foreground mb-1.5">{t('bucket:processDialog.originalContent')}</p>
         <p className="text-sm whitespace-pre-wrap break-words">{bucket?.content}</p>
       </div>
 
@@ -117,9 +119,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
           {!projects.length ? (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                You need to create at least one project before converting bucket items to tasks.
-              </AlertDescription>
+              <AlertDescription>{t('bucket:processDialog.noProjects')}</AlertDescription>
             </Alert>
           ) : (
             <Form {...form}>
@@ -133,16 +133,16 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
                 <NameField
                   control={form.control}
                   fieldName="title"
-                  label="Task Name"
+                  label={t('bucket:processDialog.taskNameLabel')}
                   icon={CheckSquare}
-                  placeholder="Enter task name"
+                  placeholder={t('bucket:processDialog.taskNamePlaceholder')}
                   delay={0.1}
                 />
                 <DescriptionField
                   control={form.control}
                   fieldName="notes"
-                  label="Description"
-                  placeholder="Add task details..."
+                  label={t('bucket:processDialog.descriptionLabel')}
+                  placeholder={t('bucket:processDialog.descriptionPlaceholder')}
                   minHeight="100px"
                   delay={0.15}
                 />
@@ -163,14 +163,14 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
       {selectedType === ProcessingResult.TRASH && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>This item will be marked as trash for analytics purposes.</AlertDescription>
+          <AlertDescription>{t('bucket:processDialog.trashAlert')}</AlertDescription>
         </Alert>
       )}
 
       {selectedType === ProcessingResult.NOTE && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>This feature is coming soon! Stay tuned.</AlertDescription>
+          <AlertDescription>{t('bucket:processDialog.noteAlert')}</AlertDescription>
         </Alert>
       )}
     </FormDialog>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link, X } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -17,12 +18,14 @@ interface UrlFieldProps<T extends FieldValues> {
 
 export const UrlField = <T extends FieldValues>({
   control,
-  label = 'URL',
+  label,
   fieldName = 'url' as Path<T>,
   delay = 0.3,
   optional = false,
   'data-testid': testId,
 }: UrlFieldProps<T>) => {
+  const { t } = useTranslation('common');
+  const resolvedLabel = label ?? t('fields.urlLabel');
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
       <FormField
@@ -35,8 +38,8 @@ export const UrlField = <T extends FieldValues>({
               className="text-sm font-semibold text-foreground flex items-center gap-2"
             >
               <Link className="h-4 w-4" />
-              {label}
-              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
+              {resolvedLabel}
+              {optional && <span className="text-xs text-muted-foreground font-normal">{t('fields.optional')}</span>}
             </FormLabel>
             <div className="flex gap-2">
               <FormControl>

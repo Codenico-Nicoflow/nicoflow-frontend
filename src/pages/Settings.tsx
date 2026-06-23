@@ -1,4 +1,5 @@
 import { FileText, HelpCircle, Shield, Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,23 +8,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppUser } from '@/lib/store';
 import { USER_STATUS } from '@/lib/types';
 
-const FOOTER_LINKS = [
-  { label: 'Terms of Service', icon: Shield, to: '/terms-of-service' },
-  { label: 'Privacy Policy', icon: FileText, to: '/privacy-policy' },
-  { label: 'Help & Information', icon: HelpCircle, to: '/help-information' },
-];
-
 const Settings = () => {
+  const { t } = useTranslation();
   const user = useAppUser();
   const isFree = user?.status !== USER_STATUS.PREMIUM;
 
+  const footerLinks = [
+    { label: t('pages.settings.links.terms'), icon: Shield, to: '/terms-of-service' },
+    { label: t('pages.settings.links.privacy'), icon: FileText, to: '/privacy-policy' },
+    { label: t('pages.settings.links.help'), icon: HelpCircle, to: '/help-information' },
+  ];
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+      <h1 className="text-2xl font-bold text-foreground">{t('pages.settings.title')}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Account</CardTitle>
+          <CardTitle>{t('pages.settings.accountSection')}</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center gap-4">
           <Avatar className="h-12 w-12">
@@ -35,7 +37,9 @@ const Settings = () => {
           <div className="min-w-0">
             <p className="truncate font-medium text-foreground">{user?.username || '—'}</p>
             <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
-            <p className="text-xs text-muted-foreground">{isFree ? 'Free plan' : 'Pro plan'}</p>
+            <p className="text-xs text-muted-foreground">
+              {isFree ? t('pages.settings.freePlan') : t('pages.settings.proPlan')}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -45,25 +49,23 @@ const Settings = () => {
           <CardContent className="flex flex-col items-center gap-2 py-6 text-center">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold text-accent-foreground">Upgrade to PRO</h3>
+              <h3 className="font-semibold text-accent-foreground">{t('pages.settings.upgradeTitle')}</h3>
             </div>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Get a 1-month free trial and unlock unlimited areas, projects, AI, and more.
-            </p>
-            <Button className="mt-1">Upgrade</Button>
+            <p className="max-w-sm text-sm text-muted-foreground">{t('pages.settings.upgradeDescription')}</p>
+            <Button className="mt-1">{t('pages.settings.upgradeButton')}</Button>
           </CardContent>
         </Card>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>About &amp; legal</CardTitle>
+          <CardTitle>{t('pages.settings.aboutSection')}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-1">
-          {FOOTER_LINKS.map(item => (
+          {footerLinks.map(item => (
             <Button key={item.to} variant="ghost" className="justify-start" asChild>
               <Link to={item.to}>
-                <item.icon className="mr-2 h-4 w-4 text-primary" />
+                <item.icon className="me-2 h-4 w-4 text-primary" />
                 {item.label}
               </Link>
             </Button>

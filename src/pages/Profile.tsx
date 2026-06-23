@@ -1,5 +1,10 @@
+import { useTranslation } from 'react-i18next';
+
 import PageStub from '@/components/PageStub/PageStub';
 
-const Profile = () => <PageStub title="Profile" />;
+const Profile = () => {
+  const { t } = useTranslation();
+  return <PageStub title={t('pages.profile.title')} />;
+};
 
 export default Profile;

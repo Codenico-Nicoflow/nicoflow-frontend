@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Clock, X } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -17,12 +18,14 @@ interface EstimatedTimeFieldProps<T extends FieldValues> {
 
 export const EstimatedTimeField = <T extends FieldValues>({
   control,
-  label = 'Estimated Time',
+  label,
   fieldName = 'estimatedMinutes' as Path<T>,
   delay = 0.25,
   optional = false,
   'data-testid': testId,
 }: EstimatedTimeFieldProps<T>) => {
+  const { t } = useTranslation('common');
+  const resolvedLabel = label ?? t('fields.estimatedTimeLabel');
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
       <FormField
@@ -35,8 +38,8 @@ export const EstimatedTimeField = <T extends FieldValues>({
               className="text-sm font-semibold text-foreground flex items-center gap-2"
             >
               <Clock className="h-4 w-4" />
-              {label}
-              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
+              {resolvedLabel}
+              {optional && <span className="text-xs text-muted-foreground font-normal">{t('fields.optional')}</span>}
             </FormLabel>
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -44,7 +47,7 @@ export const EstimatedTimeField = <T extends FieldValues>({
                   <Input
                     data-testid={testId ? `${testId}-estimated-time-input` : 'estimated-time-input'}
                     type="number"
-                    placeholder="Enter estimated time"
+                    placeholder={t('fields.estimatedTimePlaceholder')}
                     onChange={e => {
                       const value = e.target.value;
                       if (value === '' || value === null) {
@@ -55,14 +58,14 @@ export const EstimatedTimeField = <T extends FieldValues>({
                       }
                     }}
                     value={field.value ?? ''}
-                    className="h-10 sm:h-12 pr-16 text-sm sm:text-base"
+                    className="h-10 sm:h-12 pe-16 text-sm sm:text-base"
                     onBlur={field.onBlur}
                     name={field.name}
                     ref={field.ref}
                   />
                 </FormControl>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-muted-foreground pointer-events-none">
-                  minutes
+                <div className="absolute end-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-muted-foreground pointer-events-none">
+                  {t('fields.minutes')}
                 </div>
               </div>
               {field.value && (

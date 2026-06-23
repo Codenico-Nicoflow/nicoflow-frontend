@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { FolderKanban, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button.tsx';
 import { Card, CardContent } from '@/components/ui/card.tsx';
@@ -9,6 +10,8 @@ interface ProjectsEmptyStateProps {
 }
 
 export const ProjectEmptyState = ({ onAddProject }: ProjectsEmptyStateProps) => {
+  const { t } = useTranslation('project');
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -34,11 +37,8 @@ export const ProjectEmptyState = ({ onAddProject }: ProjectsEmptyStateProps) => 
             transition={{ delay: 0.6, duration: 0.4 }}
             className="space-y-4"
           >
-            <h3 className="text-xl font-semibold text-foreground">No projects yet</h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Start organizing your work by creating your first project. Group related tasks together for better
-              productivity.
-            </p>
+            <h3 className="text-xl font-semibold text-foreground">{t('emptyState.title')}</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">{t('emptyState.description')}</p>
           </motion.div>
 
           <motion.div
@@ -52,8 +52,8 @@ export const ProjectEmptyState = ({ onAddProject }: ProjectsEmptyStateProps) => 
               size="lg"
               className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              <Plus className="h-5 w-5 mr-2" />
-              Create Your First Project
+              <Plus className="h-5 w-5 me-2" />
+              {t('emptyState.action')}
             </Button>
           </motion.div>
         </CardContent>

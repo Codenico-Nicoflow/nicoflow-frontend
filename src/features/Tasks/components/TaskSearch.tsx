@@ -1,4 +1,5 @@
 import { Search, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -10,21 +11,24 @@ interface TaskSearchProps {
   className?: string;
 }
 
-const TaskSearch = ({ value, onChange, placeholder = 'Search Tasks...', className }: TaskSearchProps) => {
+const TaskSearch = ({ value, onChange, placeholder, className }: TaskSearchProps) => {
+  const { t } = useTranslation('task');
+  const resolvedPlaceholder = placeholder ?? t('search.placeholder');
+
   return (
     <div className={cn('relative', className)}>
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
         type="text"
         value={value}
         onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="pl-9 pr-9 h-10"
+        placeholder={resolvedPlaceholder}
+        className="ps-9 pe-9 h-10"
       />
       {value && (
         <button
           onClick={() => onChange('')}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute end-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           type="button"
         >
           <X className="h-4 w-4" />

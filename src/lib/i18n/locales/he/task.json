@@ -9,7 +9,11 @@
     "priorityLabel": "עדיפות",
     "dueDateLabel": "תאריך יעד",
     "estimatedTimeLabel": "זמן משוער",
-    "urlLabel": "קישור"
+    "urlLabel": "קישור",
+    "taskNameLabel": "שם המשימה",
+    "taskNamePlaceholder": "הזינו שם משימה",
+    "descriptionLabel": "תיאור",
+    "descriptionPlaceholder": "הוסיפו פרטי משימה..."
   },
   "actions": {
     "edit": "עריכת משימה",
@@ -19,11 +23,58 @@
     "todo": "לביצוע",
     "inProgress": "בתהליך",
     "done": "הושלם",
-    "cancelled": "בוטל"
+    "cancelled": "בוטל",
+    "inbox": "תיבת נכנס",
+    "active": "פעיל"
   },
   "priority": {
     "low": "נמוכה",
     "medium": "בינונית",
-    "high": "גבוהה"
+    "high": "גבוהה",
+    "unknown": "לא ידוע"
+  },
+  "filters": {
+    "all": "הכל",
+    "inbox": "תיבת נכנס",
+    "active": "פעיל",
+    "done": "הושלם",
+    "cancelled": "בוטל"
+  },
+  "header": {
+    "title": "משימות",
+    "taskCount": "משימה אחת",
+    "taskCount_plural": "{{count}} משימות",
+    "manageTasksHint": "נהלו את המשימות שלכם",
+    "addTask": "הוספת משימה"
+  },
+  "empty": {
+    "title": "אין משימות עדיין",
+    "description": "התחילו לארגן את העבודה שלכם על ידי יצירת המשימה הראשונה. חלקו את הפרויקט לחלקים קטנים וניתנים לניהול.",
+    "createFirstTask": "צרו את המשימה הראשונה שלכם"
+  },
+  "search": {
+    "placeholder": "חיפוש משימות..."
+  },
+  "noResults": {
+    "filter": "אין משימות התואמות את הסינון הנבחר.",
+    "search": "אין משימות התואמות את החיפוש הנבחר."
+  },
+  "deleteDialog": {
+    "title": "מחיקת משימה",
+    "description": "האם למחוק את \"{{name}}\"? פעולה זו אינה ניתנת לביטול.",
+    "confirmLabel": "מחיקת משימה"
+  },
+  "badges": {
+    "min": "{{count}} דק'",
+    "link": "קישור"
+  },
+  "updating": {
+    "title": "מעדכן משימה...",
+    "subtitle": "אנא המתינו בזמן עדכון המשימה"
+  },
+  "dueDate": {
+    "today": "היום",
+    "tomorrow": "מחר",
+    "overdue": "{{date}} • באיחור"
   }
 }

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { useLoadingOverlay } from '@/components';
@@ -24,6 +25,7 @@ interface TasksSectionProps {
 }
 
 const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
+  const { t } = useTranslation('task');
   const { data: tasks = [], isLoading: isLoadingTasks } = useGetTasksQuery();
   const [updateTask] = useUpdateTaskMutation();
   const { show, hide } = useLoadingOverlay();
@@ -66,7 +68,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
 
   const handleTaskToggle = async (task: ITask) => {
     try {
-      show({ title: 'Updating task...', subtitle: 'Please wait while we update the task' });
+      show({ title: t('updating.title'), subtitle: t('updating.subtitle') });
       await updateTask({
         id: task.id,
         status: task.status === TaskStatus.DONE ? TaskStatus.ACTIVE : TaskStatus.DONE,
@@ -91,7 +93,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   };
 
   const handleDeleteTask = (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find(task => task.id === taskId);
     if (task) {
       setTaskToDelete({ id: taskId, name: task.title });
       setIsDeleteDialogOpen(true);
@@ -132,7 +134,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                No tasks match the selected {searchQuery ? 'search' : 'filter'}.
+                {searchQuery ? t('noResults.search') : t('noResults.filter')}
               </div>
             )}
           </>

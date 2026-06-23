@@ -56,7 +56,7 @@ export const ItemActionsMenu = ({
             disabled={action.disabled}
             variant={action.destructive ? 'destructive' : 'default'}
           >
-            <action.icon className="mr-2 h-4 w-4 text-current" />
+            <action.icon className="me-2 h-4 w-4 text-current" />
             {action.label}
           </DropdownMenuItem>
         ))}

@@ -1,5 +1,8 @@
 {
   "today": "Today",
+  "tomorrow": "Tomorrow",
+  "nextSevenDays": "Next 7 Days",
+  "bucket": "Bucket",
   "inbox": "Inbox",
   "areas": "Areas",
   "settings": "Settings",

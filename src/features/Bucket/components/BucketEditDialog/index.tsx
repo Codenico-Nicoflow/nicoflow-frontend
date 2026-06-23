@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { DescriptionField, FormDialog } from '@/components';
@@ -19,6 +20,7 @@ interface BucketEditDialogProps {
 }
 
 export const BucketEditDialog = ({ bucket, open, onOpenChange }: BucketEditDialogProps) => {
+  const { t } = useTranslation('bucket');
   const [updateBucket, { isLoading }] = useUpdateBucketMutation();
 
   const form = useForm<BucketFormData>({
@@ -56,8 +58,8 @@ export const BucketEditDialog = ({ bucket, open, onOpenChange }: BucketEditDialo
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Edit Bucket"
-      description="Update the content of your bucket item."
+      title={t('editDialog.title')}
+      description={t('editDialog.description')}
       icon={Edit}
       isEditMode
       isLoading={isLoading}
@@ -68,8 +70,8 @@ export const BucketEditDialog = ({ bucket, open, onOpenChange }: BucketEditDialo
       <Form {...form}>
         <DescriptionField
           control={form.control}
-          label="Content"
-          placeholder="What's on your mind?"
+          label={t('editDialog.contentLabel')}
+          placeholder={t('editDialog.contentPlaceholder')}
           fieldName="content"
           minHeight="120px"
           delay={0.1}

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
 
+import i18n from '@/lib/i18n';
+
 import HelpAndInformation from './HelpAndInformation';
 
 const meta: Meta<typeof HelpAndInformation> = {
@@ -16,6 +18,6 @@ type Story = StoryObj<typeof HelpAndInformation>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText('HelpAndInformation')).toBeInTheDocument();
+    await expect(canvas.getByText(i18n.t('pages.helpAndInformation.title'))).toBeInTheDocument();
   },
 };

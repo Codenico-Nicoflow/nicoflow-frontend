@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { Layers, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { DragAndDropContext, EmptyState, PlanLimitAlert } from '@/components';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { useAppUser, useGetAreasWithProjectsQuery } from '@/lib/store';
 import { FREE_PLAN_AREA_LIMIT, FREE_PLAN_PROJECT_LIMIT, USER_STATUS } from '@/lib/types';
 
 const AreasBoard = () => {
+  const { t } = useTranslation('area');
   const user = useAppUser();
   const { data: areas, isLoading } = useGetAreasWithProjectsQuery();
 
@@ -53,10 +55,10 @@ const AreasBoard = () => {
       <div className="p-6">
         <header className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Your Areas</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t('board.yourAreas')}</h1>
             <p className="text-sm text-muted-foreground">
-              {sortedAreas.length} {sortedAreas.length === 1 ? 'area' : 'areas'} · {projectCount}{' '}
-              {projectCount === 1 ? 'project' : 'projects'}
+              {t('board.areaCount', { count: sortedAreas.length })} &middot;{' '}
+              {t('board.projectCount', { count: projectCount })}
             </p>
           </div>
 
@@ -72,12 +74,12 @@ const AreasBoard = () => {
                         disabled={atProjectLimit}
                         data-testid="board-new-project"
                       >
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Project
+                        <Plus className="me-2 h-4 w-4" />
+                        {t('board.newProject')}
                       </Button>
                     </span>
                   </TooltipTrigger>
-                  {atProjectLimit && <TooltipContent>Free plan limit reached — upgrade to add more.</TooltipContent>}
+                  {atProjectLimit && <TooltipContent>{t('board.planLimitTooltip')}</TooltipContent>}
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -87,12 +89,12 @@ const AreasBoard = () => {
                         disabled={atAreaLimit}
                         data-testid="board-new-area"
                       >
-                        <Plus className="mr-2 h-4 w-4" />
-                        New Area
+                        <Plus className="me-2 h-4 w-4" />
+                        {t('board.newArea')}
                       </Button>
                     </span>
                   </TooltipTrigger>
-                  {atAreaLimit && <TooltipContent>Free plan limit reached — upgrade to add more.</TooltipContent>}
+                  {atAreaLimit && <TooltipContent>{t('board.planLimitTooltip')}</TooltipContent>}
                 </Tooltip>
               </div>
             </TooltipProvider>
@@ -108,12 +110,12 @@ const AreasBoard = () => {
         {sortedAreas.length === 0 ? (
           <EmptyState
             icon={Layers}
-            title="Create your first area"
-            description="Areas group related projects. Add one to get started."
+            title={t('board.empty')}
+            description={t('board.emptyDescription')}
             action={
               <Button onClick={() => setCreateAreaOpen(true)} data-testid="board-empty-create">
-                <Plus className="mr-2 h-4 w-4" />
-                New Area
+                <Plus className="me-2 h-4 w-4" />
+                {t('board.newArea')}
               </Button>
             }
             data-testid="board-empty"

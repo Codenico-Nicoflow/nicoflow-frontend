@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { motion } from 'framer-motion';
 import { CheckSquare, FolderX } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { EmptyState } from '@/components';
@@ -11,6 +12,7 @@ import { ProjectDeleteDialog, ProjectDialog, ProjectHeader, ProjectLoadingState 
 import { useGetProjectQuery } from '@/lib/store';
 
 const ProjectView = () => {
+  const { t } = useTranslation('project');
   const { projectId = '' } = useParams();
   const navigate = useNavigate();
   const { data: project, isLoading, isError } = useGetProjectQuery(projectId, { skip: !projectId });
@@ -30,11 +32,11 @@ const ProjectView = () => {
     return (
       <EmptyState
         icon={FolderX}
-        title="Project not found"
-        description="This project may have been deleted or you don't have access to it."
+        title={t('view.notFound')}
+        description={t('view.notFoundDescription')}
         action={
           <Button variant="outline" onClick={() => navigate('/areas')}>
-            Back to Areas
+            {t('view.backToAreas')}
           </Button>
         }
         data-testid="project-not-found"
@@ -54,18 +56,14 @@ const ProjectView = () => {
       >
         {project.description && (
           <section data-testid="project-description">
-            <h2 className="text-sm font-semibold text-foreground mb-2">Description</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-2">{t('view.description')}</h2>
             <ExpandableText>{project.description}</ExpandableText>
           </section>
         )}
 
         <section>
-          <h2 className="text-sm font-semibold text-foreground mb-2">Tasks</h2>
-          <EmptyState
-            icon={CheckSquare}
-            title="Tasks coming soon"
-            description="Task management lands in a later phase."
-          />
+          <h2 className="text-sm font-semibold text-foreground mb-2">{t('view.tasks')}</h2>
+          <EmptyState icon={CheckSquare} title={t('view.tasksSoon')} description={t('view.tasksDescription')} />
         </section>
       </motion.div>
 

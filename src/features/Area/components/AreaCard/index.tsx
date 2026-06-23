@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { motion } from 'framer-motion';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -24,6 +25,7 @@ interface AreaCardProps {
 }
 
 export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardProps) => {
+  const { t } = useTranslation('area');
   const dispatch = useDispatch();
   const [deleteArea, { isLoading: isDeleting }] = useDeleteAreaMutation();
 
@@ -70,9 +72,9 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
             <ItemActionsMenu
               data-testid={testId ? `${testId}-actions` : 'area-card-actions'}
               actions={[
-                { label: 'Edit', icon: Pencil, onClick: () => setEditAreaOpen(true) },
+                { label: t('contextMenu.edit'), icon: Pencil, onClick: () => setEditAreaOpen(true) },
                 {
-                  label: 'Delete',
+                  label: t('contextMenu.delete'),
                   icon: Trash2,
                   onClick: () => setConfirmDeleteArea(true),
                   destructive: true,
@@ -84,7 +86,7 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
 
           <CardContent className="space-y-1">
             {projects.length === 0 ? (
-              <p className="px-3 py-4 text-center text-sm text-muted-foreground">No projects yet — add one below.</p>
+              <p className="px-3 py-4 text-center text-sm text-muted-foreground">{t('card.noProjects')}</p>
             ) : (
               projects.map(project => (
                 <ProjectRow
@@ -102,8 +104,8 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
               className="mt-1 w-full justify-start border border-dashed border-border text-muted-foreground hover:text-foreground"
               data-testid={testId ? `${testId}-add-project` : 'area-card-add-project'}
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Add project
+              <Plus className="me-2 h-4 w-4" />
+              {t('card.addProject')}
             </Button>
           </CardContent>
         </Card>
@@ -113,16 +115,18 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
       <ConfirmDialog
         open={confirmDeleteArea}
         onOpenChange={setConfirmDeleteArea}
-        title="Delete Area"
+        title={t('card.confirmDeleteTitle')}
         description={
-          <>
-            Are you sure you want to delete <span className="font-semibold text-foreground">{area.name}</span>? Its
-            projects will be detached, not deleted.
-          </>
+          <Trans
+            t={t}
+            i18nKey="card.confirmDeleteDescription"
+            values={{ name: area.name }}
+            components={{ name: <span className="font-semibold text-foreground" /> }}
+          />
         }
         icon={Trash2}
         variant="danger"
-        confirmLabel="Delete Area"
+        confirmLabel={t('card.confirmDeleteButton')}
         onConfirm={handleDeleteArea}
         isLoading={isDeleting}
         destructive

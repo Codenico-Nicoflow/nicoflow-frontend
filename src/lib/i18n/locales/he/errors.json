@@ -95,5 +95,6 @@
   "PROFILE_ACCESS_LIMIT_EXCEEDED": "יותר מדי ניסיונות גישה לפרופיל. אנא נסו שוב מאוחר יותר.",
   "UNEXPECTED_ERROR": "משהו השתבש. אנא נסו שוב.",
   "GENERAL_ERROR": "שגיאת שרת. אנא נסו שוב מאוחר יותר.",
-  "INVALID_DROP_TARGET": "יעד שחרור לא תקין."
+  "INVALID_DROP_TARGET": "יעד שחרור לא תקין.",
+  "PREFERENCES_SYNC_FAILED": "נשמר במכשיר זה, אך הסנכרון לחשבון נכשל. ייתכן שלא יחול במכשירים האחרים שלך."
 }

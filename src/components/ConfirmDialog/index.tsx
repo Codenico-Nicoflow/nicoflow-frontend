@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { motion } from 'framer-motion';
 import { Loader2, type LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -45,13 +46,17 @@ export const ConfirmDialog = ({
   description,
   icon: Icon,
   variant = 'danger',
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   onConfirm,
   isLoading = false,
   destructive = false,
   'data-testid': testId,
 }: ConfirmDialogProps) => {
+  const { t } = useTranslation('common');
+  const confirmText = confirmLabel ?? t('actions.confirm');
+  const cancelText = cancelLabel ?? t('actions.cancel');
+
   const handleConfirm = async () => {
     await onConfirm();
     onOpenChange(false);
@@ -98,7 +103,7 @@ export const ConfirmDialog = ({
             disabled={isLoading}
             className="w-full sm:w-1/2 h-10"
           >
-            {cancelLabel}
+            {cancelText}
           </Button>
           <Button
             type="button"
@@ -111,10 +116,10 @@ export const ConfirmDialog = ({
             {isLoading ? (
               <>
                 <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                {confirmLabel}...
+                {confirmText}...
               </>
             ) : (
-              confirmLabel
+              confirmText
             )}
           </Button>
         </motion.div>

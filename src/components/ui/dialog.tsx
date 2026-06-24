@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/utils';
 
@@ -62,6 +63,7 @@ function DialogContent({
   showCloseButton?: boolean;
   'data-testid'?: string;
 }) {
+  const { t } = useTranslation('common');
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -81,7 +83,7 @@ function DialogContent({
               data-slot="dialog-close"
               data-testid={testId ? `${testId}-close-button` : 'dialog-close-button'}
               className={cn(
-                'absolute top-4 right-4 z-50',
+                'absolute top-4 end-4 z-50',
                 'h-8 w-8 rounded-full',
                 'bg-background/80 backdrop-blur-sm',
                 'border border-border/50',
@@ -117,7 +119,7 @@ function DialogContent({
                   transition={{ duration: 0.1 }}
                 />
               </div>
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t('actions.close')}</span>
             </motion.button>
           </DialogPrimitive.Close>
         )}
@@ -135,7 +137,7 @@ function DialogHeader({
     <div
       data-slot="dialog-header"
       data-testid={testId || 'dialog-header'}
-      className={cn('flex flex-col gap-2 text-center sm:text-left', className)}
+      className={cn('flex flex-col gap-2 text-center sm:text-start', className)}
       {...props}
     />
   );

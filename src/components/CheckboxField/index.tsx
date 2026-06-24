@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
+import { OptionalBadge } from '@/components/OptionalBadge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 
@@ -45,7 +46,7 @@ export const CheckboxField = <T extends FieldValues>({
               <Icon className="h-4 w-4 text-primary" />
               <span className="flex flex-col gap-1 leading-none">
                 <div>
-                  {label} {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
+                  {label} {optional && <OptionalBadge />}
                 </div>
                 {description && <p className="text-xs text-muted-foreground">{description}</p>}
               </span>

@@ -4,7 +4,7 @@ import { renderComponent } from '__tests__/renderComponent';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type Control, FormProvider, useForm } from 'react-hook-form';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { IconField } from '.';
 
@@ -12,8 +12,15 @@ interface TestFormValues {
   icon?: string;
 }
 
-function TestForm({ children }: { children: (control: Control<TestFormValues>) => React.ReactNode }) {
-  const methods = useForm<TestFormValues>({ defaultValues: { icon: undefined } });
+function TestForm({
+  children,
+  onState,
+}: {
+  children: (control: Control<TestFormValues>) => React.ReactNode;
+  onState?: (value?: string) => void;
+}) {
+  const methods = useForm<TestFormValues>({ defaultValues: { icon: 'briefcase' } });
+  onState?.(methods.watch('icon'));
   return (
     <FormProvider {...methods}>
       <form>{children(methods.control)}</form>
@@ -22,7 +29,7 @@ function TestForm({ children }: { children: (control: Control<TestFormValues>) =
 }
 
 describe('IconField', () => {
-  it('renders label and select trigger', () => {
+  it('renders label and icon trigger', () => {
     renderComponent(
       <React.Suspense fallback={<div>loading</div>}>
         <TestForm>{control => <IconField control={control} label="Icon" />}</TestForm>
@@ -43,18 +50,32 @@ describe('IconField', () => {
     expect(screen.getByText('(Optional)')).toBeInTheDocument();
   });
 
-  it('opens select content on trigger click showing icon options', async () => {
-    const user = userEvent.setup();
-
+  it('exposes the current icon name via the trigger accessible name', () => {
     renderComponent(
       <React.Suspense fallback={<div>loading</div>}>
-        <TestForm>{control => <IconField control={control} label="Pick an icon" />}</TestForm>
+        <TestForm>{control => <IconField control={control} />}</TestForm>
       </React.Suspense>
     );
 
-    const trigger = screen.getByTestId('icon-trigger');
-    await user.click(trigger);
+    // The trigger is icon-only (no visible text); the friendly name is the
+    // accessible name instead.
+    expect(screen.getByTestId('icon-trigger')).toHaveAccessibleName('Briefcase');
+  });
 
+  it('opens the icon grid on trigger click and selecting an icon updates the form value', async () => {
+    const user = userEvent.setup();
+    const onState = vi.fn();
+
+    renderComponent(
+      <React.Suspense fallback={<div>loading</div>}>
+        <TestForm onState={onState}>{control => <IconField control={control} />}</TestForm>
+      </React.Suspense>
+    );
+
+    await user.click(screen.getByTestId('icon-trigger'));
     expect(screen.getByTestId('icon-content')).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('Folder'));
+    expect(onState).toHaveBeenLastCalledWith('folder');
   });
 });

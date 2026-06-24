@@ -1,9 +1,12 @@
 import * as React from 'react';
 
+import { format } from 'date-fns';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { DayButton, DayPicker, getDefaultClassNames } from 'react-day-picker';
+import { useTranslation } from 'react-i18next';
 
 import { Button, buttonVariants } from '@/components/ui/button';
+import { getDateLocale } from '@/lib/i18n/dateLocale';
 import { cn } from '@/lib/utils';
 
 function Calendar({
@@ -21,9 +24,14 @@ function Calendar({
   'data-testid'?: string;
 }) {
   const defaultClassNames = getDefaultClassNames();
+  const { i18n } = useTranslation();
+  // Localize month/weekday names; callers can still override via props.
+  const locale = getDateLocale(i18n.language);
 
   return (
     <DayPicker
+      locale={locale}
+      dir={i18n.dir()}
       showOutsideDays={showOutsideDays}
       className={cn(
         'bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent',
@@ -33,7 +41,7 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
-        formatMonthDropdown: date => date.toLocaleString('default', { month: 'short' }),
+        formatMonthDropdown: date => format(date, 'LLL', { locale }),
         ...formatters,
       }}
       classNames={{

@@ -152,18 +152,19 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
             label={t('dialog.descriptionLabel')}
             placeholder={t('dialog.descriptionPlaceholder')}
             minHeight="100px"
+            optional
             delay={0.15}
           />
 
           {/* Status is only settable on existing tasks — new tasks default to inbox server-side. */}
-          {isEditMode && <StatusField control={form.control} delay={0.18} />}
+          {isEditMode && <StatusField control={form.control} optional delay={0.18} />}
 
           <DialogFieldGrid columns={2}>
             <PriorityField control={form.control} delay={0.2} />
-            <DueDateField control={form.control} delay={0.25} />
+            <DueDateField control={form.control} optional delay={0.25} />
           </DialogFieldGrid>
 
-          <EstimatedTimeField control={form.control} delay={0.3} />
+          <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />
         </div>
       </Form>

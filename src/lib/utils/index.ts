@@ -35,6 +35,7 @@ export {
   capitalize,
   getApiErrorCode,
   getProjectStatusColor,
+  iconLabel,
   isDateInPast,
   isErrorWithMessage,
   isFetchBaseQueryError,
@@ -48,57 +49,47 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// A Date or an ISO date string → its timestamp; anything else → null. Lets us
+// compare a form's Date value against an entity's ISO-string value (the common
+// edit-form case) by time, so equal dates in different shapes aren't "changed".
+function toTimestamp(value: unknown): number | null {
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === 'string' && value.includes('T')) {
+    const time = new Date(value).getTime();
+    return Number.isNaN(time) ? null : time;
+  }
+  return null;
+}
+
+// null, undefined, and '' are all "no value" — a cleared field shouldn't read as
+// changed just because the form models empty as '' while the entity uses null.
+const isEmpty = (value: unknown): boolean => value === null || value === undefined || value === '';
+
+function fieldChanged(originalValue: unknown, currentValue: unknown): boolean {
+  const origEmpty = isEmpty(originalValue);
+  const currEmpty = isEmpty(currentValue);
+  if (origEmpty || currEmpty) return origEmpty !== currEmpty;
+
+  // Dates: compare by timestamp even when one side is a Date and the other an
+  // ISO string (e.g. form Date vs entity string).
+  const origTime = toTimestamp(originalValue);
+  const currTime = toTimestamp(currentValue);
+  if (origTime !== null && currTime !== null) return origTime !== currTime;
+
+  if (typeof originalValue === 'object' && typeof currentValue === 'object') {
+    return JSON.stringify(originalValue) !== JSON.stringify(currentValue);
+  }
+
+  return originalValue !== currentValue;
+}
+
 export function detectFormChanges<T extends object>(
   originalData: T,
   currentData: Partial<T>,
   fieldsToCompare?: (keyof T)[]
 ): boolean {
-  const fields = fieldsToCompare || (Object.keys(originalData) as (keyof T)[]);
-
-  return fields.some(key => {
-    const originalValue = originalData[key] as unknown;
-    const currentValue = currentData[key] as unknown;
-
-    if (originalValue instanceof Date && currentValue instanceof Date) {
-      return originalValue.getTime() !== currentValue.getTime();
-    }
-
-    if (
-      typeof originalValue === 'string' &&
-      typeof currentValue === 'string' &&
-      (originalValue.includes('T') || currentValue.includes('T'))
-    ) {
-      try {
-        const origDate = new Date(originalValue);
-        const currDate = new Date(currentValue);
-        if (!isNaN(origDate.getTime()) && !isNaN(currDate.getTime())) {
-          return origDate.getTime() !== currDate.getTime();
-        }
-      } catch {
-        return originalValue !== currentValue;
-      }
-    }
-
-    if (
-      (originalValue === null || originalValue === undefined) &&
-      (currentValue === null || currentValue === undefined)
-    ) {
-      return false;
-    }
-
-    if (
-      typeof originalValue === 'object' &&
-      typeof currentValue === 'object' &&
-      originalValue !== null &&
-      currentValue !== null &&
-      !(originalValue instanceof Date) &&
-      !(currentValue instanceof Date)
-    ) {
-      return JSON.stringify(originalValue) !== JSON.stringify(currentValue);
-    }
-
-    return originalValue !== currentValue;
-  });
+  const fields = fieldsToCompare ?? (Object.keys(originalData) as (keyof T)[]);
+  return fields.some(key => fieldChanged(originalData[key], currentData[key]));
 }
 
 export function hasFormChanges<T extends object>(

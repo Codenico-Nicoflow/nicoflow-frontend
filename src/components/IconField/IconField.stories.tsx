@@ -48,8 +48,8 @@ type Story = StoryObj<StoryArgs>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // No label by default; assert the select trigger renders.
-    await expect(canvas.getByRole('combobox')).toBeInTheDocument();
+    // No label by default; assert the icon trigger renders.
+    await expect(canvas.getByTestId('icon-trigger')).toBeInTheDocument();
   },
 };
 
@@ -65,9 +65,8 @@ export const WithIcon: Story = {
   args: { value: 'folder' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Select renders the value in the trigger plus a hidden native <option>;
-    // assert on the trigger to avoid the duplicate match.
-    await expect(canvas.getByRole('combobox')).toHaveTextContent(/folder/i);
+    // Icon-only trigger; the friendly name is the accessible name.
+    await expect(canvas.getByTestId('icon-trigger')).toHaveAccessibleName('Folder');
   },
 };
 

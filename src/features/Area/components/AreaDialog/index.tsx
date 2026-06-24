@@ -113,8 +113,10 @@ export const AreaDialog = ({ open, onOpenChange, area, onSuccess }: AreaDialogPr
             placeholder={t('dialog.namePlaceholder')}
             delay={0.1}
           />
-          <ColorField control={form.control} delay={0.15} />
-          <IconField control={form.control} delay={0.2} />
+          <div className="flex flex-wrap items-start gap-6">
+            <ColorField control={form.control} label={t('dialog.colorLabel')} delay={0.15} />
+            <IconField control={form.control} label={t('dialog.iconLabel')} delay={0.2} />
+          </div>
         </div>
       </Form>
     </FormDialog>

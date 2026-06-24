@@ -56,7 +56,13 @@ export const ItemActionsMenu = ({
           <DropdownMenuItem
             key={index}
             data-testid={`${testId ?? 'item-actions-menu'}-action-${action.label.toLowerCase().replace(/\s+/g, '-')}`}
-            onClick={action.onClick}
+            onClick={e => {
+              // The menu is often rendered inside a clickable row (e.g. ProjectRow
+              // navigates on click). Stop the item click from bubbling so picking
+              // Edit/Delete doesn't also trigger the row's navigation.
+              e.stopPropagation();
+              action.onClick();
+            }}
             disabled={action.disabled}
             variant={action.destructive ? 'destructive' : 'default'}
           >

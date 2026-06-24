@@ -223,7 +223,12 @@ export const ProjectDialog = ({
 
           <DialogFieldGrid columns={2}>
             <ProjectAreaField control={form.control} />
-            <IconField control={form.control} fieldName="folderIcon" delay={0.25} />
+            <IconField
+              control={form.control}
+              fieldName="folderIcon"
+              label={t('project:dialog.iconLabel')}
+              delay={0.25}
+            />
           </DialogFieldGrid>
 
           {isEditMode && <ProjectStatusField control={form.control} />}
@@ -236,7 +241,7 @@ export const ProjectDialog = ({
             delay={0.3}
           />
 
-          <DueDateField control={form.control} delay={0.35} />
+          <DueDateField control={form.control} optional delay={0.35} />
           <CheckboxField
             control={form.control}
             label={t('project:dialog.favoriteLabel')}

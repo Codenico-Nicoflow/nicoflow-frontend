@@ -19,6 +19,7 @@ export { ListItemCard } from './ListItemCard';
 export { LoadingOverlayProvider, useLoadingOverlay } from './LoadingOverlayProvider';
 export { ModeToggle } from './ModeToggle';
 export { NameField } from './NameField';
+export { OptionalBadge } from './OptionalBadge';
 export { PlanLimitAlert } from './PlanLimitAlert';
 export { PriorityField } from './PriorityField';
 export { StatusField } from './StatusField';

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Check, Palette } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
+import { OptionalBadge } from '@/components/OptionalBadge';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -34,6 +35,7 @@ interface ColorFieldProps<T extends FieldValues> {
   label?: string;
   fieldName?: Path<T>;
   delay?: number;
+  optional?: boolean;
   'data-testid'?: string;
 }
 
@@ -42,6 +44,7 @@ export const ColorField = <T extends FieldValues>({
   label,
   fieldName = 'color' as Path<T>,
   delay = 0.15,
+  optional = false,
   'data-testid': testId,
 }: ColorFieldProps<T>) => {
   const [open, setOpen] = useState(false);
@@ -59,21 +62,23 @@ export const ColorField = <T extends FieldValues>({
                 <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Palette className="h-4 w-4" />
                   {label}
+                  {optional && <OptionalBadge />}
                 </FormLabel>
               )}
               <Popover open={open} onOpenChange={setOpen}>
                 <FormControl>
                   <PopoverTrigger
                     type="button"
+                    aria-label={colorLabel(value)}
+                    title={colorLabel(value)}
                     data-testid={testId ? `${testId}-color-trigger` : 'color-trigger'}
-                    className="flex h-10 w-full items-center gap-3 rounded-md border bg-transparent px-3 text-sm sm:h-12 hover:border-primary transition-colors"
+                    className="flex h-10 w-10 items-center justify-center rounded-md border bg-transparent sm:h-12 sm:w-12 hover:border-primary transition-colors"
                   >
                     <span
                       className="h-5 w-5 rounded-full border shadow-sm"
                       style={{ backgroundColor: value }}
                       aria-hidden="true"
                     />
-                    <span className="tracking-wide text-muted-foreground">{colorLabel(value)}</span>
                   </PopoverTrigger>
                 </FormControl>
                 <PopoverContent className="w-56" align="start">

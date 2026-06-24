@@ -53,7 +53,8 @@
     "open": "Open",
     "edit": "Edit",
     "delete": "Delete",
-    "dragHandle": "Drag to reorder or move project"
+    "dragHandle": "Drag to reorder or move project",
+    "actionsMenu": "Project actions"
   },
   "view": {
     "description": "Description",

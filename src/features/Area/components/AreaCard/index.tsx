@@ -14,6 +14,7 @@ import { areaDragId, projectDragId } from '@/components/DragAndDropContext/resol
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AreaDialog } from '@/features/Area/components/AreaDialog';
 import { ProjectDeleteDialog, ProjectDialog, ProjectRow } from '@/features/Project';
 import { areaApi, invalidateApiTags, useDeleteAreaMutation } from '@/lib/store';
@@ -92,15 +93,22 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
           data-testid={testId}
         >
           <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-            <button
-              type="button"
-              aria-label={t('card.dragHandle')}
-              className="shrink-0 cursor-grab text-muted-foreground touch-none"
-              {...attributes}
-              {...listeners}
-            >
-              <GripVertical className="h-4 w-4" />
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label={t('card.dragHandle')}
+                    className="shrink-0 cursor-grab text-muted-foreground touch-none"
+                    {...attributes}
+                    {...listeners}
+                  >
+                    <GripVertical className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{t('card.dragHandle')}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <span
               className="flex h-9 w-9 items-center justify-center rounded-lg"
               style={{ backgroundColor: `${area.color}1A` }}
@@ -112,6 +120,7 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
               {projects.length}
             </Badge>
             <ItemActionsMenu
+              triggerLabel={t('card.actionsMenu')}
               data-testid={testId ? `${testId}-actions` : 'area-card-actions'}
               actions={[
                 { label: t('contextMenu.edit'), icon: Pencil, onClick: () => setEditAreaOpen(true) },

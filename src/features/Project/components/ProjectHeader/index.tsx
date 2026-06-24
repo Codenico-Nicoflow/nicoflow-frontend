@@ -100,7 +100,7 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
                 className="flex items-center gap-1.5 text-sm text-muted-foreground"
               >
                 <Clock className="h-4 w-4" />
-                <span>{t('header.created', { date: format(new Date(), 'MMM dd, yyyy') })}</span>
+                <span>{t('header.created', { date: format(new Date(project.createdAt), 'MMM dd, yyyy') })}</span>
               </motion.div>
             </div>
           </div>

@@ -30,6 +30,7 @@
     "noProjects": "No projects yet — add one below.",
     "addProject": "Add project",
     "dragHandle": "Drag to reorder area",
+    "actionsMenu": "Area actions",
     "confirmDeleteTitle": "Delete Area",
     "confirmDeleteDescription": "Are you sure you want to delete <name>{{name}}</name>? All projects in this area will be permanently deleted.",
     "confirmDeleteButton": "Delete Area"

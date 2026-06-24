@@ -29,8 +29,9 @@
   "card": {
     "noProjects": "אין פרויקטים עדיין — הוסיפו אחד למטה.",
     "addProject": "הוספת פרויקט",
+    "dragHandle": "גרור כדי לסדר מחדש את התחום",
     "confirmDeleteTitle": "מחיקת תחום",
-    "confirmDeleteDescription": "האם אתם בטוחים שברצונכם למחוק את <name>{{name}}</name>? הפרויקטים שלו יינותקו ולא יימחקו.",
+    "confirmDeleteDescription": "האם אתם בטוחים שברצונכם למחוק את <name>{{name}}</name>? כל הפרויקטים בתחום זה יימחקו לצמיתות.",
     "confirmDeleteButton": "מחיקת תחום"
   },
   "contextMenu": {

@@ -42,6 +42,7 @@ export {
   useDeleteProjectMutation,
   useGetProjectQuery,
   useGetProjectsQuery,
+  useReorderProjectsMutation,
   useUpdateProjectMutation,
 } from './slices/project/projectApi';
 export type {
@@ -59,6 +60,7 @@ export {
   useGetAreaQuery,
   useGetAreasQuery,
   useGetAreasWithProjectsQuery,
+  useReorderAreasMutation,
   useUpdateAreaMutation,
 } from './slices/area/areaApi';
 export type { CreateAreaRequest, CreateAreaResponse, UpdateAreaRequest, UpdateAreaResponse } from './slices/area/type';

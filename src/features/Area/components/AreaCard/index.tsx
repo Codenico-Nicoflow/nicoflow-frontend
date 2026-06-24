@@ -1,12 +1,16 @@
 import { useState } from 'react';
 
+import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { GripVertical, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 import { ConfirmDialog, ItemActionsMenu, LazyIcon } from '@/components';
+import { areaDragId, projectDragId } from '@/components/DragAndDropContext/resolveDragEnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -16,7 +20,7 @@ import { areaApi, invalidateApiTags, useDeleteAreaMutation } from '@/lib/store';
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 import type { IconId, IProject } from '@/lib/types';
 import { GENERAL_AREA } from '@/lib/types';
-import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
+import { cn, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 interface AreaCardProps {
   area: AreaWithProjects;
@@ -38,6 +42,27 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
   const isGeneral = area.name.toLowerCase() === GENERAL_AREA;
   const projects = area.projects ?? [];
 
+  // The card is sortable (area reorder) and a drop target for projects moved
+  // from other areas. dnd-kit ids carry the area-/project- prefixes.
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setSortableRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: areaDragId(area.id),
+    data: { area },
+  });
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({ id: areaDragId(area.id), data: { area } });
+  const cardStyle = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    borderTopColor: area.color,
+  };
+
   const handleDeleteArea = async () => {
     try {
       await deleteArea(area.id).unwrap();
@@ -52,13 +77,30 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
   return (
     <>
       <motion.div
+        ref={node => {
+          setSortableRef(node);
+          setDroppableRef(node);
+        }}
+        style={cardStyle}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.06, duration: 0.3 }}
         whileHover={{ y: -2 }}
       >
-        <Card className="border-t-4 overflow-hidden" style={{ borderTopColor: area.color }} data-testid={testId}>
+        <Card
+          className={cn('border-t-4 overflow-hidden', isOver && 'ring-2 ring-primary ring-offset-2')}
+          data-testid={testId}
+        >
           <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+            <button
+              type="button"
+              aria-label={t('card.dragHandle')}
+              className="shrink-0 cursor-grab text-muted-foreground touch-none"
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
             <span
               className="flex h-9 w-9 items-center justify-center rounded-lg"
               style={{ backgroundColor: `${area.color}1A` }}
@@ -88,14 +130,16 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
             {projects.length === 0 ? (
               <p className="px-3 py-4 text-center text-sm text-muted-foreground">{t('card.noProjects')}</p>
             ) : (
-              projects.map(project => (
-                <ProjectRow
-                  key={project.id}
-                  project={project}
-                  onEdit={() => setEditProject(project)}
-                  onDelete={() => setDeleteProject(project)}
-                />
-              ))
+              <SortableContext items={projects.map(p => projectDragId(p.id))} strategy={verticalListSortingStrategy}>
+                {projects.map(project => (
+                  <ProjectRow
+                    key={project.id}
+                    project={project}
+                    onEdit={() => setEditProject(project)}
+                    onDelete={() => setDeleteProject(project)}
+                  />
+                ))}
+              </SortableContext>
             )}
 
             <Button

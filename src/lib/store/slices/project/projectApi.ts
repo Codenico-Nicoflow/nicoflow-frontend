@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import type { ApiEnvelope } from '@/lib/types';
 import { PROJECT_API } from '@/lib/types';
 
+import { areaApi } from '../area/areaApi';
 import { baseQueryWithReauth } from '../baseQuery';
 
 import type {
@@ -72,7 +73,29 @@ export const projectApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<ReorderProjectsResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      invalidatesTags: ['Project'],
+      // Optimistically apply the new displayOrder to the board cache so the
+      // reorder feels instant; roll back if the request fails.
+      onQueryStarted: async ({ items }, { dispatch, queryFulfilled }) => {
+        const orderById = new Map(items.map(i => [i.id, i.displayOrder]));
+        const patch = dispatch(
+          areaApi.util.updateQueryData('getAreasWithProjects', undefined, draft => {
+            for (const area of draft) {
+              if (!area.projects?.some(p => orderById.has(p.id))) continue;
+              for (const project of area.projects) {
+                const next = orderById.get(project.id);
+                if (next !== undefined) project.displayOrder = next;
+              }
+              area.projects.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+      invalidatesTags: ['Project', 'Area'],
     }),
   }),
 });

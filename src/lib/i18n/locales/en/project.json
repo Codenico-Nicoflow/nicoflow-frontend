@@ -52,7 +52,8 @@
   "row": {
     "open": "Open",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "dragHandle": "Drag to reorder or move project"
   },
   "view": {
     "description": "Description",

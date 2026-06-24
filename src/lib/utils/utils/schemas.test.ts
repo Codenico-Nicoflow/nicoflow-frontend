@@ -162,6 +162,29 @@ describe('projectSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('accepts a description up to 2000 chars', () => {
+    const result = projectSchema.safeParse({
+      name: 'Project',
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'active',
+      description: 'a'.repeat(2000),
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a description over 2000 chars (R9)', () => {
+    const result = projectSchema.safeParse({
+      name: 'Project',
+      areaId: 'abc-123',
+      folderIcon: 'folder',
+      status: 'active',
+      description: 'a'.repeat(2001),
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/2000/);
+  });
 });
 
 describe('createAreaSchema', () => {
@@ -183,6 +206,22 @@ describe('createAreaSchema', () => {
 
   it('rejects name over 30 chars', () => {
     const result = createAreaSchema.safeParse({ name: 'a'.repeat(31) });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts a valid 6-digit hex color', () => {
+    const result = createAreaSchema.safeParse({ name: 'Work', color: '#c4622d', icon: 'briefcase' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a non-hex color before submit (R7)', () => {
+    const result = createAreaSchema.safeParse({ name: 'Work', color: 'red', icon: 'briefcase' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toMatch(/hex color/i);
+  });
+
+  it('rejects a 3-digit shorthand hex color', () => {
+    const result = createAreaSchema.safeParse({ name: 'Work', color: '#fff', icon: 'briefcase' });
     expect(result.success).toBe(false);
   });
 });

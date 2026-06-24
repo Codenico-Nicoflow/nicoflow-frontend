@@ -23,6 +23,8 @@ export interface ItemActionsMenuProps {
   align?: 'start' | 'center' | 'end';
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Accessible name for the icon-only trigger button. */
+  triggerLabel?: string;
   'data-testid'?: string;
 }
 
@@ -32,6 +34,7 @@ export const ItemActionsMenu = ({
   align = 'end',
   open,
   onOpenChange,
+  triggerLabel = 'Open actions menu',
   'data-testid': testId,
 }: ItemActionsMenuProps) => {
   return (
@@ -40,6 +43,7 @@ export const ItemActionsMenu = ({
         <Button
           variant="ghost"
           size="icon"
+          aria-label={triggerLabel}
           data-testid={testId ? `${testId}-trigger` : 'item-actions-menu-trigger'}
           className={cn('h-8 w-8 sm:h-9 sm:w-9', triggerClassName)}
           onClick={e => e.stopPropagation()}

@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { motion } from 'framer-motion';
 import { Loader2, type LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -45,6 +46,8 @@ export const FormDialog = ({
   maxWidth = 'lg',
   'data-testid': testId,
 }: FormDialogProps) => {
+  const { t } = useTranslation('common');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(e);
@@ -100,7 +103,7 @@ export const FormDialog = ({
               disabled={isLoading}
               className="w-full sm:w-1/2 h-10"
             >
-              Cancel
+              {t('actions.cancel')}
             </Button>
             <Button
               type="submit"
@@ -111,10 +114,10 @@ export const FormDialog = ({
               {isLoading ? (
                 <>
                   <Loader2 className="me-2 h-4 w-4 animate-spin" />
-                  {isEditMode ? 'Saving...' : 'Creating...'}
+                  {isEditMode ? t('actions.saving') : t('actions.creating')}
                 </>
               ) : (
-                <>{isEditMode ? 'Save Changes' : 'Create'}</>
+                <>{isEditMode ? t('actions.save') : t('actions.create')}</>
               )}
             </Button>
           </div>

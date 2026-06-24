@@ -30,6 +30,7 @@
     "noProjects": "אין פרויקטים עדיין — הוסיפו אחד למטה.",
     "addProject": "הוספת פרויקט",
     "dragHandle": "גרור כדי לסדר מחדש את התחום",
+    "actionsMenu": "פעולות תחום",
     "confirmDeleteTitle": "מחיקת תחום",
     "confirmDeleteDescription": "האם אתם בטוחים שברצונכם למחוק את <name>{{name}}</name>? כל הפרויקטים בתחום זה יימחקו לצמיתות.",
     "confirmDeleteButton": "מחיקת תחום"

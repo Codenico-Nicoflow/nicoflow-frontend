@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ItemActionsMenu, LazyIcon } from '@/components';
 import { projectDragId } from '@/components/DragAndDropContext/resolveDragEnd';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { IconId, IProject } from '@/lib/types';
 import { cn, getProjectStatusColor } from '@/lib/utils';
 
@@ -42,16 +43,23 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
       data-testid={testId || 'project-row'}
       className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors cursor-pointer"
     >
-      <button
-        type="button"
-        aria-label={t('row.dragHandle')}
-        className="shrink-0 cursor-grab text-muted-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity touch-none"
-        onClick={e => e.stopPropagation()}
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label={t('row.dragHandle')}
+              className="shrink-0 cursor-grab text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity touch-none"
+              onClick={e => e.stopPropagation()}
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{t('row.dragHandle')}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <LazyIcon iconId={(project.folderIcon as IconId) || 'folder'} className="h-4 w-4 shrink-0 text-primary" />
 
@@ -62,7 +70,7 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
       {project.dueDate && (
         <span
           className={cn(
-            'hidden sm:flex items-center gap-1 text-xs',
+            'flex items-center gap-1 text-xs',
             isOverdue ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'
           )}
         >
@@ -71,7 +79,7 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
         </span>
       )}
 
-      <Badge variant="secondary" className={cn('hidden sm:inline-flex text-xs', getProjectStatusColor(project.status))}>
+      <Badge variant="secondary" className={cn('inline-flex text-xs', getProjectStatusColor(project.status))}>
         {
           { active: t('status.active'), completed: t('status.completed'), archived: t('status.archived') }[
             project.status
@@ -80,7 +88,8 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
       </Badge>
 
       <ItemActionsMenu
-        triggerClassName="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+        triggerClassName="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity"
+        triggerLabel={t('row.actionsMenu')}
         data-testid={testId ? `${testId}-actions` : 'project-row-actions'}
         actions={[
           { label: t('row.open'), icon: SquareArrowOutUpRight, onClick: open },

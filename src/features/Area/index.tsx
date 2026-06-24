@@ -1,2 +1,2 @@
 // Components
-export { AreaContextMenu, AreaDialog, AreaSortOrderField } from './components';
+export { AreaDialog } from './components';

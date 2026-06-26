@@ -26,7 +26,7 @@ describe('loginSchema', () => {
   it('rejects an empty identifier', () => {
     const result = loginSchema.safeParse({ identifier: '   ', password: 'Password1', remember: false });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/email or username/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.identifierRequired');
   });
 
   it('rejects an empty password', () => {
@@ -51,7 +51,7 @@ describe('registerSchema', () => {
   it('rejects username shorter than 3 chars', () => {
     const result = registerSchema.safeParse({ username: 'ab', email: 'user@example.com', password: 'Password1' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/at least 3/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.usernameMin');
   });
 
   it('rejects username with special characters', () => {
@@ -75,13 +75,13 @@ describe('registerSchema', () => {
   it('rejects a password with no uppercase letter', () => {
     const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'password1' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/uppercase/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.passwordUppercase');
   });
 
   it('rejects a password with no lowercase letter', () => {
     const result = registerSchema.safeParse({ username: 'codenico', email: 'user@example.com', password: 'PASSWORD1' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/lowercase/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.passwordLowercase');
   });
 
   it('rejects a password under 8 chars', () => {
@@ -99,7 +99,7 @@ describe('forgotPasswordSchema', () => {
   it('rejects invalid email format', () => {
     const result = forgotPasswordSchema.safeParse({ email: 'not-an-email' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/valid email/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.emailInvalid');
   });
 
   it('rejects empty string', () => {
@@ -117,7 +117,7 @@ describe('resetPasswordSchema', () => {
   it('rejects when passwords do not match', () => {
     const result = resetPasswordSchema.safeParse({ newPassword: 'Password1', confirmPassword: 'Password2' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/do not match/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.passwordsNoMatch');
   });
 });
 
@@ -135,7 +135,7 @@ describe('projectSchema', () => {
   it('rejects empty name', () => {
     const result = projectSchema.safeParse({ name: '', areaId: 'abc-123', folderIcon: 'folder', status: 'active' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/required/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.projectNameRequired');
   });
 
   it('rejects name over 50 chars', () => {
@@ -161,6 +161,7 @@ describe('projectSchema', () => {
       status: 'unknown',
     });
     expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.statusInvalid');
   });
 
   it('accepts a description up to 2000 chars', () => {
@@ -183,7 +184,7 @@ describe('projectSchema', () => {
       description: 'a'.repeat(2001),
     });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/2000/);
+    expect(result.error?.issues[0]?.message).toBe('validation.descriptionMax');
   });
 });
 
@@ -217,7 +218,7 @@ describe('createAreaSchema', () => {
   it('rejects a non-hex color before submit (R7)', () => {
     const result = createAreaSchema.safeParse({ name: 'Work', color: 'red', icon: 'briefcase' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0]?.message).toMatch(/hex color/i);
+    expect(result.error?.issues[0]?.message).toBe('validation.colorInvalid');
   });
 
   it('rejects a 3-digit shorthand hex color', () => {
@@ -267,11 +268,13 @@ describe('taskSchema', () => {
   it('rejects invalid priority', () => {
     const result = taskSchema.safeParse({ ...validTask, priority: 'urgent' });
     expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.priorityInvalid');
   });
 
   it('rejects invalid url', () => {
     const result = taskSchema.safeParse({ ...validTask, url: 'not-a-url' });
     expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.urlInvalid');
   });
 
   it('accepts empty string url', () => {

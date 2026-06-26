@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
+import { OptionalBadge } from '@/components/OptionalBadge';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
@@ -39,7 +40,7 @@ export const NameField = <T extends FieldValues>({
             >
               <Icon className="h-4 w-4" />
               {label}
-              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
+              {optional && <OptionalBadge />}
             </FormLabel>
             <FormControl>
               <Input

@@ -101,6 +101,11 @@ export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// Humanize an icon id for an accessible name/tooltip: 'folder-open' → 'Folder open'.
+export function iconLabel(iconId: string) {
+  return capitalize(iconId.replace(/-/g, ' '));
+}
+
 // Badge classes for a project status, shared by the board, row and detail header.
 export function getProjectStatusColor(status: string) {
   switch (status) {

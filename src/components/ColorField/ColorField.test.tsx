@@ -29,12 +29,13 @@ function TestForm({
 }
 
 describe('ColorField', () => {
-  it('renders the label and current value on the trigger', () => {
+  it('renders the label and exposes the color name via the trigger accessible name', () => {
     renderComponent(<TestForm>{control => <ColorField control={control} label="Area Color" />}</TestForm>);
 
     expect(screen.getByText('Area Color')).toBeInTheDocument();
-    // Trigger shows the friendly preset name, not the raw hex.
-    expect(screen.getByTestId('color-trigger')).toHaveTextContent('Blue');
+    // The trigger is swatch-only (no visible text); the friendly preset name is
+    // the accessible name instead.
+    expect(screen.getByTestId('color-trigger')).toHaveAccessibleName('Blue');
   });
 
   it('opens the swatch palette and selecting a swatch updates the form value', async () => {

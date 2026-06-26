@@ -8,6 +8,7 @@ import i18n from '@/lib/i18n';
 import { persistor, store } from '@/lib/store';
 
 import { PreferencesSync } from './PreferencesSync';
+import { RtlProvider } from './RtlProvider';
 
 // Session handling: the access token is memory-only (not persisted) — on reload
 // only the `user` rehydrates. We deliberately do NOT eagerly refresh the token
@@ -24,15 +25,17 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     <Provider store={store}>
       <PersistGate loading={<div />} persistor={persistor}>
         <I18nextProvider i18n={i18n}>
-          <BrowserRouter>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
-              <LoadingOverlayProvider>
-                <PreferencesSync />
-                {children}
-                <Toaster />
-              </LoadingOverlayProvider>
-            </ThemeProvider>
-          </BrowserRouter>
+          <RtlProvider>
+            <BrowserRouter>
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
+                <LoadingOverlayProvider>
+                  <PreferencesSync />
+                  {children}
+                  <Toaster />
+                </LoadingOverlayProvider>
+              </ThemeProvider>
+            </BrowserRouter>
+          </RtlProvider>
         </I18nextProvider>
       </PersistGate>
     </Provider>

@@ -4,10 +4,12 @@ import { Calendar as CalendarIcon, X } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
+import { OptionalBadge } from '@/components/OptionalBadge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { getDateLocale } from '@/lib/i18n/dateLocale';
 import { cn, isDateInPast } from '@/lib/utils';
 
 interface DueDateFieldProps<T extends FieldValues> {
@@ -27,8 +29,9 @@ export const DueDateField = <T extends FieldValues>({
   optional = false,
   'data-testid': testId,
 }: DueDateFieldProps<T>) => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const resolvedLabel = label ?? t('fields.dueDateLabel');
+  const dateLocale = getDateLocale(i18n.language);
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>
       <FormField
@@ -42,7 +45,7 @@ export const DueDateField = <T extends FieldValues>({
             >
               <CalendarIcon className="h-4 w-4" />
               {resolvedLabel}
-              {optional && <span className="text-xs text-muted-foreground font-normal">{t('fields.optional')}</span>}
+              {optional && <OptionalBadge />}
             </FormLabel>
             <div className="flex gap-2">
               <Popover>
@@ -57,7 +60,7 @@ export const DueDateField = <T extends FieldValues>({
                       )}
                     >
                       <CalendarIcon className="me-2 h-4 w-4" />
-                      {field.value ? format(field.value, 'PPP') : t('fields.pickDate')}
+                      {field.value ? format(field.value, 'PPP', { locale: dateLocale }) : t('fields.pickDate')}
                     </Button>
                   </FormControl>
                 </PopoverTrigger>

@@ -4,31 +4,67 @@ import { ICON_IDS } from '@/lib/types';
 
 export { ICON_IDS, type IconId } from '@/lib/types';
 
+// Validation messages are i18n KEYS (under the `common.validation` namespace),
+// not literal copy — FormMessage runs them through t() at render. This keeps the
+// schemas framework-agnostic (no i18n import) so they stay portable to the
+// future shared package, while error text still follows the active language.
+const V = {
+  usernameMin: 'validation.usernameMin',
+  usernameMax: 'validation.usernameMax',
+  usernameFormat: 'validation.usernameFormat',
+  passwordMin: 'validation.passwordMin',
+  passwordMax: 'validation.passwordMax',
+  passwordUppercase: 'validation.passwordUppercase',
+  passwordLowercase: 'validation.passwordLowercase',
+  passwordRequired: 'validation.passwordRequired',
+  passwordsNoMatch: 'validation.passwordsNoMatch',
+  identifierRequired: 'validation.identifierRequired',
+  emailInvalid: 'validation.emailInvalid',
+  projectNameRequired: 'validation.projectNameRequired',
+  projectNameMax: 'validation.projectNameMax',
+  areaRequired: 'validation.areaRequired',
+  descriptionMax: 'validation.descriptionMax',
+  colorInvalid: 'validation.colorInvalid',
+  iconInvalid: 'validation.iconInvalid',
+  statusInvalid: 'validation.statusInvalid',
+  priorityInvalid: 'validation.priorityInvalid',
+  areaNameRequired: 'validation.areaNameRequired',
+  areaNameMax: 'validation.areaNameMax',
+  taskTitleRequired: 'validation.taskTitleRequired',
+  taskTitleMax: 'validation.taskTitleMax',
+  estimatedTimeMin: 'validation.estimatedTimeMin',
+  estimatedTimeMax: 'validation.estimatedTimeMax',
+  urlInvalid: 'validation.urlInvalid',
+  bucketContentRequired: 'validation.bucketContentRequired',
+  bucketContentMax: 'validation.bucketContentMax',
+  processingResultInvalid: 'validation.processingResultInvalid',
+} as const;
+
 const usernameSchema = z
   .string()
-  .min(3, 'Username must be at least 3 characters')
-  .max(20, 'Username must be less than 20 characters')
-  .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers');
+  .min(3, V.usernameMin)
+  .max(20, V.usernameMax)
+  .regex(/^[a-zA-Z0-9]+$/, V.usernameFormat);
 
 // Matches the backend policy: 8–72 chars (72 is bcrypt's truncation limit) with
 // at least one uppercase and one lowercase letter. Keep in sync with the API's
 // validatePassword and SPEC §3.
 const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .max(72, 'Password must be at most 72 characters')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter');
+  .min(8, V.passwordMin)
+  .max(72, V.passwordMax)
+  .regex(/[A-Z]/, V.passwordUppercase)
+  .regex(/[a-z]/, V.passwordLowercase);
 
 // Login accepts either an email address or a username.
 const loginSchema = z.object({
-  identifier: z.string().trim().min(1, 'Enter your email or username'),
-  password: z.string().min(1, 'Password is required'),
+  identifier: z.string().trim().min(1, V.identifierRequired),
+  password: z.string().min(1, V.passwordRequired),
   remember: z.boolean(),
 });
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email'),
+  email: z.string().email(V.emailInvalid),
 });
 
 const resetPasswordSchema = z
@@ -37,65 +73,60 @@ const resetPasswordSchema = z
     confirmPassword: passwordSchema,
   })
   .refine(data => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: V.passwordsNoMatch,
     path: ['confirmPassword'],
   });
 
 const registerSchema = z.object({
   username: usernameSchema,
-  email: z.string().email('Please enter a valid email'),
+  email: z.string().email(V.emailInvalid),
   password: passwordSchema,
 });
 
 const projectSchema = z.object({
-  name: z.string().min(1, 'Project name is required').max(50, 'Project name must be less than 50 characters'),
-  areaId: z.string().min(1, 'Please select an Area'),
-  folderIcon: z.enum(ICON_IDS),
-  status: z.enum(['active', 'completed', 'archived']),
+  name: z.string().min(1, V.projectNameRequired).max(50, V.projectNameMax),
+  areaId: z.string().min(1, V.areaRequired),
+  folderIcon: z.enum(ICON_IDS, { error: V.iconInvalid }),
+  status: z.enum(['active', 'completed', 'archived'], { error: V.statusInvalid }),
   dueDate: z.date().optional(),
   isFavorite: z.boolean().optional(),
-  description: z.string().max(2000, 'Description must be less than 2000 characters').optional().nullable(),
+  description: z.string().max(2000, V.descriptionMax).optional().nullable(),
 });
 
 const hexColorSchema = z
   .string()
-  .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color (e.g. #3B82F6)')
+  .regex(/^#[0-9A-Fa-f]{6}$/, V.colorInvalid)
   .optional();
 
 const createAreaSchema = z.object({
-  name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters'),
+  name: z.string().min(1, V.areaNameRequired).max(30, V.areaNameMax),
   color: hexColorSchema,
-  icon: z.enum(ICON_IDS).default('briefcase'),
+  icon: z.enum(ICON_IDS, { error: V.iconInvalid }).default('briefcase'),
 });
 
 const updateAreaSchema = z.object({
-  name: z.string().min(1, 'Area name is required').max(30, 'Area name must be less than 30 characters').optional(),
+  name: z.string().min(1, V.areaNameRequired).max(30, V.areaNameMax).optional(),
   color: hexColorSchema,
-  icon: z.enum(ICON_IDS).optional(),
+  icon: z.enum(ICON_IDS, { error: V.iconInvalid }).optional(),
 });
 
 const taskSchema = z.object({
-  title: z.string().min(1, 'Task title is required').max(255, 'Task title must be less than 255 characters'),
+  title: z.string().min(1, V.taskTitleRequired).max(255, V.taskTitleMax),
   notes: z.string().optional().nullable(),
-  status: z.enum(['inbox', 'active', 'done', 'cancelled']).optional(),
-  priority: z.enum(['low', 'medium', 'high']),
+  status: z.enum(['inbox', 'active', 'done', 'cancelled'], { error: V.statusInvalid }).optional(),
+  priority: z.enum(['low', 'medium', 'high'], { error: V.priorityInvalid }),
   dueDate: z.date().optional().nullable(),
   scheduledFor: z.enum(['today', 'tomorrow', 'this_week']).optional().nullable(),
-  estimatedMinutes: z
-    .number()
-    .min(1, 'Estimated time must be at least 1 minute')
-    .max(1440, 'Estimated time must be less than 24 hours')
-    .optional()
-    .nullable(),
-  url: z.string().url('Please enter a valid URL').or(z.literal('')).optional().nullable(),
+  estimatedMinutes: z.number().min(1, V.estimatedTimeMin).max(1440, V.estimatedTimeMax).optional().nullable(),
+  url: z.string().url(V.urlInvalid).or(z.literal('')).optional().nullable(),
 });
 
 const bucketSchema = z.object({
-  content: z.string().min(1, 'Bucket content is required').max(500, 'Content must be less than 500 characters'),
+  content: z.string().min(1, V.bucketContentRequired).max(500, V.bucketContentMax),
 });
 
 const processBucketSchema = z.object({
-  processingResult: z.enum(['task', 'note', 'trash']),
+  processingResult: z.enum(['task', 'note', 'trash'], { error: V.processingResultInvalid }),
   projectId: z.string().optional(),
   taskDetails: taskSchema.optional(),
 });

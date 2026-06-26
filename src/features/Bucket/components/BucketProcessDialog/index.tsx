@@ -144,15 +144,16 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
                   label={t('bucket:processDialog.descriptionLabel')}
                   placeholder={t('bucket:processDialog.descriptionPlaceholder')}
                   minHeight="100px"
+                  optional
                   delay={0.15}
                 />
 
                 <DialogFieldGrid columns={2}>
                   <PriorityField control={form.control} delay={0.2} />
-                  <DueDateField control={form.control} delay={0.25} />
+                  <DueDateField control={form.control} optional delay={0.25} />
                 </DialogFieldGrid>
 
-                <EstimatedTimeField control={form.control} delay={0.3} />
+                <EstimatedTimeField control={form.control} optional delay={0.3} />
                 <UrlField control={form.control} delay={0.35} optional />
               </div>
             </Form>

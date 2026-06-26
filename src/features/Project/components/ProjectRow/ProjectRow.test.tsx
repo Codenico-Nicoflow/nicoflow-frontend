@@ -7,6 +7,14 @@ import { makeProject, mockProject } from '@/mocks/handlers';
 
 import { ProjectRow } from './index';
 
+// Spy on navigation so we can assert action clicks don't trigger the row's
+// navigate-on-click (the bug: picking Edit/Delete/Open also opened the project).
+const navigateSpy = vi.fn();
+vi.mock('react-router-dom', async importOriginal => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return { ...actual, useNavigate: () => navigateSpy };
+});
+
 // Spy on LazyIcon so we can assert which iconId the row reads, without
 // depending on the async Suspense-loaded SVG. The regression (R15) is that the
 // row reads project.folderIcon, NOT a removed project.icon field.
@@ -52,5 +60,28 @@ describe('ProjectRow', () => {
     await user.click(screen.getByTestId('project-row-actions-trigger'));
     await user.click(screen.getByTestId('project-row-actions-action-delete'));
     expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not navigate when an action menu item is clicked', async () => {
+    navigateSpy.mockClear();
+    const user = userEvent.setup();
+
+    renderComponent(<ProjectRow project={mockProject} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('project-row-actions-trigger'));
+    await user.click(screen.getByTestId('project-row-actions-action-edit'));
+
+    expect(navigateSpy).not.toHaveBeenCalled();
+  });
+
+  it('navigates to the project when the row body is clicked', async () => {
+    navigateSpy.mockClear();
+    const user = userEvent.setup();
+
+    renderComponent(<ProjectRow project={mockProject} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByText('Redesign'));
+
+    expect(navigateSpy).toHaveBeenCalledWith(`/projects/${mockProject.id}`);
   });
 });

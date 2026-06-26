@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 
+import { OptionalBadge } from '@/components/OptionalBadge';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -39,7 +40,7 @@ export const DescriptionField = <T extends FieldValues>({
             >
               <FileText className="h-4 w-4" />
               {label}
-              {optional && <span className="text-xs text-muted-foreground font-normal">(Optional)</span>}
+              {optional && <OptionalBadge />}
             </FormLabel>
             <FormControl>
               <Textarea

@@ -13,9 +13,15 @@ import {
   useFormContext,
   useFormState,
 } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { Label } from '@/components/ui/label';
+import type { Resources } from '@/lib/i18n/locales/en';
 import { cn } from '@/lib/utils';
+
+// Keys under common.validation, prefixed for the default-namespace t(). Schema
+// messages are exactly these keys (see schemas.ts).
+type ValidationKey = `validation.${keyof Resources['common']['validation']}`;
 
 const Form = FormProvider;
 
@@ -150,7 +156,13 @@ function FormMessage({
   ...props
 }: React.ComponentProps<'p'> & { 'data-testid'?: string }) {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? '') : props.children;
+  const { t } = useTranslation('common');
+  // Schema messages are i18n keys (see schemas.ts) under common.validation;
+  // translate them here. The key arrives from RHF as a plain string so it can't
+  // be proven statically — cast to the validation-key type. A missing key falls
+  // back to itself, so a stray plain-string message still renders safely.
+  const messageKey = error ? (String(error?.message ?? '') as ValidationKey) : undefined;
+  const body = messageKey ? t(messageKey) : props.children;
 
   if (!body) {
     return null;

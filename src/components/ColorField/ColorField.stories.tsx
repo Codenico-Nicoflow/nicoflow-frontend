@@ -67,8 +67,8 @@ type Story = StoryObj<StoryArgs>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // No label by default; the trigger shows the friendly preset name (not hex).
-    await expect(canvas.getByTestId('color-trigger')).toHaveTextContent('Blue');
+    // Swatch-only trigger; the friendly preset name is the accessible name.
+    await expect(canvas.getByTestId('color-trigger')).toHaveAccessibleName('Blue');
   },
 };
 

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 import { isActive, NAV_DESTINATIONS, SETTINGS_DESTINATION } from '@/features/Rail/data';
@@ -7,25 +8,27 @@ const ITEMS = [...NAV_DESTINATIONS, SETTINGS_DESTINATION];
 
 export const BottomNav = () => {
   const { pathname } = useLocation();
+  const { t } = useTranslation('nav');
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-border/60 bg-background">
       {ITEMS.map(dest => {
         const active = isActive(pathname, dest);
+        const label = t(dest.labelKey);
         return (
           <Link
             key={dest.to}
             to={dest.to}
-            aria-label={dest.label}
+            aria-label={label}
             aria-current={active ? 'page' : undefined}
-            data-testid={`bottomnav-${dest.label.toLowerCase()}`}
+            data-testid={`bottomnav-${dest.id}`}
             className={cn(
               'flex flex-1 flex-col items-center justify-center gap-0.5 text-xs transition-colors',
               active ? 'text-primary' : 'text-muted-foreground'
             )}
           >
             <dest.icon className="h-5 w-5" />
-            {dest.label}
+            {label}
           </Link>
         );
       })}

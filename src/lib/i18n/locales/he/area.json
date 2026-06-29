@@ -22,8 +22,10 @@
     "newProject": "פרויקט חדש",
     "planLimitTooltip": "הגעתם למגבלת התוכנית החינמית — שדרגו להוסיף עוד.",
     "projectCount_one": "פרויקט {{count}}",
+    "projectCount_two": "{{count}} פרויקטים",
     "projectCount_other": "{{count}} פרויקטים",
     "areaCount_one": "תחום {{count}}",
+    "areaCount_two": "{{count}} תחומים",
     "areaCount_other": "{{count}} תחומים"
   },
   "card": {

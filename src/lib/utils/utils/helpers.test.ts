@@ -8,10 +8,12 @@ import {
   isFetchBaseQueryError,
   prepareOptionalFields,
   showErrorToast,
+  showInfoToast,
   showSuccessToast,
+  showWarningToast,
 } from './helpers';
 
-const mockToast = { error: vi.fn(), success: vi.fn() };
+const mockToast = { error: vi.fn(), success: vi.fn(), info: vi.fn(), warning: vi.fn() };
 
 describe('isFetchBaseQueryError', () => {
   it('returns true for object with status property', () => {
@@ -149,6 +151,30 @@ describe('showSuccessToast', () => {
   it('passes through unknown string as-is', () => {
     showSuccessToast('Custom message', mockToast);
     expect(mockToast.success).toHaveBeenCalledWith('Custom message');
+  });
+});
+
+describe('showInfoToast', () => {
+  it('resolves a known errors-namespace key', () => {
+    showInfoToast('VERIFICATION_EMAIL_SENT', mockToast);
+    expect(mockToast.info).toHaveBeenCalledWith('Verification email sent. Check your inbox.');
+  });
+
+  it('passes through an unknown string verbatim', () => {
+    showInfoToast('Heads up', mockToast);
+    expect(mockToast.info).toHaveBeenCalledWith('Heads up');
+  });
+});
+
+describe('showWarningToast', () => {
+  it('resolves a known errors-namespace key', () => {
+    showWarningToast('RATE_LIMITED', mockToast);
+    expect(mockToast.warning).toHaveBeenCalledWith('Too many requests. Please wait a moment and try again.');
+  });
+
+  it('passes through an unknown string verbatim', () => {
+    showWarningToast('Careful now', mockToast);
+    expect(mockToast.warning).toHaveBeenCalledWith('Careful now');
   });
 });
 

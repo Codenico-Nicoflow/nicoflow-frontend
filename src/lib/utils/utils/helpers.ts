@@ -21,6 +21,8 @@ const isErrorMessageKey = (key: string): key is ErrorMessageKey => Object.protot
 export interface Toast {
   error: (message: string) => void | string | number;
   success: (message: string) => void | string | number;
+  info: (message: string) => void | string | number;
+  warning: (message: string) => void | string | number;
 }
 
 /**
@@ -95,6 +97,17 @@ export function showSuccessToast(msg: string, toast: Toast) {
   // a known key, fall back to showing the passed string verbatim.
   const text = isErrorMessageKey(msg) ? resolveErrorMessage(msg) : msg;
   return toast.success(text);
+}
+
+// Resolve an `errors`-namespace key, or pass an already-localized string verbatim.
+const resolveToastMessage = (msg: string): string => (isErrorMessageKey(msg) ? resolveErrorMessage(msg) : msg);
+
+export function showInfoToast(msg: string, toast: Toast) {
+  return toast.info(resolveToastMessage(msg));
+}
+
+export function showWarningToast(msg: string, toast: Toast) {
+  return toast.warning(resolveToastMessage(msg));
 }
 
 export function capitalize(str: string) {

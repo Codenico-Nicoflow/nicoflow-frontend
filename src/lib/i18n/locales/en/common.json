@@ -74,6 +74,11 @@
   },
   "loading": "Loading…",
   "comingSoon": "Coming soon",
+  "planLimit": {
+    "title": "You've hit your Free limit",
+    "description": "Upgrade to Pro for unlimited areas, projects, AI and more.",
+    "cta": "Upgrade to Pro"
+  },
   "pages": {
     "error404": {
       "code": "404",

@@ -5,7 +5,6 @@ export {
   ForgotPasswordInputs,
   FREE_PLAN_AREA_LIMIT,
   FREE_PLAN_PROJECT_LIMIT,
-  GENERAL_AREA,
   LoginInputs,
   ProcessingResult,
   PROJECT_STATUS,

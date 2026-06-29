@@ -74,6 +74,11 @@
   },
   "loading": "טוען…",
   "comingSoon": "בקרוב",
+  "planLimit": {
+    "title": "הגעת למגבלת התוכנית החינמית",
+    "description": "שדרגו ל-Pro לתחומים, פרויקטים, AI ועוד ללא הגבלה.",
+    "cta": "שדרגו ל-Pro"
+  },
   "pages": {
     "error404": {
       "code": "404",

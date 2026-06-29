@@ -18,7 +18,7 @@ type Story = StoryObj<typeof PlanLimitAlert>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText('Plan limit reached')).toBeInTheDocument();
+    await expect(canvas.getByText(/hit your free limit/i)).toBeInTheDocument();
     await expect(canvas.getByRole('link', { name: /upgrade to pro/i })).toBeInTheDocument();
   },
 };

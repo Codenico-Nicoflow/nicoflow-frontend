@@ -9,6 +9,8 @@ export const Toaster = ({ 'data-testid': testId, ...props }: ToasterProps & { 'd
     <Sonner
       data-testid={testId || 'toaster'}
       theme={theme as 'light' | 'dark' | 'system' | undefined}
+      richColors
+      closeButton
       className="toaster group"
       style={
         {

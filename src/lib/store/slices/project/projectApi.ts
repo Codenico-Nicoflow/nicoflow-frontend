@@ -26,8 +26,12 @@ const refreshBoardOnSuccess = async (
   _arg: unknown,
   { dispatch, queryFulfilled }: { dispatch: Dispatch<UnknownAction>; queryFulfilled: Promise<unknown> }
 ) => {
-  await queryFulfilled;
-  dispatch(areaApi.util.invalidateTags(['Area']));
+  try {
+    await queryFulfilled;
+    dispatch(areaApi.util.invalidateTags(['Area']));
+  } catch {
+    // mutation failed (e.g. plan limit / 5xx) — nothing to refresh.
+  }
 };
 
 export const projectApi = createApi({

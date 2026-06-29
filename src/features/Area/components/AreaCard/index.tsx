@@ -20,7 +20,6 @@ import { ProjectDeleteDialog, ProjectDialog, ProjectRow } from '@/features/Proje
 import { areaApi, invalidateApiTags, useDeleteAreaMutation } from '@/lib/store';
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 import type { IconId, IProject } from '@/lib/types';
-import { GENERAL_AREA } from '@/lib/types';
 import { cn, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 interface AreaCardProps {
@@ -40,7 +39,6 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
   const [editProject, setEditProject] = useState<IProject | undefined>();
   const [deleteProject, setDeleteProject] = useState<IProject | undefined>();
 
-  const isGeneral = area.name.toLowerCase() === GENERAL_AREA;
   const projects = area.projects ?? [];
 
   // The card is sortable (area reorder) and a drop target for projects moved
@@ -129,7 +127,6 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
                   icon: Trash2,
                   onClick: () => setConfirmDeleteArea(true),
                   destructive: true,
-                  disabled: isGeneral,
                 },
               ]}
             />

@@ -64,17 +64,7 @@ describe('AreaCard', () => {
     expect(screen.getByText('No projects yet — add one below.')).toBeInTheDocument();
   });
 
-  it('disables the Delete action for the protected "General" area', async () => {
-    const user = userEvent.setup();
-    renderComponent(<AreaCard area={{ ...areaWithProjects, name: 'General', projects: [] }} data-testid="area-card" />);
-
-    await user.click(screen.getByTestId('area-card-actions-trigger'));
-
-    const deleteItem = await screen.findByTestId('area-card-actions-action-delete-area');
-    expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
-  });
-
-  it('keeps the Delete action enabled for a regular area', async () => {
+  it('keeps the Delete action enabled for any area', async () => {
     const user = userEvent.setup();
     renderComponent(<AreaCard area={areaWithProjects} data-testid="area-card" />);
 

@@ -79,7 +79,7 @@ export const DragAndDropContext = ({ children }: { children: React.ReactNode }) 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
       {children}
-      <DragOverlay>
+      <DragOverlay dropAnimation={null}>
         {activeId && activeProject ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95, rotate: -5 }}

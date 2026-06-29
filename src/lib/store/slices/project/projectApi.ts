@@ -1,3 +1,4 @@
+import type { Dispatch, UnknownAction } from '@reduxjs/toolkit';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import type { ApiEnvelope } from '@/lib/types';
@@ -19,6 +20,15 @@ import type {
   UpdateProjectRequest,
   UpdateProjectResponse,
 } from './type';
+
+// Tags don't cross createApi instances — invalidate the board (areaApi) explicitly.
+const refreshBoardOnSuccess = async (
+  _arg: unknown,
+  { dispatch, queryFulfilled }: { dispatch: Dispatch<UnknownAction>; queryFulfilled: Promise<unknown> }
+) => {
+  await queryFulfilled;
+  dispatch(areaApi.util.invalidateTags(['Area']));
+};
 
 export const projectApi = createApi({
   reducerPath: 'projectApi',
@@ -45,6 +55,7 @@ export const projectApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<CreateProjectResponse>) => raw.data,
       transformErrorResponse: error => error.data,
+      onQueryStarted: refreshBoardOnSuccess,
       invalidatesTags: ['Project'],
     }),
     updateProject: builder.mutation<UpdateProjectResponse, UpdateProjectRequest>({
@@ -55,6 +66,7 @@ export const projectApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<UpdateProjectResponse>) => raw.data,
       transformErrorResponse: error => error.data,
+      onQueryStarted: refreshBoardOnSuccess,
       invalidatesTags: ['Project'],
     }),
     deleteProject: builder.mutation<DeleteProjectResponse, DeleteProjectRequest>({
@@ -63,6 +75,7 @@ export const projectApi = createApi({
         method: 'DELETE',
       }),
       transformErrorResponse: error => error.data,
+      onQueryStarted: refreshBoardOnSuccess,
       invalidatesTags: ['Project'],
     }),
     reorderProjects: builder.mutation<ReorderProjectsResponse, ReorderProjectsRequest>({

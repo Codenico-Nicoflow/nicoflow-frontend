@@ -40,6 +40,12 @@ export const TASKS_API = {
   DELETE_TASK: '/tasks/',
 };
 
+// Subtasks are nested under a task: /tasks/:taskId/subtasks[/:subtaskId].
+export const SUBTASK_API = {
+  subtasks: (taskId: string) => `/tasks/${taskId}/subtasks`,
+  subtask: (taskId: string, subtaskId: string) => `/tasks/${taskId}/subtasks/${subtaskId}`,
+};
+
 export const BUCKET_API = {
   GET_BUCKETS: '/bucket',
   GET_BUCKET: '/bucket/',

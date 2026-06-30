@@ -13,7 +13,18 @@
     "taskNameLabel": "Task Name",
     "taskNamePlaceholder": "Enter task name",
     "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Add task details..."
+    "descriptionPlaceholder": "Add task details...",
+    "schedulingTitle": "Scheduling",
+    "dueDateDeadlineLabel": "Deadline (hard)",
+    "rollsOverLabel": "Roll over",
+    "rollsOverDescription": "If the scheduled day passes, carry it forward instead of marking it overdue."
+  },
+  "subtasks": {
+    "title": "Subtasks",
+    "empty": "No subtasks yet.",
+    "add": "Add",
+    "addPlaceholder": "Add a subtask...",
+    "delete": "Delete subtask"
   },
   "actions": {
     "edit": "Edit Task",

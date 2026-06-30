@@ -13,7 +13,18 @@
     "taskNameLabel": "Название задачи",
     "taskNamePlaceholder": "Введите название задачи",
     "descriptionLabel": "Описание",
-    "descriptionPlaceholder": "Добавьте детали задачи..."
+    "descriptionPlaceholder": "Добавьте детали задачи...",
+    "schedulingTitle": "Планирование",
+    "dueDateDeadlineLabel": "Крайний срок (жёсткий)",
+    "rollsOverLabel": "Переносить",
+    "rollsOverDescription": "Если запланированный день прошёл, перенести вперёд, а не помечать как просроченное."
+  },
+  "subtasks": {
+    "title": "Подзадачи",
+    "empty": "Подзадач пока нет.",
+    "add": "Добавить",
+    "addPlaceholder": "Добавить подзадачу...",
+    "delete": "Удалить подзадачу"
   },
   "actions": {
     "edit": "Изменить задачу",

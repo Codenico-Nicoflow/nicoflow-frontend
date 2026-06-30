@@ -67,6 +67,8 @@
     "priorityLabel": "Приоритет",
     "priorityPlaceholder": "Выберите приоритет",
     "energyLabel": "Энергия",
+    "scheduledForLabel": "Запланировано на",
+    "scheduledForHint": "Мягкое намерение — мягко переносится вперёд, без просрочки.",
     "statusLabel": "Статус",
     "statusPlaceholder": "Выберите статус",
     "estimatedTimeLabel": "Оценка времени",

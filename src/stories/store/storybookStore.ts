@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
-import { areaApi, authApi, authReducer, bucketApi, projectApi, taskApi } from '@/lib/store/slices';
+import { areaApi, authApi, authReducer, bucketApi, projectApi, subtaskApi, taskApi } from '@/lib/store/slices';
 
 const storyRootReducer = combineReducers({
   auth: authReducer,
@@ -8,6 +8,7 @@ const storyRootReducer = combineReducers({
   [projectApi.reducerPath]: projectApi.reducer,
   [areaApi.reducerPath]: areaApi.reducer,
   [taskApi.reducerPath]: taskApi.reducer,
+  [subtaskApi.reducerPath]: subtaskApi.reducer,
   [bucketApi.reducerPath]: bucketApi.reducer,
 });
 
@@ -23,6 +24,7 @@ export const createStoryStore = (preloadedState?: Partial<StoryRootState>) =>
         projectApi.middleware,
         areaApi.middleware,
         taskApi.middleware,
+        subtaskApi.middleware,
         bucketApi.middleware
       ),
   });

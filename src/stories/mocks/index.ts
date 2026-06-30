@@ -2,6 +2,7 @@
 // MSW test server and Storybook). Re-export the factories here under the names
 // stories use, so a story import path stays stable while the shapes can't drift.
 export {
+  makeSubtask,
   makeArea as mockArea,
   makeAreaWithProjects as mockAreaWithProjects,
   makeBucket as mockBucket,

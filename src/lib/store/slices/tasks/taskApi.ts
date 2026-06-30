@@ -15,6 +15,8 @@ import type {
   GetTasksResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
+  UpdateTaskStatusRequest,
+  UpdateTaskStatusResponse,
 } from './type';
 
 export const taskApi = createApi({
@@ -62,6 +64,30 @@ export const taskApi = createApi({
       transformErrorResponse: error => error.data,
       invalidatesTags: ['Task'],
     }),
+    updateTaskStatus: builder.mutation<UpdateTaskStatusResponse, UpdateTaskStatusRequest>({
+      query: ({ id, status }) => ({
+        url: `${TASKS_API.UPDATE_TASK}${id}/status`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      transformResponse: (raw: ApiEnvelope<UpdateTaskStatusResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      // Optimistic: flip the status in the cached list immediately; undo on failure.
+      onQueryStarted: async ({ id, status }, { dispatch, queryFulfilled }) => {
+        const patch = dispatch(
+          taskApi.util.updateQueryData('getTasks', undefined, draft => {
+            const found = draft.find(task => task.id === id);
+            if (found) found.status = status;
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+      invalidatesTags: ['Task'],
+    }),
   }),
 });
 
@@ -71,4 +97,5 @@ export const {
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
+  useUpdateTaskStatusMutation,
 } = taskApi;

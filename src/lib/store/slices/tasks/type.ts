@@ -40,3 +40,7 @@ export type UpdateTaskRequest = {
 export type UpdateTaskResponse = ITask;
 export type DeleteTaskRequest = string;
 export type DeleteTaskResponse = void;
+
+// Status-only shorthand (PATCH /tasks/:id/status) — checkbox toggle, move to someday.
+export type UpdateTaskStatusRequest = { id: string; status: TaskStatus };
+export type UpdateTaskStatusResponse = ITask;

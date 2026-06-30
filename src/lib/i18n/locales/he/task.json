@@ -28,7 +28,8 @@
   },
   "actions": {
     "edit": "עריכת משימה",
-    "delete": "מחיקת משימה"
+    "delete": "מחיקת משימה",
+    "moveToSomeday": "העברה ל'מתישהו'"
   },
   "status": {
     "todo": "לביצוע",
@@ -47,7 +48,8 @@
   "energy": {
     "low": "נמוכה",
     "medium": "בינונית",
-    "deep": "עמוקה"
+    "deep": "עמוקה",
+    "aria": "אנרגיה: {{level}}"
   },
   "filters": {
     "all": "הכל",
@@ -92,5 +94,12 @@
     "today": "היום",
     "tomorrow": "מחר",
     "overdue": "{{date}} • באיחור"
+  },
+  "gentleDate": {
+    "carriedOver": "נדחה קדימה",
+    "scheduledToday": "היום",
+    "scheduledTomorrow": "מחר",
+    "dueToday": "לביצוע",
+    "dueTomorrow": "לביצוע מחר"
   }
 }

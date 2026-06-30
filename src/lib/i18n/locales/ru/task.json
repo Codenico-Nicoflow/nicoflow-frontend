@@ -28,7 +28,8 @@
   },
   "actions": {
     "edit": "Изменить задачу",
-    "delete": "Удалить задачу"
+    "delete": "Удалить задачу",
+    "moveToSomeday": "Перенести в «Когда-нибудь»"
   },
   "status": {
     "todo": "К выполнению",
@@ -47,7 +48,8 @@
   "energy": {
     "low": "Низкая",
     "medium": "Средняя",
-    "deep": "Глубокая"
+    "deep": "Глубокая",
+    "aria": "Энергия: {{level}}"
   },
   "filters": {
     "all": "Все",
@@ -92,5 +94,12 @@
     "today": "Сегодня",
     "tomorrow": "Завтра",
     "overdue": "{{date}} • Просрочено"
+  },
+  "gentleDate": {
+    "carriedOver": "Перенесено",
+    "scheduledToday": "Сегодня",
+    "scheduledTomorrow": "Завтра",
+    "dueToday": "К выполнению",
+    "dueTomorrow": "Срок завтра"
   }
 }

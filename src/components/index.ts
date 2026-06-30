@@ -9,6 +9,8 @@ export { Divider } from './Divider';
 export { DragAndDropContext } from './DragAndDropContext';
 export { DueDateField } from './DueDateField';
 export { EmptyState } from './EmptyState';
+export { EnergyField } from './EnergyField';
+export { ENERGY_OPTIONS } from './EnergyField/energy';
 export { EstimatedTimeField } from './EstimatedTimeField';
 export { FormDialog } from './FormDialog';
 export { IconField } from './IconField';

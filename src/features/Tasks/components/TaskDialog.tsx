@@ -10,6 +10,7 @@ import {
   DescriptionField,
   DialogFieldGrid,
   DueDateField,
+  EnergyField,
   EstimatedTimeField,
   FormDialog,
   NameField,
@@ -44,7 +45,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       notes: task?.notes || '',
       status: task?.status || 'inbox',
       priority: task?.priority || 'low',
+      energy: task?.energy || 'medium',
+      rollsOver: task?.rollsOver ?? true,
       dueDate: task?.dueDate ? new Date(task.dueDate) : undefined,
+      scheduledFor: task?.scheduledFor ?? undefined,
       estimatedMinutes: task?.estimatedMinutes || undefined,
       url: task?.url || '',
     },
@@ -60,7 +64,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         notes: task.notes || '',
         status: task.status || 'inbox',
         priority: task.priority || 'low',
+        energy: task.energy || 'medium',
+        rollsOver: task.rollsOver ?? true,
         dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+        scheduledFor: task.scheduledFor ?? undefined,
         estimatedMinutes: task.estimatedMinutes || undefined,
         url: task.url || '',
       });
@@ -70,7 +77,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         notes: '',
         status: 'inbox',
         priority: 'low',
+        energy: 'medium',
+        rollsOver: true,
         dueDate: undefined,
+        scheduledFor: undefined,
         estimatedMinutes: undefined,
         url: '',
       });
@@ -95,6 +105,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         await updateTask({
           id: task.id,
           ...data,
+          energy: data.energy,
+          rollsOver: data.rollsOver,
           dueDate: data.dueDate ? data.dueDate.toISOString() : null,
           estimatedMinutes:
             data.estimatedMinutes === null || data.estimatedMinutes === undefined
@@ -108,6 +120,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           projectId,
           title: data.title,
           priority: data.priority,
+          energy: data.energy,
+          rollsOver: data.rollsOver,
           notes: data.notes ?? undefined,
           dueDate: data.dueDate ? data.dueDate.toISOString() : undefined,
           estimatedMinutes: data.estimatedMinutes ?? undefined,
@@ -161,8 +175,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
 
           <DialogFieldGrid columns={2}>
             <PriorityField control={form.control} delay={0.2} />
-            <DueDateField control={form.control} optional delay={0.25} />
+            <EnergyField control={form.control} delay={0.22} />
           </DialogFieldGrid>
+
+          <DueDateField control={form.control} optional delay={0.25} />
 
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />

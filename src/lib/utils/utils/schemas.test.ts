@@ -248,6 +248,7 @@ describe('taskSchema', () => {
   const validTask = {
     title: 'Fix bug',
     priority: 'medium' as const,
+    energy: 'medium' as const,
   };
 
   it('parses valid task', () => {
@@ -269,6 +270,27 @@ describe('taskSchema', () => {
     const result = taskSchema.safeParse({ ...validTask, priority: 'urgent' });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toBe('validation.priorityInvalid');
+  });
+
+  it('accepts a valid energy', () => {
+    const result = taskSchema.safeParse({ ...validTask, energy: 'deep' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid energy', () => {
+    const result = taskSchema.safeParse({ ...validTask, energy: 'extreme' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.energyInvalid');
+  });
+
+  it('accepts the someday status', () => {
+    const result = taskSchema.safeParse({ ...validTask, status: 'someday' });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts an ISO date string scheduledFor', () => {
+    const result = taskSchema.safeParse({ ...validTask, scheduledFor: '2026-05-02' });
+    expect(result.success).toBe(true);
   });
 
   it('rejects invalid url', () => {

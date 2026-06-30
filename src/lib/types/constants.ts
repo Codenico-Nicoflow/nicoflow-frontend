@@ -29,6 +29,7 @@ export const PROJECT_STATUS = {
 export const TaskStatus = {
   INBOX: 'inbox',
   ACTIVE: 'active',
+  SOMEDAY: 'someday',
   DONE: 'done',
   CANCELLED: 'cancelled',
 } as const;
@@ -37,6 +38,13 @@ export const TaskPriority = {
   LOW: 'low',
   MEDIUM: 'medium',
   HIGH: 'high',
+} as const;
+
+// Energy is the focus cost of a task (SPEC §3.4). Default medium.
+export const TaskEnergy = {
+  LOW: 'low',
+  MEDIUM: 'medium',
+  DEEP: 'deep',
 } as const;
 
 export const TaskSortOrder = {
@@ -55,14 +63,9 @@ export const FilterBy = {
   ALL: 'all',
   INBOX: 'inbox',
   ACTIVE: 'active',
+  SOMEDAY: 'someday',
   DONE: 'done',
   CANCELLED: 'cancelled',
-} as const;
-
-export const ScheduledFor = {
-  TODAY: 'today',
-  TOMORROW: 'tomorrow',
-  THIS_WEEK: 'this_week',
 } as const;
 
 // ============================================
@@ -87,9 +90,9 @@ export const BUCKET_PROCESSING_OPTIONS: ProcessingOption[] = [
 
 export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];
 export type TaskPriority = (typeof TaskPriority)[keyof typeof TaskPriority];
+export type TaskEnergy = (typeof TaskEnergy)[keyof typeof TaskEnergy];
 export type TaskSortOrder = (typeof TaskSortOrder)[keyof typeof TaskSortOrder];
 export type ProcessingResult = (typeof ProcessingResult)[keyof typeof ProcessingResult];
-export type ScheduledFor = (typeof ScheduledFor)[keyof typeof ScheduledFor];
 
 // ============================================
 // AUTH CONSTANTS

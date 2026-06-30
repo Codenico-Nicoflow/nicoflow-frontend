@@ -152,7 +152,10 @@ export const getDefaultTaskFormValues = (bucketContent?: string): TaskFormData =
       title,
       notes,
       priority: 'low',
+      energy: 'medium',
+      rollsOver: true,
       dueDate: null,
+      scheduledFor: null,
       estimatedMinutes: null,
       url: '',
     };
@@ -162,7 +165,10 @@ export const getDefaultTaskFormValues = (bucketContent?: string): TaskFormData =
     title: '',
     notes: '',
     priority: 'low',
+    energy: 'medium',
+    rollsOver: true,
     dueDate: null,
+    scheduledFor: null,
     estimatedMinutes: null,
     url: '',
   };

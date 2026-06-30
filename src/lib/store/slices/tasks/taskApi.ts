@@ -12,6 +12,7 @@ import type {
   DeleteTaskResponse,
   GetTaskRequest,
   GetTaskResponse,
+  GetTasksRequest,
   GetTasksResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
@@ -24,9 +25,13 @@ export const taskApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Task'],
   endpoints: builder => ({
-    getTasks: builder.query<GetTasksResponse, void>({
-      query: () => TASKS_API.GET_TASKS,
-      transformResponse: (raw: ApiEnvelope<GetTasksResponse>) => raw.data,
+    getTasks: builder.query<GetTasksResponse, GetTasksRequest>({
+      query: ({ projectId, ...params }) => ({
+        url: `/projects/${projectId}/tasks`,
+        params,
+      }),
+      // List endpoints wrap the array as { items } inside the data envelope.
+      transformResponse: (raw: ApiEnvelope<{ items: GetTasksResponse }>) => raw.data.items,
       transformErrorResponse: error => error.data,
       providesTags: ['Task'],
     }),
@@ -72,18 +77,24 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<UpdateTaskStatusResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      // Optimistic: flip the status in the cached list immediately; undo on failure.
-      onQueryStarted: async ({ id, status }, { dispatch, queryFulfilled }) => {
-        const patch = dispatch(
-          taskApi.util.updateQueryData('getTasks', undefined, draft => {
-            const found = draft.find(task => task.id === id);
-            if (found) found.status = status;
-          })
-        );
+      // Optimistic: flip the status in every cached getTasks list immediately
+      // (lists are keyed by project + filters), and undo all patches on failure.
+      onQueryStarted: async ({ id, status }, { dispatch, getState, queryFulfilled }) => {
+        const entries = taskApi.util.selectInvalidatedBy(getState(), [{ type: 'Task' }]);
+        const patches = entries
+          .filter(entry => entry.endpointName === 'getTasks')
+          .map(entry =>
+            dispatch(
+              taskApi.util.updateQueryData('getTasks', entry.originalArgs as GetTasksRequest, draft => {
+                const found = draft.find(task => task.id === id);
+                if (found) found.status = status;
+              })
+            )
+          );
         try {
           await queryFulfilled;
         } catch {
-          patch.undo();
+          patches.forEach(patch => patch.undo());
         }
       },
       invalidatesTags: ['Task'],

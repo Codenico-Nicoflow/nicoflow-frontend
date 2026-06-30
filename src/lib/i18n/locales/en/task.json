@@ -55,6 +55,7 @@
     "all": "All",
     "inbox": "Inbox",
     "active": "Active",
+    "someday": "Someday",
     "done": "Done",
     "cancelled": "Cancelled"
   },

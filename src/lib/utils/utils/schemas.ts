@@ -28,6 +28,7 @@ const V = {
   iconInvalid: 'validation.iconInvalid',
   statusInvalid: 'validation.statusInvalid',
   priorityInvalid: 'validation.priorityInvalid',
+  energyInvalid: 'validation.energyInvalid',
   areaNameRequired: 'validation.areaNameRequired',
   areaNameMax: 'validation.areaNameMax',
   taskTitleRequired: 'validation.taskTitleRequired',
@@ -113,10 +114,14 @@ const updateAreaSchema = z.object({
 const taskSchema = z.object({
   title: z.string().min(1, V.taskTitleRequired).max(255, V.taskTitleMax),
   notes: z.string().optional().nullable(),
-  status: z.enum(['inbox', 'active', 'done', 'cancelled'], { error: V.statusInvalid }).optional(),
+  status: z.enum(['inbox', 'active', 'someday', 'done', 'cancelled'], { error: V.statusInvalid }).optional(),
   priority: z.enum(['low', 'medium', 'high'], { error: V.priorityInvalid }),
+  energy: z.enum(['low', 'medium', 'deep'], { error: V.energyInvalid }),
+  rollsOver: z.boolean().optional(),
+  // hard deadline (a Date in the form; serialized to RFC3339 on submit)
   dueDate: z.date().optional().nullable(),
-  scheduledFor: z.enum(['today', 'tomorrow', 'this_week']).optional().nullable(),
+  // soft intention — ISO date string "YYYY-MM-DD"
+  scheduledFor: z.string().optional().nullable(),
   estimatedMinutes: z.number().min(1, V.estimatedTimeMin).max(1440, V.estimatedTimeMax).optional().nullable(),
   url: z.string().url(V.urlInvalid).or(z.literal('')).optional().nullable(),
 });

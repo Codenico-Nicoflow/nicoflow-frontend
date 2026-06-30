@@ -2,7 +2,7 @@
 // IMPORTS
 // ============================================
 
-import type { ProcessingResult, TaskPriority, TaskStatus } from '../constants';
+import type { ProcessingResult, TaskEnergy, TaskPriority, TaskStatus } from '../constants';
 import type { IconId } from '../icons';
 
 // ============================================
@@ -51,11 +51,13 @@ export interface ITask {
   notes?: string | null;
   status: TaskStatus;
   priority: TaskPriority;
-  dueDate?: string | null;
-  scheduledFor?: 'today' | 'tomorrow' | 'this_week' | null;
+  energy: TaskEnergy;
+  rollsOver: boolean;
+  dueDate?: string | null; // hard deadline — RFC3339 timestamp
+  scheduledFor?: string | null; // soft intention — ISO date "YYYY-MM-DD"
   estimatedMinutes?: number | null;
   url?: string | null;
-  displayOrder?: number;
+  displayOrder: number;
   completedAt?: string | null;
   createdAt: string;
   updatedAt: string;

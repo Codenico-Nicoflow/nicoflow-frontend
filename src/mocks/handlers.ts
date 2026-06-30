@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 import type { IArea, IBucket, IProject, ITask, IUser } from '@/lib/types';
-import { TaskPriority, TaskStatus } from '@/lib/types/constants';
+import { TaskEnergy, TaskPriority, TaskStatus } from '@/lib/types/constants';
 
 export const mockUser: IUser = {
   id: '1',
@@ -77,6 +77,8 @@ export const makeTask = (overrides?: Partial<ITask>): ITask => ({
   notes: null,
   status: TaskStatus.INBOX,
   priority: TaskPriority.MEDIUM,
+  energy: TaskEnergy.MEDIUM,
+  rollsOver: true,
   dueDate: null,
   scheduledFor: null,
   estimatedMinutes: null,

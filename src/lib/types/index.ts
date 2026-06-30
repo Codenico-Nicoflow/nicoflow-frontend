@@ -10,7 +10,7 @@ export {
   PROJECT_STATUS,
   RegisterInputs,
   ResetPasswordInputs,
-  ScheduledFor,
+  TaskEnergy,
   TaskPriority,
   TaskSortField,
   TaskSortOrder,

@@ -33,6 +33,11 @@
     "high": "High",
     "unknown": "Unknown"
   },
+  "energy": {
+    "low": "Low",
+    "medium": "Medium",
+    "deep": "Deep"
+  },
   "filters": {
     "all": "All",
     "inbox": "Inbox",

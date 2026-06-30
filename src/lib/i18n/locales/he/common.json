@@ -67,6 +67,8 @@
     "priorityLabel": "עדיפות",
     "priorityPlaceholder": "בחרו עדיפות",
     "energyLabel": "אנרגיה",
+    "scheduledForLabel": "מתוכנן ל",
+    "scheduledForHint": "כוונה רכה — היא נדחית בעדינות קדימה, לעולם לא באיחור.",
     "statusLabel": "סטטוס",
     "statusPlaceholder": "בחרו סטטוס",
     "estimatedTimeLabel": "זמן משוער",

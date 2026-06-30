@@ -8,6 +8,7 @@ import { authApi } from './slices/auth/authApi';
 import authReducer from './slices/auth/authSlice';
 import { bucketApi } from './slices/bucket/bucketApi';
 import { projectApi } from './slices/project/projectApi';
+import { subtaskApi } from './slices/subtasks/subtaskApi';
 import { taskApi } from './slices/tasks/taskApi';
 
 const rootReducer = combineReducers({
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   [projectApi.reducerPath]: projectApi.reducer,
   [areaApi.reducerPath]: areaApi.reducer,
   [taskApi.reducerPath]: taskApi.reducer,
+  [subtaskApi.reducerPath]: subtaskApi.reducer,
   [bucketApi.reducerPath]: bucketApi.reducer,
 });
 
@@ -34,7 +36,14 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(authApi.middleware, projectApi.middleware, areaApi.middleware, taskApi.middleware, bucketApi.middleware),
+    }).concat(
+      authApi.middleware,
+      projectApi.middleware,
+      areaApi.middleware,
+      taskApi.middleware,
+      subtaskApi.middleware,
+      bucketApi.middleware
+    ),
 });
 
 export const persistor = persistStore(store);

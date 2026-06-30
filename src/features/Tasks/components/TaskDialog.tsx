@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckSquare } from 'lucide-react';
+import { CheckSquare, Repeat } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import {
+  CheckboxField,
   DescriptionField,
   DialogFieldGrid,
   DueDateField,
@@ -14,7 +15,9 @@ import {
   EstimatedTimeField,
   FormDialog,
   NameField,
+  PlanLimitAlert,
   PriorityField,
+  ScheduledForField,
   StatusField,
   UrlField,
 } from '@/components';
@@ -22,7 +25,16 @@ import { Form } from '@/components/ui/form';
 import { useCreateTaskMutation, useUpdateTaskMutation } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import type { TaskFormData } from '@/lib/utils';
-import { hasFormChanges, showErrorToast, showSuccessToast, taskSchema, ToastMessages } from '@/lib/utils';
+import {
+  getApiErrorCode,
+  hasFormChanges,
+  showErrorToast,
+  showSuccessToast,
+  taskSchema,
+  ToastMessages,
+} from '@/lib/utils';
+
+import { SubtaskAccordion } from './SubtaskAccordion';
 
 interface TaskDialogProps {
   open: boolean;
@@ -38,6 +50,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
 
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
+
+  const [planLimitHit, setPlanLimitHit] = useState(false);
 
   const form = useForm<TaskFormData>({
     defaultValues: {
@@ -58,6 +72,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   const watchedValues = form.watch();
 
   useEffect(() => {
+    setPlanLimitHit(false);
     if (task) {
       form.reset({
         title: task.title,
@@ -100,6 +115,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       return;
     }
 
+    setPlanLimitHit(false);
+
     try {
       if (isEditMode) {
         await updateTask({
@@ -133,6 +150,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
+      // A plan-limit 403 becomes an inline upgrade CTA, not a generic error toast.
+      if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
+        setPlanLimitHit(true);
+        return;
+      }
       showErrorToast(error, toast);
     }
   };
@@ -152,6 +174,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     >
       <Form {...form}>
         <div className="space-y-4">
+          {planLimitHit && <PlanLimitAlert />}
+
           <NameField
             control={form.control}
             fieldName="title"
@@ -178,10 +202,29 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
             <EnergyField control={form.control} delay={0.22} />
           </DialogFieldGrid>
 
-          <DueDateField control={form.control} optional delay={0.25} />
+          {/* Scheduling: a hard deadline (dueDate) and a soft intention (scheduledFor)
+              are deliberately distinct. rollsOver (default on) governs the soft one. */}
+          <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
+            <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
+            <DialogFieldGrid columns={2}>
+              <DueDateField control={form.control} label={t('dialog.dueDateDeadlineLabel')} optional delay={0.25} />
+              <ScheduledForField control={form.control} delay={0.27} />
+            </DialogFieldGrid>
+            <CheckboxField
+              control={form.control}
+              fieldName="rollsOver"
+              icon={Repeat}
+              label={t('dialog.rollsOverLabel')}
+              description={t('dialog.rollsOverDescription')}
+              delay={0.29}
+            />
+          </div>
 
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />
+
+          {/* Subtasks only exist once the task does. */}
+          {isEditMode && task && <SubtaskAccordion taskId={task.id} />}
         </div>
       </Form>
     </FormDialog>

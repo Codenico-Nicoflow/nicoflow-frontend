@@ -67,6 +67,8 @@
     "priorityLabel": "Priority",
     "priorityPlaceholder": "Select priority",
     "energyLabel": "Energy",
+    "scheduledForLabel": "Scheduled for",
+    "scheduledForHint": "A soft intention — it gently carries forward, never overdue.",
     "statusLabel": "Status",
     "statusPlaceholder": "Select status",
     "estimatedTimeLabel": "Estimated Time",

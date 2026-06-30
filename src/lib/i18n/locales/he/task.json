@@ -13,7 +13,18 @@
     "taskNameLabel": "שם המשימה",
     "taskNamePlaceholder": "הזינו שם משימה",
     "descriptionLabel": "תיאור",
-    "descriptionPlaceholder": "הוסיפו פרטי משימה..."
+    "descriptionPlaceholder": "הוסיפו פרטי משימה...",
+    "schedulingTitle": "תזמון",
+    "dueDateDeadlineLabel": "מועד אחרון (קשיח)",
+    "rollsOverLabel": "גלגול קדימה",
+    "rollsOverDescription": "אם היום המתוכנן חולף, היא תיגלגל קדימה במקום להיחשב באיחור."
+  },
+  "subtasks": {
+    "title": "תת-משימות",
+    "empty": "אין תת-משימות עדיין.",
+    "add": "הוספה",
+    "addPlaceholder": "הוסיפו תת-משימה...",
+    "delete": "מחיקת תת-משימה"
   },
   "actions": {
     "edit": "עריכת משימה",

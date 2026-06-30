@@ -76,6 +76,15 @@ export {
 } from './slices/tasks/taskApi';
 export type { CreateTaskRequest, CreateTaskResponse, UpdateTaskRequest, UpdateTaskResponse } from './slices/tasks/type';
 
+// Subtask exports
+export { subtaskApi } from './slices/subtasks/subtaskApi';
+export {
+  useCreateSubtaskMutation,
+  useDeleteSubtaskMutation,
+  useGetSubtasksQuery,
+  useUpdateSubtaskMutation,
+} from './slices/subtasks/subtaskApi';
+
 // Bucket exports
 export { bucketApi } from './slices/bucket/bucketApi';
 export {

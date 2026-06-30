@@ -24,6 +24,7 @@ export { NameField } from './NameField';
 export { OptionalBadge } from './OptionalBadge';
 export { PlanLimitAlert } from './PlanLimitAlert';
 export { PriorityField } from './PriorityField';
+export { ScheduledForField } from './ScheduledForField';
 export { StatusField } from './StatusField';
 export { ThemeProvider, useTheme } from './ThemeProvider';
 export { Timestamp } from './Timestamp';

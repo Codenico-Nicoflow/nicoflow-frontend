@@ -63,6 +63,16 @@ export interface ITask {
   updatedAt: string;
 }
 
+export interface ISubtask {
+  id: string;
+  taskId: string;
+  title: string;
+  done: boolean;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IUser {
   id: string;
   email: string;

@@ -5,51 +5,64 @@ import { Badge } from '@/components/ui/badge';
 import { type ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import { formatTaskDueDate, formatTaskPriority } from '../utils';
+import { formatTaskGentleDate, formatTaskPriority, getEnergyGlyph } from '../utils';
 
 interface TaskBadgesProps {
   task: ITask;
 }
 
 const TaskBadges = ({ task }: TaskBadgesProps) => {
-  const { t } = useTranslation('task');
+  const { t } = useTranslation(['task', 'common']);
 
-  const dueDateResult = task.dueDate ? formatTaskDueDate(task.dueDate) : null;
+  const gentleDate = formatTaskGentleDate(task);
   const priorityResult = task.priority ? formatTaskPriority(task.priority) : null;
+  const energyGlyph = getEnergyGlyph(task.energy);
+  const EnergyIcon = energyGlyph.icon;
+  const energyLabel = t(energyGlyph.labelKey);
 
-  const dueDateLabel = (() => {
-    if (!dueDateResult) return null;
-    switch (dueDateResult.kind) {
-      case 'today':
-        return t('dueDate.today');
-      case 'tomorrow':
-        return t('dueDate.tomorrow');
-      case 'overdue':
-        return t('dueDate.overdue', { date: dueDateResult.formattedDate });
-      case 'future':
-        return dueDateResult.formattedDate;
+  const gentleDateLabel = (() => {
+    if (!gentleDate) return null;
+    switch (gentleDate.kind) {
+      case 'scheduledFuture':
+      case 'dueFuture':
+        return gentleDate.formattedDate;
+      default:
+        return t(`gentleDate.${gentleDate.kind}`);
     }
   })();
 
-  const priorityLabel = (() => {
-    if (!priorityResult) return null;
-    return t(`priority.${priorityResult.kind}`);
-  })();
+  const priorityLabel = priorityResult ? t(`priority.${priorityResult.kind}`) : null;
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      {/* Estimated Minutes */}
+      {/* Energy glyph */}
+      <Badge
+        variant="secondary"
+        className="text-xs font-medium"
+        aria-label={t('energy.aria', { level: energyLabel })}
+        data-testid={`task-energy-${task.energy}`}
+      >
+        <EnergyIcon className="h-3 w-3 me-1.5" aria-hidden />
+        {energyLabel}
+      </Badge>
+
+      {/* Estimated minutes */}
       {task.estimatedMinutes && (
-        <Badge variant="secondary" className={cn('text-xs font-medium')}>
+        <Badge variant="secondary" className="text-xs font-medium">
           <Clock className="h-3 w-3 me-1.5" />
           {t('badges.min', { count: task.estimatedMinutes })}
         </Badge>
       )}
-      {/* Due Date */}
-      {task.dueDate && dueDateResult && (
-        <Badge variant="outline" className={cn('text-xs font-medium', dueDateResult.className)}>
+
+      {/* Gentle date chip — no red overdue; a passed soft date reads "carried over". */}
+      {gentleDate && gentleDateLabel && (
+        <Badge
+          variant="outline"
+          className={cn('text-xs font-medium', gentleDate.className)}
+          data-testid={`task-date-${gentleDate.kind}`}
+        >
           <Clock className="h-3 w-3 me-1.5" />
-          {dueDateLabel}
+          {gentleDateLabel}
         </Badge>
       )}
 
@@ -71,9 +84,7 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
         >
           <Badge
             variant="outline"
-            className={cn(
-              'text-xs font-medium cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors'
-            )}
+            className="text-xs font-medium cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             <ExternalLink className="h-3 w-3 me-1.5" />
             {t('badges.link')}

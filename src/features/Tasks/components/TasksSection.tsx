@@ -2,12 +2,9 @@ import { useMemo, useState } from 'react';
 
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
 
-import { useLoadingOverlay } from '@/components';
-import { useGetTasksQuery, useUpdateTaskMutation } from '@/lib/store';
+import { useGetTasksQuery } from '@/lib/store';
 import { type ITask, TaskStatus } from '@/lib/types';
-import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 import TasksEmptyState from '../states/TasksEmptyState';
 import TasksLoadingState from '../states/TasksLoadingState';
@@ -27,8 +24,6 @@ interface TasksSectionProps {
 const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   const { t } = useTranslation('task');
   const { data: tasks = [], isLoading: isLoadingTasks } = useGetTasksQuery();
-  const [updateTask] = useUpdateTaskMutation();
-  const { show, hide } = useLoadingOverlay();
 
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -65,21 +60,6 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
 
     return filtered;
   }, [projectTasks, activeFilter, searchQuery]);
-
-  const handleTaskToggle = async (task: ITask) => {
-    try {
-      show({ title: t('updating.title'), subtitle: t('updating.subtitle') });
-      await updateTask({
-        id: task.id,
-        status: task.status === TaskStatus.DONE ? TaskStatus.ACTIVE : TaskStatus.DONE,
-      }).unwrap();
-      showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
-    } catch (error) {
-      showErrorToast(error, toast);
-    } finally {
-      hide();
-    }
-  };
 
   const handleAddTask = () => {
     setSelectedTask(undefined);
@@ -126,7 +106,6 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
                     key={task.id}
                     task={task}
                     index={index}
-                    onTaskToggle={handleTaskToggle}
                     onEdit={handleEditTask}
                     onDelete={handleDeleteTask}
                   />

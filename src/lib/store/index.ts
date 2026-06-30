@@ -73,6 +73,7 @@ export {
   useGetTaskQuery,
   useGetTasksQuery,
   useUpdateTaskMutation,
+  useUpdateTaskStatusMutation,
 } from './slices/tasks/taskApi';
 export type { CreateTaskRequest, CreateTaskResponse, UpdateTaskRequest, UpdateTaskResponse } from './slices/tasks/type';
 

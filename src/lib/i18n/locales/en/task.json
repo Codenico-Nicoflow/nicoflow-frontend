@@ -28,7 +28,8 @@
   },
   "actions": {
     "edit": "Edit Task",
-    "delete": "Delete Task"
+    "delete": "Delete Task",
+    "moveToSomeday": "Move to Someday"
   },
   "status": {
     "todo": "To do",
@@ -47,7 +48,8 @@
   "energy": {
     "low": "Low",
     "medium": "Medium",
-    "deep": "Deep"
+    "deep": "Deep",
+    "aria": "Energy: {{level}}"
   },
   "filters": {
     "all": "All",
@@ -92,5 +94,12 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "overdue": "{{date}} • Overdue"
+  },
+  "gentleDate": {
+    "carriedOver": "Carried over",
+    "scheduledToday": "Today",
+    "scheduledTomorrow": "Tomorrow",
+    "dueToday": "Due",
+    "dueTomorrow": "Due tomorrow"
   }
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { motion } from 'framer-motion';
-import { CheckSquare, FolderX } from 'lucide-react';
+import { FolderX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ import { EmptyState } from '@/components';
 import { Button } from '@/components/ui/button';
 import { ExpandableText } from '@/components/ui/expandable-text';
 import { ProjectDeleteDialog, ProjectDialog, ProjectHeader, ProjectLoadingState } from '@/features/Project';
+import { TasksSection } from '@/features/Tasks';
 import { useGetProjectQuery } from '@/lib/store';
 
 const ProjectView = () => {
@@ -63,7 +64,7 @@ const ProjectView = () => {
 
         <section>
           <h2 className="text-sm font-semibold text-foreground mb-2">{t('view.tasks')}</h2>
-          <EmptyState icon={CheckSquare} title={t('view.tasksSoon')} description={t('view.tasksDescription')} />
+          <TasksSection projectId={project.id} />
         </section>
       </motion.div>
 

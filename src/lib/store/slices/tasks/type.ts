@@ -5,6 +5,18 @@ export type GetTasksResponse = ITask[];
 export type GetTaskResponse = ITask;
 export type GetTaskRequest = string;
 
+// Tasks are listed per project: GET /projects/:projectId/tasks with optional
+// server-side status/priority/energy/search/sort params (SPEC §3.4).
+export type GetTasksRequest = {
+  projectId: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  energy?: TaskEnergy;
+  search?: string;
+  sortField?: 'displayOrder' | 'dueDate' | 'priority' | 'title' | 'createdAt' | 'energy';
+  sortOrder?: 'asc' | 'desc';
+};
+
 export type CreateTaskRequest = {
   projectId: string;
   title: string;

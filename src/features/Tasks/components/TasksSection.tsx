@@ -3,8 +3,9 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
+import { useDebouncedValue } from '@/hooks';
 import { useGetTasksQuery } from '@/lib/store';
-import { type ITask, TaskStatus } from '@/lib/types';
+import { type ITask, type TaskEnergy, TaskStatus } from '@/lib/types';
 
 import TasksEmptyState from '../states/TasksEmptyState';
 import TasksLoadingState from '../states/TasksLoadingState';
@@ -23,7 +24,9 @@ interface TasksSectionProps {
 
 const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   const { t } = useTranslation('task');
-  const { data: tasks = [], isLoading: isLoadingTasks } = useGetTasksQuery();
+  // One project-scoped fetch is the source of truth; status/energy/search are
+  // applied client-side over the (capped, ≤50) project list so counts stay exact.
+  const { data: tasks = [], isLoading: isLoadingTasks } = useGetTasksQuery({ projectId });
 
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -31,35 +34,40 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [activeEnergy, setActiveEnergy] = useState<TaskEnergy | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  const projectTasks = tasks.filter(task => task.projectId === projectId);
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
   const taskCounts = useMemo(
     () => ({
-      all: projectTasks.length,
-      inbox: projectTasks.filter(t => t.status === TaskStatus.INBOX).length,
-      active: projectTasks.filter(t => t.status === TaskStatus.ACTIVE).length,
-      done: projectTasks.filter(t => t.status === TaskStatus.DONE).length,
-      cancelled: projectTasks.filter(t => t.status === TaskStatus.CANCELLED).length,
+      all: tasks.length,
+      inbox: tasks.filter(task => task.status === TaskStatus.INBOX).length,
+      active: tasks.filter(task => task.status === TaskStatus.ACTIVE).length,
+      someday: tasks.filter(task => task.status === TaskStatus.SOMEDAY).length,
+      done: tasks.filter(task => task.status === TaskStatus.DONE).length,
+      cancelled: tasks.filter(task => task.status === TaskStatus.CANCELLED).length,
     }),
-    [projectTasks]
+    [tasks]
   );
 
   const filteredTasks = useMemo(() => {
-    let filtered = projectTasks;
+    let filtered = tasks;
 
     if (activeFilter !== 'all') {
       filtered = filtered.filter(task => task.status === activeFilter);
     }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(task => task.title.toLowerCase().includes(query));
+    if (activeEnergy !== 'all') {
+      filtered = filtered.filter(task => task.energy === activeEnergy);
+    }
+    if (debouncedSearch.trim()) {
+      const query = debouncedSearch.toLowerCase();
+      filtered = filtered.filter(
+        task => task.title.toLowerCase().includes(query) || (task.notes ?? '').toLowerCase().includes(query)
+      );
     }
 
-    return filtered;
-  }, [projectTasks, activeFilter, searchQuery]);
+    return [...filtered].sort((a, b) => a.displayOrder - b.displayOrder);
+  }, [tasks, activeFilter, activeEnergy, debouncedSearch]);
 
   const handleAddTask = () => {
     setSelectedTask(undefined);
@@ -88,15 +96,21 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
         transition={{ duration: 0.4, delay: 0.2 }}
         className="max-w-5xl mx-auto"
       >
-        <TasksHeader taskCount={projectTasks.length} onAddTask={handleAddTask} />
+        <TasksHeader taskCount={tasks.length} onAddTask={handleAddTask} />
 
         {isLoadingTasks ? (
           <TasksLoadingState />
-        ) : projectTasks.length > 0 ? (
+        ) : tasks.length > 0 ? (
           <>
             <div className="mb-6 space-y-4">
               <TaskSearch value={searchQuery} onChange={setSearchQuery} />
-              <TaskFilters activeFilter={activeFilter} onFilterChange={setActiveFilter} taskCounts={taskCounts} />
+              <TaskFilters
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+                activeEnergy={activeEnergy}
+                onEnergyChange={setActiveEnergy}
+                taskCounts={taskCounts}
+              />
             </div>
 
             {filteredTasks.length > 0 ? (
@@ -112,8 +126,8 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                {searchQuery ? t('noResults.search') : t('noResults.filter')}
+              <div className="text-center py-12 text-muted-foreground" data-testid="task-no-results">
+                {debouncedSearch ? t('noResults.search') : t('noResults.filter')}
               </div>
             )}
           </>

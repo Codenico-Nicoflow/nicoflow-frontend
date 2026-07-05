@@ -56,3 +56,18 @@ export type DeleteTaskResponse = void;
 // Status-only shorthand (PATCH /tasks/:id/status) — checkbox toggle, move to someday.
 export type UpdateTaskStatusRequest = { id: string; status: TaskStatus };
 export type UpdateTaskStatusResponse = ITask;
+
+// Single-task reorder (PATCH /tasks/:id/reorder) — the backend repacks siblings
+// so displayOrder stays contiguous within the project.
+export type ReorderTaskRequest = { id: string; displayOrder: number };
+export type ReorderTaskResponse = ITask;
+
+// Focus (GET /focus) — deterministically-ranked active+inbox tasks across all
+// projects that fit the given time/energy. available 0/omitted = no time budget;
+// energy omitted = no preference; limit defaults to 5 (max 20) server-side.
+export type GetFocusRequest = {
+  available?: number;
+  energy?: TaskEnergy;
+  limit?: number;
+};
+export type GetFocusResponse = ITask[];

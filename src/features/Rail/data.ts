@@ -1,4 +1,4 @@
-import { Inbox, LayoutGrid, type LucideIcon, Settings, Sun } from 'lucide-react';
+import { Inbox, LayoutGrid, type LucideIcon, Settings, Sun, Target } from 'lucide-react';
 
 import type { Resources } from '@/lib/i18n/locales/en';
 
@@ -19,6 +19,7 @@ export interface NavDestination {
 // Primary destinations, shared by the desktop Rail and the mobile BottomNav.
 export const NAV_DESTINATIONS: NavDestination[] = [
   { id: 'today', labelKey: 'today', icon: Sun, to: '/quick-access/today', match: ['/quick-access/today'] },
+  { id: 'focus', labelKey: 'focus', icon: Target, to: '/quick-access/focus', match: ['/quick-access/focus'] },
   { id: 'inbox', labelKey: 'inbox', icon: Inbox, to: '/quick-access/bucket', match: ['/quick-access/bucket'] },
   { id: 'areas', labelKey: 'areas', icon: LayoutGrid, to: '/areas', match: ['/areas', '/projects'] },
 ];

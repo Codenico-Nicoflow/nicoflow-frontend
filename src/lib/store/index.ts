@@ -70,12 +70,20 @@ export { taskApi } from './slices/tasks/taskApi';
 export {
   useCreateTaskMutation,
   useDeleteTaskMutation,
+  useGetFocusQuery,
   useGetTaskQuery,
   useGetTasksQuery,
+  useReorderTaskMutation,
   useUpdateTaskMutation,
   useUpdateTaskStatusMutation,
 } from './slices/tasks/taskApi';
-export type { CreateTaskRequest, CreateTaskResponse, UpdateTaskRequest, UpdateTaskResponse } from './slices/tasks/type';
+export type {
+  CreateTaskRequest,
+  CreateTaskResponse,
+  GetFocusRequest,
+  UpdateTaskRequest,
+  UpdateTaskResponse,
+} from './slices/tasks/type';
 
 // Subtask exports
 export { subtaskApi } from './slices/subtasks/subtaskApi';

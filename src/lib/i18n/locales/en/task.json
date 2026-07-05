@@ -102,5 +102,39 @@
     "scheduledTomorrow": "Tomorrow",
     "dueToday": "Due",
     "dueTomorrow": "Due tomorrow"
+  },
+  "reorder": {
+    "handle": "Drag to reorder"
+  },
+  "quickAdd": {
+    "placeholder": "Add a task — press Enter",
+    "label": "Quick add task",
+    "planLimit": "This project is at its live-task limit — but parking tasks in Someday or finishing them is free, only live tasks count. Upgrade to Pro for unlimited.",
+    "fabTask": "Quick Add Task",
+    "fabTaskDescription": "Capture a task into this project — just a title, sane defaults.",
+    "fabBucket": "Quick Add to Bucket",
+    "fabBucketDescription": "Capture your thoughts quickly from anywhere.",
+    "fabBucketPlaceholder": "What's on your mind?"
+  },
+  "focus": {
+    "title": "Focus",
+    "subtitle": "Tell me what you've got — get one confident next move.",
+    "timeLabel": "Time",
+    "time": {
+      "m15": "15m",
+      "m30": "30m",
+      "h1": "1h",
+      "h2plus": "2h+"
+    },
+    "energyLabel": "Energy",
+    "start": "Start",
+    "started": "Started — it's on Today.",
+    "empty": {
+      "title": "All clear — nothing waiting on you.",
+      "description": "Your live tasks are handled. Capture something new, or enjoy the calm.",
+      "overBudgetTitle": "Nothing fits that budget — and that's fine.",
+      "overBudgetDescription": "No task fits this time and energy right now. Widen the window, or take the free minutes as a win.",
+      "showEverything": "Show everything"
+    }
   }
 }

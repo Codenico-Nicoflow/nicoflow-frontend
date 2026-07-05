@@ -122,6 +122,10 @@ export const handlers = [
   http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),
+  http.get('http://localhost:8080/v1/focus', () => HttpResponse.json(envelope({ items: [] }))),
+  http.patch('http://localhost:8080/v1/tasks/:id/reorder', ({ params }) =>
+    HttpResponse.json(envelope(makeTask({ id: String(params['id']) })))
+  ),
   http.get('http://localhost:8080/v1/bucket', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/users/profile', () => HttpResponse.json(envelope(mockUser))),
   http.patch('http://localhost:8080/v1/users/me', async ({ request }) => {

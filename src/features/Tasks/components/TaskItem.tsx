@@ -15,9 +15,11 @@ interface TaskItemProps {
   index: number;
   onEdit: (task: ITask) => void;
   onDelete: (taskId: string) => void;
+  /** Optional drag-handle slot rendered at the row start (see SortableTaskItem). */
+  dragHandle?: React.ReactNode;
 }
 
-const TaskItem = ({ task, index, onEdit, onDelete }: TaskItemProps) => {
+const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) => {
   const { t } = useTranslation('task');
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const isCompleted = task.status === TaskStatus.DONE;
@@ -45,6 +47,7 @@ const TaskItem = ({ task, index, onEdit, onDelete }: TaskItemProps) => {
     <AnimatedListItem index={index}>
       <ListItemCard variant="default" borderColor="primary">
         <div className={cn('flex items-center gap-1.5 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
+          {dragHandle}
           <div className="flex-1 w-full space-y-1 sm:space-y-2 min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <h3

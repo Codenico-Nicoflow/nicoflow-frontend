@@ -5,7 +5,7 @@ import { useAppUser } from '@/lib/store';
 import { AreasBoard, ErrorPage, HelpAndInformation, PrivacyPolicy, Profile, Settings, TermsOfService } from '@/pages';
 import { ForgotPassword, ResetPassword, SignIn, SignUp, VerifyEmail } from '@/pages/auth';
 import { ProjectView } from '@/pages/project';
-import { Bucket, NextSevenDays, Today, Tomorrow } from '@/pages/quick-access';
+import { Bucket, Focus, NextSevenDays, Today, Tomorrow } from '@/pages/quick-access';
 
 const PrivateRoutes = () => {
   const location = useLocation();
@@ -22,6 +22,7 @@ const AppRoutes = () => {
       children: [
         { index: true, element: <Navigate to="/quick-access/today" replace /> },
         { path: '/quick-access/bucket', element: <Bucket /> },
+        { path: '/quick-access/focus', element: <Focus /> },
         { path: '/quick-access/next-7-days', element: <NextSevenDays /> },
         { path: '/quick-access/today', element: <Today /> },
         { path: '/quick-access/tomorrow', element: <Tomorrow /> },

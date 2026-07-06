@@ -1,19 +1,32 @@
 import { useMemo, useState } from 'react';
 
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 import { useDebouncedValue } from '@/hooks';
-import { useGetTasksQuery } from '@/lib/store';
+import { useGetTasksQuery, useReorderTaskMutation } from '@/lib/store';
 import { type ITask, type TaskEnergy, TaskStatus } from '@/lib/types';
+import { showErrorToast } from '@/lib/utils';
 
 import TasksEmptyState from '../states/TasksEmptyState';
 import TasksLoadingState from '../states/TasksLoadingState';
 
+import SortableTaskItem from './SortableTaskItem';
 import TaskDeleteDialog from './TaskDeleteDialog';
 import TaskDialog from './TaskDialog';
 import TaskFilters from './TaskFilters';
-import TaskItem from './TaskItem';
+import TaskQuickAdd from './TaskQuickAdd';
 import TaskSearch from './TaskSearch';
 import TasksHeader from './TasksHeader';
 
@@ -27,6 +40,13 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   // One project-scoped fetch is the source of truth; status/energy/search are
   // applied client-side over the (capped, ≤50) project list so counts stay exact.
   const { data: tasks = [], isLoading: isLoadingTasks } = useGetTasksQuery({ projectId });
+  const [reorderTask] = useReorderTaskMutation();
+
+  // Drag starts after 5px of movement so plain clicks on the handle don't lift the row.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -88,6 +108,18 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
     }
   };
 
+  // Dropping on a sibling means "take its position": the backend repacks the
+  // project's orders contiguously, the mutation patches caches optimistically.
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const target = tasks.find(task => task.id === over.id);
+    if (!target) return;
+    reorderTask({ id: String(active.id), displayOrder: target.displayOrder })
+      .unwrap()
+      .catch((error: unknown) => showErrorToast(error, toast));
+  };
+
   return (
     <div className="p-4 sm:p-6">
       <motion.div
@@ -103,7 +135,10 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
         ) : tasks.length > 0 ? (
           <>
             <div className="mb-6 space-y-4">
-              <TaskSearch value={searchQuery} onChange={setSearchQuery} />
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <TaskSearch value={searchQuery} onChange={setSearchQuery} className="flex-1" />
+                <TaskQuickAdd projectId={projectId} className="mb-0 sm:w-72" />
+              </div>
               <TaskFilters
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}
@@ -114,17 +149,21 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
             </div>
 
             {filteredTasks.length > 0 ? (
-              <div className="space-y-3 sm:space-y-4">
-                {filteredTasks.map((task, index) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    index={index}
-                    onEdit={handleEditTask}
-                    onDelete={handleDeleteTask}
-                  />
-                ))}
-              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={filteredTasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-3 sm:space-y-4">
+                    {filteredTasks.map((task, index) => (
+                      <SortableTaskItem
+                        key={task.id}
+                        task={task}
+                        index={index}
+                        onEdit={handleEditTask}
+                        onDelete={handleDeleteTask}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             ) : (
               <div className="text-center py-12 text-muted-foreground" data-testid="task-no-results">
                 {debouncedSearch ? t('noResults.search') : t('noResults.filter')}
@@ -132,7 +171,10 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
             )}
           </>
         ) : (
-          <TasksEmptyState onAddTask={handleAddTask} />
+          <>
+            <TaskQuickAdd projectId={projectId} />
+            <TasksEmptyState onAddTask={handleAddTask} />
+          </>
         )}
       </motion.div>
 

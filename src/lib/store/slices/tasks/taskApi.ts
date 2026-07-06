@@ -10,10 +10,14 @@ import type {
   CreateTaskResponse,
   DeleteTaskRequest,
   DeleteTaskResponse,
+  GetFocusRequest,
+  GetFocusResponse,
   GetTaskRequest,
   GetTaskResponse,
   GetTasksRequest,
   GetTasksResponse,
+  ReorderTaskRequest,
+  ReorderTaskResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
   UpdateTaskStatusRequest,
@@ -99,6 +103,53 @@ export const taskApi = createApi({
       },
       invalidatesTags: ['Task'],
     }),
+    reorderTask: builder.mutation<ReorderTaskResponse, ReorderTaskRequest>({
+      query: ({ id, displayOrder }) => ({
+        url: `${TASKS_API.UPDATE_TASK}${id}/reorder`,
+        method: 'PATCH',
+        body: { displayOrder },
+      }),
+      transformResponse: (raw: ApiEnvelope<ReorderTaskResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      // Optimistic: move the task to its target order in every cached getTasks
+      // list and repack siblings contiguously (mirrors the backend); undo on failure.
+      onQueryStarted: async ({ id, displayOrder }, { dispatch, getState, queryFulfilled }) => {
+        const entries = taskApi.util.selectInvalidatedBy(getState(), [{ type: 'Task' }]);
+        const patches = entries
+          .filter(entry => entry.endpointName === 'getTasks')
+          .map(entry =>
+            dispatch(
+              taskApi.util.updateQueryData('getTasks', entry.originalArgs as GetTasksRequest, draft => {
+                const moved = draft.find(task => task.id === id);
+                if (!moved) return;
+                const siblings = draft.filter(task => task.id !== id).sort((a, b) => a.displayOrder - b.displayOrder);
+                siblings.splice(Math.min(Math.max(displayOrder, 0), siblings.length), 0, moved);
+                siblings.forEach((task, order) => {
+                  task.displayOrder = order;
+                });
+              })
+            )
+          );
+        try {
+          await queryFulfilled;
+        } catch {
+          patches.forEach(patch => patch.undo());
+        }
+      },
+      invalidatesTags: ['Task'],
+    }),
+    // Focus — "what can I do right now?" Ranked across all projects, so it
+    // lives outside the per-project getTasks lists but shares the Task tag:
+    // any task mutation (Start, complete, create) refetches the ranking.
+    getFocus: builder.query<GetFocusResponse, GetFocusRequest>({
+      query: params => ({
+        url: '/focus',
+        params,
+      }),
+      transformResponse: (raw: ApiEnvelope<{ items: GetFocusResponse }>) => raw.data.items,
+      transformErrorResponse: error => error.data,
+      providesTags: ['Task'],
+    }),
   }),
 });
 
@@ -109,4 +160,6 @@ export const {
   useUpdateTaskMutation,
   useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
+  useReorderTaskMutation,
+  useGetFocusQuery,
 } = taskApi;

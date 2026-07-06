@@ -102,5 +102,46 @@
     "scheduledTomorrow": "Tomorrow",
     "dueToday": "Due",
     "dueTomorrow": "Due tomorrow"
+  },
+  "reorder": {
+    "handle": "Drag to reorder"
+  },
+  "quickAdd": {
+    "placeholder": "Add a task — press Enter",
+    "label": "Quick add task",
+    "planLimit": "This project is at its live-task limit — but parking tasks in Someday or finishing them is free, only live tasks count. Upgrade to Pro for unlimited.",
+    "fabTask": "Quick Add Task",
+    "fabTaskDescription": "Capture a task into this project — just a title, sane defaults.",
+    "fabBucket": "Quick Add to Bucket",
+    "fabBucketDescription": "Capture your thoughts quickly from anywhere.",
+    "fabBucketPlaceholder": "What's on your mind?"
+  },
+  "focus": {
+    "title": "Focus",
+    "subtitle": "How much time do you have? I'll rank your best next moves.",
+    "timeLabel": "I have",
+    "time": {
+      "m15": "15m",
+      "m30": "30m",
+      "h1": "1h",
+      "h2plus": "2h+"
+    },
+    "energyLabel": "Energy",
+    "pickTime": {
+      "title": "How much time do you have?",
+      "description": "Pick a window above and I'll rank the tasks that fit it best — most pressing first."
+    },
+    "start": "Start",
+    "switch": "Switch",
+    "now": "Now",
+    "upNext": "Up next",
+    "done": "Done",
+    "notNow": "Not now",
+    "completed": "Nice — one done. Here's your next move.",
+    "empty": {
+      "title": "Nothing fits that window — and that's fine.",
+      "description": "No live task fits this much time right now. Give yourself more room, or take the free minutes as a win.",
+      "changeTime": "Change time"
+    }
   }
 }

@@ -29,7 +29,7 @@ const TasksHeader = ({ taskCount, onAddTask }: TasksHeaderProps) => {
         {taskCount > 0 && (
           <Button
             onClick={onAddTask}
-            className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 w-full sm:w-auto"
+            className="bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white w-full sm:w-auto"
           >
             <Plus className="h-4 w-4 me-2" />
             {t('header.addTask')}

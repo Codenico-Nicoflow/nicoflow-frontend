@@ -6,16 +6,17 @@ import { toast } from 'sonner';
 
 import { Input } from '@/components/ui/input';
 import { useCreateTaskMutation } from '@/lib/store';
-import { getApiErrorCode, showErrorToast } from '@/lib/utils';
+import { cn, getApiErrorCode, showErrorToast } from '@/lib/utils';
 
 interface TaskQuickAddProps {
   projectId: string;
   onCreated?: () => void;
+  className?: string;
 }
 
 // Frictionless capture: one field, one keystroke. Title-only create — the
 // backend applies the defaults (status inbox, priority/energy medium, rollsOver).
-const TaskQuickAdd = ({ projectId, onCreated }: TaskQuickAddProps) => {
+const TaskQuickAdd = ({ projectId, onCreated, className }: TaskQuickAddProps) => {
   const { t } = useTranslation('task');
   const [title, setTitle] = useState('');
   const [createTask, { isLoading }] = useCreateTaskMutation();
@@ -39,7 +40,7 @@ const TaskQuickAdd = ({ projectId, onCreated }: TaskQuickAddProps) => {
   };
 
   return (
-    <div className="relative mb-6">
+    <div className={cn('relative', className ?? 'mb-6')}>
       <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-muted-foreground">
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -59,7 +60,7 @@ const TaskQuickAdd = ({ projectId, onCreated }: TaskQuickAddProps) => {
         placeholder={t('quickAdd.placeholder')}
         aria-label={t('quickAdd.label')}
         data-testid="task-quick-add"
-        className="ps-9"
+        className="ps-9 h-10"
         disabled={isLoading}
         maxLength={255}
       />

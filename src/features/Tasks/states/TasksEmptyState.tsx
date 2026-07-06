@@ -26,7 +26,7 @@ const TasksEmptyState = ({ onAddTask }: TasksEmptyStateProps) => {
             transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
             className="mb-6"
           >
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-4">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-indigo-500/20 to-violet-500/20 flex items-center justify-center mb-4">
               <CheckSquare className="h-10 w-10 text-primary" />
             </div>
           </motion.div>
@@ -50,7 +50,7 @@ const TasksEmptyState = ({ onAddTask }: TasksEmptyStateProps) => {
             <Button
               onClick={onAddTask}
               size="lg"
-              className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-xl transition-all duration-200"
+              className="bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
             >
               <Plus className="h-5 w-5 me-2" />
               {t('empty.createFirstTask')}

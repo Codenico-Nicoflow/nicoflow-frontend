@@ -130,14 +130,15 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
       >
         <TasksHeader taskCount={tasks.length} onAddTask={handleAddTask} />
 
-        {!isLoadingTasks && <TaskQuickAdd projectId={projectId} />}
-
         {isLoadingTasks ? (
           <TasksLoadingState />
         ) : tasks.length > 0 ? (
           <>
             <div className="mb-6 space-y-4">
-              <TaskSearch value={searchQuery} onChange={setSearchQuery} />
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <TaskSearch value={searchQuery} onChange={setSearchQuery} className="flex-1" />
+                <TaskQuickAdd projectId={projectId} className="mb-0 sm:w-72" />
+              </div>
               <TaskFilters
                 activeFilter={activeFilter}
                 onFilterChange={setActiveFilter}
@@ -170,7 +171,10 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
             )}
           </>
         ) : (
-          <TasksEmptyState onAddTask={handleAddTask} />
+          <>
+            <TaskQuickAdd projectId={projectId} />
+            <TasksEmptyState onAddTask={handleAddTask} />
+          </>
         )}
       </motion.div>
 

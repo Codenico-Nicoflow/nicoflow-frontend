@@ -143,5 +143,34 @@
       "description": "No live task fits this much time right now. Give yourself more room, or take the free minutes as a win.",
       "changeTime": "Change time"
     }
+  },
+  "timeSpread": {
+    "title": "Time Spread",
+    "subtitle": "Your day and week at a glance — carried-over tasks included, no guilt.",
+    "tabsLabel": "Time spread views",
+    "loading": "Loading your day…",
+    "actions": {
+      "today": "Schedule for today",
+      "tomorrow": "Move to tomorrow",
+      "remove": "Remove from schedule"
+    },
+    "today": {
+      "title": "Today",
+      "subtitle": "What you've lined up for today — carried-over tasks included, no guilt.",
+      "emptyTitle": "Nothing scheduled for today.",
+      "emptyDescription": "Pull something in from a project, or enjoy an open day."
+    },
+    "tomorrow": {
+      "title": "Tomorrow",
+      "subtitle": "A calm look at what's coming up next.",
+      "emptyTitle": "Tomorrow is clear.",
+      "emptyDescription": "Nothing scheduled yet — plan ahead when you're ready."
+    },
+    "week": {
+      "title": "Next 7 Days",
+      "subtitle": "Your week at a glance, grouped by day.",
+      "emptyTitle": "Nothing on the next 7 days.",
+      "emptyDescription": "Schedule a few tasks and they'll show up here by day."
+    }
   }
 }

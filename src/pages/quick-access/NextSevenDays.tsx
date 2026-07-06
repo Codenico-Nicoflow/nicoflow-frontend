@@ -1,10 +1,5 @@
-import { useTranslation } from 'react-i18next';
+import TimeSpreadView from '@/features/TimeSpread';
 
-import PageStub from '@/components/PageStub/PageStub';
-
-const NextSevenDays = () => {
-  const { t } = useTranslation('nav');
-  return <PageStub title={t('nextSevenDays')} />;
-};
+const NextSevenDays = () => <TimeSpreadView bucket="week" />;
 
 export default NextSevenDays;

@@ -1,10 +1,5 @@
-import { useTranslation } from 'react-i18next';
+import TimeSpreadView from '@/features/TimeSpread';
 
-import PageStub from '@/components/PageStub/PageStub';
-
-const Tomorrow = () => {
-  const { t } = useTranslation('nav');
-  return <PageStub title={t('tomorrow')} />;
-};
+const Tomorrow = () => <TimeSpreadView bucket="tomorrow" />;
 
 export default Tomorrow;

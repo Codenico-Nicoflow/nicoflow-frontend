@@ -31,9 +31,10 @@ describe('PrivateRoutes', () => {
     const store = createMockStore({ auth: { user: mockUser, token: 'mock-token', isLoading: false } });
     renderComponent(<AppRoutes />, { store, initialRoute: '/' });
 
-    // Redirects to /quick-access/bucket — PageStub renders "Coming soon"
-    const comingSoon = await screen.findByText('Coming soon');
-    expect(comingSoon).toBeInTheDocument();
+    // Redirects to /quick-access/today — the Time Spread view; the default MSW
+    // returns empty buckets, so the encouraging empty state renders.
+    const empty = await screen.findByTestId('timespread-empty');
+    expect(empty).toBeInTheDocument();
   });
 
   it('preserves state.from after redirect to /sign-in', async () => {

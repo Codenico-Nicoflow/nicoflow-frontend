@@ -16,8 +16,11 @@ import type {
   GetTaskResponse,
   GetTasksRequest,
   GetTasksResponse,
+  GetTimeSpreadResponse,
   ReorderTaskRequest,
   ReorderTaskResponse,
+  ScheduleTaskRequest,
+  ScheduleTaskResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
   UpdateTaskStatusRequest,
@@ -27,7 +30,9 @@ import type {
 export const taskApi = createApi({
   reducerPath: 'taskApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Task'],
+  // 'Task' = per-project lists. 'Focus' and 'TimeSpread' are derived cross-project
+  // views (ranked list / day buckets): any task mutation must refresh them too.
+  tagTypes: ['Task', 'Focus', 'TimeSpread'],
   endpoints: builder => ({
     getTasks: builder.query<GetTasksResponse, GetTasksRequest>({
       query: ({ projectId, ...params }) => ({
@@ -53,7 +58,7 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<CreateTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      invalidatesTags: ['Task'],
+      invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     updateTask: builder.mutation<UpdateTaskResponse, UpdateTaskRequest>({
       query: ({ id, ...body }) => ({
@@ -63,7 +68,7 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<UpdateTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      invalidatesTags: ['Task'],
+      invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     deleteTask: builder.mutation<DeleteTaskResponse, DeleteTaskRequest>({
       query: id => ({
@@ -71,7 +76,7 @@ export const taskApi = createApi({
         method: 'DELETE',
       }),
       transformErrorResponse: error => error.data,
-      invalidatesTags: ['Task'],
+      invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     updateTaskStatus: builder.mutation<UpdateTaskStatusResponse, UpdateTaskStatusRequest>({
       query: ({ id, status }) => ({
@@ -101,7 +106,7 @@ export const taskApi = createApi({
           patches.forEach(patch => patch.undo());
         }
       },
-      invalidatesTags: ['Task'],
+      invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     reorderTask: builder.mutation<ReorderTaskResponse, ReorderTaskRequest>({
       query: ({ id, displayOrder }) => ({
@@ -136,11 +141,21 @@ export const taskApi = createApi({
           patches.forEach(patch => patch.undo());
         }
       },
-      invalidatesTags: ['Task'],
+      invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
-    // Focus — "what can I do right now?" Ranked across all projects, so it
-    // lives outside the per-project getTasks lists but shares the Task tag:
-    // any task mutation (Start, complete, create) refetches the ranking.
+    scheduleTask: builder.mutation<ScheduleTaskResponse, ScheduleTaskRequest>({
+      query: ({ id, ...body }) => ({
+        url: `${TASKS_API.UPDATE_TASK}${id}/schedule`,
+        method: 'PATCH',
+        body,
+      }),
+      transformResponse: (raw: ApiEnvelope<ScheduleTaskResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
+    }),
+    // Focus — "what can I do right now?" Ranked across all projects, so it lives
+    // outside the per-project getTasks lists under its own Focus tag; any task
+    // mutation invalidates Focus (see the mutation invalidatesTags above).
     getFocus: builder.query<GetFocusResponse, GetFocusRequest>({
       query: params => ({
         url: '/focus',
@@ -148,7 +163,15 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<{ items: GetFocusResponse }>) => raw.data.items,
       transformErrorResponse: error => error.data,
-      providesTags: ['Task'],
+      providesTags: ['Focus'],
+    }),
+    // Time Spread — the today/tomorrow/this-week buckets. Another derived
+    // cross-project view under its own tag, refreshed by any task mutation.
+    getTimeSpread: builder.query<GetTimeSpreadResponse, void>({
+      query: () => '/time-spread',
+      transformResponse: (raw: ApiEnvelope<GetTimeSpreadResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      providesTags: ['TimeSpread'],
     }),
   }),
 });
@@ -161,5 +184,7 @@ export const {
   useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
   useReorderTaskMutation,
+  useScheduleTaskMutation,
   useGetFocusQuery,
+  useGetTimeSpreadQuery,
 } = taskApi;

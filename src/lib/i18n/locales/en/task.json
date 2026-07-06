@@ -118,8 +118,8 @@
   },
   "focus": {
     "title": "Focus",
-    "subtitle": "Tell me what you've got — get one confident next move.",
-    "timeLabel": "Time",
+    "subtitle": "How much time do you have? I'll rank your best next moves.",
+    "timeLabel": "I have",
     "time": {
       "m15": "15m",
       "m30": "30m",
@@ -127,14 +127,21 @@
       "h2plus": "2h+"
     },
     "energyLabel": "Energy",
+    "pickTime": {
+      "title": "How much time do you have?",
+      "description": "Pick a window above and I'll rank the tasks that fit it best — most pressing first."
+    },
     "start": "Start",
-    "started": "Started — it's on Today.",
+    "switch": "Switch",
+    "now": "Now",
+    "upNext": "Up next",
+    "done": "Done",
+    "notNow": "Not now",
+    "completed": "Nice — one done. Here's your next move.",
     "empty": {
-      "title": "All clear — nothing waiting on you.",
-      "description": "Your live tasks are handled. Capture something new, or enjoy the calm.",
-      "overBudgetTitle": "Nothing fits that budget — and that's fine.",
-      "overBudgetDescription": "No task fits this time and energy right now. Widen the window, or take the free minutes as a win.",
-      "showEverything": "Show everything"
+      "title": "Nothing fits that window — and that's fine.",
+      "description": "No live task fits this much time right now. Give yourself more room, or take the free minutes as a win.",
+      "changeTime": "Change time"
     }
   }
 }

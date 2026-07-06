@@ -1,6 +1,5 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { format } from 'date-fns';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
@@ -22,16 +21,11 @@ const ranked = [
 ];
 
 describe('FocusView', () => {
-  it('renders the ranked focus list and re-fetches when chips change', async () => {
+  it('shows a pick-time prompt and no list until a time window is chosen', async () => {
     const seen: URLSearchParams[] = [];
     server.use(
       http.get(`${API}/focus`, ({ request }) => {
-        const params = new URL(request.url).searchParams;
-        seen.push(params);
-        // 30m/low narrows the ranking to the quick win.
-        if (params.get('available') === '30' && params.get('energy') === 'low') {
-          return HttpResponse.json(items([ranked[0]]));
-        }
+        seen.push(new URL(request.url).searchParams);
         return HttpResponse.json(items(ranked));
       })
     );
@@ -39,61 +33,121 @@ describe('FocusView', () => {
     const user = userEvent.setup();
     renderComponent(<FocusView />);
 
-    await waitFor(() => expect(screen.getByText('Quick low-energy win')).toBeInTheDocument());
-    expect(screen.getByText('Deep work block')).toBeInTheDocument();
+    // Default: prompt only, no query fired, no list.
+    expect(screen.getByTestId('focus-time-prompt')).toBeInTheDocument();
+    expect(screen.queryByTestId('focus-list')).not.toBeInTheDocument();
+    expect(seen).toHaveLength(0);
 
     await user.click(screen.getByTestId('focus-time-m30'));
-    await user.click(screen.getByTestId('focus-energy-low'));
 
-    await waitFor(() => expect(screen.queryByText('Deep work block')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId('focus-list')).toBeInTheDocument());
     expect(screen.getByText('Quick low-energy win')).toBeInTheDocument();
-    expect(seen.at(-1)?.get('available')).toBe('30');
-    expect(seen.at(-1)?.get('energy')).toBe('low');
+    await waitFor(() => expect(seen.some(p => p.get('available') === '30')).toBe(true));
   });
 
-  it('Start makes the task active and scheduled for today', async () => {
-    let patched: { status?: string; scheduledFor?: string } | undefined;
+  it('re-ranks with the energy preference when an energy chip is added', async () => {
+    const seen: URLSearchParams[] = [];
     server.use(
-      http.get(`${API}/focus`, () => HttpResponse.json(items([ranked[0]]))),
-      http.patch(`${API}/tasks/r1`, async ({ request }) => {
-        patched = (await request.json()) as { status?: string; scheduledFor?: string };
-        return HttpResponse.json({ data: makeTask({ id: 'r1', status: 'active' }), error: null });
+      http.get(`${API}/focus`, ({ request }) => {
+        const params = new URL(request.url).searchParams;
+        seen.push(params);
+        return HttpResponse.json(items(params.get('energy') === 'low' ? [ranked[0]] : ranked));
       })
     );
 
     const user = userEvent.setup();
     renderComponent(<FocusView />);
 
-    await waitFor(() => expect(screen.getByTestId('focus-start-r1')).toBeInTheDocument());
-    await user.click(screen.getByTestId('focus-start-r1'));
+    await user.click(screen.getByTestId('focus-time-m30'));
+    await waitFor(() => expect(screen.getByText('Deep work block')).toBeInTheDocument());
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalled());
-    expect(patched).toEqual({ status: 'active', scheduledFor: format(new Date(), 'yyyy-MM-dd') });
+    await user.click(screen.getByTestId('focus-energy-low'));
+    await waitFor(() => expect(screen.queryByText('Deep work block')).not.toBeInTheDocument());
+    await waitFor(() => expect(seen.some(p => p.get('energy') === 'low')).toBe(true));
   });
 
-  it('shows an encouraging, non-dead-end empty state when nothing fits the budget', async () => {
+  it('Start opens the NOW card in-place without leaving Focus', async () => {
+    server.use(http.get(`${API}/focus`, () => HttpResponse.json(items(ranked))));
+
+    const user = userEvent.setup();
+    renderComponent(<FocusView />);
+
+    await user.click(screen.getByTestId('focus-time-m30'));
+    await waitFor(() => expect(screen.getByTestId('focus-start-r1')).toBeInTheDocument());
+
+    await user.click(screen.getByTestId('focus-start-r1'));
+
+    const now = await screen.findByTestId('focus-now-card');
+    expect(within(now).getByText('Quick low-energy win')).toBeInTheDocument();
+    // The started task is no longer a plain list row; the other is now "up next".
+    expect(screen.getByText('Deep work block')).toBeInTheDocument();
+    expect(screen.queryByTestId('focus-start-r1')).not.toBeInTheDocument();
+  });
+
+  it('Done completes the current task and advances to the next', async () => {
+    let patched: { status?: string } | undefined;
+    server.use(
+      http.get(`${API}/focus`, () => HttpResponse.json(items(ranked))),
+      http.patch(`${API}/tasks/r1/status`, async ({ request }) => {
+        patched = (await request.json()) as { status?: string };
+        return HttpResponse.json({ data: makeTask({ id: 'r1', status: 'done' }), error: null });
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<FocusView />);
+
+    await user.click(screen.getByTestId('focus-time-m30'));
+    await user.click(await screen.findByTestId('focus-start-r1'));
+    await user.click(await screen.findByTestId('focus-done'));
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    expect(patched).toEqual({ status: 'done' });
+    // The next ranked task is promoted into the NOW card.
+    const now = await screen.findByTestId('focus-now-card');
+    expect(within(now).getByText('Deep work block')).toBeInTheDocument();
+  });
+
+  it('Not now skips the current task and moves it down for the session', async () => {
+    server.use(http.get(`${API}/focus`, () => HttpResponse.json(items(ranked))));
+
+    const user = userEvent.setup();
+    renderComponent(<FocusView />);
+
+    await user.click(screen.getByTestId('focus-time-m30'));
+    await user.click(await screen.findByTestId('focus-start-r1'));
+    await user.click(await screen.findByTestId('focus-skip'));
+
+    // Skipping advances to the next task without persisting anything.
+    const now = await screen.findByTestId('focus-now-card');
+    expect(within(now).getByText('Deep work block')).toBeInTheDocument();
+  });
+
+  it('shows an encouraging, non-dead-end empty state when nothing fits the window', async () => {
     server.use(http.get(`${API}/focus`, () => HttpResponse.json(items([]))));
 
     const user = userEvent.setup();
     renderComponent(<FocusView />);
 
     await user.click(screen.getByTestId('focus-time-m15'));
-    await user.click(screen.getByTestId('focus-energy-low'));
 
     await waitFor(() => expect(screen.getByTestId('focus-empty')).toBeInTheDocument());
     expect(screen.getByText(/that's fine/i)).toBeInTheDocument();
 
-    // The way out: clear the chips instead of a dead end.
+    // The way out: change the time back to the prompt, not a dead end.
     await user.click(screen.getByTestId('focus-empty-clear'));
-    expect(screen.getByTestId('focus-time-m15')).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByTestId('focus-time-prompt')).toBeInTheDocument();
   });
 
   it('keeps a hidden slot for the Phase-4 Pro rationale', async () => {
     server.use(http.get(`${API}/focus`, () => HttpResponse.json(items([ranked[0]]))));
 
+    const user = userEvent.setup();
     renderComponent(<FocusView />);
 
+    await user.click(screen.getByTestId('focus-time-m30'));
     await waitFor(() => expect(screen.getByText('Quick low-energy win')).toBeInTheDocument());
+
     const slot = screen.getByTestId('focus-rationale-r1');
     expect(slot).toBeInTheDocument();
     expect(slot).not.toBeVisible();

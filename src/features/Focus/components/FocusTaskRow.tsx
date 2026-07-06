@@ -1,43 +1,30 @@
-import { format } from 'date-fns';
 import { Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
 
 import { AnimatedListItem, ListItemCard } from '@/components';
 import { Button } from '@/components/ui/button';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
-import { useUpdateTaskMutation } from '@/lib/store';
-import { type ITask, TaskStatus } from '@/lib/types';
-import { showErrorToast } from '@/lib/utils';
+import type { ITask } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface FocusTaskRowProps {
   task: ITask;
   index: number;
+  /** Begin this task — becomes the NOW card. */
+  onStart: (taskId: string) => void;
+  /** Dimmed "next up" treatment shown while a session is active. */
+  dimmed?: boolean;
 }
 
-// One ranked focus result. Start commits the choice: the task becomes active
-// and is softly scheduled for today; the Task tag invalidation re-ranks the list.
-const FocusTaskRow = ({ task, index }: FocusTaskRowProps) => {
+// A ranked focus candidate. Before a session it shows a prominent Start; while a
+// session runs it becomes a dimmed "next up" row you can tap to switch to.
+const FocusTaskRow = ({ task, index, onStart, dimmed = false }: FocusTaskRowProps) => {
   const { t } = useTranslation('task');
-  const [updateTask, { isLoading }] = useUpdateTaskMutation();
-
-  const handleStart = async () => {
-    try {
-      await updateTask({
-        id: task.id,
-        status: TaskStatus.ACTIVE,
-        scheduledFor: format(new Date(), 'yyyy-MM-dd'),
-      }).unwrap();
-      toast.success(t('focus.started'));
-    } catch (error) {
-      showErrorToast(error, toast);
-    }
-  };
 
   return (
     <AnimatedListItem index={index}>
       <ListItemCard variant="default" borderColor="primary">
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className={cn('flex items-center gap-2 sm:gap-3', dimmed && 'opacity-70')}>
           <span className="text-sm font-semibold text-muted-foreground w-5 text-center flex-shrink-0">{index + 1}</span>
 
           <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
@@ -50,13 +37,13 @@ const FocusTaskRow = ({ task, index }: FocusTaskRowProps) => {
           </div>
 
           <Button
-            onClick={() => void handleStart()}
-            disabled={isLoading}
+            onClick={() => onStart(task.id)}
+            variant={dimmed ? 'ghost' : 'default'}
             data-testid={`focus-start-${task.id}`}
             className="flex-shrink-0"
           >
             <Play className="h-4 w-4 me-1.5" aria-hidden />
-            {t('focus.start')}
+            {dimmed ? t('focus.switch') : t('focus.start')}
           </Button>
         </div>
       </ListItemCard>

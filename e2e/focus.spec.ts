@@ -21,23 +21,32 @@ async function signIn(page: Page) {
 test.describe('Focus — happy path (live)', () => {
   test.skip(!LIVE, 'requires a live backend + seeded verified account with live tasks — set E2E_LIVE');
 
-  // NIC-1386 AC1+AC2: open Focus, pick 30m/Low, Start the top task.
-  test('pick 30m/Low → ranked list → Start the top task', async ({ page }) => {
+  // NIC-1386: pick a time window → ranked list → Start the top task into the
+  // NOW card → Done runs the loop, all without leaving Focus.
+  test('pick 30m → ranked list → Start → Done the current task', async ({ page }) => {
     await signIn(page);
     await page.goto('/quick-access/focus');
 
+    // Default state: prompt to pick time first, no list yet.
+    await expect(page.getByTestId('focus-time-prompt')).toBeVisible();
+
     await page.getByTestId('focus-time-m30').click();
-    await page.getByTestId('focus-energy-low').click();
 
     const list = page.getByTestId('focus-list');
     const empty = page.getByTestId('focus-empty');
     await expect(list.or(empty)).toBeVisible();
 
     if (await list.isVisible()) {
-      const startButtons = list.getByTestId(/^focus-start-/);
-      await startButtons.first().click();
-      // Start commits: the task becomes active + scheduled today (toast confirms).
-      await expect(page.getByText(/started/i).first()).toBeVisible();
+      await list
+        .getByTestId(/^focus-start-/)
+        .first()
+        .click();
+      // Start opens the NOW card in-place — Focus stays put.
+      await expect(page.getByTestId('focus-now-card')).toBeVisible();
+
+      await page.getByTestId('focus-done').click();
+      // Loop continues: either the next NOW card or the encouraging empty.
+      await expect(page.getByTestId('focus-now-card').or(empty)).toBeVisible();
     } else {
       // Over-budget empties must stay encouraging, never a dead end.
       await expect(page.getByTestId('focus-empty-clear')).toBeVisible();

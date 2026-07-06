@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { http, HttpResponse } from 'msw';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { mockTask } from '@/stories/mocks';
 
@@ -24,14 +25,45 @@ export default meta;
 
 type Story = StoryObj<typeof FocusView>;
 
+// Default: the pick-time prompt, before any window is chosen.
+export const PickTime: Story = {
+  parameters: {
+    msw: { handlers: [http.get(`${API}/focus`, () => HttpResponse.json(items(ranked)))] },
+  },
+};
+
+// After choosing a window: the ranked shortlist ready to Start.
 export const Ranked: Story = {
   parameters: {
     msw: { handlers: [http.get(`${API}/focus`, () => HttpResponse.json(items(ranked)))] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('focus-time-m30'));
+    await expect(await canvas.findByTestId('focus-list')).toBeInTheDocument();
+  },
+};
+
+// The execution loop: one task started as the NOW card, rest dimmed as up-next.
+export const Session: Story = {
+  parameters: {
+    msw: { handlers: [http.get(`${API}/focus`, () => HttpResponse.json(items(ranked)))] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('focus-time-m30'));
+    await userEvent.click(await canvas.findByTestId('focus-start-f1'));
+    await expect(await canvas.findByTestId('focus-now-card')).toBeInTheDocument();
   },
 };
 
 export const EmptyOverBudget: Story = {
   parameters: {
     msw: { handlers: [http.get(`${API}/focus`, () => HttpResponse.json(items([])))] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('focus-time-m15'));
+    await expect(await canvas.findByTestId('focus-empty')).toBeInTheDocument();
   },
 };

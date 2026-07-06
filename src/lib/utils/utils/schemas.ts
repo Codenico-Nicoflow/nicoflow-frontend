@@ -118,8 +118,6 @@ const taskSchema = z.object({
   priority: z.enum(['low', 'medium', 'high'], { error: V.priorityInvalid }),
   energy: z.enum(['low', 'medium', 'deep'], { error: V.energyInvalid }),
   rollsOver: z.boolean().optional(),
-  // hard deadline (a Date in the form; serialized to RFC3339 on submit)
-  dueDate: z.date().optional().nullable(),
   // soft intention — ISO date string "YYYY-MM-DD"
   scheduledFor: z.string().optional().nullable(),
   estimatedMinutes: z.number().min(1, V.estimatedTimeMin).max(1440, V.estimatedTimeMax).optional().nullable(),

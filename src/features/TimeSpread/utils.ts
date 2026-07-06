@@ -9,11 +9,10 @@ export interface DayGroup {
   tasks: ITask[];
 }
 
-// The effective day a task lands on: soft scheduledFor wins, else hard dueDate.
-// Undated tasks (shouldn't appear in the thisWeek bucket) sort to the end.
+// The day a task lands on is its soft scheduledFor. Unscheduled tasks (shouldn't
+// appear in the thisWeek bucket) sort to the end.
 const taskDate = (task: ITask): Date | null => {
-  const raw = task.scheduledFor ?? task.dueDate;
-  return raw ? parseISO(raw) : null;
+  return task.scheduledFor ? parseISO(task.scheduledFor) : null;
 };
 
 // Group the "this week" bucket by calendar day across the next 7 days, dropping

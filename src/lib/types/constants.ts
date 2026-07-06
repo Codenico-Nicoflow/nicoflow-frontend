@@ -53,7 +53,7 @@ export const TaskSortOrder = {
 } as const;
 
 export const TaskSortField = {
-  DUE_DATE: 'dueDate',
+  SCHEDULED_FOR: 'scheduledFor',
   PRIORITY: 'priority',
   TITLE: 'title',
   CREATED_AT: 'createdAt',

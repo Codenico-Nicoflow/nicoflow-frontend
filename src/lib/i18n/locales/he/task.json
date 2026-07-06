@@ -7,7 +7,6 @@
     "titleLabel": "כותרת",
     "notesLabel": "הערות",
     "priorityLabel": "עדיפות",
-    "dueDateLabel": "תאריך יעד",
     "estimatedTimeLabel": "זמן משוער",
     "urlLabel": "קישור",
     "taskNameLabel": "שם המשימה",
@@ -15,7 +14,6 @@
     "descriptionLabel": "תיאור",
     "descriptionPlaceholder": "הוסיפו פרטי משימה...",
     "schedulingTitle": "תזמון",
-    "dueDateDeadlineLabel": "מועד אחרון (קשיח)",
     "rollsOverLabel": "גלגול קדימה",
     "rollsOverDescription": "אם היום המתוכנן חולף, היא תיגלגל קדימה במקום להיחשב באיחור."
   },
@@ -99,9 +97,7 @@
   "gentleDate": {
     "carriedOver": "נדחה קדימה",
     "scheduledToday": "היום",
-    "scheduledTomorrow": "מחר",
-    "dueToday": "לביצוע",
-    "dueTomorrow": "לביצוע מחר"
+    "scheduledTomorrow": "מחר"
   },
   "reorder": {
     "handle": "גררו לסידור מחדש"

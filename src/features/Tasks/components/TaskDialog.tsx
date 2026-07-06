@@ -10,7 +10,6 @@ import {
   CheckboxField,
   DescriptionField,
   DialogFieldGrid,
-  DueDateField,
   EnergyField,
   EstimatedTimeField,
   FormDialog,
@@ -61,7 +60,6 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       priority: task?.priority || 'low',
       energy: task?.energy || 'medium',
       rollsOver: task?.rollsOver ?? true,
-      dueDate: task?.dueDate ? new Date(task.dueDate) : undefined,
       scheduledFor: task?.scheduledFor ?? undefined,
       estimatedMinutes: task?.estimatedMinutes || undefined,
       url: task?.url || '',
@@ -81,7 +79,6 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         priority: task.priority || 'low',
         energy: task.energy || 'medium',
         rollsOver: task.rollsOver ?? true,
-        dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
         scheduledFor: task.scheduledFor ?? undefined,
         estimatedMinutes: task.estimatedMinutes || undefined,
         url: task.url || '',
@@ -94,7 +91,6 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         priority: 'low',
         energy: 'medium',
         rollsOver: true,
-        dueDate: undefined,
         scheduledFor: undefined,
         estimatedMinutes: undefined,
         url: '',
@@ -102,12 +98,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     }
   }, [task, form, open]);
 
-  const normalizedWatchedValues = {
-    ...watchedValues,
-    dueDate: watchedValues.dueDate ? watchedValues.dueDate.toISOString() : null,
-  };
-
-  const hasChanges = hasFormChanges(isEditMode, task, normalizedWatchedValues);
+  const hasChanges = hasFormChanges(isEditMode, task, watchedValues);
 
   const onSubmit = async (data: TaskFormData) => {
     if (isEditMode && !hasChanges) {
@@ -124,7 +115,6 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           ...data,
           energy: data.energy,
           rollsOver: data.rollsOver,
-          dueDate: data.dueDate ? data.dueDate.toISOString() : null,
           estimatedMinutes:
             data.estimatedMinutes === null || data.estimatedMinutes === undefined
               ? null
@@ -140,7 +130,6 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           energy: data.energy,
           rollsOver: data.rollsOver,
           notes: data.notes ?? undefined,
-          dueDate: data.dueDate ? data.dueDate.toISOString() : undefined,
           estimatedMinutes: data.estimatedMinutes ?? undefined,
           scheduledFor: data.scheduledFor ?? undefined,
           url: data.url || '',
@@ -202,14 +191,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
             <EnergyField control={form.control} delay={0.22} />
           </DialogFieldGrid>
 
-          {/* Scheduling: a hard deadline (dueDate) and a soft intention (scheduledFor)
-              are deliberately distinct. rollsOver (default on) governs the soft one. */}
+          {/* Scheduling: a single soft intention (scheduledFor); rollsOver (default
+              on) carries it forward instead of marking it overdue. */}
           <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
             <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
-            <DialogFieldGrid columns={2}>
-              <DueDateField control={form.control} label={t('dialog.dueDateDeadlineLabel')} optional delay={0.25} />
-              <ScheduledForField control={form.control} delay={0.27} />
-            </DialogFieldGrid>
+            <ScheduledForField control={form.control} delay={0.27} />
             <CheckboxField
               control={form.control}
               fieldName="rollsOver"

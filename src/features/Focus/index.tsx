@@ -79,7 +79,7 @@ const FocusView = () => {
             <FocusNowCard
               task={session.current}
               onDone={() => void handleDone()}
-              onSkip={session.skip}
+              onCancel={session.cancel}
               isBusy={isCompleting}
             />
 

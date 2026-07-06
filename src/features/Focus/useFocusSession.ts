@@ -5,54 +5,38 @@ import type { ITask } from '@/lib/types';
 export interface FocusSession {
   /** The task the user is doing right now, or null before Start / after finishing all. */
   current: ITask | null;
-  /** Remaining ranked tasks below the current one, session-skips pushed to the end. */
+  /** Remaining ranked tasks below the current one. */
   upNext: ITask[];
-  /** Begin a task in-place — it becomes the NOW card. */
+  /** Begin a task in-place — it becomes the NOW card. Also switches when one is already running. */
   start: (taskId: string) => void;
   /** Finish the current task (caller persists status: done), then advance to the next. */
   advance: () => void;
-  /** Skip the current task for this session only (deprioritized, not persisted), then advance. */
-  skip: () => void;
+  /** Leave the current task — end the session and return to the ranked shortlist. */
+  cancel: () => void;
   /** True once the user has started at least one task this session. */
   isActive: boolean;
 }
 
 // Session state for the Focus execution loop. It layers over the server-ranked
-// list: `startedId` is the NOW task, `skipped` are tasks the user passed on this
-// session (kept local — never persisted; a refetch/reload starts a clean session).
-// Everything else is derived so the ranking stays the backend's source of truth.
+// list: `startedId` is the NOW task; everything else is derived so the ranking
+// stays the backend's source of truth. Cancel clears it back to the shortlist.
 export const useFocusSession = (ranked: ITask[]): FocusSession => {
   const [startedId, setStartedId] = useState<string | null>(null);
-  const [skipped, setSkipped] = useState<string[]>([]);
 
   const { current, upNext } = useMemo(() => {
-    // Drop tasks that left the ranking (completed elsewhere, refetched away).
-    const present = new Set(ranked.map(task => task.id));
-    const liveSkipped = skipped.filter(id => present.has(id));
-
     const active = startedId ? (ranked.find(task => task.id === startedId) ?? null) : null;
-    const rest = ranked.filter(task => task.id !== active?.id);
+    const upNext = ranked.filter(task => task.id !== active?.id);
+    return { current: active, upNext };
+  }, [ranked, startedId]);
 
-    // Skipped tasks fall to the bottom but stay available — a session pass isn't a delete.
-    const skippedSet = new Set(liveSkipped);
-    const ordered = [...rest.filter(t => !skippedSet.has(t.id)), ...rest.filter(t => skippedSet.has(t.id))];
-
-    return { current: active, upNext: ordered };
-  }, [ranked, startedId, skipped]);
-
+  // Start on an idle session, or switch straight to another task mid-session.
   const start = (taskId: string) => setStartedId(taskId);
 
-  // After Done/Skip, promote the top of upNext so the loop keeps flowing without
-  // making the user re-Start each time. Falls back to null when nothing's left.
-  const advanceTo = (nextId: string | null) => setStartedId(nextId);
+  // After Done, promote the top of upNext so the loop keeps flowing; null when nothing's left.
+  const advance = () => setStartedId(upNext[0]?.id ?? null);
 
-  const advance = () => advanceTo(upNext[0]?.id ?? null);
+  // Not now: leave the current task and drop back to the ranked shortlist — no advance.
+  const cancel = () => setStartedId(null);
 
-  const skip = () => {
-    if (startedId) setSkipped(prev => (prev.includes(startedId) ? prev : [...prev, startedId]));
-    // Next task is the first up-next that isn't the one we just skipped.
-    advanceTo(upNext.find(task => task.id !== startedId)?.id ?? null);
-  };
-
-  return { current, upNext, start, advance, skip, isActive: startedId !== null };
+  return { current, upNext, start, advance, cancel, isActive: startedId !== null };
 };

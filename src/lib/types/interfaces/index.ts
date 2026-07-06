@@ -102,3 +102,9 @@ export interface ProcessingOption {
   label: string;
   enabled: boolean;
 }
+
+export const ActiveTab = {
+  TODAY: 'today',
+  TOMORROW: 'tomorrow',
+  WEEK: 'week',
+} as const;

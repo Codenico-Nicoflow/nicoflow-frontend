@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { format } from 'date-fns';
 import { CalendarClock, CalendarX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,21 +10,44 @@ import { Checkbox } from '@/components/ui/checkbox';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
 import { useScheduleTaskMutation, useUpdateTaskStatusMutation } from '@/lib/store';
 import { type ITask, TaskStatus } from '@/lib/types';
+import { ActiveTab } from '@/lib/types/interfaces';
 import { cn, showErrorToast } from '@/lib/utils';
 
 interface TimeSpreadRowProps {
   task: ITask;
+  activeTab: (typeof ActiveTab)[keyof typeof ActiveTab];
 }
 
-// A task row in the day views: complete it, or use the schedule quick-actions
-// to move it to today / tomorrow / off the schedule. Read-only otherwise —
-// editing lives in the project view. Static (no enter animation) so switching
-// tabs just swaps content without a re-animating list.
-const TimeSpreadRow = ({ task }: TimeSpreadRowProps) => {
+const TimeSpreadRow = ({ task, activeTab }: TimeSpreadRowProps) => {
   const { t } = useTranslation('task');
   const [updateStatus] = useUpdateTaskStatusMutation();
   const [scheduleTask] = useScheduleTaskMutation();
   const isCompleted = task.status === TaskStatus.DONE;
+
+  const shownActions = useMemo(() => {
+    const scheduleFor = (offsetDays: number) => {
+      const date = new Date();
+      date.setDate(date.getDate() + offsetDays);
+      return run(scheduleTask({ id: task.id, scheduledFor: format(date, 'yyyy-MM-dd') }).unwrap());
+    };
+
+    const unschedule = () => run(scheduleTask({ id: task.id, scheduledFor: null }).unwrap());
+    if (activeTab === ActiveTab.TODAY)
+      return [
+        { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
+        { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+      ];
+    if (activeTab === ActiveTab.TOMORROW)
+      return [
+        { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
+        { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+      ];
+    return [
+      { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
+      { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
+      { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+    ];
+  }, [activeTab, scheduleTask, t, task.id]);
 
   const run = async (op: Promise<unknown>) => {
     try {
@@ -34,14 +59,6 @@ const TimeSpreadRow = ({ task }: TimeSpreadRowProps) => {
 
   const toggle = () =>
     run(updateStatus({ id: task.id, status: isCompleted ? TaskStatus.ACTIVE : TaskStatus.DONE }).unwrap());
-
-  const scheduleFor = (offsetDays: number) => {
-    const date = new Date();
-    date.setDate(date.getDate() + offsetDays);
-    return run(scheduleTask({ id: task.id, scheduledFor: format(date, 'yyyy-MM-dd') }).unwrap());
-  };
-
-  const unschedule = () => run(scheduleTask({ id: task.id, scheduledFor: null }).unwrap());
 
   return (
     <ListItemCard variant="default" borderColor="primary">
@@ -59,13 +76,7 @@ const TimeSpreadRow = ({ task }: TimeSpreadRowProps) => {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          <ItemActionsMenu
-            actions={[
-              { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
-              { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
-              { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
-            ]}
-          />
+          <ItemActionsMenu actions={shownActions} />
           <Checkbox
             className="scale-100 sm:scale-125 cursor-pointer transition-all"
             data-testid={`timespread-checkbox-${task.id}`}

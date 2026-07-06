@@ -30,7 +30,7 @@ describe('TimeSpreadView', () => {
       )
     );
 
-    renderComponent(<TimeSpreadView bucket="today" />);
+    renderComponent(<TimeSpreadView activeTab="today" />);
 
     await waitFor(() => expect(screen.getByText('Ship the release')).toBeInTheDocument());
   });
@@ -38,7 +38,7 @@ describe('TimeSpreadView', () => {
   it('shows an encouraging empty state when the bucket is empty', async () => {
     server.use(http.get(`${API}/time-spread`, () => HttpResponse.json(env({ today: [], tomorrow: [], thisWeek: [] }))));
 
-    renderComponent(<TimeSpreadView bucket="today" />);
+    renderComponent(<TimeSpreadView activeTab="today" />);
 
     await waitFor(() => expect(screen.getByTestId('timespread-empty')).toBeInTheDocument());
   });
@@ -56,7 +56,7 @@ describe('TimeSpreadView', () => {
       )
     );
 
-    renderComponent(<TimeSpreadView bucket="today" />);
+    renderComponent(<TimeSpreadView activeTab="today" />);
 
     const chip = await screen.findByTestId('task-date-carriedOver');
     // The calm model: no red tone anywhere on a carried-over chip.
@@ -79,7 +79,7 @@ describe('TimeSpreadView', () => {
       )
     );
 
-    renderComponent(<TimeSpreadView bucket="week" />);
+    renderComponent(<TimeSpreadView activeTab="week" />);
 
     await waitFor(() => expect(screen.getByTestId(`timespread-day-${soonIso}`)).toBeInTheDocument());
     expect(screen.getByText('Midweek task')).toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('TimeSpreadView', () => {
     );
 
     const user = userEvent.setup();
-    renderComponent(<TimeSpreadView bucket="today" />);
+    renderComponent(<TimeSpreadView activeTab="today" />);
 
     await waitFor(() => expect(screen.getByText('Remove me')).toBeInTheDocument());
 
@@ -124,7 +124,7 @@ describe('TimeSpreadView', () => {
     );
 
     const user = userEvent.setup();
-    renderComponent(<TimeSpreadView bucket="today" />);
+    renderComponent(<TimeSpreadView activeTab="today" />);
 
     await waitFor(() => expect(screen.getByText('Finish me')).toBeInTheDocument());
     await user.click(screen.getByTestId('timespread-checkbox-t1'));
@@ -139,7 +139,7 @@ describe('TimeSpreadView', () => {
       )
     );
 
-    renderComponent(<TimeSpreadView bucket="today" />);
+    renderComponent(<TimeSpreadView activeTab="today" />);
 
     const list = await screen.findByTestId('timespread-list');
     expect(within(list).getByText('Scoped')).toBeInTheDocument();

@@ -10,7 +10,6 @@ import { toast } from 'sonner';
 import {
   DescriptionField,
   DialogFieldGrid,
-  DueDateField,
   EstimatedTimeField,
   FormDialog,
   NameField,
@@ -150,10 +149,9 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
 
                 <DialogFieldGrid columns={2}>
                   <PriorityField control={form.control} delay={0.2} />
-                  <DueDateField control={form.control} optional delay={0.25} />
+                  <EstimatedTimeField control={form.control} optional delay={0.25} />
                 </DialogFieldGrid>
 
-                <EstimatedTimeField control={form.control} optional delay={0.3} />
                 <UrlField control={form.control} delay={0.35} optional />
               </div>
             </Form>

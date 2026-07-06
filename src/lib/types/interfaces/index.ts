@@ -53,7 +53,6 @@ export interface ITask {
   priority: TaskPriority;
   energy: TaskEnergy;
   rollsOver: boolean;
-  dueDate?: string | null; // hard deadline — RFC3339 timestamp
   scheduledFor?: string | null; // soft intention — ISO date "YYYY-MM-DD"
   estimatedMinutes?: number | null;
   url?: string | null;

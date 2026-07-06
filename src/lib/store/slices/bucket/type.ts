@@ -12,7 +12,6 @@ export interface TaskDetails {
   title: string;
   notes?: string;
   priority?: TaskPriority;
-  dueDate?: string;
   estimatedMinutes?: number;
   url?: string;
 }

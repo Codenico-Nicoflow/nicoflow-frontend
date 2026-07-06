@@ -146,6 +146,7 @@
   },
   "timeSpread": {
     "title": "Time Spread",
+    "subtitle": "Your day and week at a glance — carried-over tasks included, no guilt.",
     "tabsLabel": "Time spread views",
     "loading": "Loading your day…",
     "actions": {

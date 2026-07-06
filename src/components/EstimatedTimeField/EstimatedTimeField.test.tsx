@@ -61,6 +61,21 @@ describe('EstimatedTimeField', () => {
     expect(formValues.estimatedMinutes).toBe(45);
   });
 
+  it('does not render a stray "0" when value is 0', () => {
+    const ZeroForm = () => {
+      const methods = useForm<TestFormValues>({ defaultValues: { estimatedMinutes: 0 } });
+      return (
+        <FormProvider {...methods}>
+          <EstimatedTimeField control={methods.control} />
+        </FormProvider>
+      );
+    };
+
+    const { container } = renderComponent(<ZeroForm />);
+    // The "0 && <Button/>" bug rendered a literal "0" text node next to the input.
+    expect(container.textContent).not.toMatch(/(^|[^\d])0([^\d]|$)/);
+  });
+
   it('clear button not visible when no value', () => {
     renderComponent(<TestForm>{control => <EstimatedTimeField control={control} />}</TestForm>);
 
@@ -91,7 +106,7 @@ describe('EstimatedTimeField', () => {
 
     await user.click(clearButton);
 
-    expect(formValues.estimatedMinutes).toBeUndefined();
+    expect(formValues.estimatedMinutes).toBeNull();
     expect(screen.queryByTestId('estimated-time-clear-button')).not.toBeInTheDocument();
   });
 

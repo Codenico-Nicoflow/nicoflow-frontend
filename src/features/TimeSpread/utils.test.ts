@@ -33,15 +33,9 @@ describe('groupByDay', () => {
     expect(groups[0]?.key).toBe(iso(5));
   });
 
-  it('falls back to the hard dueDate when there is no soft scheduledFor', () => {
-    const groups = groupByDay([makeTask({ id: 'd', scheduledFor: null, dueDate: iso(1) })], TODAY);
-    expect(groups).toHaveLength(1);
-    expect(groups[0]?.tasks[0]?.id).toBe('d');
-  });
-
-  it('ignores tasks with neither date and days beyond the 7-day window', () => {
+  it('ignores unscheduled tasks and days beyond the 7-day window', () => {
     const groups = groupByDay(
-      [makeTask({ id: 'none', scheduledFor: null, dueDate: null }), makeTask({ id: 'far', scheduledFor: iso(9) })],
+      [makeTask({ id: 'none', scheduledFor: null }), makeTask({ id: 'far', scheduledFor: iso(9) })],
       TODAY
     );
     expect(groups).toHaveLength(0);

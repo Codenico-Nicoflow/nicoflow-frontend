@@ -69,7 +69,6 @@ export const buildProcessBucketDto = ({
         title: taskData.title,
         notes: taskData.notes || undefined,
         priority: taskData.priority,
-        dueDate: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined,
         estimatedMinutes: taskData.estimatedMinutes || undefined,
         url: taskData.url || undefined,
       };
@@ -154,7 +153,6 @@ export const getDefaultTaskFormValues = (bucketContent?: string): TaskFormData =
       priority: 'low',
       energy: 'medium',
       rollsOver: true,
-      dueDate: null,
       scheduledFor: null,
       estimatedMinutes: null,
       url: '',
@@ -167,7 +165,6 @@ export const getDefaultTaskFormValues = (bucketContent?: string): TaskFormData =
     priority: 'low',
     energy: 'medium',
     rollsOver: true,
-    dueDate: null,
     scheduledFor: null,
     estimatedMinutes: null,
     url: '',

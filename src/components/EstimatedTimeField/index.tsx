@@ -68,14 +68,14 @@ export const EstimatedTimeField = <T extends FieldValues>({
                   {t('fields.minutes')}
                 </div>
               </div>
-              {field.value && (
+              {field.value != null && field.value !== '' && (
                 <Button
                   type="button"
                   variant="outline"
                   data-testid={testId ? `${testId}-estimated-time-clear-button` : 'estimated-time-clear-button'}
                   size="icon"
                   className="h-10 sm:h-12 w-10 sm:w-12 hover:bg-primary/10 hover:text-primary flex-shrink-0"
-                  onClick={() => field.onChange(undefined)}
+                  onClick={() => field.onChange(null)}
                 >
                   <X className="h-4 w-4" />
                 </Button>

@@ -7,7 +7,6 @@
     "titleLabel": "Название",
     "notesLabel": "Заметки",
     "priorityLabel": "Приоритет",
-    "dueDateLabel": "Срок",
     "estimatedTimeLabel": "Оценка времени",
     "urlLabel": "Ссылка",
     "taskNameLabel": "Название задачи",
@@ -15,7 +14,6 @@
     "descriptionLabel": "Описание",
     "descriptionPlaceholder": "Добавьте детали задачи...",
     "schedulingTitle": "Планирование",
-    "dueDateDeadlineLabel": "Крайний срок (жёсткий)",
     "rollsOverLabel": "Переносить",
     "rollsOverDescription": "Если запланированный день прошёл, перенести вперёд, а не помечать как просроченное."
   },
@@ -99,9 +97,7 @@
   "gentleDate": {
     "carriedOver": "Перенесено",
     "scheduledToday": "Сегодня",
-    "scheduledTomorrow": "Завтра",
-    "dueToday": "К выполнению",
-    "dueTomorrow": "Срок завтра"
+    "scheduledTomorrow": "Завтра"
   },
   "reorder": {
     "handle": "Перетащите, чтобы изменить порядок"

@@ -24,7 +24,6 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
     if (!gentleDate) return null;
     switch (gentleDate.kind) {
       case 'scheduledFuture':
-      case 'dueFuture':
         return gentleDate.formattedDate;
       default:
         return t(`gentleDate.${gentleDate.kind}`);

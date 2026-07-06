@@ -7,7 +7,6 @@
     "titleLabel": "Title",
     "notesLabel": "Notes",
     "priorityLabel": "Priority",
-    "dueDateLabel": "Due date",
     "estimatedTimeLabel": "Estimated time",
     "urlLabel": "URL",
     "taskNameLabel": "Task Name",
@@ -15,7 +14,6 @@
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Add task details...",
     "schedulingTitle": "Scheduling",
-    "dueDateDeadlineLabel": "Deadline (hard)",
     "rollsOverLabel": "Roll over",
     "rollsOverDescription": "If the scheduled day passes, carry it forward instead of marking it overdue."
   },
@@ -99,9 +97,7 @@
   "gentleDate": {
     "carriedOver": "Carried over",
     "scheduledToday": "Today",
-    "scheduledTomorrow": "Tomorrow",
-    "dueToday": "Due",
-    "dueTomorrow": "Due tomorrow"
+    "scheduledTomorrow": "Tomorrow"
   },
   "reorder": {
     "handle": "Drag to reorder"

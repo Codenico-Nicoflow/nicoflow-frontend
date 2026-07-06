@@ -79,7 +79,6 @@ export const makeTask = (overrides?: Partial<ITask>): ITask => ({
   priority: TaskPriority.MEDIUM,
   energy: TaskEnergy.MEDIUM,
   rollsOver: true,
-  dueDate: null,
   scheduledFor: null,
   estimatedMinutes: null,
   url: null,

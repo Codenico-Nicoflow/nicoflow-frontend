@@ -73,7 +73,9 @@ export {
   useGetFocusQuery,
   useGetTaskQuery,
   useGetTasksQuery,
+  useGetTimeSpreadQuery,
   useReorderTaskMutation,
+  useScheduleTaskMutation,
   useUpdateTaskMutation,
   useUpdateTaskStatusMutation,
 } from './slices/tasks/taskApi';
@@ -81,6 +83,7 @@ export type {
   CreateTaskRequest,
   CreateTaskResponse,
   GetFocusRequest,
+  GetTimeSpreadResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
 } from './slices/tasks/type';

@@ -123,9 +123,16 @@ export const handlers = [
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),
   http.get('http://localhost:8080/v1/focus', () => HttpResponse.json(envelope({ items: [] }))),
+  http.get('http://localhost:8080/v1/time-spread', () =>
+    HttpResponse.json(envelope({ today: [], tomorrow: [], thisWeek: [] }))
+  ),
   http.patch('http://localhost:8080/v1/tasks/:id/reorder', ({ params }) =>
     HttpResponse.json(envelope(makeTask({ id: String(params['id']) })))
   ),
+  http.patch('http://localhost:8080/v1/tasks/:id/schedule', async ({ params, request }) => {
+    const body = (await request.json()) as { scheduledFor: string | null; rollsOver?: boolean };
+    return HttpResponse.json(envelope(makeTask({ id: String(params['id']), ...body })));
+  }),
   http.get('http://localhost:8080/v1/bucket', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/users/profile', () => HttpResponse.json(envelope(mockUser))),
   http.patch('http://localhost:8080/v1/users/me', async ({ request }) => {

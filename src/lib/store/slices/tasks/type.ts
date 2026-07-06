@@ -71,3 +71,21 @@ export type GetFocusRequest = {
   limit?: number;
 };
 export type GetFocusResponse = ITask[];
+
+// Schedule (PATCH /tasks/:id/schedule) — set/clear the soft intention date and
+// optionally the roll-forward flag. scheduledFor null clears the schedule.
+export type ScheduleTaskRequest = {
+  id: string;
+  scheduledFor: string | null;
+  rollsOver?: boolean;
+};
+export type ScheduleTaskResponse = ITask;
+
+// Time Spread (GET /time-spread) — active+inbox tasks bucketed into the day
+// views, with the no-guilt roll-forward already applied server-side. Buckets
+// are always present (possibly empty).
+export type GetTimeSpreadResponse = {
+  today: ITask[];
+  tomorrow: ITask[];
+  thisWeek: ITask[];
+};

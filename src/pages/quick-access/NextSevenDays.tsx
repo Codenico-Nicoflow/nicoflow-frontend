@@ -1,5 +1,5 @@
 import TimeSpreadView from '@/features/TimeSpread';
 
-const NextSevenDays = () => <TimeSpreadView bucket="week" />;
+const NextSevenDays = () => <TimeSpreadView activeTab="week" />;
 
 export default NextSevenDays;

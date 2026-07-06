@@ -108,7 +108,7 @@ describe('FocusView', () => {
     expect(within(now).getByText('Deep work block')).toBeInTheDocument();
   });
 
-  it('Not now skips the current task and moves it down for the session', async () => {
+  it('Not now cancels the session and returns to the ranked shortlist', async () => {
     server.use(http.get(`${API}/focus`, () => HttpResponse.json(items(ranked))));
 
     const user = userEvent.setup();
@@ -116,9 +116,27 @@ describe('FocusView', () => {
 
     await user.click(screen.getByTestId('focus-time-m30'));
     await user.click(await screen.findByTestId('focus-start-r1'));
-    await user.click(await screen.findByTestId('focus-skip'));
+    expect(await screen.findByTestId('focus-now-card')).toBeInTheDocument();
 
-    // Skipping advances to the next task without persisting anything.
+    await user.click(screen.getByTestId('focus-cancel'));
+
+    // Not now exits the NOW card — no advance, back to the full list.
+    await waitFor(() => expect(screen.queryByTestId('focus-now-card')).not.toBeInTheDocument());
+    expect(await screen.findByTestId('focus-list')).toBeInTheDocument();
+    expect(screen.getByText('Quick low-energy win')).toBeInTheDocument();
+    expect(screen.getByText('Deep work block')).toBeInTheDocument();
+  });
+
+  it('Start on another up-next task switches the NOW card mid-session', async () => {
+    server.use(http.get(`${API}/focus`, () => HttpResponse.json(items(ranked))));
+
+    const user = userEvent.setup();
+    renderComponent(<FocusView />);
+
+    await user.click(screen.getByTestId('focus-time-m30'));
+    await user.click(await screen.findByTestId('focus-start-r1'));
+    await user.click(await screen.findByTestId('focus-start-r2'));
+
     const now = await screen.findByTestId('focus-now-card');
     expect(within(now).getByText('Deep work block')).toBeInTheDocument();
   });

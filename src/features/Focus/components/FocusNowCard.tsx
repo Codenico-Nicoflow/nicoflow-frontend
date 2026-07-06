@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, SkipForward } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -9,13 +9,14 @@ import type { ITask } from '@/lib/types';
 interface FocusNowCardProps {
   task: ITask;
   onDone: () => void;
-  onSkip: () => void;
+  onCancel: () => void;
   isBusy: boolean;
 }
 
 // The NOW card — the single task the user is doing right now, given room to
-// breathe above the dimmed "next up" list. Done finishes it; Not now passes.
-const FocusNowCard = ({ task, onDone, onSkip, isBusy }: FocusNowCardProps) => {
+// breathe above the dimmed "next up" list. Done finishes it; Not now exits back
+// to the shortlist (to switch, the user Starts another task from up next).
+const FocusNowCard = ({ task, onDone, onCancel, isBusy }: FocusNowCardProps) => {
   const { t } = useTranslation('task');
 
   return (
@@ -43,14 +44,14 @@ const FocusNowCard = ({ task, onDone, onSkip, isBusy }: FocusNowCardProps) => {
           {t('focus.done')}
         </Button>
         <Button
-          onClick={onSkip}
+          onClick={onCancel}
           disabled={isBusy}
           variant="outline"
           size="lg"
-          data-testid="focus-skip"
+          data-testid="focus-cancel"
           className="flex-1 sm:flex-none"
         >
-          <SkipForward className="h-4 w-4 me-1.5" aria-hidden />
+          <X className="h-4 w-4 me-1.5" aria-hidden />
           {t('focus.notNow')}
         </Button>
       </div>

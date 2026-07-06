@@ -34,13 +34,21 @@ describe('useFocusSession', () => {
     expect(result.current.current?.id).toBe('b');
   });
 
-  it('skip sends the current task to the bottom for the session and advances', () => {
+  it('cancel ends the session and returns to the full shortlist', () => {
     const { result } = renderHook(() => useFocusSession(ranked));
     act(() => result.current.start('a'));
-    act(() => result.current.skip());
-    expect(result.current.current?.id).toBe('b');
-    // 'a' isn't lost — it drops below the un-skipped tasks.
-    expect(result.current.upNext.map(t => t.id)).toEqual(['c', 'a']);
+    act(() => result.current.cancel());
+    expect(result.current.current).toBeNull();
+    expect(result.current.isActive).toBe(false);
+    expect(result.current.upNext.map(t => t.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('start switches straight to another task mid-session', () => {
+    const { result } = renderHook(() => useFocusSession(ranked));
+    act(() => result.current.start('a'));
+    act(() => result.current.start('c'));
+    expect(result.current.current?.id).toBe('c');
+    expect(result.current.upNext.map(t => t.id)).toEqual(['a', 'b']);
   });
 
   it('advancing past the last task ends the session (current null)', () => {

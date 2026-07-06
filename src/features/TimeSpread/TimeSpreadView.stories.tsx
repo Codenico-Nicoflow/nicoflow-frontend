@@ -39,12 +39,12 @@ export default meta;
 
 type Story = StoryObj<typeof TimeSpreadView>;
 
-export const Today: Story = { args: { bucket: 'today' } };
-export const Tomorrow: Story = { args: { bucket: 'tomorrow' } };
-export const NextSevenDays: Story = { args: { bucket: 'week' } };
+export const Today: Story = { args: { activeTab: 'today' } };
+export const Tomorrow: Story = { args: { activeTab: 'tomorrow' } };
+export const NextSevenDays: Story = { args: { activeTab: 'week' } };
 
 export const Empty: Story = {
-  args: { bucket: 'today' },
+  args: { activeTab: 'today' },
   parameters: {
     msw: {
       handlers: [

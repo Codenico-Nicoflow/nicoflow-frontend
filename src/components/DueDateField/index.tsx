@@ -74,14 +74,14 @@ export const DueDateField = <T extends FieldValues>({
                   />
                 </PopoverContent>
               </Popover>
-              {field.value && (
+              {field.value != null && (
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   data-testid={testId ? `${testId}-due-date-clear-button` : 'due-date-clear-button'}
                   className="h-10 sm:h-12 w-10 sm:w-12 hover:bg-primary/10 hover:text-primary"
-                  onClick={() => field.onChange(undefined)}
+                  onClick={() => field.onChange(null)}
                 >
                   <X className="h-4 w-4" />
                 </Button>

@@ -4,7 +4,7 @@ import { renderComponent } from '__tests__/renderComponent';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type Control, FormProvider, useForm } from 'react-hook-form';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { DueDateField } from '.';
 
@@ -59,19 +59,11 @@ describe('DueDateField', () => {
     expect(screen.queryByText('Pick a date')).not.toBeInTheDocument();
   });
 
-  it('clicking clear button invokes onChange to clear the field', async () => {
+  it('clicking clear resets the UI — placeholder returns and clear button disappears', async () => {
     const user = userEvent.setup();
-    const onChangeSpy = vi.fn();
 
-    // Use a custom field that wraps DueDateField to spy on onChange
-    const TestWithSpy = () => {
+    const TestWithValue = () => {
       const methods = useForm<TestFormValues>({ defaultValues: { dueDate: new Date('2025-12-31') } });
-      // Intercept setValue to spy on the change
-      const originalSetValue = methods.setValue.bind(methods);
-      methods.setValue = (name, value, options) => {
-        if (name === 'dueDate') onChangeSpy(value);
-        return originalSetValue(name, value, options);
-      };
       return (
         <FormProvider {...methods}>
           <form>
@@ -81,13 +73,16 @@ describe('DueDateField', () => {
       );
     };
 
-    renderComponent(<TestWithSpy />);
+    renderComponent(<TestWithValue />);
 
-    const clearButton = screen.getByTestId('due-date-clear-button');
-    expect(clearButton).toBeInTheDocument();
-    await user.click(clearButton);
-    // The clear button exists and is clickable without throwing
-    // The actual form state update is validated by the preset-value test
+    // Precondition: a date is shown, no placeholder.
+    expect(screen.queryByText('Pick a date')).not.toBeInTheDocument();
+
+    await user.click(screen.getByTestId('due-date-clear-button'));
+
+    // The bug: clearing updated form state but not the UI. Assert the UI actually resets.
+    expect(await screen.findByText('Pick a date')).toBeInTheDocument();
+    expect(screen.queryByTestId('due-date-clear-button')).not.toBeInTheDocument();
   });
 
   it('renders custom label', () => {

@@ -37,20 +37,23 @@ describe('taskApi slice', () => {
     expect(seen?.get('limit')).toBe('5');
   });
 
-  it('unwraps the time-spread buckets from the data envelope', async () => {
+  it('unwraps the time-spread buckets and sends the browser tz', async () => {
+    let sentTz: string | null = null;
     server.use(
-      http.get(`${API}/time-spread`, () =>
-        HttpResponse.json({
+      http.get(`${API}/time-spread`, ({ request }) => {
+        sentTz = new URL(request.url).searchParams.get('tz');
+        return HttpResponse.json({
           data: { today: [makeTask({ id: 't1' })], tomorrow: [], thisWeek: [] },
           error: null,
-        })
-      )
+        });
+      })
     );
 
     const store = makeStore();
     const res = await store.dispatch(taskApi.endpoints.getTimeSpread.initiate());
 
     expect(res.data).toEqual({ today: [expect.objectContaining({ id: 't1' })], tomorrow: [], thisWeek: [] });
+    expect(sentTz).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
   });
 
   it('scheduleTask PATCHes /schedule with the scheduledFor + rollsOver body', async () => {

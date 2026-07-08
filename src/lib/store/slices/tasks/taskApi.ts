@@ -168,7 +168,9 @@ export const taskApi = createApi({
     // Time Spread — the today/tomorrow/this-week buckets. Another derived
     // cross-project view under its own tag, refreshed by any task mutation.
     getTimeSpread: builder.query<GetTimeSpreadResponse, void>({
-      query: () => '/time-spread',
+      // Send the browser's IANA zone so day buckets align with the user's
+      // local calendar (the API defaults to UTC when tz is absent).
+      query: () => `/time-spread?tz=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`,
       transformResponse: (raw: ApiEnvelope<GetTimeSpreadResponse>) => raw.data,
       transformErrorResponse: error => error.data,
       providesTags: ['TimeSpread'],

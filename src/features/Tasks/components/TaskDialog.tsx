@@ -192,7 +192,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           </DialogFieldGrid>
 
           {/* Scheduling: a single soft intention (scheduledFor); rollsOver (default
-              on) carries it forward instead of marking it overdue. */}
+              on) carries a passed task to Today — off, it quietly drops off. Never overdue. */}
           <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
             <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
             <ScheduledForField control={form.control} delay={0.27} />

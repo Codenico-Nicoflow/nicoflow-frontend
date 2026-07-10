@@ -15,7 +15,7 @@
     "descriptionPlaceholder": "הוסיפו פרטי משימה...",
     "schedulingTitle": "תזמון",
     "rollsOverLabel": "גלגול קדימה",
-    "rollsOverDescription": "אם היום המתוכנן חולף, היא תיגלגל קדימה במקום להיחשב באיחור."
+    "rollsOverDescription": "אם היום המתוכנן חולף, היא מתגלגלת קדימה להיום. כבוי: היא נושרת בשקט מהרשימות שלך."
   },
   "subtasks": {
     "title": "תת-משימות",

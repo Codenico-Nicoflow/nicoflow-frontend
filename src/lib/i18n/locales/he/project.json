@@ -29,7 +29,8 @@
   },
   "areaField": {
     "label": "תחום",
-    "placeholder": "בחרו תחום לפרויקט"
+    "placeholder": "בחרו תחום לפרויקט",
+    "loading": "טוען תחומים…"
   },
   "delete": {
     "title": "מחיקת פרויקט",

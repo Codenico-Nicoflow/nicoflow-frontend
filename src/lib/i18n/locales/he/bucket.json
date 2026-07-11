@@ -45,7 +45,8 @@
   },
   "projectSelector": {
     "label": "פרויקט *",
-    "placeholder": "בחרו פרויקט"
+    "placeholder": "בחרו פרויקט",
+    "loading": "טוען פרויקטים…"
   },
   "list": {
     "emptyTitle": "הסל שלכם ריק",

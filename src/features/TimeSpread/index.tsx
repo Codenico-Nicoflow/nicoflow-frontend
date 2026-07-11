@@ -5,6 +5,7 @@ import { CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
+import { TasksLoadingState } from '@/features/Tasks';
 import { useGetTimeSpreadQuery } from '@/lib/store';
 import { ActiveTab } from '@/lib/types/interfaces';
 
@@ -30,8 +31,8 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
   const isEmpty = activeTab === ActiveTab.WEEK ? weekGroups.length === 0 : (flat?.length ?? 0) === 0;
 
   const content = isLoading ? (
-    <div className="py-12 text-center text-muted-foreground" data-testid="timespread-loading">
-      {t('timeSpread.loading')}
+    <div data-testid="timespread-loading">
+      <TasksLoadingState />
     </div>
   ) : isEmpty ? (
     <EmptyState

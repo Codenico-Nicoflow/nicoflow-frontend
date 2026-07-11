@@ -45,7 +45,8 @@
   },
   "projectSelector": {
     "label": "Проект *",
-    "placeholder": "Выберите проект"
+    "placeholder": "Выберите проект",
+    "loading": "Загрузка проектов…"
   },
   "list": {
     "emptyTitle": "Корзина пуста",

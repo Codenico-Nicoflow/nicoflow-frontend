@@ -221,6 +221,14 @@ const user = useAppUser(); // shorthand for auth.user
 
 **Persistence:** only the `auth` reducer key is persisted. RTK Query cache is never persisted.
 
+**Loading states are mandatory — never render a request site with no loading feedback.** Every query that gates visible content must handle its in-flight state; a blank/janky gap or a stale flash is a bug, not an edge case. Rules:
+
+- **Primary content** (a page, list, or main panel): render a **skeleton** while loading, not a spinner or "Loading…" text. Reuse the feature's loading component — `TasksLoadingState`, `ProjectLoadingState`, `FocusLoadingState` — or a `<Skeleton>` block shaped like the real content so the layout doesn't jump.
+- **Secondary controls** populated by a query (a `<Select>` of areas/projects, a picker): pass an `isLoading` prop → `disabled` + a "Loading…" placeholder (i18n key, all three langs). See `ProjectAreaField`, `BucketProjectSelector`.
+- **Mutations** (submit/save/delete): drive the button's busy/disabled state off the mutation's `isLoading`.
+- **Stale-flash guard:** when a query's args change (debounced inputs, filters), don't show the previous args' result while the new one is in flight — treat "args changed but not yet applied" as loading. Focus does this: `isRanking = isFetching || (hasTimeBudget && debouncedAvailable !== available)`, and `skip: debouncedAvailable === undefined` so it never fires with a stale/empty arg.
+- Use `isLoading` for the first load; `isFetching` (or the debounce-aware flag) when a re-fetch on changed args must also show loading.
+
 ---
 
 ## Data Types (`src/lib/types/interfaces/index.ts`)
@@ -229,7 +237,7 @@ All IDs are `string` (TEXT PKs — UUID/NanoID). Never add `Number()` coercion.
 
 ```typescript
 IArea    { id: string; name; color; icon?; displayOrder?; createdAt; updatedAt; projects?: IProject[] }
-IProject { id: string; areaId: string|null; name; status: 'active'|'archived'|'completed'; folderIcon; dueDate?|null; isFavorite?; description?|null; displayOrder?; createdAt; updatedAt }
+IProject { id: string; areaId: string; name; status: 'active'|'archived'|'completed'; folderIcon; dueDate?|null; isFavorite?; description?|null; displayOrder?; createdAt; updatedAt }
 ITask    { id: string; projectId: string; title; notes?|null; status: TaskStatus; priority: TaskPriority; dueDate?|null; scheduledFor?: 'today'|'tomorrow'|'this_week'|null; estimatedMinutes?|null; url?|null; displayOrder?; completedAt?|null; createdAt; updatedAt }
 IBucket  { id: string; userId: string; content; processedAt?|null; processingResult?|null; createdTaskId?|null; createdNoteId?|null; projectId?|null; createdAt; updatedAt }
 IUser    { id: string; email; firstName; lastName; username; theme: 'light'|'dark'; imageUrl; status: 'premium'|'regular' }

@@ -16,7 +16,9 @@ export type CreateProjectRequest = {
 export type UpdateProjectRequest = {
   id: string;
   name?: string;
-  areaId?: string | null;
+  // Omit to leave the area unchanged; a project must always belong to an area,
+  // so this is a non-null id to move into (the backend rejects an empty areaId).
+  areaId?: string;
   status?: 'active' | 'completed' | 'archived';
   folderIcon?: string;
   dueDate?: string | null;

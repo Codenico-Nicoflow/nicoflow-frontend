@@ -61,7 +61,9 @@ describe('FocusView', () => {
     await user.click(screen.getByTestId('focus-time-m30'));
     await waitFor(() => expect(screen.getByText('Deep work block')).toBeInTheDocument());
 
-    await user.click(screen.getByTestId('focus-energy-low'));
+    // Energy is a dropdown now: open the trigger, then pick "low".
+    await user.click(screen.getByTestId('focus-energy'));
+    await user.click(await screen.findByTestId('focus-energy-low'));
     await waitFor(() => expect(screen.queryByText('Deep work block')).not.toBeInTheDocument());
     await waitFor(() => expect(seen.some(p => p.get('energy') === 'low')).toBe(true));
   });
@@ -150,7 +152,7 @@ describe('FocusView', () => {
     await user.click(screen.getByTestId('focus-time-m15'));
 
     await waitFor(() => expect(screen.getByTestId('focus-empty')).toBeInTheDocument());
-    expect(screen.getByText(/that's fine/i)).toBeInTheDocument();
+    expect(screen.getByText(/nothing fits that window/i)).toBeInTheDocument();
 
     // The way out: change the time back to the prompt, not a dead end.
     await user.click(screen.getByTestId('focus-empty-clear'));

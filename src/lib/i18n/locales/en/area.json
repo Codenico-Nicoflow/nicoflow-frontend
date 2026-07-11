@@ -20,14 +20,14 @@
     "emptyDescription": "Areas group related projects. Add one to get started.",
     "newArea": "New Area",
     "newProject": "New Project",
-    "planLimitTooltip": "Free plan limit reached — upgrade to add more.",
+    "planLimitTooltip": "Free plan limit reached. Upgrade to add more.",
     "projectCount_one": "{{count}} project",
     "projectCount_other": "{{count}} projects",
     "areaCount_one": "{{count}} area",
     "areaCount_other": "{{count}} areas"
   },
   "card": {
-    "noProjects": "No projects yet — add one below.",
+    "noProjects": "No projects yet. Add one below.",
     "addProject": "Add project",
     "dragHandle": "Drag to reorder area",
     "actionsMenu": "Area actions",

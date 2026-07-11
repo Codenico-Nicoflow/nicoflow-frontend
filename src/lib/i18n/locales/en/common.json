@@ -13,7 +13,9 @@
     "process": "Process",
     "goHome": "Go Home",
     "search": "Search…",
-    "back": "Back"
+    "back": "Back",
+    "showMore": "Show more",
+    "showLess": "Show less"
   },
   "validation": {
     "usernameMin": "Username must be at least 3 characters",
@@ -68,7 +70,7 @@
     "priorityPlaceholder": "Select priority",
     "energyLabel": "Energy",
     "scheduledForLabel": "Scheduled for",
-    "scheduledForHint": "A soft intention — it gently carries forward, never overdue.",
+    "scheduledForHint": "Carries forward if not done, never marked overdue.",
     "statusLabel": "Status",
     "statusPlaceholder": "Select status",
     "estimatedTimeLabel": "Estimated Time",
@@ -84,7 +86,7 @@
     "cta": "Upgrade to Pro"
   },
   "rateLimit": {
-    "toast": "Too many requests — please wait {{seconds}}s and try again.",
+    "toast": "Too many requests. Please wait {{seconds}}s and try again.",
     "banner": "You're doing that too fast. Retrying in {{seconds}}s…"
   },
   "pages": {

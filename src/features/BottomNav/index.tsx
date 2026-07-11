@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
-import { isActive, NAV_DESTINATIONS, SETTINGS_DESTINATION } from '@/features/Rail/data';
+import { isActive, NAV_DESTINATIONS } from '@/features/Rail/data';
 import { cn } from '@/lib/utils';
 
-const ITEMS = [...NAV_DESTINATIONS, SETTINGS_DESTINATION];
+const ITEMS = [...NAV_DESTINATIONS];
 
 export const BottomNav = () => {
   const { pathname } = useLocation();

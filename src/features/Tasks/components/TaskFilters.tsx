@@ -1,8 +1,7 @@
-import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 import { ENERGY_OPTIONS } from '@/components';
-import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TaskEnergy, TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -23,15 +22,6 @@ interface TaskFiltersProps {
   taskCounts: TaskCounts;
 }
 
-const chip = (isActive: boolean) =>
-  cn(
-    'inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer',
-    'border whitespace-nowrap flex-shrink-0',
-    isActive
-      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-      : 'bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground'
-  );
-
 const TaskFilters = ({ activeFilter, onFilterChange, activeEnergy, onEnergyChange, taskCounts }: TaskFiltersProps) => {
   const { t } = useTranslation(['task', 'common']);
 
@@ -45,57 +35,60 @@ const TaskFilters = ({ activeFilter, onFilterChange, activeEnergy, onEnergyChang
   ] as const;
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full" role="group" aria-label={t('filters.all')}>
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className="flex items-center gap-1 overflow-x-auto rounded-lg bg-muted p-1"
+        role="tablist"
+        aria-label={t('filters.all')}
+      >
         {statusFilters.map(filter => {
           const isActive = activeFilter === filter.value;
+          const count = taskCounts[filter.countKey];
           return (
-            <motion.button
+            <button
               key={filter.value}
               type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              role="tab"
+              aria-selected={isActive}
               onClick={() => onFilterChange(filter.value)}
               data-testid={`task-filter-${filter.value}`}
-              className={chip(isActive)}
+              className={cn(
+                'inline-flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm',
+                isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              )}
             >
               {t(filter.labelKey)}
-              <Badge
-                variant={isActive ? 'secondary' : 'outline'}
-                className={cn(
-                  'h-4 sm:h-5 min-w-4 sm:min-w-5 px-1 sm:px-1.5 text-xs',
-                  isActive && 'bg-primary-foreground/20 text-primary-foreground'
-                )}
+              <span
+                className={cn('text-xs tabular-nums', isActive ? 'text-foreground/60' : 'text-muted-foreground/60')}
               >
-                {taskCounts[filter.countKey]}
-              </Badge>
-            </motion.button>
+                {count}
+              </span>
+            </button>
           );
         })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t('common:fields.energyLabel')}>
-        <button
-          type="button"
-          onClick={() => onEnergyChange('all')}
-          data-testid="task-energy-filter-all"
-          className={chip(activeEnergy === 'all')}
+      {/* Energy: a compact dropdown instead of a second full chip row. */}
+      <Select value={activeEnergy} onValueChange={value => onEnergyChange(value as TaskEnergy | 'all')}>
+        <SelectTrigger
+          className="h-9 w-full sm:w-40 flex-shrink-0"
+          data-testid="task-energy-filter"
+          aria-label={t('filters.energyLabel')}
         >
-          {t('filters.all')}
-        </button>
-        {ENERGY_OPTIONS.map(({ value, icon: Icon, labelKey }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => onEnergyChange(value)}
-            data-testid={`task-energy-filter-${value}`}
-            className={chip(activeEnergy === value)}
-          >
-            <Icon className="h-3.5 w-3.5" aria-hidden />
-            {t(labelKey)}
-          </button>
-        ))}
-      </div>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t('filters.energyAll')}</SelectItem>
+          {ENERGY_OPTIONS.map(({ value, icon: Icon, labelKey }) => (
+            <SelectItem key={value} value={value} data-testid={`task-energy-filter-${value}`}>
+              <span className="flex items-center gap-2">
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+                {t(labelKey)}
+              </span>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

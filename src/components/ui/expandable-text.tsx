@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/utils';
 
@@ -19,6 +20,7 @@ const ExpandableText = ({
   buttonClassName,
   'data-testid': testId,
 }: ExpandableTextProps) => {
+  const { t } = useTranslation('common');
   const [isExpanded, setIsExpanded] = React.useState(false);
   const shouldTruncate = children.length > maxLength;
   const displayText = isExpanded || !shouldTruncate ? children : `${children.slice(0, maxLength)}...`;
@@ -45,7 +47,7 @@ const ExpandableText = ({
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn('text-xs text-primary hover:underline', buttonClassName)}
         >
-          {isExpanded ? 'Show less' : 'Show more'}
+          {isExpanded ? t('actions.showLess') : t('actions.showMore')}
         </button>
       )}
     </div>

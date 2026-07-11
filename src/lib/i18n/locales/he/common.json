@@ -13,7 +13,9 @@
     "process": "עיבוד",
     "goHome": "חזרה לדף הבית",
     "search": "חיפוש…",
-    "back": "חזרה"
+    "back": "חזרה",
+    "showMore": "הצג עוד",
+    "showLess": "הצג פחות"
   },
   "validation": {
     "usernameMin": "שם המשתמש חייב להכיל לפחות 3 תווים",
@@ -68,7 +70,7 @@
     "priorityPlaceholder": "בחרו עדיפות",
     "energyLabel": "אנרגיה",
     "scheduledForLabel": "מתוכנן ל",
-    "scheduledForHint": "כוונה רכה — היא נדחית בעדינות קדימה, לעולם לא באיחור.",
+    "scheduledForHint": "מתגלגלת קדימה אם לא הושלמה, לעולם לא מסומנת כאיחור.",
     "statusLabel": "סטטוס",
     "statusPlaceholder": "בחרו סטטוס",
     "estimatedTimeLabel": "זמן משוער",
@@ -84,7 +86,7 @@
     "cta": "שדרגו ל-Pro"
   },
   "rateLimit": {
-    "toast": "יותר מדי בקשות — המתינו {{seconds}} שניות ונסו שוב.",
+    "toast": "יותר מדי בקשות. המתינו {{seconds}} שניות ונסו שוב.",
     "banner": "אתם עושים זאת מהר מדי. ננסה שוב בעוד {{seconds}} שניות…"
   },
   "pages": {

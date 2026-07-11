@@ -37,6 +37,7 @@ const SortableTaskItem = ({ task, index, onEdit, onDelete }: SortableTaskItemPro
             type="button"
             {...attributes}
             {...listeners}
+            onClick={e => e.stopPropagation()}
             aria-label={t('reorder.handle')}
             data-testid={`task-drag-${task.id}`}
             className="p-1 -ms-1 flex-shrink-0 touch-none cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"

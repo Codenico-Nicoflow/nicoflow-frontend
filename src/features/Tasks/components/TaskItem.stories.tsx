@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { format, subDays } from 'date-fns';
-import { expect, screen } from 'storybook/test';
+import { expect, fn, screen, userEvent } from 'storybook/test';
 
 import { mockTask } from '@/stories/mocks';
 
@@ -46,4 +46,13 @@ export const CarriedOver: Story = {
 
 export const Someday: Story = {
   args: { task: mockTask({ title: 'Maybe one day', status: 'someday', energy: 'medium' }) },
+};
+
+// The whole card is clickable and opens the edit action.
+export const ClickableCard: Story = {
+  args: { task: mockTask({ id: 'clickable', title: 'Click anywhere on me', status: 'active' }), onEdit: fn() },
+  play: async ({ args }) => {
+    await userEvent.click(await screen.findByTestId('task-card-clickable'));
+    await expect(args.onEdit).toHaveBeenCalledTimes(1);
+  },
 };

@@ -96,10 +96,15 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
-          <Pencil
-            className="hidden h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 sm:block"
-            aria-hidden
-          />
+          <button
+            type="button"
+            aria-label={t('actions.edit')}
+            data-testid={`timespread-edit-${task.id}`}
+            onClick={() => onEdit(task)}
+            className="hidden rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground cursor-pointer group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
+          >
+            <Pencil className="h-4 w-4" aria-hidden />
+          </button>
           <ItemActionsMenu actions={shownActions} />
           <Checkbox
             className="scale-100 sm:scale-125 cursor-pointer transition-all"

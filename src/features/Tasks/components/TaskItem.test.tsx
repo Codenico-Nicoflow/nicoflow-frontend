@@ -53,6 +53,47 @@ describe('TaskItem', () => {
     await waitFor(() => expect(screen.getByTestId('task-checkbox-t3')).not.toBeChecked());
   });
 
+  it('opens the edit dialog when the card is clicked', async () => {
+    const onEdit = vi.fn();
+    const user = userEvent.setup();
+    const task = makeTask({ id: 't5' });
+    renderComponent(<TaskItem task={task} index={0} onEdit={onEdit} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('task-card-t5'));
+    expect(onEdit).toHaveBeenCalledWith(task);
+  });
+
+  it('opens the edit dialog when the card is activated with the keyboard', async () => {
+    const onEdit = vi.fn();
+    const user = userEvent.setup();
+    const task = makeTask({ id: 't6' });
+    renderComponent(<TaskItem task={task} index={0} onEdit={onEdit} onDelete={vi.fn()} />);
+
+    screen.getByTestId('task-card-t6').focus();
+    await user.keyboard('{Enter}');
+    expect(onEdit).toHaveBeenCalledWith(task);
+  });
+
+  it('does not open edit when the checkbox is clicked', async () => {
+    const onEdit = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(
+      <TaskItem task={makeTask({ id: 't7', status: 'active' })} index={0} onEdit={onEdit} onDelete={vi.fn()} />
+    );
+
+    await user.click(screen.getByTestId('task-checkbox-t7'));
+    expect(onEdit).not.toHaveBeenCalled();
+  });
+
+  it('does not open edit when the actions menu is opened', async () => {
+    const onEdit = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(<TaskItem task={makeTask({ id: 't8' })} index={0} onEdit={onEdit} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('item-actions-menu-trigger'));
+    expect(onEdit).not.toHaveBeenCalled();
+  });
+
   it('moves the task to someday from the three-dot menu', async () => {
     let patchedStatus: unknown;
     server.use(

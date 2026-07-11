@@ -43,9 +43,28 @@ const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) 
     }
   };
 
+  // The whole card is a shortcut to editing; the checkbox, actions menu, and drag
+  // handle stopPropagation so they keep their own behaviour.
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onEdit(task);
+    }
+  };
+
   return (
     <AnimatedListItem index={index}>
-      <ListItemCard variant="default" borderColor="primary">
+      <ListItemCard
+        variant="default"
+        borderColor="primary"
+        role="button"
+        tabIndex={0}
+        aria-label={t('actions.edit')}
+        data-testid={`task-card-${task.id}`}
+        onClick={() => onEdit(task)}
+        onKeyDown={handleCardKeyDown}
+        className="cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+      >
         <div className={cn('flex items-center gap-1.5 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
           {dragHandle}
           <div className="flex-1 w-full space-y-1 sm:space-y-2 min-w-0">
@@ -74,7 +93,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) 
             </div>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
             <ItemActionsMenu
               actions={[
                 { label: t('actions.edit'), icon: Edit, onClick: () => onEdit(task) },

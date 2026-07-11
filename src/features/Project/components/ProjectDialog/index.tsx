@@ -92,7 +92,7 @@ export const ProjectDialog = ({
     if (project) {
       form.reset({
         name: project.name,
-        areaId: project.areaId ?? undefined,
+        areaId: project.areaId,
         folderIcon: project.folderIcon as ProjectFormData['folderIcon'],
         status: project.status,
         isFavorite: project.isFavorite ?? false,

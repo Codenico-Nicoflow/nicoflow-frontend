@@ -33,7 +33,7 @@ export interface IArea {
 export interface IProject {
   id: string;
   name: string;
-  areaId: string | null;
+  areaId: string;
   status: 'active' | 'archived' | 'completed';
   folderIcon: string;
   dueDate?: string | null;

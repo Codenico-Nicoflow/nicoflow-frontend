@@ -126,7 +126,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="max-w-5xl mx-auto"
+        className="w-full"
       >
         <TasksHeader taskCount={tasks.length} onAddTask={handleAddTask} />
 

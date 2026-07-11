@@ -15,7 +15,7 @@ export interface ExpandableTextProps {
 
 const ExpandableText = ({
   children,
-  maxLength = 150,
+  maxLength = 280,
   className,
   buttonClassName,
   'data-testid': testId,
@@ -46,6 +46,7 @@ const ExpandableText = ({
           data-testid={testId ? `${testId}-button` : 'expandable-text-button'}
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn('text-xs text-primary hover:underline', buttonClassName)}
+          style={{ cursor: 'pointer' }}
         >
           {isExpanded ? t('actions.showLess') : t('actions.showMore')}
         </button>

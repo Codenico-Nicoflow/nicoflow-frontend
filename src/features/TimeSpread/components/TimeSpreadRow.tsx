@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { format } from 'date-fns';
-import { CalendarClock, CalendarX } from 'lucide-react';
+import { CalendarClock, CalendarX, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -80,7 +80,7 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
       data-testid={`timespread-card-${task.id}`}
       onClick={() => onEdit(task)}
       onKeyDown={handleKeyDown}
-      className="cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+      className="group cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
     >
       <div className={cn('flex items-center gap-2 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
         <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
@@ -96,6 +96,10 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+          <Pencil
+            className="hidden h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 sm:block"
+            aria-hidden
+          />
           <ItemActionsMenu actions={shownActions} />
           <Checkbox
             className="scale-100 sm:scale-125 cursor-pointer transition-all"

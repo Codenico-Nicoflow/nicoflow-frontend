@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { ENERGY_OPTIONS } from '@/components';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import type { TaskEnergy } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -14,37 +14,45 @@ interface FocusChipsProps {
   onEnergyChange: (energy: TaskEnergy | undefined) => void;
 }
 
+// Drives the /focus query: a segmented time-budget control + an energy dropdown.
+// "Any" (time) / "Any energy" (dropdown) map back to undefined = unspecified.
 const FocusChips = ({ available, onAvailableChange, energy, onEnergyChange }: FocusChipsProps) => {
   const { t } = useTranslation(['task', 'common']);
 
+  const activeEnergyOption = ENERGY_OPTIONS.find(option => option.value === energy);
+  const ActiveEnergyIcon = activeEnergyOption?.icon;
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <span className="whitespace-nowrap text-xs sm:text-sm text-muted-foreground">{t('focus.timeLabel')}</span>
-        <div
-          className="flex items-center gap-1 overflow-x-auto rounded-lg bg-muted p-1"
-          role="tablist"
-          aria-label={t('focus.timeLabel')}
-        >
-          {[{ id: 'any' as const, minutes: undefined }, ...TIME_CHIPS].map(({ id, minutes }) => {
-            const isActive = available === minutes;
-            return (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => onAvailableChange(minutes)}
-                data-testid={`focus-time-${id}`}
-                className={cn(
-                  'flex-shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm',
-                  isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {id === 'any' ? t('focus.timeAny') : t(`focus.time.${id}`)}
-              </button>
-            );
-          })}
+        {/* Segmented time control; scrolls with an edge fade on narrow screens. */}
+        <div className="relative min-w-0 [mask-image:linear-gradient(to_right,black,black_calc(100%-1.5rem),transparent)] sm:[mask-image:none]">
+          <div
+            className="flex items-center gap-1 overflow-x-auto rounded-lg bg-muted p-1"
+            role="tablist"
+            aria-label={t('focus.timeLabel')}
+          >
+            {[{ id: 'any' as const, minutes: undefined }, ...TIME_CHIPS].map(({ id, minutes }) => {
+              const isActive = available === minutes;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => onAvailableChange(minutes)}
+                  data-testid={`focus-time-${id}`}
+                  className={cn(
+                    'flex-shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm',
+                    isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {id === 'any' ? t('focus.timeAny') : t(`focus.time.${id}`)}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -53,11 +61,14 @@ const FocusChips = ({ available, onAvailableChange, energy, onEnergyChange }: Fo
         onValueChange={value => onEnergyChange(value === 'any' ? undefined : (value as TaskEnergy))}
       >
         <SelectTrigger
-          className="h-9 w-full sm:w-40 flex-shrink-0"
+          className="h-9 w-full flex-shrink-0 sm:w-40"
           data-testid="focus-energy"
           aria-label={t('focus.energyLabel')}
         >
-          <SelectValue />
+          <span className="flex items-center gap-2">
+            {ActiveEnergyIcon && <ActiveEnergyIcon className="h-3.5 w-3.5" aria-hidden />}
+            {activeEnergyOption ? t(activeEnergyOption.labelKey) : t('focus.energyAny')}
+          </span>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="any">{t('focus.energyAny')}</SelectItem>

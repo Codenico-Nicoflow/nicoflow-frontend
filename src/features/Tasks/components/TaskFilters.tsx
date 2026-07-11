@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { ENERGY_OPTIONS } from '@/components';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { TaskEnergy, TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -34,48 +34,61 @@ const TaskFilters = ({ activeFilter, onFilterChange, activeEnergy, onEnergyChang
     { value: TaskStatus.CANCELLED, labelKey: 'filters.cancelled', countKey: 'cancelled' },
   ] as const;
 
+  const activeEnergyOption = ENERGY_OPTIONS.find(option => option.value === activeEnergy);
+  const ActiveEnergyIcon = activeEnergyOption?.icon;
+
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div
-        className="flex items-center gap-1 overflow-x-auto rounded-lg bg-muted p-1"
-        role="tablist"
-        aria-label={t('filters.all')}
-      >
-        {statusFilters.map(filter => {
-          const isActive = activeFilter === filter.value;
-          const count = taskCounts[filter.countKey];
-          return (
-            <button
-              key={filter.value}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => onFilterChange(filter.value)}
-              data-testid={`task-filter-${filter.value}`}
-              className={cn(
-                'inline-flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm',
-                isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              {t(filter.labelKey)}
-              <span
-                className={cn('text-xs tabular-nums', isActive ? 'text-foreground/60' : 'text-muted-foreground/60')}
+      {/* Status: one quiet segmented control; scrolls (with an edge fade) on narrow screens. */}
+      <div className="relative min-w-0 [mask-image:linear-gradient(to_right,black,black_calc(100%-1.5rem),transparent)] sm:[mask-image:none]">
+        <div
+          className="flex items-center gap-1 overflow-x-auto rounded-lg bg-muted p-1"
+          role="tablist"
+          aria-label={t('filters.all')}
+        >
+          {statusFilters.map(filter => {
+            const isActive = activeFilter === filter.value;
+            const count = taskCounts[filter.countKey];
+            // Empty status filters are dimmed and unclickable so they don't lead to a dead view.
+            const isEmpty = count === 0 && !isActive;
+            return (
+              <button
+                key={filter.value}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                disabled={isEmpty}
+                onClick={() => onFilterChange(filter.value)}
+                data-testid={`task-filter-${filter.value}`}
+                className={cn(
+                  'inline-flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm',
+                  isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                  isEmpty && 'cursor-not-allowed opacity-40 hover:text-muted-foreground'
+                )}
               >
-                {count}
-              </span>
-            </button>
-          );
-        })}
+                {t(filter.labelKey)}
+                <span
+                  className={cn('text-xs tabular-nums', isActive ? 'text-foreground/60' : 'text-muted-foreground/60')}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Energy: a compact dropdown instead of a second full chip row. */}
       <Select value={activeEnergy} onValueChange={value => onEnergyChange(value as TaskEnergy | 'all')}>
         <SelectTrigger
-          className="h-9 w-full sm:w-40 flex-shrink-0"
+          className="h-9 w-full flex-shrink-0 sm:w-40"
           data-testid="task-energy-filter"
           aria-label={t('filters.energyLabel')}
         >
-          <SelectValue />
+          <span className="flex items-center gap-2">
+            {ActiveEnergyIcon && <ActiveEnergyIcon className="h-3.5 w-3.5" aria-hidden />}
+            {activeEnergyOption ? t(activeEnergyOption.labelKey) : t('filters.energyAll')}
+          </span>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">{t('filters.energyAll')}</SelectItem>

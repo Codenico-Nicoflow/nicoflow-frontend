@@ -50,10 +50,11 @@ describe('TasksSection', () => {
     renderComponent(<TasksSection projectId="p1" />);
 
     await waitFor(() => expect(screen.getByText('Active deep task')).toBeInTheDocument());
-    await user.click(screen.getByTestId('task-energy-filter-deep'));
+    await user.click(screen.getByTestId('task-energy-filter'));
+    await user.click(await screen.findByTestId('task-energy-filter-deep'));
 
+    await waitFor(() => expect(screen.queryByText('Buy milk')).not.toBeInTheDocument());
     expect(screen.getByText('Active deep task')).toBeInTheDocument();
-    expect(screen.queryByText('Buy milk')).not.toBeInTheDocument();
   });
 
   it('debounced search narrows the list and shows a clear button', async () => {

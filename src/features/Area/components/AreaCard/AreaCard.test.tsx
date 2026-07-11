@@ -61,7 +61,7 @@ describe('AreaCard', () => {
   it('shows the empty hint when the area has no projects', () => {
     renderComponent(<AreaCard area={{ ...areaWithProjects, projects: [] }} />);
 
-    expect(screen.getByText('No projects yet — add one below.')).toBeInTheDocument();
+    expect(screen.getByText('No projects yet. Add one below.')).toBeInTheDocument();
   });
 
   it('keeps the Delete action enabled for any area', async () => {

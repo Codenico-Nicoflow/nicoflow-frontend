@@ -55,7 +55,7 @@ const AreasBoard = () => {
   return (
     <DragAndDropContext>
       <div className="p-6">
-        <header className="mb-6 flex items-center justify-between gap-4">
+        <header className="mb-6 flex items-center justify-between gap-4 sm:flex-row flex-col">
           <div>
             <h1 className="text-2xl font-bold text-foreground">{t('board.yourAreas')}</h1>
             <p className="text-sm text-muted-foreground">

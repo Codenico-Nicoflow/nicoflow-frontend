@@ -63,7 +63,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) 
         data-testid={`task-card-${task.id}`}
         onClick={() => onEdit(task)}
         onKeyDown={handleCardKeyDown}
-        className="cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+        className="group cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
       >
         <div className={cn('flex items-center gap-1.5 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
           {dragHandle}
@@ -94,6 +94,16 @@ const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) 
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+            {/* Hover/focus edit shortcut — signals the whole card opens the editor. */}
+            <button
+              type="button"
+              aria-label={t('actions.edit')}
+              data-testid={`task-edit-${task.id}`}
+              onClick={() => onEdit(task)}
+              className="hidden rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground cursor-pointer group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
+            >
+              <Edit className="h-4 w-4" aria-hidden />
+            </button>
             <ItemActionsMenu
               actions={[
                 { label: t('actions.edit'), icon: Edit, onClick: () => onEdit(task) },

@@ -1,12 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
-import { TasksLoadingState } from '@/features/Tasks';
+import { TaskDialog, TasksLoadingState } from '@/features/Tasks';
 import { useGetTimeSpreadQuery } from '@/lib/store';
+import type { ITask } from '@/lib/types';
 import { ActiveTab } from '@/lib/types/interfaces';
 
 import TimeSpreadList from './components/TimeSpreadList';
@@ -20,6 +21,14 @@ interface TimeSpreadViewProps {
 const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
   const { t } = useTranslation('task');
   const { data, isLoading } = useGetTimeSpreadQuery();
+
+  const [editTask, setEditTask] = useState<ITask | undefined>(undefined);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleEdit = (task: ITask) => {
+    setEditTask(task);
+    setIsDialogOpen(true);
+  };
 
   const flat =
     activeTab === ActiveTab.TODAY ? data?.today : activeTab === ActiveTab.TOMORROW ? data?.tomorrow : undefined;
@@ -48,19 +57,19 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             {format(group.date, 'EEEE, MMM d')}
           </h2>
-          <TimeSpreadList tasks={group.tasks} activeTab={activeTab} />
+          <TimeSpreadList tasks={group.tasks} activeTab={activeTab} onEdit={handleEdit} />
         </section>
       ))}
     </div>
   ) : (
     <div data-testid="timespread-list">
-      <TimeSpreadList tasks={flat ?? []} activeTab={activeTab} />
+      <TimeSpreadList tasks={flat ?? []} activeTab={activeTab} onEdit={handleEdit} />
     </div>
   );
 
   return (
     <div className="p-4 sm:p-6">
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="space-y-6">
         <div className="space-y-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('timeSpread.title')}</h1>
@@ -71,6 +80,13 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
 
         {content}
       </div>
+
+      <TaskDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        task={editTask}
+        projectId={editTask?.projectId ?? ''}
+      />
     </div>
   );
 };

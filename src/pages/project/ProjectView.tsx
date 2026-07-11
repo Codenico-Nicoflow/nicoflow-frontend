@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { motion } from 'framer-motion';
-import { FolderX } from 'lucide-react';
+import { FileText, FolderX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -56,14 +56,19 @@ const ProjectView = () => {
         className="p-6 space-y-6"
       >
         {project.description && (
-          <section data-testid="project-description">
-            <h2 className="text-sm font-semibold text-foreground mb-2">{t('view.description')}</h2>
+          <section
+            data-testid="project-description"
+            className="rounded-lg border border-border bg-background/80 backdrop-blur-sm p-4 sm:p-5"
+          >
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+              <FileText className="h-4 w-4 text-muted-foreground" aria-hidden />
+              {t('view.description')}
+            </h2>
             <ExpandableText>{project.description}</ExpandableText>
           </section>
         )}
 
         <section>
-          <h2 className="text-sm font-semibold text-foreground mb-2">{t('view.tasks')}</h2>
           <TasksSection projectId={project.id} />
         </section>
       </motion.div>

@@ -20,7 +20,7 @@
     "emptyDescription": "תחומים מקבצים פרויקטים קשורים. הוסיפו אחד כדי להתחיל.",
     "newArea": "תחום חדש",
     "newProject": "פרויקט חדש",
-    "planLimitTooltip": "הגעתם למגבלת התוכנית החינמית — שדרגו להוסיף עוד.",
+    "planLimitTooltip": "הגעתם למגבלת התוכנית החינמית. שדרגו כדי להוסיף עוד.",
     "projectCount_one": "פרויקט {{count}}",
     "projectCount_two": "{{count}} פרויקטים",
     "projectCount_other": "{{count}} פרויקטים",
@@ -29,7 +29,7 @@
     "areaCount_other": "{{count}} תחומים"
   },
   "card": {
-    "noProjects": "אין פרויקטים עדיין — הוסיפו אחד למטה.",
+    "noProjects": "אין עדיין פרויקטים. הוסיפו אחד למטה.",
     "addProject": "הוספת פרויקט",
     "dragHandle": "גרור כדי לסדר מחדש את התחום",
     "actionsMenu": "פעולות תחום",

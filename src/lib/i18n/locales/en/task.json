@@ -15,7 +15,7 @@
     "descriptionPlaceholder": "Add task details...",
     "schedulingTitle": "Scheduling",
     "rollsOverLabel": "Roll over",
-    "rollsOverDescription": "If the scheduled day passes, it carries forward to Today. Off: it quietly drops off your lists."
+    "rollsOverDescription": "If the scheduled day passes, the task moves to Today. When off, it drops off your lists."
   },
   "subtasks": {
     "title": "Subtasks",
@@ -55,7 +55,9 @@
     "active": "Active",
     "someday": "Someday",
     "done": "Done",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "energyAll": "All energy",
+    "energyLabel": "Filter by energy"
   },
   "header": {
     "title": "Tasks",
@@ -66,7 +68,7 @@
   },
   "empty": {
     "title": "No tasks yet",
-    "description": "Start organizing your work by creating your first task. Break down your project into manageable pieces.",
+    "description": "Create your first task to get started.",
     "createFirstTask": "Create Your First Task"
   },
   "search": {
@@ -103,19 +105,20 @@
     "handle": "Drag to reorder"
   },
   "quickAdd": {
-    "placeholder": "Add a task — press Enter",
+    "placeholder": "Add a task, press Enter",
     "label": "Quick add task",
-    "planLimit": "This project is at its live-task limit — but parking tasks in Someday or finishing them is free, only live tasks count. Upgrade to Pro for unlimited.",
+    "planLimit": "This project is at its live-task limit. Someday and completed tasks are free, only live tasks count. Upgrade to Pro for unlimited.",
     "fabTask": "Quick Add Task",
-    "fabTaskDescription": "Capture a task into this project — just a title, sane defaults.",
+    "fabTaskDescription": "Add a task to this project with a title and default settings.",
     "fabBucket": "Quick Add to Bucket",
     "fabBucketDescription": "Capture your thoughts quickly from anywhere.",
     "fabBucketPlaceholder": "What's on your mind?"
   },
   "focus": {
     "title": "Focus",
-    "subtitle": "How much time do you have? I'll rank your best next moves.",
+    "subtitle": "How much time do you have? Get your best next tasks ranked.",
     "timeLabel": "I have",
+    "timeAny": "Any",
     "time": {
       "m15": "15m",
       "m30": "30m",
@@ -123,9 +126,10 @@
       "h2plus": "2h+"
     },
     "energyLabel": "Energy",
+    "energyAny": "Any energy",
     "pickTime": {
       "title": "How much time do you have?",
-      "description": "Pick a window above and I'll rank the tasks that fit it best — most pressing first."
+      "description": "Pick a window above to see the tasks that fit, most pressing first."
     },
     "start": "Start",
     "switch": "Switch",
@@ -133,16 +137,16 @@
     "upNext": "Up next",
     "done": "Done",
     "notNow": "Not now",
-    "completed": "Nice — one done. Here's your next move.",
+    "completed": "Task completed. On to the next one.",
     "empty": {
-      "title": "Nothing fits that window — and that's fine.",
-      "description": "No live task fits this much time right now. Give yourself more room, or take the free minutes as a win.",
+      "title": "Nothing fits that window.",
+      "description": "No live task fits this much time right now. Try a longer window.",
       "changeTime": "Change time"
     }
   },
   "timeSpread": {
     "title": "Time Spread",
-    "subtitle": "Your day and week at a glance — carried-over tasks included, no guilt.",
+    "subtitle": "Your day and week at a glance, carried-over tasks included.",
     "tabsLabel": "Time spread views",
     "loading": "Loading your day…",
     "actions": {
@@ -152,15 +156,15 @@
     },
     "today": {
       "title": "Today",
-      "subtitle": "What you've lined up for today — carried-over tasks included, no guilt.",
+      "subtitle": "What you've lined up for today, carried-over tasks included.",
       "emptyTitle": "Nothing scheduled for today.",
-      "emptyDescription": "Pull something in from a project, or enjoy an open day."
+      "emptyDescription": "Schedule a task from a project to see it here."
     },
     "tomorrow": {
       "title": "Tomorrow",
-      "subtitle": "A calm look at what's coming up next.",
+      "subtitle": "What's coming up next.",
       "emptyTitle": "Tomorrow is clear.",
-      "emptyDescription": "Nothing scheduled yet — plan ahead when you're ready."
+      "emptyDescription": "Nothing scheduled yet."
     },
     "week": {
       "title": "Next 7 Days",

@@ -12,6 +12,7 @@ import FocusChips from './components/FocusChips';
 import FocusNowCard from './components/FocusNowCard';
 import FocusTaskRow from './components/FocusTaskRow';
 import FocusEmptyState from './states/FocusEmptyState';
+import FocusLoadingState from './states/FocusLoadingState';
 import { FOCUS_LIMIT } from './data';
 import { useFocusChips } from './useFocusChips';
 import { useFocusSession } from './useFocusSession';
@@ -26,11 +27,12 @@ const FocusView = () => {
   const debouncedAvailable = useDebouncedValue(available, 300);
   const debouncedEnergy = useDebouncedValue(energy, 300);
 
-  // Focus is a decision tool: we only rank once the user has told us their time.
   const { data: tasks = [], isFetching } = useGetFocusQuery(
     { available: debouncedAvailable, energy: debouncedEnergy, limit: FOCUS_LIMIT },
-    { skip: !hasTimeBudget }
+    { skip: debouncedAvailable === undefined }
   );
+
+  const isRanking = isFetching || (hasTimeBudget && debouncedAvailable !== available);
 
   const session = useFocusSession(tasks);
 
@@ -94,15 +96,17 @@ const FocusView = () => {
               </div>
             )}
           </div>
+        ) : isRanking ? (
+          <FocusLoadingState count={FOCUS_LIMIT} />
         ) : tasks.length > 0 ? (
           // Ranked shortlist, pre-session: pick one to Start.
-          <div className="space-y-3 sm:space-y-4" data-testid="focus-list" aria-busy={isFetching}>
+          <div className="space-y-3 sm:space-y-4" data-testid="focus-list">
             {tasks.map((task, index) => (
               <FocusTaskRow key={task.id} task={task} index={index} onStart={session.start} />
             ))}
           </div>
         ) : (
-          !isFetching && <FocusEmptyState onClearChips={clear} />
+          <FocusEmptyState onClearChips={clear} />
         )}
       </motion.div>
     </div>

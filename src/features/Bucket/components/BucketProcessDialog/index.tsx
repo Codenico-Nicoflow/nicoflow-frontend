@@ -34,7 +34,7 @@ interface BucketProcessDialogProps {
 
 export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProcessDialogProps) => {
   const { t } = useTranslation(['bucket', 'task']);
-  const { data: projectsData } = useGetProjectsQuery();
+  const { data: projectsData, isLoading: isLoadingProjects } = useGetProjectsQuery();
   const projects = projectsData?.items ?? [];
   const [processBucket, { isLoading }] = useProcessBucketMutation();
   const dispatch = useDispatch();
@@ -127,6 +127,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
                   selectedProjectId={selectedProjectId}
                   setSelectedProjectId={setSelectedProjectId}
                   projects={projects}
+                  isLoading={isLoadingProjects}
                 />
 
                 <NameField

@@ -45,7 +45,8 @@
   },
   "projectSelector": {
     "label": "Project *",
-    "placeholder": "Select a project"
+    "placeholder": "Select a project",
+    "loading": "Loading projects…"
   },
   "list": {
     "emptyTitle": "Your bucket is empty",

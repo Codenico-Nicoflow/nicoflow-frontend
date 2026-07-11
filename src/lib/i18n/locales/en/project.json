@@ -29,7 +29,8 @@
   },
   "areaField": {
     "label": "Area",
-    "placeholder": "Choose an area for your project"
+    "placeholder": "Choose an area for your project",
+    "loading": "Loading areas…"
   },
   "delete": {
     "title": "Delete Project",

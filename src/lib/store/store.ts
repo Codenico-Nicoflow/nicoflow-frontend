@@ -8,11 +8,13 @@ import { authApi } from './slices/auth/authApi';
 import authReducer from './slices/auth/authSlice';
 import { bucketApi } from './slices/bucket/bucketApi';
 import { projectApi } from './slices/project/projectApi';
+import rateLimitReducer from './slices/rateLimit/rateLimitSlice';
 import { subtaskApi } from './slices/subtasks/subtaskApi';
 import { taskApi } from './slices/tasks/taskApi';
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  rateLimit: rateLimitReducer,
   [authApi.reducerPath]: authApi.reducer,
   [projectApi.reducerPath]: projectApi.reducer,
   [areaApi.reducerPath]: areaApi.reducer,

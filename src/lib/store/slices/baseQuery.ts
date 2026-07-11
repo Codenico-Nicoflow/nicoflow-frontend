@@ -7,12 +7,15 @@ import type {
 } from '@reduxjs/toolkit/query';
 import { fetchBaseQuery } from '@reduxjs/toolkit/query';
 import { Mutex } from 'async-mutex';
+import { toast } from 'sonner';
 
+import i18n from '@/lib/i18n';
 import { AUTH_API } from '@/lib/types';
 
 import type { RootState } from '../store';
 
 import { clearAuth, setToken } from './auth/authSlice';
+import { setRateLimited } from './rateLimit/rateLimitSlice';
 
 // Single global mutex coordinating EVERY refresh-token call in the app — both
 // the on-load refresh in SessionRestorer and the on-401 refresh in baseQuery go
@@ -32,6 +35,31 @@ const rawBaseQuery = fetchBaseQuery({
     return headers;
   },
 });
+
+// Default seconds to wait if the server didn't send Retry-After (or the browser
+// can't read it — e.g. CORS not exposing it on some proxy).
+const DEFAULT_RETRY_AFTER_SECONDS = 30;
+
+const RATE_LIMIT_TOAST_ID = 'rate-limited';
+
+// parseRetryAfter reads the Retry-After header (delta-seconds) and returns the
+// retry epoch in ms, falling back to a sane default when it's absent/unreadable.
+const parseRetryAfter = (meta: FetchBaseQueryMeta | undefined): number => {
+  const header = meta?.response?.headers.get('Retry-After');
+  const seconds = header ? Number(header) : NaN;
+  const wait = Number.isFinite(seconds) && seconds > 0 ? seconds : DEFAULT_RETRY_AFTER_SECONDS;
+  return Date.now() + wait * 1000;
+};
+
+// handleRateLimit centralises the 429 response: it records the retry time in the
+// store (drives the global banner) and shows a single throttled toast so a burst
+// of 429s never stacks. Runs for EVERY request via baseQueryWithReauth.
+const handleRateLimit = (api: Pick<BaseQueryApi, 'dispatch'>, meta: FetchBaseQueryMeta | undefined): void => {
+  const retryAt = parseRetryAfter(meta);
+  api.dispatch(setRateLimited(retryAt));
+  const seconds = Math.max(1, Math.ceil((retryAt - Date.now()) / 1000));
+  toast.error(i18n.t('common:rateLimit.toast', { seconds }), { id: RATE_LIMIT_TOAST_ID });
+};
 
 export type RefreshOutcome = 'refreshed' | 'failed';
 
@@ -94,6 +122,12 @@ export const refreshSession = async (
     const refreshResult = await rawBaseQuery({ url: AUTH_API.REFRESH_TOKEN, method: 'POST' }, api as BaseQueryApi, {});
 
     if (refreshResult.error) {
+      // A rate-limited refresh is transient: keep the session and surface the
+      // limit so a reload-storm doesn't look like a broken app or log the user out.
+      if (refreshResult.error.status === 429) {
+        handleRateLimit(api, refreshResult.meta);
+        return 'failed';
+      }
       // Only nuke the session on a definitive auth failure. A transient error
       // (network/5xx) keeps the persisted session so a reload during a backend
       // blip doesn't log the user out.
@@ -144,6 +178,11 @@ export const baseQueryWithReauth: BaseQueryFn<
 
   let result = await rawBaseQuery(args, api, extraOptions);
 
+  if (result.error?.status === 429) {
+    handleRateLimit(api, result.meta);
+    return result;
+  }
+
   if (result.error?.status === 401) {
     const outcome = await refreshSession(api);
     if (outcome === 'failed') {
@@ -157,6 +196,9 @@ export const baseQueryWithReauth: BaseQueryFn<
       return result;
     }
     result = await rawBaseQuery(args, api, extraOptions);
+    if (result.error?.status === 429) {
+      handleRateLimit(api, result.meta);
+    }
   }
 
   return result;

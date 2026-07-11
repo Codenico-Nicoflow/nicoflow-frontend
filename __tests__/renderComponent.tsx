@@ -11,10 +11,13 @@ import i18n from '@/lib/i18n';
 import { areaApi, authApi, bucketApi, projectApi, subtaskApi, taskApi } from '@/lib/store';
 import type { AuthState } from '@/lib/store/slices/auth/authSlice';
 import authReducer from '@/lib/store/slices/auth/authSlice';
+import type { RateLimitState } from '@/lib/store/slices/rateLimit/rateLimitSlice';
+import rateLimitReducer from '@/lib/store/slices/rateLimit/rateLimitSlice';
 
 const createRootReducer = () =>
   combineReducers({
     auth: authReducer,
+    rateLimit: rateLimitReducer,
     [authApi.reducerPath]: authApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
     [areaApi.reducerPath]: areaApi.reducer,
@@ -26,7 +29,10 @@ const createRootReducer = () =>
 type RootReducer = ReturnType<typeof createRootReducer>;
 type MockRootState = ReturnType<RootReducer>;
 
-export const createMockStore = (preloadedState?: { auth?: Partial<AuthState> }) => {
+export const createMockStore = (preloadedState?: {
+  auth?: Partial<AuthState>;
+  rateLimit?: Partial<RateLimitState>;
+}) => {
   const rootReducer = createRootReducer();
 
   return configureStore({

@@ -83,6 +83,10 @@
     "description": "Upgrade to Pro for unlimited areas, projects, AI and more.",
     "cta": "Upgrade to Pro"
   },
+  "rateLimit": {
+    "toast": "Too many requests — please wait {{seconds}}s and try again.",
+    "banner": "You're doing that too fast. Retrying in {{seconds}}s…"
+  },
   "pages": {
     "error404": {
       "code": "404",

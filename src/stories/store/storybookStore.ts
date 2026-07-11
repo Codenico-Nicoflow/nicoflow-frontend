@@ -1,9 +1,19 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
-import { areaApi, authApi, authReducer, bucketApi, projectApi, subtaskApi, taskApi } from '@/lib/store/slices';
+import {
+  areaApi,
+  authApi,
+  authReducer,
+  bucketApi,
+  projectApi,
+  rateLimitReducer,
+  subtaskApi,
+  taskApi,
+} from '@/lib/store/slices';
 
 const storyRootReducer = combineReducers({
   auth: authReducer,
+  rateLimit: rateLimitReducer,
   [authApi.reducerPath]: authApi.reducer,
   [projectApi.reducerPath]: projectApi.reducer,
   [areaApi.reducerPath]: areaApi.reducer,

@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { LoadingOverlayProvider, ThemeProvider, Toaster } from '@/components';
+import { LoadingOverlayProvider, RateLimitBanner, ThemeProvider, Toaster } from '@/components';
 import i18n from '@/lib/i18n';
 import { persistor, store } from '@/lib/store';
 
@@ -30,6 +30,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
               <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="nicoflow-theme">
                 <LoadingOverlayProvider>
                   <PreferencesSync />
+                  <RateLimitBanner />
                   {children}
                   <Toaster />
                 </LoadingOverlayProvider>

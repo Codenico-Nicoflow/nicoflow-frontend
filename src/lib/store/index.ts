@@ -115,3 +115,7 @@ export type {
   TaskDetails,
   UpdateBucketDto,
 } from './slices/bucket/type';
+
+// Rate-limit exports
+export type { RateLimitState } from './slices/rateLimit/rateLimitSlice';
+export { clearRateLimit, selectRateLimitRetryAt, setRateLimited } from './slices/rateLimit/rateLimitSlice';

@@ -15,7 +15,7 @@
     "descriptionPlaceholder": "Add task details...",
     "schedulingTitle": "Scheduling",
     "rollsOverLabel": "Roll over",
-    "rollsOverDescription": "If the scheduled day passes, carry it forward instead of marking it overdue."
+    "rollsOverDescription": "If the scheduled day passes, it carries forward to Today. Off: it quietly drops off your lists."
   },
   "subtasks": {
     "title": "Subtasks",

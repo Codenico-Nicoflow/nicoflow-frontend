@@ -10,7 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
-import { cn } from '@/lib/utils';
+import { cn, isDateInPast } from '@/lib/utils';
 
 interface ScheduledForFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -76,6 +76,7 @@ export const ScheduledForField = <T extends FieldValues>({
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
+                      disabled={date => isDateInPast(date)}
                       data-testid={`${base}-calendar`}
                       mode="single"
                       selected={selectedDate}

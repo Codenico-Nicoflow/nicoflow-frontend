@@ -51,5 +51,27 @@
   "list": {
     "emptyTitle": "Your bucket is empty",
     "emptyDescription": "Capture anything on your mind using the quick input above. Process it later into tasks, notes, or ideas."
+  },
+  "page": {
+    "heading": "Inbox",
+    "subtitle_one": "{{count}} thought waiting to be processed",
+    "subtitle_other": "{{count}} thoughts waiting to be processed",
+    "subtitleClear": "Inbox zero — nothing left to process",
+    "tabs": {
+      "inbox": "Inbox",
+      "archived": "Archived"
+    },
+    "captureHeading": "Capture",
+    "captureHint": "Get it out of your head. Sort it later.",
+    "archived": {
+      "emptyTitle": "Nothing archived yet",
+      "emptyDescription": "Items you process from your inbox land here — as tasks, notes, or trash."
+    },
+    "result": {
+      "task": "Task",
+      "note": "Note",
+      "trash": "Trash"
+    },
+    "processedTimestamp": "Processed"
   }
 }

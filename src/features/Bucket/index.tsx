@@ -1,5 +1,6 @@
 // Components
 export {
+  ArchivedBucketItem,
   BucketDeleteDialog,
   BucketEditDialog,
   BucketItem,

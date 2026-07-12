@@ -1,13 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
 
-import Bucket from './Bucket';
 import NextSevenDays from './NextSevenDays';
 import Today from './Today';
 import Tomorrow from './Tomorrow';
 
-// The quick-access destinations are PageStubs today (real time-spread views
-// land in Phase 2 of the roadmap). Grouped here so the routes are visible.
+// The time-spread destinations are PageStubs today (real Today/Tomorrow/Next-7
+// views land later in Phase 2). Bucket is built — see Bucket.stories.tsx.
 const meta: Meta = {
   title: 'Pages/QuickAccess',
   tags: ['autodocs'],
@@ -16,13 +15,6 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
-
-export const BucketView: Story = {
-  render: () => <Bucket />,
-  play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByText('Bucket')).toBeInTheDocument();
-  },
-};
 
 export const TodayView: Story = {
   render: () => <Today />,

@@ -1,3 +1,4 @@
+export { ArchivedBucketItem } from './ArchivedBucketItem';
 export { BucketDeleteDialog } from './BucketDeleteDialog';
 export { BucketEditDialog } from './BucketEditDialog';
 export { BucketItem } from './BucketItem';

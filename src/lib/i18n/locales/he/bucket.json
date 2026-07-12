@@ -51,5 +51,28 @@
   "list": {
     "emptyTitle": "הסל שלכם ריק",
     "emptyDescription": "לכדו כל מחשבה בשדה הקלט למעלה. עבדו אותה מאוחר יותר למשימות, הערות או רעיונות."
+  },
+  "page": {
+    "heading": "תיבת נכנס",
+    "subtitle_one": "מחשבה אחת ממתינה לעיבוד",
+    "subtitle_two": "{{count}} מחשבות ממתינות לעיבוד",
+    "subtitle_other": "{{count}} מחשבות ממתינות לעיבוד",
+    "subtitleClear": "התיבה ריקה — אין מה לעבד",
+    "tabs": {
+      "inbox": "נכנס",
+      "archived": "בארכיון"
+    },
+    "captureHeading": "לכידה",
+    "captureHint": "הוציאו את זה מהראש. תמיינו אחר כך.",
+    "archived": {
+      "emptyTitle": "אין עדיין פריטים בארכיון",
+      "emptyDescription": "פריטים שתעבדו מהתיבה יופיעו כאן — כמשימות, הערות או אשפה."
+    },
+    "result": {
+      "task": "משימה",
+      "note": "הערה",
+      "trash": "אשפה"
+    },
+    "processedTimestamp": "עובד"
   }
 }

@@ -4,7 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { makeTask } from '@/mocks/handlers';
+import { makeBucket, makeTask } from '@/mocks/handlers';
 
 import { Rail } from './index';
 
@@ -44,5 +44,51 @@ describe('Rail', () => {
 
     await waitFor(() => expect(screen.getByTestId('rail-today')).toBeInTheDocument());
     expect(screen.queryByTestId('rail-today-badge')).not.toBeInTheDocument();
+  });
+
+  it('shows the count of unprocessed captures as a badge on the Inbox item', async () => {
+    server.use(
+      http.get(`${API}/bucket`, () =>
+        HttpResponse.json(
+          env({
+            items: [
+              makeBucket({ id: 'u1' }),
+              makeBucket({ id: 'u2' }),
+              // a processed item must not be counted
+              makeBucket({ id: 'p1', processedAt: '2026-07-12T09:00:00Z', processingResult: 'task' }),
+            ],
+          })
+        )
+      )
+    );
+
+    renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+    await waitFor(() => expect(screen.getByTestId('rail-inbox-badge')).toHaveTextContent('2'));
+  });
+
+  it('hides the Inbox badge when there are no unprocessed captures', async () => {
+    server.use(
+      http.get(`${API}/bucket`, () =>
+        HttpResponse.json(env({ items: [makeBucket({ id: 'p1', processedAt: '2026-07-12T09:00:00Z' })] }))
+      )
+    );
+
+    renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+    await waitFor(() => expect(screen.getByTestId('rail-inbox')).toBeInTheDocument());
+    expect(screen.queryByTestId('rail-inbox-badge')).not.toBeInTheDocument();
+  });
+
+  it('caps the Inbox badge at 9+', async () => {
+    server.use(
+      http.get(`${API}/bucket`, () =>
+        HttpResponse.json(env({ items: Array.from({ length: 12 }, (_, i) => makeBucket({ id: `u${i}` })) }))
+      )
+    );
+
+    renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+    await waitFor(() => expect(screen.getByTestId('rail-inbox-badge')).toHaveTextContent('9+'));
   });
 });

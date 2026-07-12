@@ -52,7 +52,9 @@ const processed = [
 export const Filled: Story = {
   parameters: {
     msw: {
-      handlers: [http.get(URL, () => HttpResponse.json({ data: [...unprocessed, ...processed], error: null }))],
+      handlers: [
+        http.get(URL, () => HttpResponse.json({ data: { items: [...unprocessed, ...processed] }, error: null })),
+      ],
     },
   },
   play: async ({ canvasElement }) => {
@@ -64,13 +66,13 @@ export const Filled: Story = {
 
 export const InboxZero: Story = {
   parameters: {
-    msw: { handlers: [http.get(URL, () => HttpResponse.json({ data: processed, error: null }))] },
+    msw: { handlers: [http.get(URL, () => HttpResponse.json({ data: { items: processed }, error: null }))] },
   },
 };
 
 export const Empty: Story = {
   parameters: {
-    msw: { handlers: [http.get(URL, () => HttpResponse.json({ data: [], error: null }))] },
+    msw: { handlers: [http.get(URL, () => HttpResponse.json({ data: { items: [] }, error: null }))] },
   },
 };
 

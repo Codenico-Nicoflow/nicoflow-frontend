@@ -23,4 +23,5 @@ export interface ProcessBucketDto {
 }
 
 export type BucketResponse = IBucket;
-export type BucketsResponse = IBucket[];
+// The list endpoint wraps items like the other list endpoints: { data: { items: [...] } }.
+export type BucketsResponse = { items: IBucket[] };

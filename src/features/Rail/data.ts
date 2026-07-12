@@ -18,6 +18,8 @@ export interface NavDestination {
 
 // Primary destinations, shared by the desktop Rail and the mobile BottomNav.
 export const NAV_DESTINATIONS: NavDestination[] = [
+  // Inbox first — capture is the entry point of the GTD flow.
+  { id: 'inbox', labelKey: 'inbox', icon: Inbox, to: '/quick-access/bucket', match: ['/quick-access/bucket'] },
   {
     id: 'today',
     labelKey: 'timeSpread',
@@ -26,7 +28,6 @@ export const NAV_DESTINATIONS: NavDestination[] = [
     match: ['/quick-access/today', '/quick-access/tomorrow', '/quick-access/next-7-days'],
   },
   { id: 'focus', labelKey: 'focus', icon: Target, to: '/quick-access/focus', match: ['/quick-access/focus'] },
-  { id: 'inbox', labelKey: 'inbox', icon: Inbox, to: '/quick-access/bucket', match: ['/quick-access/bucket'] },
   { id: 'areas', labelKey: 'areas', icon: LayoutGrid, to: '/areas', match: ['/areas', '/projects'] },
 ];
 

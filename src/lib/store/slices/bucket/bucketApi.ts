@@ -21,7 +21,7 @@ export const bucketApi = createApi({
       transformErrorResponse: error => error.data,
       providesTags: result =>
         result
-          ? [...result.map(({ id }) => ({ type: 'Bucket' as const, id })), { type: 'Bucket', id: 'LIST' }]
+          ? [...result.items.map(({ id }) => ({ type: 'Bucket' as const, id })), { type: 'Bucket', id: 'LIST' }]
           : [{ type: 'Bucket', id: 'LIST' }],
     }),
     getBucket: builder.query<BucketResponse, string>({

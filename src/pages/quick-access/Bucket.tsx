@@ -27,7 +27,7 @@ const Bucket = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { inbox, archived } = useMemo(() => {
-    const items = buckets ?? [];
+    const items = buckets?.items ?? [];
     return {
       inbox: items.filter(b => !b.processedAt),
       archived: [...items]

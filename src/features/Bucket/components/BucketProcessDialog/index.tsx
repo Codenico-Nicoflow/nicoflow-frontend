@@ -5,7 +5,6 @@ import { AlertCircle, CheckSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
-import { toast } from 'sonner';
 
 import {
   DescriptionField,
@@ -20,7 +19,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
 import { Form } from '@/components/ui/form.tsx';
 import { invalidateApiTags, taskApi, useGetProjectsQuery, useProcessBucketMutation } from '@/lib/store';
 import { BUCKET_PROCESSING_OPTIONS, type IBucket, ProcessingResult } from '@/lib/types';
-import { showErrorToast, showSuccessToast, type TaskFormData, taskSchema, ToastMessages } from '@/lib/utils';
+import { type TaskFormData, taskSchema } from '@/lib/utils';
 
 import { canProcessBucket, getDefaultTaskFormValues, handleBucketProcess } from '../../utils';
 import { BucketProcessList } from '../BucketProcessList';
@@ -60,6 +59,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
 
   const onSubmit = async (data: TaskFormData) => {
     if (!bucket) return;
+    // handleBucketProcess owns the success/error toasts — don't toast again here.
     try {
       await handleBucketProcess({
         bucketId: bucket.id,
@@ -70,13 +70,11 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
         onSuccess: () => {
           onOpenChange(false);
           form.reset();
+          invalidateApiTags(dispatch, taskApi, ['Task']);
         },
       });
-      showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
-      form.reset();
-      invalidateApiTags(dispatch, taskApi, ['Task']);
-    } catch (error) {
-      showErrorToast(error, toast);
+    } catch {
+      // error already surfaced by handleBucketProcess
     }
   };
 

@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useGetTimeSpreadQuery } from '@/lib/store';
+import { useGetBucketsQuery, useGetTimeSpreadQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
 import { isActive, NAV_DESTINATIONS, type NavDestination, SETTINGS_DESTINATION } from './data';
@@ -49,16 +49,21 @@ export const Rail = () => {
   const { data: timeSpread } = useGetTimeSpreadQuery();
   const todayCount = timeSpread?.today.length ?? 0;
 
+  // The Inbox rail item carries a count of unprocessed captures.
+  const { data: buckets } = useGetBucketsQuery();
+  const inboxCount = buckets?.items.filter(b => !b.processedAt).length ?? 0;
+
+  const badgeFor = (id: string) => {
+    if (id === 'today') return todayCount;
+    if (id === 'inbox') return inboxCount;
+    return undefined;
+  };
+
   return (
     <TooltipProvider delayDuration={300}>
       <aside className="flex w-14 shrink-0 flex-col items-center gap-1 border-e border-border/60 bg-background py-3">
         {NAV_DESTINATIONS.map(dest => (
-          <RailItem
-            key={dest.to}
-            dest={dest}
-            active={isActive(pathname, dest)}
-            badge={dest.id === 'today' ? todayCount : undefined}
-          />
+          <RailItem key={dest.to} dest={dest} active={isActive(pathname, dest)} badge={badgeFor(dest.id)} />
         ))}
         <div className="mt-auto">
           <RailItem dest={SETTINGS_DESTINATION} active={isActive(pathname, SETTINGS_DESTINATION)} />

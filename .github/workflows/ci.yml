@@ -49,7 +49,8 @@ jobs:
         # browser, so the unit-test job needs Chromium installed just like test-e2e does.
         run: npx playwright install chromium --with-deps
       - name: Run tests
-        run: pnpm test
+        # --coverage enforces the per-glob thresholds in vite.config.ts (E-018 gate).
+        run: pnpm test:coverage
       - uses: actions/upload-artifact@v4
         if: always()
         with:

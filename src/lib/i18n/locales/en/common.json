@@ -78,6 +78,15 @@
     "minutes": "minutes",
     "urlLabel": "URL"
   },
+  "search": {
+    "placeholder": "Search tasks, projects, areas…",
+    "groupRecent": "Recent",
+    "groupTasks": "Tasks",
+    "groupProjects": "Projects",
+    "groupAreas": "Areas",
+    "empty": "No results found.",
+    "loading": "Searching…"
+  },
   "loading": "Loading…",
   "comingSoon": "Coming soon",
   "planLimit": {

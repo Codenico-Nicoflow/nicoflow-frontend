@@ -17,7 +17,7 @@ export {
   TaskStatus,
   USER_STATUS,
 } from './constants';
-export { AREA_API, AUTH_API, BUCKET_API, PROJECT_API, SUBTASK_API, TASKS_API } from './endpoints';
+export { AREA_API, AUTH_API, BUCKET_API, PROJECT_API, SEARCH_API, SUBTASK_API, TASKS_API } from './endpoints';
 export type { IconId } from './icons';
 export { ICON_IDS } from './icons';
 export type { IArea, IBucket, IProject, ISubtask, ITask, IUser, ProcessingOption } from './interfaces';

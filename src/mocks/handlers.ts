@@ -150,4 +150,7 @@ export const handlers = [
   http.post('http://localhost:8080/v1/auth/reset-password', () => HttpResponse.json(envelope(null))),
   http.post('http://localhost:8080/v1/auth/verify-email', () => HttpResponse.json(envelope(null))),
   http.post('http://localhost:8080/v1/auth/resend-verification', () => HttpResponse.json(envelope(null))),
+  http.get('http://localhost:8080/v1/search', () =>
+    HttpResponse.json(envelope({ tasks: [], projects: [], areas: [] }))
+  ),
 ];

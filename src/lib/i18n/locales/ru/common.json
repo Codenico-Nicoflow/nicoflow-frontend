@@ -78,6 +78,14 @@
     "minutes": "минут",
     "urlLabel": "Ссылка"
   },
+  "search": {
+    "placeholder": "Поиск задач, проектов, областей…",
+    "groupTasks": "Задачи",
+    "groupProjects": "Проекты",
+    "groupAreas": "Области",
+    "empty": "Ничего не найдено.",
+    "loading": "Поиск…"
+  },
   "loading": "Загрузка…",
   "comingSoon": "Скоро",
   "planLimit": {

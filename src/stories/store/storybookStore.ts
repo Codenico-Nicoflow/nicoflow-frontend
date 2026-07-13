@@ -7,6 +7,7 @@ import {
   bucketApi,
   projectApi,
   rateLimitReducer,
+  searchApi,
   subtaskApi,
   taskApi,
 } from '@/lib/store/slices';
@@ -20,6 +21,7 @@ const storyRootReducer = combineReducers({
   [taskApi.reducerPath]: taskApi.reducer,
   [subtaskApi.reducerPath]: subtaskApi.reducer,
   [bucketApi.reducerPath]: bucketApi.reducer,
+  [searchApi.reducerPath]: searchApi.reducer,
 });
 
 export type StoryRootState = ReturnType<typeof storyRootReducer>;
@@ -35,6 +37,7 @@ export const createStoryStore = (preloadedState?: Partial<StoryRootState>) =>
         areaApi.middleware,
         taskApi.middleware,
         subtaskApi.middleware,
-        bucketApi.middleware
+        bucketApi.middleware,
+        searchApi.middleware
       ),
   });

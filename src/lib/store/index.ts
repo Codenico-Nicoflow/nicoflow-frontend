@@ -119,3 +119,8 @@ export type {
 // Rate-limit exports
 export type { RateLimitState } from './slices/rateLimit/rateLimitSlice';
 export { clearRateLimit, selectRateLimitRetryAt, setRateLimited } from './slices/rateLimit/rateLimitSlice';
+
+// Search exports
+export { searchApi } from './slices/search/searchApi';
+export { useSearchQuery } from './slices/search/searchApi';
+export type { IAreaResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';

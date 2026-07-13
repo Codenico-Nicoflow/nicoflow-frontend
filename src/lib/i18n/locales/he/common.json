@@ -78,6 +78,14 @@
     "minutes": "דקות",
     "urlLabel": "קישור"
   },
+  "search": {
+    "placeholder": "חיפוש משימות, פרויקטים, תחומים…",
+    "groupTasks": "משימות",
+    "groupProjects": "פרויקטים",
+    "groupAreas": "תחומים",
+    "empty": "לא נמצאו תוצאות.",
+    "loading": "מחפש…"
+  },
   "loading": "טוען…",
   "comingSoon": "בקרוב",
   "planLimit": {

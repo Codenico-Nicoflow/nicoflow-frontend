@@ -9,6 +9,7 @@ import authReducer from './slices/auth/authSlice';
 import { bucketApi } from './slices/bucket/bucketApi';
 import { projectApi } from './slices/project/projectApi';
 import rateLimitReducer from './slices/rateLimit/rateLimitSlice';
+import { searchApi } from './slices/search/searchApi';
 import { subtaskApi } from './slices/subtasks/subtaskApi';
 import { taskApi } from './slices/tasks/taskApi';
 
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   [taskApi.reducerPath]: taskApi.reducer,
   [subtaskApi.reducerPath]: subtaskApi.reducer,
   [bucketApi.reducerPath]: bucketApi.reducer,
+  [searchApi.reducerPath]: searchApi.reducer,
 });
 
 const persistConfig = {
@@ -44,7 +46,8 @@ export const store = configureStore({
       areaApi.middleware,
       taskApi.middleware,
       subtaskApi.middleware,
-      bucketApi.middleware
+      bucketApi.middleware,
+      searchApi.middleware
     ),
 });
 

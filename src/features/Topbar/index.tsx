@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button';
 
 import { UserMenu } from './components/UserMenu';
 
-export const Topbar = () => {
+type TopbarProps = {
+  onSearchOpen?: () => void;
+};
+
+export const Topbar = ({ onSearchOpen }: TopbarProps) => {
   const { t } = useTranslation(['common', 'nav']);
   const navigate = useNavigate();
 
@@ -24,10 +28,10 @@ export const Topbar = () => {
         <span className="hidden sm:inline">{t('common:appName')}</span>
       </button>
 
-      {/* Search / command-palette entry — palette itself is P2 */}
       <button
         type="button"
         aria-label={t('common:actions.search')}
+        onClick={onSearchOpen}
         className="ms-2 flex h-9 max-w-md flex-1 items-center gap-2 rounded-md border border-input bg-muted/40 px-3 text-sm text-muted-foreground hover:bg-muted/60 transition-colors"
       >
         <Search className="h-4 w-4" />

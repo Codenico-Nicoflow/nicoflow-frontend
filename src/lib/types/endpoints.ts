@@ -53,3 +53,7 @@ export const BUCKET_API = {
   UPDATE_BUCKET: '/bucket/',
   DELETE_BUCKET: '/bucket/',
 };
+
+export const SEARCH_API = {
+  SEARCH: '/search',
+};

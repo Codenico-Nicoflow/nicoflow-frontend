@@ -1,8 +1,15 @@
+import type { Dispatch } from '@reduxjs/toolkit';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { AUTH_API, type IUser } from '@/lib/types';
 
+import { areaApi } from '../area/areaApi';
 import { baseQueryWithReauth } from '../baseQuery';
+import { bucketApi } from '../bucket/bucketApi';
+import { projectApi } from '../project/projectApi';
+import { searchApi } from '../search/searchApi';
+import { subtaskApi } from '../subtasks/subtaskApi';
+import { taskApi } from '../tasks/taskApi';
 
 import { clearAuth, setUser } from './authSlice';
 import type {
@@ -16,6 +23,15 @@ import type {
   UpdateProfileRequest,
   VerifyEmailRequest,
 } from './type';
+
+const resetDomainCaches = (dispatch: Dispatch) => {
+  dispatch(areaApi.util.resetApiState());
+  dispatch(projectApi.util.resetApiState());
+  dispatch(taskApi.util.resetApiState());
+  dispatch(subtaskApi.util.resetApiState());
+  dispatch(bucketApi.util.resetApiState());
+  dispatch(searchApi.util.resetApiState());
+};
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -55,6 +71,7 @@ export const authApi = createApi({
           await queryFulfilled;
         } finally {
           dispatch(clearAuth());
+          resetDomainCaches(dispatch);
         }
       },
       transformErrorResponse: error => error.data,
@@ -71,6 +88,7 @@ export const authApi = createApi({
           await queryFulfilled;
         } finally {
           dispatch(clearAuth());
+          resetDomainCaches(dispatch);
         }
       },
       transformErrorResponse: error => error.data,

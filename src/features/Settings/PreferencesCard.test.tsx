@@ -1,3 +1,5 @@
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -5,9 +7,6 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import i18n from '@/lib/i18n';
 import { mockUser } from '@/mocks/handlers';
-
-import { createMockStore, renderComponent } from '../../../__tests__/renderComponent';
-import { server } from '../../../__tests__/server';
 
 import { PreferencesCard } from './PreferencesCard';
 

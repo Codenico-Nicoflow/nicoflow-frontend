@@ -1,12 +1,12 @@
+import { renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
-import { renderComponent } from '../../../../__tests__/renderComponent';
-import { server } from '../../../../__tests__/server';
-import { makeTask } from '../../../mocks/handlers';
+import { makeTask } from '@/mocks/handlers';
 
 import TasksSection from './TasksSection';
 

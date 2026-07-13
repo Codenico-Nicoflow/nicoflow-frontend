@@ -1,4 +1,5 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -8,8 +9,6 @@ import { describe, expect, it, vi } from 'vitest';
 import i18n from '@/lib/i18n';
 import { DIALOG_ACCEPT_BUTTON } from '@/lib/test_ids';
 import { mockUser } from '@/mocks/handlers';
-
-import { server } from '../../../../../__tests__/server';
 
 import { UserMenu } from './index';
 

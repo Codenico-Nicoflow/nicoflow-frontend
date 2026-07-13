@@ -1,10 +1,9 @@
+import { renderComponent } from '__tests__/renderComponent';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-
-import { renderComponent } from '../../../../../__tests__/renderComponent';
 
 import { AreaCard } from './index';
 

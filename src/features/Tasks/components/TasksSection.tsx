@@ -61,20 +61,23 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
 
   // When navigated from search results, router state carries editTaskId so we
   // auto-open the edit dialog for that task once the tasks list is loaded.
+  // Guard on location.key (unique per navigation, stable across re-renders) not
+  // the task id — so re-selecting the same task while already on this project
+  // page fires a fresh nav and re-opens, instead of being swallowed as a dup.
   const location = useLocation();
   const editTaskIdFromNav = (location.state as { editTaskId?: string } | null)?.editTaskId;
-  const handledNavTaskId = useRef<string | null>(null);
+  const handledNavKey = useRef<string | null>(null);
 
   useEffect(() => {
     if (!editTaskIdFromNav || isLoadingTasks) return;
-    if (handledNavTaskId.current === editTaskIdFromNav) return;
+    if (handledNavKey.current === location.key) return;
     const task = tasks.find(t => t.id === editTaskIdFromNav);
     if (task) {
-      handledNavTaskId.current = editTaskIdFromNav;
+      handledNavKey.current = location.key;
       setSelectedTask(task);
       setIsTaskDialogOpen(true);
     }
-  }, [editTaskIdFromNav, tasks, isLoadingTasks]);
+  }, [editTaskIdFromNav, location.key, tasks, isLoadingTasks]);
 
   const taskCounts = useMemo(
     () => ({

@@ -1,11 +1,13 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import { Provider } from 'react-redux';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 
-import { renderComponent } from '../../../../__tests__/renderComponent';
-import { server } from '../../../../__tests__/server';
-import { makeTask } from '../../../mocks/handlers';
+import { makeTask } from '@/mocks/handlers';
 
 import TasksSection from './TasksSection';
 
@@ -75,5 +77,44 @@ describe('TasksSection', () => {
 
     await waitFor(() => expect(screen.getByText('No tasks yet')).toBeInTheDocument());
     expect(within(document.body).getByText('Create Your First Task')).toBeInTheDocument();
+  });
+
+  // Regression: re-selecting the same task from search while already on the
+  // project page must re-open the edit dialog. The nav-open guard keys on
+  // location.key (fresh per navigation), so an identical editTaskId isn't
+  // swallowed as a duplicate. Previously it opened once then went dead.
+  it('re-opens the edit dialog on repeated same-task navigation', async () => {
+    mountList();
+    // The edit dialog fetches the task's subtasks on open — stub it so the run stays quiet.
+    server.use(http.get(`${API}/tasks/a/subtasks`, () => HttpResponse.json(items([]))));
+    const store = createMockStore();
+    const user = userEvent.setup();
+
+    // Harness: a button that navigates to the same route + state on each click,
+    // reproducing a search-select of the same task from the project page.
+    const Nav = () => {
+      const navigate = useNavigate();
+      return <button onClick={() => navigate('/projects/p1', { state: { editTaskId: 'a' } })}>go</button>;
+    };
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/projects/p1']}>
+          <Nav />
+          <TasksSection projectId="p1" />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => expect(screen.getByText('Active deep task')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'go' }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument());
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('heading', { name: 'Edit Task' })).not.toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'go' }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument());
   });
 });

@@ -25,6 +25,8 @@ import type { IAreaResult, IProjectResult, ITaskResult } from '@/lib/store';
 import { useSearchQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
+import { highlightMatch } from './highlightMatch';
+
 type SearchResultUnion =
   | { kind: 'task'; item: ITaskResult }
   | { kind: 'project'; item: IProjectResult }
@@ -58,13 +60,15 @@ type RowProps = {
   value: string;
   onSelect: () => void;
   testId: string;
+  /** Query to highlight inside the title; omit for non-search rows (e.g. recent). */
+  query?: string;
 };
 
-const ResultRow = ({ icon, tile, title, meta, value, onSelect, testId }: RowProps) => (
+const ResultRow = ({ icon, tile, title, meta, value, onSelect, testId, query }: RowProps) => (
   <CommandItem value={value} onSelect={onSelect} data-testid={testId} className="group">
     <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', TILE[tile])}>{icon}</span>
     <span className="flex min-w-0 flex-1 flex-col">
-      <span className="truncate font-medium text-foreground">{title}</span>
+      <span className="truncate font-medium text-foreground">{query ? highlightMatch(title, query) : title}</span>
       {meta && <span className="truncate text-xs text-muted-foreground">{meta}</span>}
     </span>
     <ChevronRightIcon className="h-4 w-4 shrink-0 text-muted-foreground/0 transition-colors group-data-[selected=true]:text-muted-foreground rtl:rotate-180" />
@@ -187,6 +191,7 @@ export const SearchCommand = ({ open, onOpenChange, onSelect, recent = [], onRec
                 value={`task-${task.id}`}
                 onSelect={() => handleSelect({ kind: 'task', item: task })}
                 testId={`result-task-${task.id}`}
+                query={debouncedQ.trim()}
               />
             ))}
           </CommandGroup>
@@ -212,6 +217,7 @@ export const SearchCommand = ({ open, onOpenChange, onSelect, recent = [], onRec
                 value={`project-${project.id}`}
                 onSelect={() => handleSelect({ kind: 'project', item: project })}
                 testId={`result-project-${project.id}`}
+                query={debouncedQ.trim()}
               />
             ))}
           </CommandGroup>
@@ -236,6 +242,7 @@ export const SearchCommand = ({ open, onOpenChange, onSelect, recent = [], onRec
                 value={`area-${area.id}`}
                 onSelect={() => handleSelect({ kind: 'area', item: area })}
                 testId={`result-area-${area.id}`}
+                query={debouncedQ.trim()}
               />
             ))}
           </CommandGroup>

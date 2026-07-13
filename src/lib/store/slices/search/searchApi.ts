@@ -18,7 +18,9 @@ export const searchApi = createApi({
     search: builder.query<ISearchResults, string>({
       query: q => ({
         url: SEARCH_API.SEARCH,
-        params: { q: encodeURIComponent(q), types: 'task,project,area', limit: 10 },
+        // Pass q raw — RTK Query URL-encodes params; encoding here too double-encodes
+        // (a space would become %2520, not %20).
+        params: { q, types: 'task,project,area', limit: 10 },
       }),
       transformResponse: (raw: ApiEnvelope<ISearchResults>) => raw.data,
       transformErrorResponse: error => error.data,

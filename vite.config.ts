@@ -27,7 +27,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov', 'cobertura'],
+      reporter: ['text', 'json', 'json-summary', 'html', 'lcov', 'cobertura'],
       exclude: [
         'node_modules/',
         '__tests__/',
@@ -37,6 +37,11 @@ export default defineConfig({
         '**/dist/**',
         '**/coverage/**',
       ],
+      // E-018 DoD: ≥80% line coverage on features + store, enforced as a CI gate.
+      thresholds: {
+        'src/features/**': { lines: 80, statements: 80 },
+        'src/lib/store/**': { lines: 80, statements: 80 },
+      },
     },
     projects: [
       {

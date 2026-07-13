@@ -84,8 +84,12 @@
     "groupTasks": "Tasks",
     "groupProjects": "Projects",
     "groupAreas": "Areas",
-    "empty": "No results found.",
-    "loading": "Searching…"
+    "empty": "No matches for “{{query}}”.",
+    "loading": "Searching…",
+    "hintTitle": "Search everything",
+    "hintBody": "Find any task, project, or area. Start typing to see matches.",
+    "hintOpen": "to open",
+    "hintClose": "to close"
   },
   "loading": "Loading…",
   "comingSoon": "Coming soon",

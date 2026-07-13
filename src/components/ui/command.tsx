@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Command as CommandPrimitive } from 'cmdk';
 import { SearchIcon } from 'lucide-react';
 
@@ -20,18 +22,53 @@ const Command = React.forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-const CommandDialog = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Dialog>) => {
+// cmdk's Dialog forwards `overlayClassName` / `contentClassName` to its Radix
+// overlay + content nodes. Styling MUST go through those props — the earlier
+// `[&_[cmdk-overlay]]` descendant selectors never matched (the attrs live on
+// the rendered nodes, not descendants of root), which is why the palette
+// opened unstyled. This is the fix.
+const CommandDialog = ({
+  className,
+  overlayClassName,
+  contentClassName,
+  title = 'Search',
+  description = 'Search across your tasks, projects, and areas.',
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Dialog> & {
+  overlayClassName?: string;
+  contentClassName?: string;
+  /** Accessible dialog title (visually hidden) — satisfies Radix a11y. */
+  title?: string;
+  /** Accessible dialog description (visually hidden). */
+  description?: string;
+}) => {
   return (
     <CommandPrimitive.Dialog
+      overlayClassName={cn(
+        'fixed inset-0 z-50 bg-foreground/25 backdrop-blur-sm',
+        'motion-safe:animate-in motion-safe:fade-in-0',
+        overlayClassName
+      )}
+      contentClassName={cn(
+        'fixed start-1/2 top-[12vh] z-50 w-[min(92vw,42rem)] -translate-x-1/2 rtl:translate-x-1/2',
+        'overflow-hidden rounded-2xl border border-border/70 bg-popover/95 shadow-2xl ring-1 ring-black/5',
+        'supports-[backdrop-filter]:bg-popover/90 supports-[backdrop-filter]:backdrop-blur-xl',
+        'motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 motion-safe:slide-in-from-top-2',
+        contentClassName
+      )}
       className={cn(
-        'fixed inset-0 z-50 flex items-start justify-center pt-[20vh]',
-        '[&_[cmdk-overlay]]:fixed [&_[cmdk-overlay]]:inset-0 [&_[cmdk-overlay]]:bg-black/50',
-        '[&_[cmdk-dialog]]:relative [&_[cmdk-dialog]]:z-50 [&_[cmdk-dialog]]:w-full [&_[cmdk-dialog]]:max-w-lg',
-        '[&_[cmdk-dialog]]:overflow-hidden [&_[cmdk-dialog]]:rounded-lg [&_[cmdk-dialog]]:border [&_[cmdk-dialog]]:border-border',
-        '[&_[cmdk-dialog]]:bg-popover [&_[cmdk-dialog]]:shadow-lg'
+        'flex max-h-[70vh] w-full flex-col overflow-hidden bg-transparent text-popover-foreground',
+        '[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-3',
+        '[&_[cmdk-group-heading]]:text-[0.7rem] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground',
+        className
       )}
       {...props}
     >
+      <VisuallyHidden>
+        <DialogPrimitive.Title>{title}</DialogPrimitive.Title>
+        <DialogPrimitive.Description>{description}</DialogPrimitive.Description>
+      </VisuallyHidden>
       {children}
     </CommandPrimitive.Dialog>
   );
@@ -41,12 +78,12 @@ const CommandInput = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b border-border px-3" cmdk-input-wrapper="">
-    <SearchIcon className="me-2 h-4 w-4 shrink-0 opacity-50" />
+  <div className="flex items-center gap-3 border-b border-border/60 px-5" cmdk-input-wrapper="">
+    <SearchIcon className="h-5 w-5 shrink-0 text-muted-foreground" />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
-        'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+        'flex h-16 w-full rounded-md bg-transparent text-base outline-none placeholder:text-muted-foreground/70 disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
       {...props}
@@ -61,7 +98,7 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)}
+    className={cn('scroll-py-2 overflow-y-auto overflow-x-hidden p-2', className)}
     {...props}
   />
 ));
@@ -103,7 +140,9 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+      'relative flex cursor-pointer select-none items-center gap-3 rounded-xl px-3 py-2.5 text-sm outline-none transition-colors',
+      'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
+      'data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground',
       className
     )}
     {...props}

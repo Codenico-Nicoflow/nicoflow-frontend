@@ -80,6 +80,7 @@
   },
   "search": {
     "placeholder": "Search tasks, projects, areas…",
+    "groupRecent": "Recent",
     "groupTasks": "Tasks",
     "groupProjects": "Projects",
     "groupAreas": "Areas",

@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom';
 
 import { BottomNav } from '@/features/BottomNav';
 import { Rail } from '@/features/Rail';
-import { SearchCommand } from '@/features/Search';
+import { SearchCommand, useRecentSearches, useSearchNavigation } from '@/features/Search';
 import { Topbar } from '@/features/Topbar';
 import { useIsMobile } from '@/hooks';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,9 @@ import QuickAddButton from './QuickAddButton';
 const PrivateLayout = () => {
   const isMobile = useIsMobile();
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const { recent, record } = useRecentSearches();
+  const navigate = useSearchNavigation();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,7 +40,21 @@ const PrivateLayout = () => {
       </div>
       {isMobile && <BottomNav />}
       <QuickAddButton />
-      <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
+      <SearchCommand
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        recent={recent}
+        onSelect={payload => {
+          const term =
+            payload.kind === 'task'
+              ? payload.item.title
+              : payload.kind === 'project'
+                ? payload.item.name
+                : payload.item.name;
+          record(term);
+          navigate(payload);
+        }}
+      />
     </div>
   );
 };

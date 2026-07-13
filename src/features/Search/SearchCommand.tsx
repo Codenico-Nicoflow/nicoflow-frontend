@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { FolderIcon, Layers3Icon, ListTodoIcon, Loader2Icon } from 'lucide-react';
+import { ClockIcon, FolderIcon, Layers3Icon, ListTodoIcon, Loader2Icon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -27,14 +27,19 @@ type SearchCommandProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect?: (result: SearchSelectPayload) => void;
+  /** Recent search terms shown when the input is empty. */
+  recent?: string[];
+  /** Called when the user selects a recent term; should re-run that search. */
+  onRecentSelect?: (term: string) => void;
 };
 
-export const SearchCommand = ({ open, onOpenChange, onSelect }: SearchCommandProps) => {
+export const SearchCommand = ({ open, onOpenChange, onSelect, recent = [], onRecentSelect }: SearchCommandProps) => {
   const { t } = useTranslation('common');
   const [inputValue, setInputValue] = useState('');
   const debouncedQ = useDebouncedValue(inputValue, 200);
 
   const isQueryReady = debouncedQ.trim().length >= 2;
+  const isEmpty = inputValue.trim().length === 0;
 
   const { data, isFetching } = useSearchQuery(debouncedQ.trim(), { skip: !isQueryReady });
 
@@ -54,6 +59,11 @@ export const SearchCommand = ({ open, onOpenChange, onSelect }: SearchCommandPro
     if (!next) setInputValue('');
   };
 
+  const handleRecentSelect = (term: string) => {
+    onRecentSelect?.(term);
+    setInputValue(term);
+  };
+
   return (
     <CommandDialog open={open} onOpenChange={handleOpenChange} label={t('actions.search')} shouldFilter={false}>
       <CommandInput
@@ -63,7 +73,24 @@ export const SearchCommand = ({ open, onOpenChange, onSelect }: SearchCommandPro
         data-testid="search-input"
       />
       <CommandList>
-        {/* Show loading indicator while debounced query is in-flight (≥2 chars). */}
+        {/* Recent searches when input is empty. */}
+        {isEmpty && recent.length > 0 && (
+          <CommandGroup heading={t('search.groupRecent')} data-testid="group-recent">
+            {recent.map(term => (
+              <CommandItem
+                key={term}
+                value={`recent-${term}`}
+                onSelect={() => handleRecentSelect(term)}
+                data-testid={`result-recent-${term}`}
+              >
+                <ClockIcon className="text-muted-foreground" />
+                <span className="flex-1 truncate">{term}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
+        {/* Loading indicator while debounced query is in-flight (≥2 chars). */}
         {isQueryReady && isFetching && (
           <div
             className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground"

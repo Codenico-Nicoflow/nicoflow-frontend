@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   closestCenter,
@@ -12,6 +12,7 @@ import {
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { useDebouncedValue } from '@/hooks';
@@ -57,6 +58,23 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   const [activeEnergy, setActiveEnergy] = useState<TaskEnergy | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
+
+  // When navigated from search results, router state carries editTaskId so we
+  // auto-open the edit dialog for that task once the tasks list is loaded.
+  const location = useLocation();
+  const editTaskIdFromNav = (location.state as { editTaskId?: string } | null)?.editTaskId;
+  const handledNavTaskId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!editTaskIdFromNav || isLoadingTasks) return;
+    if (handledNavTaskId.current === editTaskIdFromNav) return;
+    const task = tasks.find(t => t.id === editTaskIdFromNav);
+    if (task) {
+      handledNavTaskId.current = editTaskIdFromNav;
+      setSelectedTask(task);
+      setIsTaskDialogOpen(true);
+    }
+  }, [editTaskIdFromNav, tasks, isLoadingTasks]);
 
   const taskCounts = useMemo(
     () => ({

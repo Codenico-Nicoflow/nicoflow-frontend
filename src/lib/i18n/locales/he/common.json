@@ -80,6 +80,7 @@
   },
   "search": {
     "placeholder": "חיפוש משימות, פרויקטים, תחומים…",
+    "groupRecent": "אחרונים",
     "groupTasks": "משימות",
     "groupProjects": "פרויקטים",
     "groupAreas": "תחומים",

@@ -80,6 +80,7 @@
   },
   "search": {
     "placeholder": "Поиск задач, проектов, областей…",
+    "groupRecent": "Недавние",
     "groupTasks": "Задачи",
     "groupProjects": "Проекты",
     "groupAreas": "Области",

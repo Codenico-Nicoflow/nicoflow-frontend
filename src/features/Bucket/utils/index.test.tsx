@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ProcessingResult } from '@/lib/types';
 
-import { handleBucketProcess } from './index';
+import { buildProcessBucketDto, canProcessBucket, handleBucketProcess, parseBucketContent } from './index';
 
 // vi.mock is hoisted above the imports, so `toast` resolves to the mock.
 vi.mock('sonner', () => ({
@@ -24,6 +24,99 @@ const baseArgs = {
     url: '',
   },
 };
+
+describe('parseBucketContent', () => {
+  it('uses the first line as title and the rest as notes', () => {
+    expect(parseBucketContent('Buy milk\nfrom the corner shop\ntonight')).toEqual({
+      title: 'Buy milk',
+      notes: 'from the corner shop\ntonight',
+    });
+  });
+
+  it('trims the title and leaves notes empty for a single line', () => {
+    expect(parseBucketContent('  Just a title  ')).toEqual({ title: 'Just a title', notes: '' });
+  });
+
+  it('returns empty title/notes for empty content', () => {
+    expect(parseBucketContent('')).toEqual({ title: '', notes: '' });
+  });
+});
+
+describe('canProcessBucket', () => {
+  it('allows TASK only when a project exists and is selected', () => {
+    expect(canProcessBucket(ProcessingResult.TASK, 'p1', true)).toBe(true);
+    expect(canProcessBucket(ProcessingResult.TASK, undefined, true)).toBe(false);
+    expect(canProcessBucket(ProcessingResult.TASK, 'p1', false)).toBe(false);
+  });
+
+  it('always allows TRASH and never allows NOTE (not implemented)', () => {
+    expect(canProcessBucket(ProcessingResult.TRASH, undefined, false)).toBe(true);
+    expect(canProcessBucket(ProcessingResult.NOTE, 'p1', true)).toBe(false);
+  });
+});
+
+describe('buildProcessBucketDto', () => {
+  const taskData = {
+    title: 'Write the launch email',
+    notes: 'body',
+    priority: 'high' as const,
+    energy: 'medium' as const,
+    rollsOver: true,
+    scheduledFor: null,
+    estimatedMinutes: 30,
+    url: 'https://x.dev',
+  };
+
+  it('builds a TASK dto with projectId + mapped taskDetails', () => {
+    expect(
+      buildProcessBucketDto({
+        bucketId: 'b1',
+        selectedType: ProcessingResult.TASK,
+        selectedProjectId: 'p1',
+        taskData,
+      })
+    ).toEqual({
+      processingResult: ProcessingResult.TASK,
+      projectId: 'p1',
+      taskDetails: {
+        title: 'Write the launch email',
+        notes: 'body',
+        priority: 'high',
+        estimatedMinutes: 30,
+        url: 'https://x.dev',
+      },
+    });
+  });
+
+  it('drops empty optional task fields to undefined', () => {
+    const dto = buildProcessBucketDto({
+      bucketId: 'b1',
+      selectedType: ProcessingResult.TASK,
+      selectedProjectId: 'p1',
+      taskData: { ...taskData, notes: '', url: '', estimatedMinutes: null },
+    });
+    expect(dto.taskDetails).toEqual({
+      title: 'Write the launch email',
+      notes: undefined,
+      priority: 'high',
+      estimatedMinutes: undefined,
+      url: undefined,
+    });
+  });
+
+  it('builds a bare TRASH dto with no project/task', () => {
+    expect(buildProcessBucketDto({ bucketId: 'b1', selectedType: ProcessingResult.TRASH })).toEqual({
+      processingResult: ProcessingResult.TRASH,
+    });
+  });
+
+  it('throws for TASK without project/taskData and for the unimplemented NOTE', () => {
+    expect(() => buildProcessBucketDto({ bucketId: 'b1', selectedType: ProcessingResult.TASK })).toThrow();
+    expect(() => buildProcessBucketDto({ bucketId: 'b1', selectedType: ProcessingResult.NOTE })).toThrow(
+      'NOTE processing is not yet implemented'
+    );
+  });
+});
 
 describe('handleBucketProcess', () => {
   beforeEach(() => vi.clearAllMocks());

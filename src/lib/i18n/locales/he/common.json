@@ -84,8 +84,12 @@
     "groupTasks": "משימות",
     "groupProjects": "פרויקטים",
     "groupAreas": "תחומים",
-    "empty": "לא נמצאו תוצאות.",
-    "loading": "מחפש…"
+    "empty": "אין תוצאות עבור “{{query}}”.",
+    "loading": "מחפש…",
+    "hintTitle": "חיפוש בכל מקום",
+    "hintBody": "מצא כל משימה, פרויקט או תחום. התחל להקליד כדי לראות תוצאות.",
+    "hintOpen": "לפתיחה",
+    "hintClose": "לסגירה"
   },
   "loading": "טוען…",
   "comingSoon": "בקרוב",

@@ -1,3 +1,5 @@
+import { renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -5,10 +7,7 @@ import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
 import { FORM_DIALOG_SUBMIT_BUTTON } from '@/lib/test_ids';
-
-import { renderComponent } from '../../../../__tests__/renderComponent';
-import { server } from '../../../../__tests__/server';
-import { makeSubtask, makeTask } from '../../../mocks/handlers';
+import { makeSubtask, makeTask } from '@/mocks/handlers';
 
 import TaskDialog from './TaskDialog';
 

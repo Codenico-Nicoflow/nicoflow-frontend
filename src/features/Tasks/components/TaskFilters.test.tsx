@@ -1,11 +1,10 @@
+import { renderComponent } from '__tests__/renderComponent';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { TaskEnergy } from '@/lib/types';
-
-import { renderComponent } from '../../../../__tests__/renderComponent';
 
 import TaskFilters, { type TaskCounts } from './TaskFilters';
 

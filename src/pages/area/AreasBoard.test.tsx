@@ -1,11 +1,10 @@
 import { renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { makeProject, mockAreaWithProjects } from '@/mocks/handlers';
-
-import { server } from '../../../__tests__/server';
 
 import AreasBoard from './AreasBoard';
 

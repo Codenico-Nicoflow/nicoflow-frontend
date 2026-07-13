@@ -1,12 +1,11 @@
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import AppRoutes from '@/router';
-
-import { createMockStore, renderComponent } from '../../../__tests__/renderComponent';
-import { server } from '../../../__tests__/server';
 
 const renderResetPassword = (token?: string) => {
   const route = token ? `/reset-password?token=${token}` : '/reset-password';

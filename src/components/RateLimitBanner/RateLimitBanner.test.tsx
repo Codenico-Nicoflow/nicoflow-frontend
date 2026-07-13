@@ -1,7 +1,6 @@
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-
-import { createMockStore, renderComponent } from '../../../__tests__/renderComponent';
 
 import { RateLimitBanner } from '.';
 

@@ -1,12 +1,11 @@
 import { renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import { mockProject } from '@/mocks/handlers';
-
-import { server } from '../../../__tests__/server';
 
 import ProjectView from './ProjectView';
 

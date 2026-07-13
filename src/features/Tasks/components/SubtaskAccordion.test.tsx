@@ -1,11 +1,11 @@
+import { renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
-import { renderComponent } from '../../../../__tests__/renderComponent';
-import { server } from '../../../../__tests__/server';
-import { makeSubtask } from '../../../mocks/handlers';
+import { makeSubtask } from '@/mocks/handlers';
 
 import { SubtaskAccordion } from './SubtaskAccordion';
 

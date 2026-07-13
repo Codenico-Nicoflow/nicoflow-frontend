@@ -1,8 +1,7 @@
+import { renderComponent } from '__tests__/renderComponent';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-
-import { renderComponent } from '../../../../__tests__/renderComponent';
 
 import TaskSearch from './TaskSearch';
 

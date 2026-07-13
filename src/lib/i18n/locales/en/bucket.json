@@ -56,7 +56,7 @@
     "heading": "Inbox",
     "subtitle_one": "{{count}} thought waiting to be processed",
     "subtitle_other": "{{count}} thoughts waiting to be processed",
-    "subtitleClear": "Inbox zero — nothing left to process",
+    "subtitleClear": "Inbox zero, nothing left to process",
     "tabs": {
       "inbox": "Inbox",
       "archived": "Archived"
@@ -65,7 +65,7 @@
     "captureHint": "Get it out of your head. Sort it later.",
     "archived": {
       "emptyTitle": "Nothing archived yet",
-      "emptyDescription": "Items you process from your inbox land here — as tasks, notes, or trash."
+      "emptyDescription": "Items you process from your inbox land here as tasks, notes, or trash."
     },
     "result": {
       "task": "Task",

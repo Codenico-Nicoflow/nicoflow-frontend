@@ -1,6 +1,7 @@
 export * from './area';
 export * from './auth';
 export * from './bucket';
+export * from './notification';
 export * from './project';
 export * from './rateLimit';
 export * from './search';

@@ -1,0 +1,29 @@
+{
+  "bell": {
+    "label": "Уведомления",
+    "unreadLabel_one": "{{count}} непрочитанное уведомление",
+    "unreadLabel_few": "{{count}} непрочитанных уведомления",
+    "unreadLabel_many": "{{count}} непрочитанных уведомлений",
+    "unreadLabel_other": "{{count}} непрочитанных уведомлений"
+  },
+  "panel": {
+    "title": "Уведомления",
+    "empty": "Нет новых уведомлений",
+    "markAllRead": "Отметить все как прочитанные",
+    "markRead": "Отметить как прочитанное",
+    "dismiss": "Скрыть",
+    "unreadCount_one": "{{count}} непрочитанное",
+    "unreadCount_few": "{{count}} непрочитанных",
+    "unreadCount_many": "{{count}} непрочитанных",
+    "unreadCount_other": "{{count}} непрочитанных"
+  },
+  "digest": {
+    "label": "Присылать сводку задач на почту",
+    "enabled": "Сводки на почту включены",
+    "disabled": "Сводки на почту выключены"
+  },
+  "toast": {
+    "markedAllRead": "Все уведомления отмечены как прочитанные",
+    "dismissed": "Уведомление скрыто"
+  }
+}

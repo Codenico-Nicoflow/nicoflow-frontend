@@ -1,0 +1,27 @@
+{
+  "bell": {
+    "label": "התראות",
+    "unreadLabel_one": "התראה אחת שלא נקראה",
+    "unreadLabel_two": "{{count}} התראות שלא נקראו",
+    "unreadLabel_other": "{{count}} התראות שלא נקראו"
+  },
+  "panel": {
+    "title": "התראות",
+    "empty": "אין התראות חדשות",
+    "markAllRead": "סמן הכול כנקרא",
+    "markRead": "סמן כנקרא",
+    "dismiss": "התעלם",
+    "unreadCount_one": "לא נקראה אחת",
+    "unreadCount_two": "{{count}} שלא נקראו",
+    "unreadCount_other": "{{count}} שלא נקראו"
+  },
+  "digest": {
+    "label": "שלחו לי סיכומי משימות במייל",
+    "enabled": "סיכומי מייל פעילים",
+    "disabled": "סיכומי מייל כבויים"
+  },
+  "toast": {
+    "markedAllRead": "כל ההתראות סומנו כנקראו",
+    "dismissed": "ההתראה הוסרה"
+  }
+}

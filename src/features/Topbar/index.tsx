@@ -1,9 +1,9 @@
-import { Bell, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { LanguageSwitcher, ModeToggle } from '@/components';
-import { Button } from '@/components/ui/button';
+import { Notifications } from '@/features/Notifications';
 
 import { UserMenu } from './components/UserMenu';
 
@@ -40,9 +40,7 @@ export const Topbar = ({ onSearchOpen }: TopbarProps) => {
       </button>
 
       <div className="ms-auto flex items-center gap-1 sm:gap-2">
-        <Button variant="ghost" size="icon" aria-label={t('nav:notifications')}>
-          <Bell className="h-[1.2rem] w-[1.2rem]" />
-        </Button>
+        <Notifications />
         <LanguageSwitcher />
         <ModeToggle />
         <UserMenu />

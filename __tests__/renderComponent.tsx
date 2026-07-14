@@ -8,7 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { LoadingOverlayProvider, ThemeProvider } from '@/components';
 import i18n from '@/lib/i18n';
-import { areaApi, authApi, bucketApi, projectApi, searchApi, subtaskApi, taskApi } from '@/lib/store';
+import { areaApi, authApi, bucketApi, notificationApi, projectApi, searchApi, subtaskApi, taskApi } from '@/lib/store';
 import type { AuthState } from '@/lib/store/slices/auth/authSlice';
 import authReducer from '@/lib/store/slices/auth/authSlice';
 import type { RateLimitState } from '@/lib/store/slices/rateLimit/rateLimitSlice';
@@ -25,6 +25,7 @@ const createRootReducer = () =>
     [subtaskApi.reducerPath]: subtaskApi.reducer,
     [bucketApi.reducerPath]: bucketApi.reducer,
     [searchApi.reducerPath]: searchApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
   });
 
 type RootReducer = ReturnType<typeof createRootReducer>;
@@ -49,7 +50,8 @@ export const createMockStore = (preloadedState?: {
         taskApi.middleware,
         subtaskApi.middleware,
         bucketApi.middleware,
-        searchApi.middleware
+        searchApi.middleware,
+        notificationApi.middleware
       ),
   });
 };

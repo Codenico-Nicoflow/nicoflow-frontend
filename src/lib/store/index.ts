@@ -124,3 +124,23 @@ export { clearRateLimit, selectRateLimitRetryAt, setRateLimited } from './slices
 export { searchApi } from './slices/search/searchApi';
 export { useSearchQuery } from './slices/search/searchApi';
 export type { IAreaResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';
+
+// Notification exports
+export { notificationApi } from './slices/notification/notificationApi';
+export {
+  useDeleteNotificationMutation,
+  useGetNotificationsQuery,
+  useGetPreferencesQuery,
+  useGetUnreadCountQuery,
+  useMarkAllReadMutation,
+  useMarkReadMutation,
+  useUpdatePreferencesMutation,
+} from './slices/notification/notificationApi';
+export type {
+  GetNotificationsRequest,
+  GetNotificationsResponse,
+  GetPreferencesResponse,
+  UnreadCountResponse,
+  UpdatePreferencesRequest,
+  UpdatePreferencesResponse,
+} from './slices/notification/type';

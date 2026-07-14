@@ -18,7 +18,17 @@ export const LANGUAGE_STORAGE_KEY = 'nicoflow-lang';
 // Namespaces: split keys per domain so each locale file stays readable. `common`
 // is the default so callers can `t('actions.cancel')` without a prefix, while
 // feature copy is reached via `useTranslation('area')` etc.
-export const NAMESPACES = ['common', 'auth', 'area', 'project', 'task', 'bucket', 'nav', 'errors'] as const;
+export const NAMESPACES = [
+  'common',
+  'auth',
+  'area',
+  'project',
+  'task',
+  'bucket',
+  'nav',
+  'errors',
+  'notification',
+] as const;
 
 // Keep <html lang>/<html dir> in sync with the active language. i18next.dir()
 // returns 'rtl' for Hebrew and 'ltr' otherwise, which is exactly what the RTL

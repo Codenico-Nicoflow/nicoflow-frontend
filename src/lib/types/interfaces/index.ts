@@ -97,6 +97,25 @@ export interface IBucket {
   updatedAt: string;
 }
 
+export interface INotification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  metadata: Record<string, unknown>;
+  isRead: boolean;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export interface INotificationPref {
+  emailDigest: boolean;
+  pushEnabled: boolean;
+  smsEnabled: boolean;
+  beforeDueMinutes: number;
+  afterDueMinutes: number;
+}
+
 export interface ProcessingOption {
   value: ProcessingResult;
   label: string;

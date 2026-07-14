@@ -57,3 +57,13 @@ export const BUCKET_API = {
 export const SEARCH_API = {
   SEARCH: '/search',
 };
+
+export const NOTIFICATION_API = {
+  GET_NOTIFICATIONS: '/notifications',
+  GET_UNREAD_COUNT: '/notifications/unread-count',
+  MARK_READ: '/notifications/', // + `${id}/read` (PATCH)
+  MARK_ALL_READ: '/notifications/read-all',
+  DELETE_NOTIFICATION: '/notifications/', // + id (DELETE)
+  GET_PREFERENCES: '/notifications/preferences',
+  UPDATE_PREFERENCES: '/notifications/preferences',
+};

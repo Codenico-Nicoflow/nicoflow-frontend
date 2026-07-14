@@ -1,0 +1,25 @@
+{
+  "bell": {
+    "label": "Notifications",
+    "unreadLabel_one": "{{count}} unread notification",
+    "unreadLabel_other": "{{count}} unread notifications"
+  },
+  "panel": {
+    "title": "Notifications",
+    "empty": "No new notifications",
+    "markAllRead": "Mark all read",
+    "markRead": "Mark read",
+    "dismiss": "Dismiss",
+    "unreadCount_one": "{{count}} unread",
+    "unreadCount_other": "{{count}} unread"
+  },
+  "digest": {
+    "label": "Email me due-task digests",
+    "enabled": "Email digests on",
+    "disabled": "Email digests off"
+  },
+  "toast": {
+    "markedAllRead": "All notifications marked read",
+    "dismissed": "Notification dismissed"
+  }
+}

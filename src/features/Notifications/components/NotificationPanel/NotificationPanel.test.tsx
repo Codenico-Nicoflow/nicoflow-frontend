@@ -200,4 +200,28 @@ describe('NotificationPanel', () => {
     expect(markAll).toBeDisabled();
     expect(within(screen.getByTestId('notification-row')).queryByTestId('mark-read-button')).not.toBeInTheDocument();
   });
+
+  it('the sound toggle mutes and unmutes, persisting the preference', async () => {
+    localStorage.removeItem('nicoflow-notification-sound-muted');
+    server.use(
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
+      prefsHandler()
+    );
+
+    renderPanel(true);
+
+    const toggle = await screen.findByTestId('sound-toggle');
+    // Starts unmuted → the label offers to mute.
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(toggle).toHaveAccessibleName('Mute notification sound');
+
+    await userEvent.click(toggle);
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-pressed', 'true'));
+    expect(localStorage.getItem('nicoflow-notification-sound-muted')).toBe('true');
+    expect(toggle).toHaveAccessibleName('Unmute notification sound');
+
+    await userEvent.click(toggle);
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-pressed', 'false'));
+    localStorage.removeItem('nicoflow-notification-sound-muted');
+  });
 });

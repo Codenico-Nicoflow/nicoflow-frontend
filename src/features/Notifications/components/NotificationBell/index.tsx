@@ -8,6 +8,8 @@ import { PopoverTrigger } from '@/components/ui/popover';
 import { useGetUnreadCountQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
+import { useNotificationSound } from '../../sound/useNotificationSound';
+
 import { UnreadBadge } from './UnreadBadge';
 
 // The bell polls the cheap unread-count every 60s (the only poll in the app until
@@ -27,19 +29,23 @@ export const NotificationBell = ({ className }: NotificationBellProps) => {
   const { t } = useTranslation('notification');
   const reduce = useReducedMotion();
   const controls = useAnimationControls();
+  const playChime = useNotificationSound();
 
   const { data } = useGetUnreadCountQuery(undefined, { pollingInterval: POLL_MS });
   const count = data?.count ?? 0;
 
   // Ring the bell only when the count actually increases (a new arrival) — not on
-  // the first load, and not when it drops because the user read something.
+  // the first load, and not when it drops because the user read something. The
+  // chime rides the same edge (it self-guards on mute + a hidden tab); the swing
+  // is suppressed under reduced-motion, but the sound is not — they're separate cues.
   const prevCount = useRef(count);
   useEffect(() => {
-    if (count > prevCount.current && !reduce) {
-      controls.start({ ...swingKeyframes, transition: { duration: 0.6, ease: 'easeOut' } });
+    if (count > prevCount.current) {
+      if (!reduce) controls.start({ ...swingKeyframes, transition: { duration: 0.6, ease: 'easeOut' } });
+      playChime();
     }
     prevCount.current = count;
-  }, [count, controls, reduce]);
+  }, [count, controls, reduce, playChime]);
 
   const label = count > 0 ? t('bell.unreadLabel', { count }) : t('bell.label');
 

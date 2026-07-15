@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { BellOff, CheckCheck } from 'lucide-react';
+import { BellOff, CheckCheck, Volume2, VolumeX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -12,6 +12,9 @@ import {
   useMarkAllReadMutation,
   useMarkReadMutation,
 } from '@/lib/store';
+
+import { setSoundMuted } from '../../sound/soundPreference';
+import { useSoundMuted } from '../../sound/useNotificationSound';
 
 import { DigestToggle } from './DigestToggle';
 import { NotificationRow } from './NotificationRow';
@@ -39,6 +42,7 @@ const SkeletonRows = () => (
 export const NotificationPanel = ({ open }: NotificationPanelProps) => {
   const { t } = useTranslation('notification');
 
+  const muted = useSoundMuted();
   const { data, isLoading } = useGetNotificationsQuery(undefined, { skip: !open });
   const [markRead, { isLoading: isMarking }] = useMarkReadMutation();
   const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllReadMutation();
@@ -77,16 +81,29 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
     >
       <header className="flex items-center justify-between gap-2 border-b border-border/60 px-3 py-2.5">
         <h2 className="text-sm font-semibold text-foreground">{t('panel.title')}</h2>
-        <button
-          type="button"
-          onClick={onMarkAll}
-          disabled={!hasUnread || isMarkingAll}
-          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
-          data-testid="mark-all-read-button"
-        >
-          <CheckCheck className="h-3.5 w-3.5" aria-hidden />
-          {t('panel.markAllRead')}
-        </button>
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={() => setSoundMuted(!muted)}
+            aria-label={muted ? t('sound.unmute') : t('sound.mute')}
+            aria-pressed={muted}
+            title={muted ? t('sound.unmute') : t('sound.mute')}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            data-testid="sound-toggle"
+          >
+            {muted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
+          </button>
+          <button
+            type="button"
+            onClick={onMarkAll}
+            disabled={!hasUnread || isMarkingAll}
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40"
+            data-testid="mark-all-read-button"
+          >
+            <CheckCheck className="h-3.5 w-3.5" aria-hidden />
+            {t('panel.markAllRead')}
+          </button>
+        </div>
       </header>
 
       <div className="max-h-[min(24rem,60vh)] overflow-y-auto overscroll-contain">

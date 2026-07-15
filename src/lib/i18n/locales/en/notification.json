@@ -18,6 +18,10 @@
     "enabled": "Email digests on",
     "disabled": "Email digests off"
   },
+  "sound": {
+    "mute": "Mute notification sound",
+    "unmute": "Unmute notification sound"
+  },
   "toast": {
     "markedAllRead": "All notifications marked read",
     "dismissed": "Notification dismissed"

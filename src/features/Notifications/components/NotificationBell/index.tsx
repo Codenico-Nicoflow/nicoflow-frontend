@@ -8,7 +8,7 @@ import { PopoverTrigger } from '@/components/ui/popover';
 import { useGetUnreadCountQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
-import { useNotificationSound } from '../../sound/useNotificationSound';
+import { useDesktopNotification } from '../../desktop/useDesktopNotification';
 
 import { UnreadBadge } from './UnreadBadge';
 
@@ -29,23 +29,24 @@ export const NotificationBell = ({ className }: NotificationBellProps) => {
   const { t } = useTranslation('notification');
   const reduce = useReducedMotion();
   const controls = useAnimationControls();
-  const playChime = useNotificationSound();
+  const notify = useDesktopNotification();
 
   const { data } = useGetUnreadCountQuery(undefined, { pollingInterval: POLL_MS });
   const count = data?.count ?? 0;
 
   // Ring the bell only when the count actually increases (a new arrival) — not on
   // the first load, and not when it drops because the user read something. The
-  // chime rides the same edge (it self-guards on mute + a hidden tab); the swing
-  // is suppressed under reduced-motion, but the sound is not — they're separate cues.
+  // browser notification rides the same edge (it self-guards on the enable pref +
+  // permission); the swing is suppressed under reduced-motion — separate cues.
   const prevCount = useRef(count);
   useEffect(() => {
     if (count > prevCount.current) {
       if (!reduce) controls.start({ ...swingKeyframes, transition: { duration: 0.6, ease: 'easeOut' } });
-      playChime();
+      const added = count - prevCount.current;
+      notify(t('desktop.title'), t('desktop.body', { count: added }));
     }
     prevCount.current = count;
-  }, [count, controls, reduce, playChime]);
+  }, [count, controls, reduce, notify, t]);
 
   const label = count > 0 ? t('bell.unreadLabel', { count }) : t('bell.label');
 

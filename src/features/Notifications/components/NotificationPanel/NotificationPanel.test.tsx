@@ -201,8 +201,10 @@ describe('NotificationPanel', () => {
     expect(within(screen.getByTestId('notification-row')).queryByTestId('mark-read-button')).not.toBeInTheDocument();
   });
 
-  it('the sound toggle mutes and unmutes, persisting the preference', async () => {
-    localStorage.removeItem('nicoflow-notification-sound-muted');
+  it('the desktop-notification toggle requests permission and persists when granted', async () => {
+    localStorage.removeItem('nicoflow-desktop-notifications-enabled');
+    const requestPermission = vi.fn().mockResolvedValue('granted');
+    vi.stubGlobal('Notification', Object.assign(vi.fn(), { permission: 'default', requestPermission }));
     server.use(
       http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
       prefsHandler()
@@ -210,18 +212,42 @@ describe('NotificationPanel', () => {
 
     renderPanel(true);
 
-    const toggle = await screen.findByTestId('sound-toggle');
-    // Starts unmuted → the label offers to mute.
+    const toggle = await screen.findByTestId('desktop-toggle');
+    // Starts off → the label offers to enable.
     expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(toggle).toHaveAccessibleName('Mute notification sound');
+    expect(toggle).toHaveAccessibleName('Enable browser notifications');
 
     await userEvent.click(toggle);
     await waitFor(() => expect(toggle).toHaveAttribute('aria-pressed', 'true'));
-    expect(localStorage.getItem('nicoflow-notification-sound-muted')).toBe('true');
-    expect(toggle).toHaveAccessibleName('Unmute notification sound');
+    expect(requestPermission).toHaveBeenCalledOnce();
+    expect(localStorage.getItem('nicoflow-desktop-notifications-enabled')).toBe('true');
+    expect(toggle).toHaveAccessibleName('Disable browser notifications');
 
     await userEvent.click(toggle);
     await waitFor(() => expect(toggle).toHaveAttribute('aria-pressed', 'false'));
-    localStorage.removeItem('nicoflow-notification-sound-muted');
+
+    localStorage.removeItem('nicoflow-desktop-notifications-enabled');
+    vi.unstubAllGlobals();
+  });
+
+  it('the desktop-notification toggle stays off and warns when permission is denied', async () => {
+    localStorage.removeItem('nicoflow-desktop-notifications-enabled');
+    const requestPermission = vi.fn().mockResolvedValue('denied');
+    vi.stubGlobal('Notification', Object.assign(vi.fn(), { permission: 'default', requestPermission }));
+    server.use(
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
+      prefsHandler()
+    );
+
+    renderPanel(true);
+
+    const toggle = await screen.findByTestId('desktop-toggle');
+    await userEvent.click(toggle);
+
+    await waitFor(() => expect(requestPermission).toHaveBeenCalledOnce());
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(localStorage.getItem('nicoflow-desktop-notifications-enabled')).toBe('false');
+
+    vi.unstubAllGlobals();
   });
 });

@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { BellOff, CheckCheck, Volume2, VolumeX } from 'lucide-react';
+import { Bell, BellOff, CheckCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -13,8 +13,7 @@ import {
   useMarkReadMutation,
 } from '@/lib/store';
 
-import { setSoundMuted } from '../../sound/soundPreference';
-import { useSoundMuted } from '../../sound/useNotificationSound';
+import { enableDesktopNotifications, useDesktopEnabled } from '../../desktop/useDesktopNotification';
 
 import { DigestToggle } from './DigestToggle';
 import { NotificationRow } from './NotificationRow';
@@ -42,7 +41,7 @@ const SkeletonRows = () => (
 export const NotificationPanel = ({ open }: NotificationPanelProps) => {
   const { t } = useTranslation('notification');
 
-  const muted = useSoundMuted();
+  const desktopEnabled = useDesktopEnabled();
   const { data, isLoading } = useGetNotificationsQuery(undefined, { skip: !open });
   const [markRead, { isLoading: isMarking }] = useMarkReadMutation();
   const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllReadMutation();
@@ -65,6 +64,14 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
       .catch(() => undefined);
   };
 
+  // Enabling requests OS permission; if the browser denies it, tell the user why the
+  // toggle didn't stick instead of silently leaving it off.
+  const onToggleDesktop = async () => {
+    const next = !desktopEnabled;
+    const granted = await enableDesktopNotifications(next);
+    if (next && !granted) toast.error(t('desktop.denied'));
+  };
+
   const onMarkAll = () => {
     markAllRead()
       .unwrap()
@@ -84,14 +91,14 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
         <div className="flex items-center gap-0.5">
           <button
             type="button"
-            onClick={() => setSoundMuted(!muted)}
-            aria-label={muted ? t('sound.unmute') : t('sound.mute')}
-            aria-pressed={muted}
-            title={muted ? t('sound.unmute') : t('sound.mute')}
+            onClick={onToggleDesktop}
+            aria-label={desktopEnabled ? t('desktop.disable') : t('desktop.enable')}
+            aria-pressed={desktopEnabled}
+            title={desktopEnabled ? t('desktop.disable') : t('desktop.enable')}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            data-testid="sound-toggle"
+            data-testid="desktop-toggle"
           >
-            {muted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
+            {desktopEnabled ? <Bell className="h-4 w-4" aria-hidden /> : <BellOff className="h-4 w-4" aria-hidden />}
           </button>
           <button
             type="button"

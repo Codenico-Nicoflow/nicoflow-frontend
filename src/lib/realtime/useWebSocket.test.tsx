@@ -113,4 +113,13 @@ describe('useWebSocket', () => {
     await Promise.resolve();
     expect(MockWebSocket.instances).toHaveLength(0);
   });
+
+  it('does not open a socket until a token exists (no eager on-load refresh)', async () => {
+    // Logged-in user but no token yet (the reload state before SessionRestorer runs).
+    const store = createMockStore({ auth: { user, token: null } });
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await Promise.resolve();
+    // The socket must wait for the token — it never refreshes to obtain one here.
+    expect(MockWebSocket.instances).toHaveLength(0);
+  });
 });

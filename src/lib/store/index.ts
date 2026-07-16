@@ -8,6 +8,10 @@ export { useAppDispatch, useAppSelector, useAppUser } from './hooks';
 // Store utils
 export { invalidateApiTags } from './utils/invalidateTags';
 
+// The only sanctioned refresh entry point outside baseQuery (shares its single-
+// flight mutex). Used by the WebSocket hook on a 1008 close.
+export { refreshSessionFromStore } from './slices/baseQuery';
+
 // Auth exports
 export { authApi } from './slices/auth/authApi';
 export {

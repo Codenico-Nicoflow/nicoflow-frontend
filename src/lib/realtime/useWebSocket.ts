@@ -1,23 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useStore } from 'react-redux';
+
+import type { RootState } from '@/lib/store';
 import {
   bucketApi,
   invalidateApiTags,
   notificationApi,
+  refreshSessionFromStore,
   taskApi,
   useAppDispatch,
   useAppSelector,
   useAppUser,
-  useRefreshTokenMutation,
 } from '@/lib/store';
 
 import { WS_EVENT_TAGS, type WsEvent } from './events';
-import { isTokenExpiring } from './token';
 import { buildWsUrl } from './wsUrl';
 
 // Reconnect backoff: 1 → 2 → 4 → 8 → 16 → 30s (capped). Reset to the first step on
 // a clean open, so a flaky connection that keeps dropping slows down but a genuine
-// reconnect starts fast again.
+// reconnect starts fast again. Retries are unbounded at the 30s cap — a live socket
+// self-heals when the backend recovers; the paused banner is the standing signal.
 const BACKOFF_MS = [1_000, 2_000, 4_000, 8_000, 16_000, 30_000] as const;
 
 // Show the "paused" banner only after we've actually failed to hold a connection —
@@ -35,9 +38,10 @@ const CLOSE_POLICY_VIOLATION = 1008;
 // the effect owns exactly one WebSocket at a time and tears it down on cleanup.
 export const useWebSocket = (): { paused: boolean } => {
   const dispatch = useAppDispatch();
+  const store = useStore<RootState>();
   const user = useAppUser();
   const token = useAppSelector(state => state.auth.token);
-  const [refreshToken] = useRefreshTokenMutation();
+  const hasToken = Boolean(token);
 
   const [paused, setPaused] = useState(false);
 
@@ -71,22 +75,18 @@ export const useWebSocket = (): { paused: boolean } => {
   );
 
   useEffect(() => {
-    if (!user) return; // not logged in → no socket
+    // Only open once a token exists. We deliberately do NOT refresh the token here to
+    // obtain one — the app's policy is no eager on-load refresh (see baseQuery); the
+    // socket simply waits for the normal flow (SessionRestorer / first authed query)
+    // to populate the token, at which point `hasToken` flips and this effect re-runs.
+    if (!user || !hasToken) return;
     closedRef.current = false;
 
-    // connect opens one socket. tokenOverride carries a freshly refreshed token so a
-    // post-1008 reconnect doesn't read a stale value from the closed-over `token`.
-    const connect = async (tokenOverride?: string) => {
+    // connect opens one socket, reading the current token from the store so a
+    // post-refresh reconnect always uses the latest value (never a stale closure).
+    const connect = () => {
       if (closedRef.current) return;
-
-      let live = tokenOverride ?? token;
-      // Pre-connect freshness: a token expiring mid-handshake earns an instant 1008.
-      // Refresh first so we open with a token that will outlive the upgrade.
-      if (isTokenExpiring(live)) {
-        const fresh = await refreshOnce();
-        if (closedRef.current) return;
-        if (fresh) live = fresh;
-      }
+      const live = store.getState().auth.token;
       if (!live) {
         scheduleReconnect();
         return;
@@ -110,13 +110,15 @@ export const useWebSocket = (): { paused: boolean } => {
         socketRef.current = null;
         if (closedRef.current) return;
 
-        // Bad/expired token → refresh once, then reconnect with it immediately.
+        // Bad/expired token → refresh once (through the shared single-flight path so
+        // it can never race the app's other refreshes into reuse-detection), then
+        // reconnect. A second consecutive 1008 falls through to plain backoff.
         if (event.code === CLOSE_POLICY_VIOLATION && !refreshedForCloseRef.current) {
           refreshedForCloseRef.current = true;
-          const fresh = await refreshOnce();
+          const fresh = await refreshSessionFromStore(dispatch, store.getState);
           if (closedRef.current) return;
           if (fresh) {
-            connect(fresh);
+            connect();
             return;
           }
         }
@@ -134,18 +136,7 @@ export const useWebSocket = (): { paused: boolean } => {
       if (attempt >= BANNER_AFTER_ATTEMPT) setPaused(true);
       const delay = BACKOFF_MS[Math.min(attempt, BACKOFF_MS.length - 1)];
       attemptRef.current = attempt + 1;
-      timerRef.current = setTimeout(() => connect(), delay);
-    };
-
-    // refreshOnce runs the shared refresh mutation and returns the new token, or null
-    // on failure. The mutation is itself single-flight-safe (baseQuery mutex).
-    const refreshOnce = async (): Promise<string | null> => {
-      try {
-        const data = await refreshToken().unwrap();
-        return data.token ?? null;
-      } catch {
-        return null;
-      }
+      timerRef.current = setTimeout(connect, delay);
     };
 
     connect();
@@ -160,11 +151,11 @@ export const useWebSocket = (): { paused: boolean } => {
         socket.close();
       }
     };
-    // Re-run only when the user identity changes (login/logout). Token rotation is
-    // handled inside via refreshOnce, deliberately NOT a dependency — a new token on
-    // every refresh must not tear down and reopen a healthy socket.
+    // Re-run on login/logout (user identity) and when a token first appears. Token
+    // rotation mid-session is NOT a trigger — the socket reads the live token from
+    // the store on each (re)connect, so a healthy socket is never torn down on refresh.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user?.id, hasToken]);
 
   return { paused };
 };

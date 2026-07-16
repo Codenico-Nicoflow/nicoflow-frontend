@@ -1,4 +1,4 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,11 +6,26 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Popover } from '@/components/ui/popover';
-import type { INotification } from '@/lib/types';
+import type { INotification, IUser } from '@/lib/types';
 
 import { NotificationPanel } from './index';
 
 const API = 'http://localhost:8080/v1';
+
+const makeUser = (status: IUser['status']): IUser => ({
+  id: 'u1',
+  email: 'a@b.co',
+  firstName: 'A',
+  lastName: 'B',
+  username: 'ab',
+  theme: 'light',
+  language: 'en',
+  imageUrl: '',
+  status,
+});
+
+const proStore = () => createMockStore({ auth: { user: makeUser('premium'), token: 't' } });
+const freeStore = () => createMockStore({ auth: { user: makeUser('regular'), token: 't' } });
 
 const makeNotification = (o: Partial<INotification> = {}): INotification => ({
   id: 'n1',
@@ -32,11 +47,12 @@ const prefsHandler = (emailDigest = true) =>
     })
   );
 
-const renderPanel = (open = true) =>
+const renderPanel = (open = true, store?: ReturnType<typeof createMockStore>) =>
   renderComponent(
     <Popover open={open}>
       <NotificationPanel open={open} />
-    </Popover>
+    </Popover>,
+    store ? { store } : undefined
   );
 
 describe('NotificationPanel', () => {
@@ -210,7 +226,7 @@ describe('NotificationPanel', () => {
       prefsHandler()
     );
 
-    renderPanel(true);
+    renderPanel(true, proStore());
 
     const toggle = await screen.findByTestId('desktop-toggle');
     // Starts off → the label offers to enable.
@@ -239,7 +255,7 @@ describe('NotificationPanel', () => {
       prefsHandler()
     );
 
-    renderPanel(true);
+    renderPanel(true, proStore());
 
     const toggle = await screen.findByTestId('desktop-toggle');
     await userEvent.click(toggle);
@@ -249,5 +265,93 @@ describe('NotificationPanel', () => {
     expect(localStorage.getItem('nicoflow-desktop-notifications-enabled')).toBe('false');
 
     vi.unstubAllGlobals();
+  });
+
+  it('NIC-1591: a free user cannot enable desktop — permission is never requested (upgrade prompt)', async () => {
+    localStorage.removeItem('nicoflow-desktop-notifications-enabled');
+    const requestPermission = vi.fn().mockResolvedValue('granted');
+    vi.stubGlobal('Notification', Object.assign(vi.fn(), { permission: 'default', requestPermission }));
+    server.use(
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
+      prefsHandler()
+    );
+
+    renderPanel(true, freeStore());
+
+    const toggle = await screen.findByTestId('desktop-toggle');
+    await userEvent.click(toggle);
+
+    // Pro gate: no permission requested, toggle stays off, nothing persisted.
+    await waitFor(() => expect(requestPermission).not.toHaveBeenCalled());
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(localStorage.getItem('nicoflow-desktop-notifications-enabled')).not.toBe('true');
+
+    vi.unstubAllGlobals();
+  });
+
+  it('NIC-1591: per-family switch reads the preference and writes on toggle', async () => {
+    let putBody: unknown;
+    server.use(
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
+      http.get(`${API}/notifications/preferences`, () =>
+        HttpResponse.json({
+          data: {
+            emailDigest: true,
+            pushEnabled: false,
+            smsEnabled: false,
+            beforeDueMinutes: 1440,
+            afterDueMinutes: 0,
+            overdueEnabled: true,
+            dailySummaryEnabled: true,
+            inboxNudgesEnabled: true,
+            streaksEnabled: true,
+          },
+          error: null,
+        })
+      ),
+      http.put(`${API}/notifications/preferences`, async ({ request }) => {
+        putBody = await request.json();
+        return HttpResponse.json({ data: {}, error: null });
+      })
+    );
+
+    renderPanel(true, proStore());
+
+    await userEvent.click(await screen.findByTestId('prefs-disclosure'));
+    const overdue = await screen.findByTestId('pref-overdue');
+    await waitFor(() => expect(overdue).toHaveAttribute('data-state', 'checked'));
+
+    await userEvent.click(overdue);
+    await waitFor(() => expect(putBody).toEqual({ overdueEnabled: false }));
+  });
+
+  it('NIC-1591: Pro-only families are locked for a free user', async () => {
+    server.use(
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
+      http.get(`${API}/notifications/preferences`, () =>
+        HttpResponse.json({
+          data: {
+            emailDigest: true,
+            pushEnabled: false,
+            smsEnabled: false,
+            beforeDueMinutes: 1440,
+            afterDueMinutes: 0,
+            overdueEnabled: true,
+            dailySummaryEnabled: true,
+            inboxNudgesEnabled: true,
+            streaksEnabled: true,
+          },
+          error: null,
+        })
+      )
+    );
+
+    renderPanel(true, freeStore());
+
+    await userEvent.click(await screen.findByTestId('prefs-disclosure'));
+    // Overdue is FREE → usable; a Pro family switch is disabled (locked).
+    await waitFor(() => expect(screen.getByTestId('pref-overdue')).not.toBeDisabled());
+    expect(screen.getByTestId('pref-daily-summary')).toBeDisabled();
+    expect(screen.getByTestId('pref-streaks')).toBeDisabled();
   });
 });

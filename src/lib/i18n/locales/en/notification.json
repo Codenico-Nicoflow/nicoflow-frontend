@@ -22,9 +22,19 @@
     "enable": "Enable browser notifications",
     "disable": "Disable browser notifications",
     "denied": "Browser notifications are blocked — allow them in your browser settings",
+    "upgradeBody": "Desktop notifications are a Pro feature.",
     "title": "Nicoflow",
     "body_one": "You have a new notification",
     "body_other": "You have {{count}} new notifications"
+  },
+  "prefs": {
+    "title": "Notification preferences",
+    "pro": "Pro",
+    "overdue": "Overdue task reminders",
+    "dailySummary": "Daily summary",
+    "inboxNudges": "Inbox nudges",
+    "streaks": "Streak milestones",
+    "upgradeBody": "Smart notifications are a Pro feature."
   },
   "toast": {
     "markedAllRead": "All notifications marked read",

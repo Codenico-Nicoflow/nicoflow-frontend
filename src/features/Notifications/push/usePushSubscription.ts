@@ -40,15 +40,20 @@ export const usePushSubscription = (): UsePushSubscription => {
   const [unsubscribePush, { isLoading: isUnsubscribing }] = useUnsubscribePushMutation();
 
   // Reflect the actual browser subscription on mount, so a returning user sees the
-  // toggle in its real state rather than a default-off flash.
+  // toggle in its real state rather than a default-off flash. Use getRegistration
+  // (resolves immediately — undefined when none) NOT serviceWorker.ready, which
+  // never resolves until some worker is registered: we register sw.js lazily on
+  // subscribe, so a Pro user who never subscribed would otherwise hang here with the
+  // toggle stuck disabled.
   useEffect(() => {
     if (!supported) {
       setChecking(false);
       return;
     }
     let active = true;
-    navigator.serviceWorker.ready
-      .then(reg => reg.pushManager.getSubscription())
+    navigator.serviceWorker
+      .getRegistration('/sw.js')
+      .then(reg => reg?.pushManager.getSubscription())
       .then(sub => {
         if (active) setEnabled(Boolean(sub));
       })

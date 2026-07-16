@@ -37,7 +37,7 @@ const fakeSubscription = {
   unsubscribe: vi.fn().mockResolvedValue(true),
 };
 
-const stubPushEnv = (existing: unknown = null) => {
+const stubPushEnv = (existing: unknown = null, hasRegistration = existing !== null) => {
   const subscribe = vi.fn().mockResolvedValue(fakeSubscription);
   const getSubscription = vi.fn().mockResolvedValue(existing);
   const registration = { pushManager: { subscribe, getSubscription } };
@@ -46,6 +46,9 @@ const stubPushEnv = (existing: unknown = null) => {
     serviceWorker: {
       register: vi.fn().mockResolvedValue(registration),
       ready: Promise.resolve(registration),
+      // Mount reflects state via getRegistration (immediate) — undefined when the
+      // worker was never registered (the lazy-register case).
+      getRegistration: vi.fn().mockResolvedValue(hasRegistration ? registration : undefined),
     },
   });
   vi.stubGlobal('PushManager', function PushManager() {});
@@ -83,6 +86,16 @@ describe('usePushSubscription', () => {
     expect(outcome).toBe('subscribed');
     await waitFor(() => expect(posted).not.toBeNull());
     expect(posted).toMatchObject({ endpoint: 'https://push.example/abc', userAgent: 'test-agent' });
+  });
+
+  it('mount stays usable when no service worker is registered yet (no ready hang)', async () => {
+    // stubPushEnv() → getRegistration resolves undefined; the toggle must not hang busy.
+    const store = createMockStore({ auth: { user: proUser, token: 't' } });
+    const { result } = renderHook(() => usePushSubscription(), { wrapper: wrapper(store) });
+
+    await waitFor(() => expect(result.current.busy).toBe(false));
+    expect(result.current.enabled).toBe(false);
+    expect(result.current.supported).toBe(true);
   });
 
   it('AC2 — a free user is not subscribed and gets needs-upgrade', async () => {

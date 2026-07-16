@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { Bell, Check, Clock, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Timestamp } from '@/components';
@@ -7,11 +7,7 @@ import { getDateLocale } from '@/lib/i18n/dateLocale';
 import type { INotification } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-// Map a notification type to its glyph. Unknown types fall back to the bell so a
-// new backend type never renders blank.
-const typeIcon: Record<string, typeof Bell> = {
-  task_due_soon: Clock,
-};
+import { iconForType } from '../../notificationTypes';
 
 export interface NotificationRowProps {
   notification: INotification;
@@ -27,7 +23,7 @@ export interface NotificationRowProps {
 export const NotificationRow = ({ notification, onMarkRead, onDismiss, busy }: NotificationRowProps) => {
   const { t, i18n } = useTranslation('notification');
   const reduce = useReducedMotion();
-  const Icon = typeIcon[notification.type] ?? Bell;
+  const Icon = iconForType(notification.type);
   const unread = !notification.isRead;
 
   return (

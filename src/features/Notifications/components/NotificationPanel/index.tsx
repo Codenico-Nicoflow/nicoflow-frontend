@@ -1,22 +1,27 @@
 import { AnimatePresence } from 'framer-motion';
 import { Bell, BellOff, CheckCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { EmptyState } from '@/components';
 import { PopoverContent } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
+  useAppUser,
   useDeleteNotificationMutation,
   useGetNotificationsQuery,
   useMarkAllReadMutation,
   useMarkReadMutation,
 } from '@/lib/store';
+import { USER_STATUS } from '@/lib/types';
 
 import { enableDesktopNotifications, useDesktopEnabled } from '../../desktop/useDesktopNotification';
 
 import { DigestToggle } from './DigestToggle';
+import { NotificationPreferences } from './NotificationPreferences';
 import { NotificationRow } from './NotificationRow';
+import { PushToggle } from './PushToggle';
 
 export interface NotificationPanelProps {
   // The panel only fetches while the popover is open — the count poll on the bell
@@ -41,6 +46,8 @@ const SkeletonRows = () => (
 export const NotificationPanel = ({ open }: NotificationPanelProps) => {
   const { t } = useTranslation('notification');
 
+  const user = useAppUser();
+  const isPro = user?.status === USER_STATUS.PREMIUM;
   const desktopEnabled = useDesktopEnabled();
   const { data, isLoading } = useGetNotificationsQuery(undefined, { skip: !open });
   const [markRead, { isLoading: isMarking }] = useMarkReadMutation();
@@ -64,10 +71,25 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
       .catch(() => undefined);
   };
 
-  // Enabling requests OS permission; if the browser denies it, tell the user why the
-  // toggle didn't stick instead of silently leaving it off.
+  // Desktop (foreground push) is a Pro feature. A free user who tries to enable it
+  // gets an upgrade prompt and nothing is turned on — never request permission for a
+  // plan that can't use it. Enabling for Pro requests OS permission; a browser denial
+  // is surfaced so the user knows why the toggle didn't stick.
   const onToggleDesktop = async () => {
     const next = !desktopEnabled;
+    if (next && !isPro) {
+      toast(t('push.upgradeTitle'), {
+        description: (
+          <span className="text-muted-foreground">
+            {t('desktop.upgradeBody')}{' '}
+            <Link to="/profile" className="font-medium text-primary underline-offset-2 hover:underline">
+              {t('push.upgradeCta')}
+            </Link>
+          </span>
+        ),
+      });
+      return;
+    }
     const granted = await enableDesktopNotifications(next);
     if (next && !granted) toast.error(t('desktop.denied'));
   };
@@ -137,7 +159,9 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
         )}
       </div>
 
+      <NotificationPreferences />
       <DigestToggle />
+      <PushToggle />
     </PopoverContent>
   );
 };

@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import i18n from '@/lib/i18n';
 import { AUTH_API } from '@/lib/types';
 
-import type { RootState } from '../store';
+import type { AppDispatch, RootState } from '../store';
 
 import { clearAuth, setToken } from './auth/authSlice';
 import { setRateLimited } from './rateLimit/rateLimitSlice';
@@ -155,6 +155,29 @@ export const refreshSession = async (
   } finally {
     inFlightRefresh = null;
   }
+};
+
+// refreshSessionFromStore lets non-RTK-Query callers (e.g. the WebSocket hook) run
+// the SAME single-flight refresh the rest of the app uses, sharing the one mutex +
+// in-flight-promise guard. This is the only sanctioned refresh entry point outside
+// baseQuery — never call /auth/refresh-token directly from a component, or two
+// refreshes can race and replay the rotated token into backend reuse-detection.
+// Returns the fresh access token on success, or null on any failure.
+export const refreshSessionFromStore = async (
+  dispatch: AppDispatch,
+  getState: () => RootState
+): Promise<string | null> => {
+  const controller = new AbortController();
+  const outcome = await refreshSession({
+    dispatch,
+    getState,
+    signal: controller.signal,
+    abort: (reason?: string) => controller.abort(reason),
+    endpoint: 'refreshSessionFromStore',
+    extra: undefined,
+    type: 'query',
+  });
+  return outcome === 'refreshed' ? getState().auth.token : null;
 };
 
 export const baseQueryWithReauth: BaseQueryFn<

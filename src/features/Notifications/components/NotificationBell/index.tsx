@@ -5,7 +5,8 @@ import { Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { PopoverTrigger } from '@/components/ui/popover';
-import { useGetUnreadCountQuery } from '@/lib/store';
+import { useAppUser, useGetUnreadCountQuery } from '@/lib/store';
+import { USER_STATUS } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { useDesktopNotification } from '../../desktop/useDesktopNotification';
@@ -30,6 +31,8 @@ export const NotificationBell = ({ className }: NotificationBellProps) => {
   const reduce = useReducedMotion();
   const controls = useAnimationControls();
   const notify = useDesktopNotification();
+  const user = useAppUser();
+  const isPro = user?.status === USER_STATUS.PREMIUM;
 
   const { data } = useGetUnreadCountQuery(undefined, { pollingInterval: POLL_MS });
   const count = data?.count ?? 0;
@@ -42,11 +45,15 @@ export const NotificationBell = ({ className }: NotificationBellProps) => {
   useEffect(() => {
     if (count > prevCount.current) {
       if (!reduce) controls.start({ ...swingKeyframes, transition: { duration: 0.6, ease: 'easeOut' } });
-      const added = count - prevCount.current;
-      notify(t('desktop.title'), t('desktop.body', { count: added }));
+      // The desktop (foreground push) notification is Pro-only; the swing animation
+      // stays FREE. notify() also self-guards on the enable pref + browser permission.
+      if (isPro) {
+        const added = count - prevCount.current;
+        notify(t('desktop.title'), t('desktop.body', { count: added }));
+      }
     }
     prevCount.current = count;
-  }, [count, controls, reduce, notify, t]);
+  }, [count, controls, reduce, notify, isPro, t]);
 
   const label = count > 0 ? t('bell.unreadLabel', { count }) : t('bell.label');
 

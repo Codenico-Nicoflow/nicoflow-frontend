@@ -29,5 +29,8 @@
   "toast": {
     "markedAllRead": "All notifications marked read",
     "dismissed": "Notification dismissed"
+  },
+  "realtime": {
+    "paused": "Live updates paused — reconnecting…"
   }
 }

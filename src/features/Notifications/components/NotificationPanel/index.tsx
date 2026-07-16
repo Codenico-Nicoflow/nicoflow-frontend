@@ -17,6 +17,7 @@ import { enableDesktopNotifications, useDesktopEnabled } from '../../desktop/use
 
 import { DigestToggle } from './DigestToggle';
 import { NotificationRow } from './NotificationRow';
+import { PushToggle } from './PushToggle';
 
 export interface NotificationPanelProps {
   // The panel only fetches while the popover is open — the count poll on the bell
@@ -138,6 +139,7 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
       </div>
 
       <DigestToggle />
+      <PushToggle />
     </PopoverContent>
   );
 };

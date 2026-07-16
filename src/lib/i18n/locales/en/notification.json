@@ -30,6 +30,15 @@
     "markedAllRead": "All notifications marked read",
     "dismissed": "Notification dismissed"
   },
+  "push": {
+    "label": "Notify me when the app is closed",
+    "enabled": "Browser push enabled",
+    "permissionDenied": "Browser notifications are blocked — allow them in your browser settings",
+    "failed": "Couldn't enable push notifications — please try again",
+    "upgradeTitle": "Push notifications are a Pro feature",
+    "upgradeBody": "Get notified even when Nicoflow is closed.",
+    "upgradeCta": "Upgrade to Pro"
+  },
   "realtime": {
     "paused": "Live updates paused — reconnecting…"
   }

@@ -138,12 +138,16 @@ export {
   useGetUnreadCountQuery,
   useMarkAllReadMutation,
   useMarkReadMutation,
+  useSubscribePushMutation,
+  useUnsubscribePushMutation,
   useUpdatePreferencesMutation,
 } from './slices/notification/notificationApi';
 export type {
   GetNotificationsRequest,
   GetNotificationsResponse,
   GetPreferencesResponse,
+  PushSubscribeRequest,
+  PushUnsubscribeRequest,
   UnreadCountResponse,
   UpdatePreferencesRequest,
   UpdatePreferencesResponse,

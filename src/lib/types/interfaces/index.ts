@@ -114,6 +114,10 @@ export interface INotificationPref {
   smsEnabled: boolean;
   beforeDueMinutes: number;
   afterDueMinutes: number;
+  overdueEnabled: boolean;
+  dailySummaryEnabled: boolean;
+  inboxNudgesEnabled: boolean;
+  streaksEnabled: boolean;
 }
 
 export interface ProcessingOption {

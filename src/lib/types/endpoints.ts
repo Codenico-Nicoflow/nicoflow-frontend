@@ -66,4 +66,5 @@ export const NOTIFICATION_API = {
   DELETE_NOTIFICATION: '/notifications/', // + id (DELETE)
   GET_PREFERENCES: '/notifications/preferences',
   UPDATE_PREFERENCES: '/notifications/preferences',
+  PUSH_SUBSCRIBE: '/notifications/push/subscribe', // POST subscribe · DELETE unsubscribe
 };

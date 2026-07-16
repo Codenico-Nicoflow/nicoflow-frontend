@@ -13,6 +13,8 @@ import type {
   GetPreferencesResponse,
   MarkReadRequest,
   MarkReadResponse,
+  PushSubscribeRequest,
+  PushUnsubscribeRequest,
   UnreadCountResponse,
   UpdatePreferencesRequest,
   UpdatePreferencesResponse,
@@ -88,6 +90,24 @@ export const notificationApi = createApi({
       transformErrorResponse: error => error.data,
       invalidatesTags: ['NotificationPref'],
     }),
+    // Web Push (Pro-only on the backend): a free-plan caller gets PLAN_LIMIT_EXCEEDED,
+    // surfaced to the UI as an upgrade prompt. Success carries no body (201).
+    subscribePush: builder.mutation<void, PushSubscribeRequest>({
+      query: body => ({
+        url: NOTIFICATION_API.PUSH_SUBSCRIBE,
+        method: 'POST',
+        body,
+      }),
+      transformErrorResponse: error => error.data,
+    }),
+    unsubscribePush: builder.mutation<void, PushUnsubscribeRequest>({
+      query: body => ({
+        url: NOTIFICATION_API.PUSH_SUBSCRIBE,
+        method: 'DELETE',
+        body,
+      }),
+      transformErrorResponse: error => error.data,
+    }),
   }),
 });
 
@@ -99,4 +119,6 @@ export const {
   useDeleteNotificationMutation,
   useGetPreferencesQuery,
   useUpdatePreferencesMutation,
+  useSubscribePushMutation,
+  useUnsubscribePushMutation,
 } = notificationApi;

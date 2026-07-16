@@ -30,7 +30,17 @@ const listHandler = (items: INotification[], withDelay = false) =>
 const prefsHandler = (emailDigest = true) =>
   http.get(`${API}/notifications/preferences`, () =>
     HttpResponse.json({
-      data: { emailDigest, pushEnabled: false, smsEnabled: false, beforeDueMinutes: 1440, afterDueMinutes: 0 },
+      data: {
+        emailDigest,
+        pushEnabled: false,
+        smsEnabled: false,
+        beforeDueMinutes: 1440,
+        afterDueMinutes: 0,
+        overdueEnabled: true,
+        dailySummaryEnabled: true,
+        inboxNudgesEnabled: true,
+        streaksEnabled: true,
+      },
       error: null,
     })
   );

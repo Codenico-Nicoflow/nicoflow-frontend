@@ -139,6 +139,10 @@ describe('notificationApi slice', () => {
             smsEnabled: false,
             beforeDueMinutes: 1440,
             afterDueMinutes: 0,
+            overdueEnabled: true,
+            dailySummaryEnabled: true,
+            inboxNudgesEnabled: true,
+            streaksEnabled: true,
           },
           error: null,
         })
@@ -146,7 +150,17 @@ describe('notificationApi slice', () => {
       http.put(`${API}/notifications/preferences`, async ({ request }) => {
         body = await request.json();
         return HttpResponse.json({
-          data: { emailDigest: false, pushEnabled: false, smsEnabled: false, beforeDueMinutes: 60, afterDueMinutes: 0 },
+          data: {
+            emailDigest: false,
+            pushEnabled: false,
+            smsEnabled: false,
+            beforeDueMinutes: 60,
+            afterDueMinutes: 0,
+            overdueEnabled: true,
+            dailySummaryEnabled: true,
+            inboxNudgesEnabled: true,
+            streaksEnabled: true,
+          },
           error: null,
         });
       })

@@ -27,6 +27,7 @@
     "passwordLowercase": "הסיסמה חייבת להכיל לפחות אות קטנה אחת",
     "passwordRequired": "יש להזין סיסמה",
     "passwordsNoMatch": "הסיסמאות אינן תואמות",
+    "newPasswordSameAsCurrent": "הסיסמה החדשה חייבת להיות שונה מהנוכחית",
     "firstNameRequired": "יש להזין שם פרטי",
     "firstNameMax": "השם הפרטי חייב להכיל פחות מ-50 תווים",
     "lastNameMax": "שם המשפחה חייב להכיל פחות מ-50 תווים",

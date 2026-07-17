@@ -18,6 +18,7 @@ const V = {
   passwordLowercase: 'validation.passwordLowercase',
   passwordRequired: 'validation.passwordRequired',
   passwordsNoMatch: 'validation.passwordsNoMatch',
+  newPasswordSameAsCurrent: 'validation.newPasswordSameAsCurrent',
   firstNameRequired: 'validation.firstNameRequired',
   firstNameMax: 'validation.firstNameMax',
   lastNameMax: 'validation.lastNameMax',
@@ -108,6 +109,10 @@ const changePasswordSchema = z
   .refine(data => data.newPassword === data.confirmPassword, {
     message: V.passwordsNoMatch,
     path: ['confirmPassword'],
+  })
+  .refine(data => data.newPassword !== data.currentPassword, {
+    message: V.newPasswordSameAsCurrent,
+    path: ['newPassword'],
   });
 
 const projectSchema = z.object({

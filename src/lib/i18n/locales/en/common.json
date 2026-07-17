@@ -27,6 +27,7 @@
     "passwordLowercase": "Password must contain at least one lowercase letter",
     "passwordRequired": "Password is required",
     "passwordsNoMatch": "Passwords do not match",
+    "newPasswordSameAsCurrent": "New password must be different from your current one",
     "firstNameRequired": "First name is required",
     "firstNameMax": "First name must be less than 50 characters",
     "lastNameMax": "Last name must be less than 50 characters",

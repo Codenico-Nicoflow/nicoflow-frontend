@@ -365,6 +365,17 @@ describe('changePasswordSchema', () => {
     expect(result.error?.issues[0]?.message).toBe('validation.passwordsNoMatch');
     expect(result.error?.issues[0]?.path).toEqual(['confirmPassword']);
   });
+
+  it('rejects when the new password equals the current one', () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: 'NewPass1',
+      newPassword: 'NewPass1',
+      confirmPassword: 'NewPass1',
+    });
+    expect(result.success).toBe(false);
+    const issue = result.error?.issues.find(i => i.path[0] === 'newPassword');
+    expect(issue?.message).toBe('validation.newPasswordSameAsCurrent');
+  });
 });
 
 describe('profileSchema', () => {

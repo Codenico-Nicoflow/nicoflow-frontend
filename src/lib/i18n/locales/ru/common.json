@@ -27,6 +27,7 @@
     "passwordLowercase": "Пароль должен содержать хотя бы одну строчную букву",
     "passwordRequired": "Введите пароль",
     "passwordsNoMatch": "Пароли не совпадают",
+    "newPasswordSameAsCurrent": "Новый пароль должен отличаться от текущего",
     "firstNameRequired": "Введите имя",
     "firstNameMax": "Имя должно быть короче 50 символов",
     "lastNameMax": "Фамилия должна быть короче 50 символов",

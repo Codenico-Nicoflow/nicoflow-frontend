@@ -14,6 +14,7 @@ const mockUser: IUser = {
   username: 'testuser',
   theme: 'light',
   language: 'en',
+  timezone: 'UTC',
   imageUrl: '',
   status: 'regular',
 };

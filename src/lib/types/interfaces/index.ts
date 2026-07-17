@@ -79,6 +79,7 @@ export interface IUser {
   lastName: string;
   theme: 'light' | 'dark';
   language: 'en' | 'he' | 'ru';
+  timezone: string;
   imageUrl: string;
   username: string;
   status: 'premium' | 'regular';
@@ -118,6 +119,10 @@ export interface INotificationPref {
   dailySummaryEnabled: boolean;
   inboxNudgesEnabled: boolean;
   streaksEnabled: boolean;
+  // Local hour each sweep fires at: morning (5–11) drives day-start/inbox/overdue/
+  // due reminders; evening (18–22) drives the end-of-day summary.
+  morningHour: number;
+  eveningHour: number;
 }
 
 export interface ProcessingOption {

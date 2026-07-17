@@ -34,7 +34,16 @@
     "dailySummary": "Daily summary",
     "inboxNudges": "Inbox nudges",
     "streaks": "Streak milestones",
-    "upgradeBody": "Smart notifications are a Pro feature."
+    "upgradeBody": "Smart notifications are a Pro feature.",
+    "hours": {
+      "title": "Reminder times",
+      "morningLabel": "Morning reminders",
+      "eveningLabel": "Evening summary",
+      "morningHelp": "When your day-ahead, overdue and inbox reminders arrive. Pick when you usually wake up.",
+      "eveningHelp": "When your end-of-day summary arrives. Pick when you normally wind down.",
+      "note": "On the hour only. Defaults to 8:00 AM and 8:00 PM.",
+      "loading": "Loading…"
+    }
   },
   "toast": {
     "markedAllRead": "All notifications marked read",

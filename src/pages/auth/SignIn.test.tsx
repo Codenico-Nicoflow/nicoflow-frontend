@@ -74,6 +74,25 @@ describe('SignIn page', () => {
     });
   });
 
+  it('sends the browser IANA timezone on login (self-heal, NIC-1627)', async () => {
+    let sentBody: Record<string, unknown> = {};
+    server.use(
+      http.post('http://localhost:8080/v1/auth/login', async ({ request }) => {
+        sentBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ data: mockAuthResponse, error: null });
+      })
+    );
+
+    const user = userEvent.setup();
+    renderSignIn();
+    await fillAndSubmitSignIn(user);
+
+    await waitFor(() => {
+      expect(typeof sentBody.timezone).toBe('string');
+      expect(sentBody.timezone).toBeTruthy();
+    });
+  });
+
   it('shows the resend panel (not a redirect) when login returns EMAIL_NOT_VERIFIED', async () => {
     server.use(
       http.post('http://localhost:8080/v1/auth/login', () =>

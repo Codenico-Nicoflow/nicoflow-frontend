@@ -171,3 +171,10 @@ export function prepareOptionalFields<T extends Record<string, string | number |
 
   return result;
 }
+
+// The browser's IANA time zone (e.g. "Europe/London"), sent on login so the
+// backend can self-heal a user's stored zone. Falls back to 'UTC' if Intl is
+// unavailable — the backend ignores a value equal to the stored default anyway.
+export function resolveTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+}

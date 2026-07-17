@@ -12,6 +12,10 @@ import { USER_STATUS } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { PreferenceRow } from './PreferenceRow';
+import { ReminderHoursSection } from './ReminderHoursSection';
+
+const DEFAULT_MORNING_HOUR = 8;
+const DEFAULT_EVENING_HOUR = 20;
 
 // Which preference keys are Pro-only (their backend sweep is Pro). Overdue is FREE.
 type FamilyKey = 'overdueEnabled' | 'dailySummaryEnabled' | 'inboxNudgesEnabled' | 'streaksEnabled';
@@ -115,6 +119,14 @@ export const NotificationPreferences = () => {
                 })}
               </div>
             )}
+
+            <ReminderHoursSection
+              morningHour={prefs?.morningHour ?? DEFAULT_MORNING_HOUR}
+              eveningHour={prefs?.eveningHour ?? DEFAULT_EVENING_HOUR}
+              isLoading={isLoading}
+              isSaving={isSaving}
+              onChange={patch => updatePreferences(patch)}
+            />
           </motion.div>
         )}
       </AnimatePresence>

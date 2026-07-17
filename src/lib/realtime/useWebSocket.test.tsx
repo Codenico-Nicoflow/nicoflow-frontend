@@ -47,6 +47,7 @@ const user = {
   username: 'ab',
   theme: 'light' as const,
   language: 'en' as const,
+  timezone: 'UTC',
   imageUrl: '',
   status: 'regular' as const,
 };

@@ -79,6 +79,7 @@ export interface IUser {
   lastName: string;
   theme: 'light' | 'dark';
   language: 'en' | 'he' | 'ru';
+  timezone: string;
   imageUrl: string;
   username: string;
   status: 'premium' | 'regular';
@@ -118,6 +119,8 @@ export interface INotificationPref {
   dailySummaryEnabled: boolean;
   inboxNudgesEnabled: boolean;
   streaksEnabled: boolean;
+  morningHour: number;
+  eveningHour: number;
 }
 
 export interface ProcessingOption {

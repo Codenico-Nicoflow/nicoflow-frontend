@@ -20,6 +20,7 @@ const makeUser = (status: IUser['status']): IUser => ({
   username: 'ab',
   theme: 'light',
   language: 'en',
+  timezone: 'UTC',
   imageUrl: '',
   status,
 });
@@ -52,6 +53,8 @@ const prefsHandler = (emailDigest = true) =>
         dailySummaryEnabled: true,
         inboxNudgesEnabled: true,
         streaksEnabled: true,
+        morningHour: 8,
+        eveningHour: 20,
       },
       error: null,
     })
@@ -333,6 +336,30 @@ describe('NotificationPanel', () => {
 
     await userEvent.click(overdue);
     await waitFor(() => expect(putBody).toEqual({ overdueEnabled: false }));
+  });
+
+  it('the morning-hour picker reflects the preference and writes on change', async () => {
+    let putBody: unknown;
+    server.use(
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
+      prefsHandler(),
+      http.put(`${API}/notifications/preferences`, async ({ request }) => {
+        putBody = await request.json();
+        return HttpResponse.json({ data: {}, error: null });
+      })
+    );
+
+    renderPanel(true, proStore());
+
+    await userEvent.click(await screen.findByTestId('prefs-disclosure'));
+    const morning = await screen.findByTestId('morning-hour');
+    // prefsHandler seeds morningHour: 8 → the trigger shows the formatted value.
+    await waitFor(() => expect(morning).toHaveTextContent('8:00 AM'));
+
+    await userEvent.click(morning);
+    await userEvent.click(await screen.findByRole('option', { name: '7:00 AM' }));
+
+    await waitFor(() => expect(putBody).toEqual({ morningHour: 7 }));
   });
 
   it('NIC-1591: Pro-only families are locked for a free user', async () => {

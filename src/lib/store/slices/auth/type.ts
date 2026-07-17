@@ -6,6 +6,7 @@ export type LoginRequest = {
   password: string;
   remember: boolean;
   platform?: 'web' | 'mobile';
+  timezone?: string;
 };
 
 export type RegisterRequest = {

@@ -193,6 +193,14 @@ export const baseQueryWithReauth: BaseQueryFn<
     return rawBaseQuery(args, api, extraOptions);
   }
 
+  // change-password returns 401 to mean "current password is wrong" — a domain
+  // error, not an expired session. Passing it through the reauth flow would fire
+  // a spurious /refresh-token (UNAUTHORIZED is a definitive failure → clearAuth +
+  // bounce to /sign-in). Let the caller handle its own 401 as a field error.
+  if (url === AUTH_API.CHANGE_PASSWORD) {
+    return rawBaseQuery(args, api, extraOptions);
+  }
+
   // If a refresh is already in flight (e.g. SessionRestorer on load), wait for it
   // so we don't send this request with a token that's about to be replaced.
   if (inFlightRefresh) {

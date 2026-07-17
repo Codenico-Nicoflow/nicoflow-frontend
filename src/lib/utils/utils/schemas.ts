@@ -18,6 +18,9 @@ const V = {
   passwordLowercase: 'validation.passwordLowercase',
   passwordRequired: 'validation.passwordRequired',
   passwordsNoMatch: 'validation.passwordsNoMatch',
+  firstNameRequired: 'validation.firstNameRequired',
+  firstNameMax: 'validation.firstNameMax',
+  lastNameMax: 'validation.lastNameMax',
   identifierRequired: 'validation.identifierRequired',
   emailInvalid: 'validation.emailInvalid',
   projectNameRequired: 'validation.projectNameRequired',
@@ -84,6 +87,29 @@ const registerSchema = z.object({
   password: passwordSchema,
 });
 
+// Settings › Account. Only firstName/lastName are editable — email and username
+// are login credentials and immutable (shown read-only in the UI, rejected by
+// the backend). lastName is optional; firstName is required.
+const profileSchema = z.object({
+  firstName: z.string().trim().min(1, V.firstNameRequired).max(50, V.firstNameMax),
+  lastName: z.string().trim().max(50, V.lastNameMax),
+});
+
+// Settings › Security. currentPassword is only "required" (the server verifies
+// it); newPassword follows the register policy; confirm must match. Kept a
+// separate schema from resetPassword because this flow also takes the current
+// password.
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, V.passwordRequired),
+    newPassword: passwordSchema,
+    confirmPassword: passwordSchema,
+  })
+  .refine(data => data.newPassword === data.confirmPassword, {
+    message: V.passwordsNoMatch,
+    path: ['confirmPassword'],
+  });
+
 const projectSchema = z.object({
   name: z.string().min(1, V.projectNameRequired).max(50, V.projectNameMax),
   areaId: z.string().min(1, V.areaRequired),
@@ -142,6 +168,10 @@ export type RegisterFormData = z.infer<typeof registerSchema>;
 
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
+export type ProfileFormData = z.infer<typeof profileSchema>;
+
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+
 export type ProjectFormData = z.output<typeof projectSchema>;
 
 export type AreaFormData = z.input<typeof createAreaSchema>;
@@ -154,10 +184,12 @@ export type ProcessBucketFormData = z.output<typeof processBucketSchema>;
 
 export {
   bucketSchema,
+  changePasswordSchema,
   createAreaSchema,
   forgotPasswordSchema,
   loginSchema,
   processBucketSchema,
+  profileSchema,
   projectSchema,
   registerSchema,
   resetPasswordSchema,

@@ -2,10 +2,11 @@ import { FileText, HelpCircle, Shield, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AccountCard } from '@/features/Settings/AccountCard';
 import { PreferencesCard } from '@/features/Settings/PreferencesCard';
+import { SecurityCard } from '@/features/Settings/SecurityCard';
 import { useAppUser } from '@/lib/store';
 import { USER_STATUS } from '@/lib/types';
 
@@ -24,26 +25,9 @@ const Settings = () => {
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-foreground">{t('pages.settings.title')}</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('pages.settings.accountSection')}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center gap-4">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={user?.imageUrl} alt={user?.username || 'User'} />
-            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 font-bold text-primary-foreground">
-              {(user?.username || user?.email || 'U').slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{user?.username || '—'}</p>
-            <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
-            <p className="text-xs text-muted-foreground">
-              {isFree ? t('pages.settings.freePlan') : t('pages.settings.proPlan')}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <AccountCard />
+
+      <SecurityCard />
 
       <PreferencesCard />
 

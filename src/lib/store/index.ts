@@ -15,6 +15,7 @@ export { refreshSessionFromStore } from './slices/baseQuery';
 // Auth exports
 export { authApi } from './slices/auth/authApi';
 export {
+  useChangePasswordMutation,
   useForgotPasswordMutation,
   useGetCurrentUserQuery,
   useLoginMutation,

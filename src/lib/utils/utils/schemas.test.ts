@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   bucketSchema,
+  changePasswordSchema,
   createAreaSchema,
   forgotPasswordSchema,
   loginSchema,
+  profileSchema,
   projectSchema,
   registerSchema,
   resetPasswordSchema,
@@ -328,6 +330,60 @@ describe('bucketSchema', () => {
 
   it('rejects content over 500 chars', () => {
     const result = bucketSchema.safeParse({ content: 'a'.repeat(501) });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('changePasswordSchema', () => {
+  const valid = { currentPassword: 'oldpass', newPassword: 'NewPass1', confirmPassword: 'NewPass1' };
+
+  it('parses a valid change with matching passwords', () => {
+    expect(changePasswordSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it('rejects an empty current password', () => {
+    const result = changePasswordSchema.safeParse({ ...valid, currentPassword: '' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.passwordRequired');
+  });
+
+  it('enforces the new-password policy (needs upper + lower, 8+ chars)', () => {
+    expect(changePasswordSchema.safeParse({ ...valid, newPassword: 'short', confirmPassword: 'short' }).success).toBe(
+      false
+    );
+    expect(
+      changePasswordSchema.safeParse({ ...valid, newPassword: 'alllower1', confirmPassword: 'alllower1' }).success
+    ).toBe(false);
+    expect(
+      changePasswordSchema.safeParse({ ...valid, newPassword: 'ALLUPPER1', confirmPassword: 'ALLUPPER1' }).success
+    ).toBe(false);
+  });
+
+  it('rejects when confirm does not match new', () => {
+    const result = changePasswordSchema.safeParse({ ...valid, confirmPassword: 'Different1' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.passwordsNoMatch');
+    expect(result.error?.issues[0]?.path).toEqual(['confirmPassword']);
+  });
+});
+
+describe('profileSchema', () => {
+  it('parses valid first + last name', () => {
+    expect(profileSchema.safeParse({ firstName: 'Jane', lastName: 'Doe' }).success).toBe(true);
+  });
+
+  it('allows an empty last name', () => {
+    expect(profileSchema.safeParse({ firstName: 'Jane', lastName: '' }).success).toBe(true);
+  });
+
+  it('rejects an empty first name', () => {
+    const result = profileSchema.safeParse({ firstName: '  ', lastName: 'Doe' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.firstNameRequired');
+  });
+
+  it('rejects a first name over 50 chars', () => {
+    const result = profileSchema.safeParse({ firstName: 'a'.repeat(51), lastName: 'Doe' });
     expect(result.success).toBe(false);
   });
 });

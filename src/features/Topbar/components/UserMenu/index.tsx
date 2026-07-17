@@ -1,4 +1,4 @@
-import { LogOut, MonitorSmartphone, Settings, User as UserIcon } from 'lucide-react';
+import { LogOut, MonitorSmartphone, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -94,10 +94,6 @@ export const UserMenu = () => {
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="truncate">{user.username || user.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate('/profile')}>
-            <UserIcon className="me-2 h-4 w-4" />
-            {t('nav:profile')}
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/settings')}>
             <Settings className="me-2 h-4 w-4" />
             {t('nav:settings')}

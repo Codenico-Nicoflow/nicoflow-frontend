@@ -53,7 +53,7 @@ export const NotificationPreferences = () => {
       description: (
         <span className="text-muted-foreground">
           {t('prefs.upgradeBody')}{' '}
-          <Link to="/profile" className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link to="/settings" className="font-medium text-primary underline-offset-2 hover:underline">
             {t('push.upgradeCta')}
           </Link>
         </span>

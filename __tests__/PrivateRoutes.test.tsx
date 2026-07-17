@@ -39,7 +39,7 @@ describe('PrivateRoutes', () => {
 
   it('preserves state.from after redirect to /sign-in', async () => {
     const store = createMockStore({ auth: { user: null, token: null, isLoading: false } });
-    renderComponent(<AppRoutes />, { store, initialRoute: '/profile' });
+    renderComponent(<AppRoutes />, { store, initialRoute: '/settings' });
 
     const heading = await screen.findByRole('heading', { name: /welcome back/i });
     expect(heading).toBeInTheDocument();

@@ -27,7 +27,7 @@ export const ReminderHoursSection = ({
   isSaving,
   onChange,
 }: ReminderHoursSectionProps) => {
-  const { t } = useTranslation('notification');
+  const { t, i18n } = useTranslation('notification');
 
   return (
     <div className="border-t border-border/60 px-3 py-2.5">
@@ -46,6 +46,7 @@ export const ReminderHoursSection = ({
             help={t('prefs.hours.morningHelp')}
             value={morningHour}
             hours={MORNING_HOURS}
+            locale={i18n.language}
             disabled={isSaving}
             onChange={h => onChange({ morningHour: h })}
             testId="morning-hour"
@@ -56,6 +57,7 @@ export const ReminderHoursSection = ({
             help={t('prefs.hours.eveningHelp')}
             value={eveningHour}
             hours={EVENING_HOURS}
+            locale={i18n.language}
             disabled={isSaving}
             onChange={h => onChange({ eveningHour: h })}
             testId="evening-hour"

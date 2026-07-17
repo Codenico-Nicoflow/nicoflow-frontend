@@ -2,13 +2,10 @@ import type { LucideIcon } from 'lucide-react';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Renders a 24h hour as a locale-agnostic 12h label ("8:00 AM", "8:00 PM"). Kept
-// simple + framework-agnostic so it survives the E-033 shared-package extraction.
-export const formatHour = (hour: number): string => {
-  const period = hour < 12 ? 'AM' : 'PM';
-  const twelve = hour % 12 === 0 ? 12 : hour % 12;
-  return `${twelve}:00 ${period}`;
-};
+// Renders a 24h hour in the given locale's own convention — English gets "8:00 AM",
+// he/ru get their 24h form ("8:00", "20:00"). Uses Intl so we never hardcode AM/PM.
+export const formatHour = (hour: number, locale: string): string =>
+  new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(new Date(2000, 0, 1, hour, 0));
 
 interface HourPickerProps {
   icon: LucideIcon;
@@ -16,13 +13,24 @@ interface HourPickerProps {
   help: string;
   value: number;
   hours: number[];
+  locale: string;
   disabled?: boolean;
   onChange: (hour: number) => void;
   testId?: string;
 }
 
 // One labelled hour dropdown: icon + label + help text + a Select of allowed hours.
-export const HourPicker = ({ icon: Icon, label, help, value, hours, disabled, onChange, testId }: HourPickerProps) => (
+export const HourPicker = ({
+  icon: Icon,
+  label,
+  help,
+  value,
+  hours,
+  locale,
+  disabled,
+  onChange,
+  testId,
+}: HourPickerProps) => (
   <div className="flex flex-col gap-1.5">
     <div className="flex items-center gap-2.5">
       <Icon aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -34,7 +42,7 @@ export const HourPicker = ({ icon: Icon, label, help, value, hours, disabled, on
         <SelectContent>
           {hours.map(h => (
             <SelectItem key={h} value={String(h)} className="text-xs">
-              {formatHour(h)}
+              {formatHour(h, locale)}
             </SelectItem>
           ))}
         </SelectContent>

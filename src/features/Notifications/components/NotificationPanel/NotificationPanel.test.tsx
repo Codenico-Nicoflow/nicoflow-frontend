@@ -338,7 +338,7 @@ describe('NotificationPanel', () => {
     await waitFor(() => expect(putBody).toEqual({ overdueEnabled: false }));
   });
 
-  it('NIC-1627: the morning-hour picker reflects the preference and writes on change', async () => {
+  it('the morning-hour picker reflects the preference and writes on change', async () => {
     let putBody: unknown;
     server.use(
       http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),

@@ -3,20 +3,21 @@ import { describe, expect, it } from 'vitest';
 import { formatHour } from './HourPicker';
 
 describe('formatHour', () => {
-  it('formats morning hours as AM', () => {
-    expect(formatHour(5)).toBe('5:00 AM');
-    expect(formatHour(8)).toBe('8:00 AM');
-    expect(formatHour(11)).toBe('11:00 AM');
+  it('uses 12h AM/PM for English', () => {
+    expect(formatHour(8, 'en')).toBe('8:00 AM');
+    expect(formatHour(20, 'en')).toBe('8:00 PM');
+    expect(formatHour(12, 'en')).toBe('12:00 PM');
+    expect(formatHour(0, 'en')).toBe('12:00 AM');
   });
 
-  it('formats evening hours as PM', () => {
-    expect(formatHour(18)).toBe('6:00 PM');
-    expect(formatHour(20)).toBe('8:00 PM');
-    expect(formatHour(22)).toBe('10:00 PM');
-  });
-
-  it('formats noon and midnight edge hours', () => {
-    expect(formatHour(12)).toBe('12:00 PM');
-    expect(formatHour(0)).toBe('12:00 AM');
+  it('uses each locale own convention (no hardcoded AM/PM)', () => {
+    // he + ru are 24h locales — the label carries no AM/PM.
+    for (const locale of ['he', 'ru']) {
+      expect(formatHour(20, locale)).not.toMatch(/AM|PM/);
+      expect(formatHour(8, locale)).not.toMatch(/AM|PM/);
+    }
+    // 20:00 renders as a 24h value in these locales.
+    expect(formatHour(20, 'ru')).toContain('20');
+    expect(formatHour(20, 'he')).toContain('20');
   });
 });

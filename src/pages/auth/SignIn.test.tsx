@@ -74,7 +74,7 @@ describe('SignIn page', () => {
     });
   });
 
-  it('sends the browser IANA timezone on login (self-heal, NIC-1627)', async () => {
+  it('sends the browser IANA timezone on login (self-heal)', async () => {
     let sentBody: Record<string, unknown> = {};
     server.use(
       http.post('http://localhost:8080/v1/auth/login', async ({ request }) => {

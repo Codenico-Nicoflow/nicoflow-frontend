@@ -82,7 +82,7 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
         description: (
           <span className="text-muted-foreground">
             {t('desktop.upgradeBody')}{' '}
-            <Link to="/profile" className="font-medium text-primary underline-offset-2 hover:underline">
+            <Link to="/settings" className="font-medium text-primary underline-offset-2 hover:underline">
               {t('push.upgradeCta')}
             </Link>
           </span>

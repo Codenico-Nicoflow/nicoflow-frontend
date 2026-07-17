@@ -32,7 +32,7 @@ export const PlanLimitAlert = ({ message }: PlanLimitAlertProps) => {
             className="bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-500 dark:hover:bg-amber-400"
           >
             {/* TODO: point at billing page (E-030) */}
-            <Link to="/profile">
+            <Link to="/settings">
               <Zap className="h-4 w-4" />
               {t('planLimit.cta')}
             </Link>

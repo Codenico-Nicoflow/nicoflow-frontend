@@ -3,7 +3,6 @@ export * from './auth';
 export { default as ErrorPage } from './ErrorPage';
 export { default as HelpAndInformation } from './HelpAndInformation';
 export { default as PrivacyPolicy } from './PrivacyPolicy';
-export { default as Profile } from './Profile';
 export * from './project';
 export * from './quick-access';
 export { default as Settings } from './Settings';

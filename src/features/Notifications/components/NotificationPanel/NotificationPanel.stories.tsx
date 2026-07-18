@@ -27,24 +27,6 @@ const listHandler = (items: INotification[], withDelay = false) =>
     return HttpResponse.json({ data: { items, nextCursor: '' }, error: null });
   });
 
-const prefsHandler = (emailDigest = true) =>
-  http.get(`${API}/notifications/preferences`, () =>
-    HttpResponse.json({
-      data: {
-        emailDigest,
-        pushEnabled: false,
-        smsEnabled: false,
-        beforeDueMinutes: 1440,
-        afterDueMinutes: 0,
-        overdueEnabled: true,
-        dailySummaryEnabled: true,
-        inboxNudgesEnabled: true,
-        streaksEnabled: true,
-      },
-      error: null,
-    })
-  );
-
 const meta: Meta<typeof NotificationPanel> = {
   title: 'Features/Notifications/NotificationPanel',
   component: NotificationPanel,
@@ -87,16 +69,15 @@ export const Populated: Story = {
             createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
           }),
         ]),
-        prefsHandler(true),
       ],
     },
   },
 };
 
 export const Empty: Story = {
-  parameters: { msw: { handlers: [listHandler([]), prefsHandler(false)] } },
+  parameters: { msw: { handlers: [listHandler([])] } },
 };
 
 export const Loading: Story = {
-  parameters: { msw: { handlers: [listHandler([], true), prefsHandler(true)] } },
+  parameters: { msw: { handlers: [listHandler([], true)] } },
 };

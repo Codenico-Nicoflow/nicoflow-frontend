@@ -48,6 +48,6 @@ export const HourPicker = ({
         </SelectContent>
       </Select>
     </div>
-    <p className="ps-6.5 text-[11px] leading-snug text-muted-foreground/70">{help}</p>
+    <p className="ps-[1.625rem] text-[11px] leading-snug text-muted-foreground/70">{help}</p>
   </div>
 );

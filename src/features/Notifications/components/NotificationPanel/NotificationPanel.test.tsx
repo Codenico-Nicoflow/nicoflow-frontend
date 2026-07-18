@@ -40,26 +40,6 @@ const makeNotification = (o: Partial<INotification> = {}): INotification => ({
   ...o,
 });
 
-const prefsHandler = (emailDigest = true) =>
-  http.get(`${API}/notifications/preferences`, () =>
-    HttpResponse.json({
-      data: {
-        emailDigest,
-        pushEnabled: false,
-        smsEnabled: false,
-        beforeDueMinutes: 1440,
-        afterDueMinutes: 0,
-        overdueEnabled: true,
-        dailySummaryEnabled: true,
-        inboxNudgesEnabled: true,
-        streaksEnabled: true,
-        morningHour: 8,
-        eveningHour: 20,
-      },
-      error: null,
-    })
-  );
-
 const renderPanel = (open = true, store?: ReturnType<typeof createMockStore>) =>
   renderComponent(
     <Popover open={open}>
@@ -78,8 +58,7 @@ describe('NotificationPanel', () => {
           data: { items: [makeNotification({ id: 'n1', title: 'Buy milk' })], nextCursor: '' },
           error: null,
         });
-      }),
-      prefsHandler()
+      })
     );
 
     renderPanel(true);
@@ -90,13 +69,29 @@ describe('NotificationPanel', () => {
 
   it('AC1: shows the empty state when there are no notifications', async () => {
     server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      prefsHandler()
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null }))
     );
 
     renderPanel(true);
 
     await waitFor(() => expect(screen.getByText('No new notifications')).toBeInTheDocument());
+  });
+
+  it('NIC-1613: the panel renders the list only — no preference controls', async () => {
+    server.use(
+      http.get(`${API}/notifications`, () =>
+        HttpResponse.json({ data: { items: [makeNotification({ id: 'n1' })], nextCursor: '' }, error: null })
+      )
+    );
+
+    renderPanel(true);
+    await screen.findByTestId('notification-row');
+
+    // Preferences moved to Settings — none of the pref controls live here anymore.
+    expect(screen.queryByTestId('prefs-disclosure')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('digest-toggle')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('push-toggle')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('morning-hour')).not.toBeInTheDocument();
   });
 
   it('AC2: mark-read calls the mutation for that notification', async () => {
@@ -108,8 +103,7 @@ describe('NotificationPanel', () => {
       http.patch(`${API}/notifications/n1/read`, () => {
         markedId = 'n1';
         return HttpResponse.json({ data: makeNotification({ id: 'n1', isRead: true }), error: null });
-      }),
-      prefsHandler()
+      })
     );
 
     renderPanel(true);
@@ -129,8 +123,7 @@ describe('NotificationPanel', () => {
       http.delete(`${API}/notifications/n1`, () => {
         deleted = true;
         return new HttpResponse(null, { status: 204 });
-      }),
-      prefsHandler()
+      })
     );
 
     renderPanel(true);
@@ -154,8 +147,7 @@ describe('NotificationPanel', () => {
       http.patch(`${API}/notifications/read-all`, () => {
         readSpy();
         return HttpResponse.json({ data: { count: 1 }, error: null });
-      }),
-      prefsHandler()
+      })
     );
 
     renderPanel(true);
@@ -165,42 +157,9 @@ describe('NotificationPanel', () => {
     expect(readSpy).not.toHaveBeenCalled();
   });
 
-  it('AC4: the digest toggle reflects the persisted preference and writes on flip', async () => {
-    let putBody: unknown;
-    server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      prefsHandler(false),
-      http.put(`${API}/notifications/preferences`, async ({ request }) => {
-        putBody = await request.json();
-        return HttpResponse.json({
-          data: {
-            emailDigest: true,
-            pushEnabled: false,
-            smsEnabled: false,
-            beforeDueMinutes: 1440,
-            afterDueMinutes: 0,
-          },
-          error: null,
-        });
-      })
-    );
-
-    renderPanel(true);
-
-    const toggle = await screen.findByTestId('digest-toggle');
-    await waitFor(() => expect(toggle).toHaveAttribute('data-state', 'unchecked'));
-
-    await userEvent.click(toggle);
-
-    await waitFor(() => expect(putBody).toEqual({ emailDigest: true }));
-  });
-
   it('AC5: shows a skeleton while the list is loading', async () => {
     // Never-resolving list → stays in loading.
-    server.use(
-      http.get(`${API}/notifications`, () => new Promise(() => {})),
-      prefsHandler()
-    );
+    server.use(http.get(`${API}/notifications`, () => new Promise(() => {})));
 
     renderPanel(true);
 
@@ -217,8 +176,7 @@ describe('NotificationPanel', () => {
           },
           error: null,
         })
-      ),
-      prefsHandler()
+      )
     );
 
     renderPanel(true);
@@ -235,8 +193,7 @@ describe('NotificationPanel', () => {
     const requestPermission = vi.fn().mockResolvedValue('granted');
     vi.stubGlobal('Notification', Object.assign(vi.fn(), { permission: 'default', requestPermission }));
     server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      prefsHandler()
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null }))
     );
 
     renderPanel(true, proStore());
@@ -264,8 +221,7 @@ describe('NotificationPanel', () => {
     const requestPermission = vi.fn().mockResolvedValue('denied');
     vi.stubGlobal('Notification', Object.assign(vi.fn(), { permission: 'default', requestPermission }));
     server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      prefsHandler()
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null }))
     );
 
     renderPanel(true, proStore());
@@ -285,8 +241,7 @@ describe('NotificationPanel', () => {
     const requestPermission = vi.fn().mockResolvedValue('granted');
     vi.stubGlobal('Notification', Object.assign(vi.fn(), { permission: 'default', requestPermission }));
     server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      prefsHandler()
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null }))
     );
 
     renderPanel(true, freeStore());
@@ -300,95 +255,5 @@ describe('NotificationPanel', () => {
     expect(localStorage.getItem('nicoflow-desktop-notifications-enabled')).not.toBe('true');
 
     vi.unstubAllGlobals();
-  });
-
-  it('NIC-1591: per-family switch reads the preference and writes on toggle', async () => {
-    let putBody: unknown;
-    server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      http.get(`${API}/notifications/preferences`, () =>
-        HttpResponse.json({
-          data: {
-            emailDigest: true,
-            pushEnabled: false,
-            smsEnabled: false,
-            beforeDueMinutes: 1440,
-            afterDueMinutes: 0,
-            overdueEnabled: true,
-            dailySummaryEnabled: true,
-            inboxNudgesEnabled: true,
-            streaksEnabled: true,
-          },
-          error: null,
-        })
-      ),
-      http.put(`${API}/notifications/preferences`, async ({ request }) => {
-        putBody = await request.json();
-        return HttpResponse.json({ data: {}, error: null });
-      })
-    );
-
-    renderPanel(true, proStore());
-
-    await userEvent.click(await screen.findByTestId('prefs-disclosure'));
-    const overdue = await screen.findByTestId('pref-overdue');
-    await waitFor(() => expect(overdue).toHaveAttribute('data-state', 'checked'));
-
-    await userEvent.click(overdue);
-    await waitFor(() => expect(putBody).toEqual({ overdueEnabled: false }));
-  });
-
-  it('the morning-hour picker reflects the preference and writes on change', async () => {
-    let putBody: unknown;
-    server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      prefsHandler(),
-      http.put(`${API}/notifications/preferences`, async ({ request }) => {
-        putBody = await request.json();
-        return HttpResponse.json({ data: {}, error: null });
-      })
-    );
-
-    renderPanel(true, proStore());
-
-    await userEvent.click(await screen.findByTestId('prefs-disclosure'));
-    const morning = await screen.findByTestId('morning-hour');
-    // prefsHandler seeds morningHour: 8 → the trigger shows the formatted value.
-    await waitFor(() => expect(morning).toHaveTextContent('8:00 AM'));
-
-    await userEvent.click(morning);
-    await userEvent.click(await screen.findByRole('option', { name: '7:00 AM' }));
-
-    await waitFor(() => expect(putBody).toEqual({ morningHour: 7 }));
-  });
-
-  it('NIC-1591: Pro-only families are locked for a free user', async () => {
-    server.use(
-      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null })),
-      http.get(`${API}/notifications/preferences`, () =>
-        HttpResponse.json({
-          data: {
-            emailDigest: true,
-            pushEnabled: false,
-            smsEnabled: false,
-            beforeDueMinutes: 1440,
-            afterDueMinutes: 0,
-            overdueEnabled: true,
-            dailySummaryEnabled: true,
-            inboxNudgesEnabled: true,
-            streaksEnabled: true,
-          },
-          error: null,
-        })
-      )
-    );
-
-    renderPanel(true, freeStore());
-
-    await userEvent.click(await screen.findByTestId('prefs-disclosure'));
-    // Overdue is FREE → usable; a Pro family switch is disabled (locked).
-    await waitFor(() => expect(screen.getByTestId('pref-overdue')).not.toBeDisabled());
-    expect(screen.getByTestId('pref-daily-summary')).toBeDisabled();
-    expect(screen.getByTestId('pref-streaks')).toBeDisabled();
   });
 });

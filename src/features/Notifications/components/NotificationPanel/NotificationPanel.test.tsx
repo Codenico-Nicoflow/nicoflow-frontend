@@ -77,7 +77,7 @@ describe('NotificationPanel', () => {
     await waitFor(() => expect(screen.getByText('No new notifications')).toBeInTheDocument());
   });
 
-  it('NIC-1613: the panel renders the list only — no preference controls', async () => {
+  it('the panel renders the list only — no preference controls', async () => {
     server.use(
       http.get(`${API}/notifications`, () =>
         HttpResponse.json({ data: { items: [makeNotification({ id: 'n1' })], nextCursor: '' }, error: null })
@@ -236,7 +236,7 @@ describe('NotificationPanel', () => {
     vi.unstubAllGlobals();
   });
 
-  it('NIC-1591: a free user cannot enable desktop — permission is never requested (upgrade prompt)', async () => {
+  it('a free user cannot enable desktop — permission is never requested (upgrade prompt)', async () => {
     localStorage.removeItem('nicoflow-desktop-notifications-enabled');
     const requestPermission = vi.fn().mockResolvedValue('granted');
     vi.stubGlobal('Notification', Object.assign(vi.fn(), { permission: 'default', requestPermission }));

@@ -65,7 +65,7 @@ export const ReminderHoursSection = ({
         </div>
       )}
 
-      <p className="mt-2 text-[11px] leading-snug text-muted-foreground/70">{t('prefs.hours.note')}</p>
+      <p className="mt-2 ps-[1.625rem] text-[11px] leading-snug text-muted-foreground/70">{t('prefs.hours.note')}</p>
     </div>
   );
 };

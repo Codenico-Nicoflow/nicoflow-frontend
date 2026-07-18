@@ -5,10 +5,11 @@ import { resolveTimeZone } from '@/lib/utils';
 
 import { baseQueryWithReauth } from '../baseQuery';
 
-import { clearAuth, setUser } from './authSlice';
+import { clearAuth, setToken, setUser } from './authSlice';
 import type {
   ApiEnvelope,
   AuthResponse,
+  ChangePasswordRequest,
   ForgotPasswordRequest,
   LoginRequest,
   RegisterRequest,
@@ -138,6 +139,29 @@ export const authApi = createApi({
       },
       invalidatesTags: ['User'],
     }),
+    changePassword: builder.mutation<AuthResponse, ChangePasswordRequest>({
+      query: body => ({
+        url: AUTH_API.CHANGE_PASSWORD,
+        method: 'POST',
+        body,
+        credentials: 'include',
+      }),
+      transformResponse: (raw: ApiEnvelope<AuthResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      // Persist the rotated token pair on success. Swallow the rejection here —
+      // the 401 (wrong current password) is handled at the call site; leaving
+      // queryFulfilled un-caught surfaces an unhandled rejection.
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setToken(data.token));
+          dispatch(setUser(data.user));
+        } catch {
+          // handled by the component
+        }
+      },
+      invalidatesTags: ['User'],
+    }),
     refreshToken: builder.mutation<AuthResponse, void>({
       query: () => ({
         url: AUTH_API.REFRESH_TOKEN,
@@ -161,5 +185,6 @@ export const {
   useResendVerificationMutation,
   useGetCurrentUserQuery,
   useUpdateProfileMutation,
+  useChangePasswordMutation,
   useRefreshTokenMutation,
 } = authApi;

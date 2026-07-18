@@ -2,6 +2,7 @@
   "SIGN_IN_SUCCESSFULLY": "התחברת בהצלחה!",
   "SIGN_UP_SUCCESSFULLY": "נרשמת בהצלחה!",
   "PASSWORD_CHANGED_SUCCESSFULLY": "הסיסמה שונתה בהצלחה!",
+  "ACCOUNT_UPDATED": "החשבון עודכן בהצלחה!",
   "LOGGED_OUT_SUCCESSFULLY": "התנתקת מהמערכת.",
   "LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY": "התנתקת מכל המכשירים.",
   "PASSWORD_RESET_EMAIL_SENT_SUCCESSFULLY": "אימייל לאיפוס סיסמה נשלח בהצלחה!",

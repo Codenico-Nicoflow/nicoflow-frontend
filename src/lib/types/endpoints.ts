@@ -3,6 +3,7 @@ export const AUTH_API = {
   REGISTER: '/auth/register',
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/auth/reset-password',
+  CHANGE_PASSWORD: '/auth/change-password',
   LOGOUT: '/auth/logout',
   LOGOUT_ALL: '/auth/logout-all',
   REFRESH_TOKEN: '/auth/refresh-token',

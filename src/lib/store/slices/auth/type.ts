@@ -51,12 +51,17 @@ export type ResendVerificationRequest = {
 };
 
 // PATCH /v1/users/me — all fields optional (omit a field to leave it unchanged).
-// Mirrors the backend UpdateMeRequest; this story wires theme + language.
+// Mirrors the backend UpdateMeRequest. Note: email and username are immutable via
 export type UpdateProfileRequest = {
   firstName?: string;
   lastName?: string;
-  email?: string;
   timezone?: string;
   theme?: IUser['theme'];
   language?: IUser['language'];
+};
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 };

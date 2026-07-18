@@ -5,10 +5,12 @@ export type { IconId } from './utils/schemas';
 export { ICON_IDS } from './utils/schemas';
 export {
   bucketSchema,
+  changePasswordSchema,
   createAreaSchema,
   forgotPasswordSchema,
   loginSchema,
   processBucketSchema,
+  profileSchema,
   projectSchema,
   registerSchema,
   resetPasswordSchema,
@@ -20,9 +22,11 @@ export {
 export type {
   AreaFormData,
   BucketFormData,
+  ChangePasswordFormData,
   ForgotPasswordFormData,
   LoginFormData,
   ProcessBucketFormData,
+  ProfileFormData,
   ProjectFormData,
   RegisterFormData,
   ResetPasswordFormData,

@@ -2,6 +2,7 @@
   "SIGN_IN_SUCCESSFULLY": "Signed in successfully!",
   "SIGN_UP_SUCCESSFULLY": "Signed up successfully!",
   "PASSWORD_CHANGED_SUCCESSFULLY": "Password changed successfully!",
+  "ACCOUNT_UPDATED": "Account updated successfully!",
   "LOGGED_OUT_SUCCESSFULLY": "You have been logged out.",
   "LOGGED_OUT_ALL_DEVICES_SUCCESSFULLY": "Logged out from all devices.",
   "PASSWORD_RESET_EMAIL_SENT_SUCCESSFULLY": "Password reset email sent successfully!",

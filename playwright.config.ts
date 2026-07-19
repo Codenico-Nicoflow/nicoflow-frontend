@@ -6,10 +6,15 @@ import { defineConfig, devices } from '@playwright/test';
 // the E2E_LIVE-gated tests that require a real backend behind that URL.
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173';
 const useExternalServer = !!process.env.PLAYWRIGHT_BASE_URL;
+const isLive = !!process.env.E2E_LIVE;
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  // Live runs share one staging account — serialize so specs don't fight over it.
+  fullyParallel: !isLive,
+  workers: isLive ? 1 : undefined,
+  // Live login once in global-setup; the token is reused across specs.
+  globalSetup: isLive ? './e2e/helpers/global-setup.ts' : undefined,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',

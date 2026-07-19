@@ -57,9 +57,22 @@ jobs:
           path: coverage/
           retention-days: 30
 
-  test-e2e:
+  # Live @core gate — runs the happy-path journeys against deployed staging and
+  # BLOCKS merge (NIC-1339 AC1). Serialized via a concurrency group so no two
+  # runs touch the single shared staging account at once (AC2). Waits for
+  # staging to be warm first, so a just-merged redeploy can't flake the gate.
+  test-e2e-live:
     needs: [lint, type-check]
     runs-on: ubuntu-latest
+    concurrency:
+      group: e2e-staging
+      cancel-in-progress: false # never cancel mid-run — it would orphan e2e-* data
+    env:
+      E2E_LIVE: '1'
+      PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL_STAGING }}
+      E2E_API_STAGING: ${{ secrets.E2E_API_STAGING }}
+      E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+      E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -71,17 +84,26 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
-      - name: Run E2E tests
-        run: pnpm test:e2e
+      - name: Wait for staging API to be warm
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS "$E2E_API_STAGING/health" >/dev/null 2>&1; then
+              echo "staging warm"; exit 0
+            fi
+            echo "waiting for staging ($i/20)…"; sleep 3
+          done
+          echo "staging did not become healthy" >&2; exit 1
+      - name: Run @core against staging
+        run: pnpm test:e2e --grep @core
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-live
           path: playwright-report/
           retention-days: 30
 
   build:
-    needs: [lint, type-check, test, test-e2e]
+    needs: [lint, type-check, test, test-e2e-live]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

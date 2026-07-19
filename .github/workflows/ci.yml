@@ -72,6 +72,8 @@ jobs:
       E2E_API_STAGING: ${{ secrets.E2E_API_STAGING }}
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
       E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      # Matches RATE_LIMIT_BYPASS_TOKEN set on the staging API — skips rate limits.
+      E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -95,10 +97,13 @@ jobs:
       # Build THIS branch's frontend so the E2E run tests the code under review,
       # not a lagging deploy. The suite serves this bundle on :4173 (vite preview)
       # and points it at the staging API.
+      # Build the FE to call /v1 — the preview server (e2e/serve-e2e.mjs) proxies
+      # /v1 to the staging API from the same origin, so browser XHR isn't CORS-
+      # blocked (staging allows only the Vercel origin).
       - name: Build frontend for E2E
         run: pnpm build
         env:
-          VITE_API_URL: ${{ secrets.E2E_API_STAGING }}
+          VITE_API_URL: /v1
       - name: Run @core against staging
         run: pnpm test:e2e --grep @core
       - uses: actions/upload-artifact@v4

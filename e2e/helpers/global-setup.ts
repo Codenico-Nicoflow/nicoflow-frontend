@@ -3,7 +3,7 @@ import { request } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
-import { apiBase, baseURL, STORAGE_STATE, TOKEN_FILE } from './e2e-live';
+import { apiDirect, baseURL, STORAGE_STATE, TOKEN_FILE } from './e2e-live';
 
 // Authenticate ONCE per run, then hand every spec a ready-to-use browser session
 // via Playwright storageState — no per-spec login, so staging's login rate limit
@@ -30,8 +30,10 @@ export default async function globalSetup(): Promise<void> {
   let token: string | undefined;
   let user: unknown;
   for (let attempt = 1; attempt <= 4; attempt++) {
-    const res = await ctx.post(`${apiBase}/auth/login`, {
+    const bypass = process.env['E2E_BYPASS_TOKEN'];
+    const res = await ctx.post(`${apiDirect}/auth/login`, {
       data: { identifier: email, password, remember: true },
+      headers: bypass ? { 'X-E2E-Bypass': bypass } : {},
     });
     const body = await res.json();
     token = body?.data?.token;

@@ -53,8 +53,10 @@ export default defineConfig({
     ? undefined
     : isLive
       ? {
-          // Serve the pre-built branch bundle (built with VITE_API_URL=staging).
-          command: 'pnpm exec vite preview --port 4173 --strictPort',
+          // Serve the pre-built branch bundle AND reverse-proxy /v1 → staging so
+          // browser XHR is same-origin (staging CORS allows only the Vercel
+          // origin). Build with VITE_API_URL=/v1 so requests hit this proxy.
+          command: 'node e2e/serve-e2e.mjs',
           url: LIVE_PREVIEW_URL,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,

@@ -19,12 +19,12 @@ test.describe('@core Areas board (live)', () => {
     try {
       await page.goto('/areas');
 
-      // "New area" sits in the header when areas exist, in the empty state when
-      // none do. Whichever is on screen opens the same create dialog.
+      // Wait for the board to finish loading (the sentinel area is always
+      // present, so the grid renders — never the empty state). Settling here
+      // avoids racing the loading→loaded swap of the "New area" button.
       const newAreaBtn = page.getByTestId('board-new-area');
-      const emptyCreateBtn = page.getByTestId('board-empty-create');
-      await expect(newAreaBtn.or(emptyCreateBtn).first()).toBeVisible();
-      await ((await newAreaBtn.isVisible()) ? newAreaBtn : emptyCreateBtn).click();
+      await expect(newAreaBtn).toBeVisible();
+      await newAreaBtn.click();
 
       const dialog = page.getByTestId('form-dialog-content');
       await expect(dialog).toBeVisible();

@@ -10,13 +10,20 @@ const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Aa123456';
 const API = process.env['E2E_API_STAGING'] ?? 'http://localhost:8080/v1';
 const PASSWORD_PLACEHOLDER = '••••••••';
 
-export const apiBase = API;
-
 // Frontend origin the UI specs run against. Live builds serve the branch bundle
 // on :4173 (see playwright.config); PLAYWRIGHT_BASE_URL overrides for a run that
 // targets an already-deployed frontend.
 export const baseURL =
   process.env['PLAYWRIGHT_BASE_URL'] ?? (process.env['E2E_LIVE'] ? 'http://localhost:4173' : 'http://localhost:5173');
+
+// The direct staging API (used by global-setup, which runs before the proxy is up).
+export const apiDirect = API;
+
+// Specs' own API calls (fixture setup / teardown / id lookups) go through the
+// same :4173 proxy the browser uses, so they inherit its 429-retry and don't
+// trip staging's burst limiter independently. Falls back to direct when not
+// served through the local preview (e.g. targeting a deployed frontend).
+export const apiBase = process.env['E2E_LIVE'] && !process.env['PLAYWRIGHT_BASE_URL'] ? `${baseURL}/v1` : API;
 
 // Written once by global-setup (single login/run — staging rate-limits login).
 export const TOKEN_FILE = join(process.cwd(), 'test-results', '.e2e-token');

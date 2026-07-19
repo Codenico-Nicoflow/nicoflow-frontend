@@ -56,4 +56,38 @@ test.describe('@core Tasks + subtasks (live)', () => {
       await api.dispose();
     }
   });
+
+  // eslint-disable-next-line no-empty-pattern
+  test('schedule a task to today and see it in the time spread', async ({}, testInfo) => {
+    const uid = uniqueSuffix(testInfo.retry);
+    const title = `e2e-task-${uid}`;
+
+    const token = getToken();
+    const api = await playwrightRequest.newContext();
+    const auth = { Authorization: `Bearer ${token}` };
+    const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
+    let taskId: string | undefined;
+
+    try {
+      const created = await api.post(`${apiBase}/projects/${projectId}/tasks`, { headers: auth, data: { title } });
+      expect(created.ok()).toBeTruthy();
+      taskId = (await created.json()).data.id as string;
+
+      // schedule endpoint wants an ISO date (YYYY-MM-DD), not the enum. Use
+      // today's UTC date so it lands in the time spread's `today` bucket.
+      const todayISO = new Date().toISOString().slice(0, 10);
+      const scheduled = await api.patch(`${apiBase}/tasks/${taskId}/schedule`, {
+        headers: auth,
+        data: { scheduledFor: todayISO },
+      });
+      expect(scheduled.ok()).toBeTruthy();
+
+      const spread = await (await api.get(`${apiBase}/time-spread?tz=UTC`, { headers: auth })).json();
+      const todayIds = (spread.data.today as { id: string }[]).map(t => t.id);
+      expect(todayIds).toContain(taskId);
+    } finally {
+      if (taskId) await bestEffortDelete(api, token, `/tasks/${taskId}`);
+      await api.dispose();
+    }
+  });
 });

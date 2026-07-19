@@ -44,4 +44,45 @@ test.describe('@core Projects CRUD (live)', () => {
       await api.dispose();
     }
   });
+
+  // eslint-disable-next-line no-empty-pattern
+  test('move a project from the default area to another area', async ({}, testInfo) => {
+    const uid = uniqueSuffix(testInfo.retry);
+    const targetAreaName = `e2e-area-${uid}`;
+    const projectName = `e2e-project-${uid}`;
+
+    const token = getToken();
+    const api = await playwrightRequest.newContext();
+    const auth = { Authorization: `Bearer ${token}` };
+    let projectId: string | undefined;
+    let targetAreaId: string | undefined;
+
+    try {
+      const tree = await (await api.get(`${apiBase}/areas/with-projects`, { headers: auth })).json();
+      const sentinel = (tree.data as { id: string; name: string }[]).find(a => a.name === AREA_SENTINEL);
+      expect(sentinel, `sentinel area '${AREA_SENTINEL}' missing — run seed-e2e.sh`).toBeTruthy();
+
+      const targetArea = await api.post(`${apiBase}/areas`, { headers: auth, data: { name: targetAreaName } });
+      expect(targetArea.ok()).toBeTruthy();
+      targetAreaId = (await targetArea.json()).data.id as string;
+
+      const created = await api.post(`${apiBase}/areas/${sentinel!.id}/projects`, {
+        headers: auth,
+        data: { name: projectName },
+      });
+      expect(created.ok()).toBeTruthy();
+      projectId = (await created.json()).data.id as string;
+
+      const moved = await api.patch(`${apiBase}/projects/${projectId}`, {
+        headers: auth,
+        data: { areaId: targetAreaId },
+      });
+      expect(moved.ok()).toBeTruthy();
+      expect((await moved.json()).data.areaId).toBe(targetAreaId);
+    } finally {
+      if (projectId) await bestEffortDelete(api, token, `/projects/${projectId}`);
+      if (targetAreaId) await bestEffortDelete(api, token, `/areas/${targetAreaId}`);
+      await api.dispose();
+    }
+  });
 });

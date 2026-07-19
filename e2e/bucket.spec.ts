@@ -52,4 +52,32 @@ test.describe('@core Bucket → process to task (live)', () => {
       await api.dispose();
     }
   });
+
+  // eslint-disable-next-line no-empty-pattern
+  test('capture an inbox item and trash it', async ({}, testInfo) => {
+    const uid = uniqueSuffix(testInfo.retry);
+    const content = `e2e-inbox-${uid}`;
+
+    const token = getToken();
+    const api = await playwrightRequest.newContext();
+    const auth = { Authorization: `Bearer ${token}` };
+    let itemId: string | undefined;
+
+    try {
+      const created = await api.post(`${apiBase}/bucket`, { headers: auth, data: { content } });
+      expect(created.ok()).toBeTruthy();
+      itemId = (await created.json()).data.id as string;
+
+      const processed = await api.post(`${apiBase}/bucket/${itemId}/process`, {
+        headers: auth,
+        data: { processingResult: 'trash' },
+      });
+      expect(processed.ok()).toBeTruthy();
+      expect((await processed.json()).data.processingResult).toBe('trash');
+    } finally {
+      // Trashed item is marked processed, not deleted — clean it up.
+      if (itemId) await bestEffortDelete(api, token, `/bucket/${itemId}`);
+      await api.dispose();
+    }
+  });
 });

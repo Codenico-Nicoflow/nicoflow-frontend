@@ -68,7 +68,7 @@ export async function loginViaUI(page: Page): Promise<string> {
 }
 
 export async function resolveProjectId(request: APIRequestContext, token: string, name: string): Promise<string> {
-  const res = await request.get(`${API}/areas/with-projects`, {
+  const res = await request.get(`${apiBase}/areas/with-projects`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const body = await res.json();
@@ -84,7 +84,7 @@ export async function resolveProjectId(request: APIRequestContext, token: string
 // Best-effort teardown DELETE; never throws (sweep is the safety net).
 export async function bestEffortDelete(request: APIRequestContext, token: string, path: string): Promise<void> {
   try {
-    await request.delete(`${API}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+    await request.delete(`${apiBase}${path}`, { headers: { Authorization: `Bearer ${token}` } });
   } catch {
     /* swallow */
   }

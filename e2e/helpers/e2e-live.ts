@@ -6,14 +6,24 @@ import { join } from 'node:path';
 export const LIVE = !!process.env['E2E_LIVE'];
 
 const EMAIL = process.env['E2E_TEST_EMAIL'] ?? 'e2e@nicoflow.test';
-const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Password1test';
+const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Aa123456';
 const API = process.env['E2E_API_STAGING'] ?? 'http://localhost:8080/v1';
 const PASSWORD_PLACEHOLDER = '••••••••';
 
 export const apiBase = API;
 
+// Frontend origin the UI specs run against. Live builds serve the branch bundle
+// on :4173 (see playwright.config); PLAYWRIGHT_BASE_URL overrides for a run that
+// targets an already-deployed frontend.
+export const baseURL =
+  process.env['PLAYWRIGHT_BASE_URL'] ?? (process.env['E2E_LIVE'] ? 'http://localhost:4173' : 'http://localhost:5173');
+
 // Written once by global-setup (single login/run — staging rate-limits login).
 export const TOKEN_FILE = join(process.cwd(), 'test-results', '.e2e-token');
+
+// Pre-authed browser session seeded by global-setup; the live project loads it so
+// every spec starts logged in without hitting /auth/login per test.
+export const STORAGE_STATE = join(process.cwd(), 'test-results', '.e2e-storage-state.json');
 
 // Sentinels seeded on staging. Resolve by NAME at runtime; never edit/delete.
 export const AREA_SENTINEL = '__E2E_DEFAULT_AREA__';

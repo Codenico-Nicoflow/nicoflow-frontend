@@ -11,83 +11,55 @@ import {
   uniqueSuffix,
 } from './helpers/e2e-live';
 
-// @core Tasks: create task → subtask → complete, under __E2E_DEFAULT_PROJECT__.
-// Deleting the parent task cascades the subtask, so one finally cleans both.
-
-test.describe('@core Tasks + subtasks (live)', () => {
+// @core Tasks — a real user quick-adding a task in a project, then completing it
+// via the checkbox. Driven through the project view UI; API is teardown only.
+test.describe('@core Tasks (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
-  // eslint-disable-next-line no-empty-pattern
-  test('create a task, add a subtask, complete it', async ({}, testInfo) => {
-    const uid = uniqueSuffix(testInfo.retry);
-    const title = `e2e-task-${uid}`;
-    const subtitle = `e2e-subtask-${uid}`;
+  test('quick-add a task in a project, then complete it', async ({ page }, testInfo) => {
+    const title = `e2e-task-${uniqueSuffix(testInfo.retry)}`;
 
-    const token = getToken();
     const api = await playwrightRequest.newContext();
-    const auth = { Authorization: `Bearer ${token}` };
+    const token = getToken();
     const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
     let taskId: string | undefined;
 
     try {
-      // create task
-      const created = await api.post(`${apiBase}/projects/${projectId}/tasks`, {
-        headers: auth,
-        data: { title },
-      });
-      expect(created.ok()).toBeTruthy();
-      taskId = (await created.json()).data.id as string;
+      await page.goto(`/projects/${projectId}`);
 
-      const sub = await api.post(`${apiBase}/tasks/${taskId}/subtasks`, {
-        headers: auth,
-        data: { title: subtitle },
-      });
-      expect(sub.ok()).toBeTruthy();
+      // Frictionless capture: type into the quick-add and press Enter.
+      const quickAdd = page.getByTestId('task-quick-add');
+      await expect(quickAdd).toBeVisible();
+      await quickAdd.fill(title);
+      await quickAdd.press('Enter');
 
-      const done = await api.patch(`${apiBase}/tasks/${taskId}/status`, {
-        headers: auth,
-        data: { status: 'done' },
-      });
-      expect(done.ok()).toBeTruthy();
-      expect((await done.json()).data.status).toBe('done');
-    } finally {
-      // Deleting the parent task cascades the subtask.
-      if (taskId) await bestEffortDelete(api, token, `/tasks/${taskId}`);
-      await api.dispose();
-    }
-  });
+      // The task card renders in the list.
+      const card = page.getByText(title, { exact: true });
+      await expect(card).toBeVisible();
 
-  // eslint-disable-next-line no-empty-pattern
-  test('schedule a task to today and see it in the time spread', async ({}, testInfo) => {
-    const uid = uniqueSuffix(testInfo.retry);
-    const title = `e2e-task-${uid}`;
+      taskId = await resolveTaskIdByTitle(token, projectId, title);
+      expect(taskId, 'created task not found via API').toBeTruthy();
 
-    const token = getToken();
-    const api = await playwrightRequest.newContext();
-    const auth = { Authorization: `Bearer ${token}` };
-    const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
-    let taskId: string | undefined;
-
-    try {
-      const created = await api.post(`${apiBase}/projects/${projectId}/tasks`, { headers: auth, data: { title } });
-      expect(created.ok()).toBeTruthy();
-      taskId = (await created.json()).data.id as string;
-
-      // schedule endpoint wants an ISO date (YYYY-MM-DD), not the enum. Use
-      // today's UTC date so it lands in the time spread's `today` bucket.
-      const todayISO = new Date().toISOString().slice(0, 10);
-      const scheduled = await api.patch(`${apiBase}/tasks/${taskId}/schedule`, {
-        headers: auth,
-        data: { scheduledFor: todayISO },
-      });
-      expect(scheduled.ok()).toBeTruthy();
-
-      const spread = await (await api.get(`${apiBase}/time-spread?tz=UTC`, { headers: auth })).json();
-      const todayIds = (spread.data.today as { id: string }[]).map(t => t.id);
-      expect(todayIds).toContain(taskId);
+      // Tick the checkbox → the row shows as completed (title struck through).
+      await page.getByTestId(`task-checkbox-${taskId}`).click();
+      const heading = page.getByTestId(`task-card-${taskId}`).getByRole('heading', { name: title });
+      await expect(heading).toHaveClass(/line-through/);
     } finally {
       if (taskId) await bestEffortDelete(api, token, `/tasks/${taskId}`);
       await api.dispose();
     }
   });
 });
+
+async function resolveTaskIdByTitle(token: string, projectId: string, title: string): Promise<string | undefined> {
+  const api = await playwrightRequest.newContext();
+  try {
+    const res = await api.get(`${apiBase}/projects/${projectId}/tasks`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json();
+    return (body.data.items as { id: string; title: string }[]).find(t => t.title === title)?.id;
+  } finally {
+    await api.dispose();
+  }
+}

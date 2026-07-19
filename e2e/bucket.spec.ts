@@ -1,83 +1,88 @@
 /// <reference types="node" />
-import { expect, request as playwrightRequest, test } from '@playwright/test';
+import { expect, type Page, request as playwrightRequest, test } from '@playwright/test';
 
-import {
-  apiBase,
-  bestEffortDelete,
-  getToken,
-  LIVE,
-  PROJECT_SENTINEL,
-  resolveProjectId,
-  uniqueSuffix,
-} from './helpers/e2e-live';
+import { apiBase, bestEffortDelete, getToken, LIVE, uniqueSuffix } from './helpers/e2e-live';
 
-// @core Bucket — THE product loop (capture → process → task). process→task
-// transmutes the inbox item into a TASK in another domain; the response carries
-// createdTaskId, so finally deletes by that id. taskDetails.title (not the bucket
-// content) becomes the task title, so it must also carry the e2e- prefix for the
-// sweep to net it.
-
-test.describe('@core Bucket → process to task (live)', () => {
+// @core Bucket — THE product loop, driven through the UI: capture a thought into
+// the inbox, then process it (into a task, or to trash). We assert the item
+// leaves the inbox list; API is teardown only.
+test.describe('@core Bucket capture & process (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
-  // eslint-disable-next-line no-empty-pattern
-  test('capture an inbox item and process it into a task', async ({}, testInfo) => {
-    const uid = uniqueSuffix(testInfo.retry);
-    const content = `e2e-inbox-${uid}`;
-
-    const token = getToken();
+  test('capture an inbox item and process it into a task', async ({ page }, testInfo) => {
+    const content = `e2e-inbox-${uniqueSuffix(testInfo.retry)}`;
     const api = await playwrightRequest.newContext();
-    const auth = { Authorization: `Bearer ${token}` };
-    const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
-    let createdTaskId: string | undefined;
+    const token = getToken();
 
     try {
-      const created = await api.post(`${apiBase}/bucket`, { headers: auth, data: { content } });
-      expect(created.ok()).toBeTruthy();
-      const item = (await created.json()).data as { id: string };
+      await captureInboxItem(page, content);
+      const item = page.locator(`[data-testid="bucket-item"][data-bucket-content="${content}"]`);
+      await expect(item).toBeVisible();
 
-      const processed = await api.post(`${apiBase}/bucket/${item.id}/process`, {
-        headers: auth,
-        data: { processingResult: 'task', projectId, taskDetails: { title: content } },
-      });
-      expect(processed.ok()).toBeTruthy();
-      createdTaskId = (await processed.json()).data.createdTaskId as string;
-      expect(createdTaskId).toBeTruthy();
+      // Open the item menu → Process → the process dialog (Task is the default
+      // type, and the first project is auto-selected) → submit.
+      await item.click();
+      await page.getByRole('menuitem', { name: /process/i }).click();
+      const dialog = page.getByTestId('form-dialog-content');
+      await expect(dialog).toBeVisible();
+      await dialog.getByTestId('form-dialog-submit-button').click();
 
-      const tasks = await (await api.get(`${apiBase}/projects/${projectId}/tasks`, { headers: auth })).json();
-      const titles = (tasks.data.items as { title: string }[]).map(t => t.title);
-      expect(titles).toContain(content);
+      // Processed → it disappears from the inbox list.
+      await expect(item).toHaveCount(0);
     } finally {
-      if (createdTaskId) await bestEffortDelete(api, token, `/tasks/${createdTaskId}`);
+      await cleanupBucketByContent(api, token, content);
       await api.dispose();
     }
   });
 
-  // eslint-disable-next-line no-empty-pattern
-  test('capture an inbox item and trash it', async ({}, testInfo) => {
-    const uid = uniqueSuffix(testInfo.retry);
-    const content = `e2e-inbox-${uid}`;
-
-    const token = getToken();
+  test('capture an inbox item and trash it', async ({ page }, testInfo) => {
+    const content = `e2e-inbox-${uniqueSuffix(testInfo.retry)}`;
     const api = await playwrightRequest.newContext();
-    const auth = { Authorization: `Bearer ${token}` };
-    let itemId: string | undefined;
+    const token = getToken();
 
     try {
-      const created = await api.post(`${apiBase}/bucket`, { headers: auth, data: { content } });
-      expect(created.ok()).toBeTruthy();
-      itemId = (await created.json()).data.id as string;
+      await captureInboxItem(page, content);
+      const item = page.locator(`[data-testid="bucket-item"][data-bucket-content="${content}"]`);
+      await expect(item).toBeVisible();
 
-      const processed = await api.post(`${apiBase}/bucket/${itemId}/process`, {
-        headers: auth,
-        data: { processingResult: 'trash' },
-      });
-      expect(processed.ok()).toBeTruthy();
-      expect((await processed.json()).data.processingResult).toBe('trash');
+      await item.click();
+      await page.getByRole('menuitem', { name: /process/i }).click();
+      const dialog = page.getByTestId('form-dialog-content');
+      await expect(dialog).toBeVisible();
+      // Switch the processing type to Trash, then submit.
+      await dialog.getByTestId('process-option-trash').click();
+      await dialog.getByTestId('form-dialog-submit-button').click();
+
+      await expect(item).toHaveCount(0);
     } finally {
-      // Trashed item is marked processed, not deleted — clean it up.
-      if (itemId) await bestEffortDelete(api, token, `/bucket/${itemId}`);
+      await cleanupBucketByContent(api, token, content);
       await api.dispose();
     }
   });
 });
+
+// Types into the Bucket quick-input and submits (Enter submits per the component).
+async function captureInboxItem(page: Page, content: string): Promise<void> {
+  await page.goto('/quick-access/bucket');
+  const panel = page.getByTestId('bucket-inbox-panel');
+  const input = panel.getByRole('textbox');
+  await expect(input).toBeVisible();
+  await input.fill(content);
+  await input.press('Enter');
+}
+
+// Deletes any bucket rows matching this content (processed or not) — the sweep is
+// the wider safety net, but keep our own trail clean.
+async function cleanupBucketByContent(
+  api: Awaited<ReturnType<typeof playwrightRequest.newContext>>,
+  token: string,
+  content: string
+): Promise<void> {
+  const res = await api.get(`${apiBase}/bucket`, { headers: { Authorization: `Bearer ${token}` } });
+  const body = await res.json();
+  const items = (body.data?.items ?? []) as { id: string; content: string; createdTaskId?: string | null }[];
+  for (const b of items.filter(b => b.content === content)) {
+    if (b.createdTaskId) await bestEffortDelete(api, token, `/tasks/${b.createdTaskId}`);
+    await bestEffortDelete(api, token, `/bucket/${b.id}`);
+  }
+}

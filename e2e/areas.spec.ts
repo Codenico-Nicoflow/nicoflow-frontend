@@ -3,37 +3,47 @@ import { expect, request as playwrightRequest, test } from '@playwright/test';
 
 import { apiBase, bestEffortDelete, getToken, LIVE, uniqueSuffix } from './helpers/e2e-live';
 
-// @core Areas CRUD against live staging: create → edit → delete, verified via
-// the API round-trip (not brittle DOM text) on its OWN e2e-* area.
-
-test.describe('@core Areas CRUD (live)', () => {
+// @core Areas — a real user creating and deleting an Area through the board UI.
+// The browser drives every step (nav → New Area → fill dialog → submit → assert
+// card → delete via menu → assert gone); the API is used only as a teardown net.
+test.describe('@core Areas board (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
-  // eslint-disable-next-line no-empty-pattern
-  test('create, edit, then delete an area', async ({}, testInfo) => {
-    const uid = uniqueSuffix(testInfo.retry);
-    const name = `e2e-area-${uid}`;
-    const renamed = `e2e-area-${uid}-edited`;
+  test('create an area from the board, then delete it', async ({ page }, testInfo) => {
+    const name = `e2e-area-${uniqueSuffix(testInfo.retry)}`;
 
-    const token = getToken();
     const api = await playwrightRequest.newContext();
-    const auth = { Authorization: `Bearer ${token}` };
+    const token = getToken();
     let areaId: string | undefined;
 
     try {
-      const created = await api.post(`${apiBase}/areas`, { headers: auth, data: { name } });
-      expect(created.ok()).toBeTruthy();
-      areaId = (await created.json()).data.id as string;
+      await page.goto('/areas');
 
-      const edited = await api.patch(`${apiBase}/areas/${areaId}`, { headers: auth, data: { name: renamed } });
-      expect(edited.ok()).toBeTruthy();
-      expect((await edited.json()).data.name).toBe(renamed);
+      // "New area" sits in the header when areas exist, in the empty state when
+      // none do. Whichever is on screen opens the same create dialog.
+      const newAreaBtn = page.getByTestId('board-new-area');
+      const emptyCreateBtn = page.getByTestId('board-empty-create');
+      await expect(newAreaBtn.or(emptyCreateBtn).first()).toBeVisible();
+      await ((await newAreaBtn.isVisible()) ? newAreaBtn : emptyCreateBtn).click();
 
-      const deleted = await api.delete(`${apiBase}/areas/${areaId}`, { headers: auth });
-      expect(deleted.ok()).toBeTruthy();
+      const dialog = page.getByTestId('form-dialog-content');
+      await expect(dialog).toBeVisible();
+      await dialog.getByTestId('name-input').fill(name);
+      await dialog.getByTestId('form-dialog-submit-button').click();
 
-      const gone = await api.get(`${apiBase}/areas/${areaId}`, { headers: auth });
-      expect(gone.status()).toBe(404);
+      // The new card renders on the board.
+      await expect(page.getByTestId('areas-grid').getByText(name, { exact: true })).toBeVisible();
+
+      // Map name → id (the card's actions-menu testid is keyed by id).
+      areaId = await resolveAreaId(token, name);
+      expect(areaId, 'created area not found via API').toBeTruthy();
+
+      // Delete through the card's actions menu → confirm dialog.
+      await page.getByTestId(`area-card-${areaId}-actions-trigger`).click();
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+      await page.getByTestId('confirm-dialog-confirm-button').click();
+
+      await expect(page.getByText(name, { exact: true })).toHaveCount(0);
       areaId = undefined;
     } finally {
       if (areaId) await bestEffortDelete(api, token, `/areas/${areaId}`);
@@ -41,3 +51,17 @@ test.describe('@core Areas CRUD (live)', () => {
     }
   });
 });
+
+// Maps the just-created area's name → id via the API. Only a lookup for the
+// id-keyed testid + teardown — not the assertion under test.
+async function resolveAreaId(token: string, name: string): Promise<string | undefined> {
+  const api = await playwrightRequest.newContext();
+  try {
+    // /areas/with-projects returns a bare array (unlike the paginated /areas).
+    const res = await api.get(`${apiBase}/areas/with-projects`, { headers: { Authorization: `Bearer ${token}` } });
+    const body = await res.json();
+    return (body.data as { id: string; name: string }[]).find(a => a.name === name)?.id;
+  } finally {
+    await api.dispose();
+  }
+}

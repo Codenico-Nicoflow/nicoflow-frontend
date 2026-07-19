@@ -112,7 +112,7 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
           transition={{ delay: 0.3, duration: 0.3 }}
           className="flex items-center gap-4 sm:justify-between justify-between w-full sm:w-auto"
         >
-          <Button variant="outline" size="sm" onClick={onEdit} className="h-9 px-3">
+          <Button variant="outline" size="sm" onClick={onEdit} className="h-9 px-3" data-testid="project-header-edit">
             <Edit3 className="h-4 w-4 me-2" />
             {t('header.edit')}
           </Button>
@@ -121,6 +121,7 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
             size="sm"
             className="h-9 px-3 hover:bg-transparent hover:shadow-sm"
             onClick={onDelete}
+            data-testid="project-header-delete"
           >
             <Trash2 className="h-4 w-4 me-2 text-destructive" />
             <p className="text-destructive">{t('header.delete')}</p>

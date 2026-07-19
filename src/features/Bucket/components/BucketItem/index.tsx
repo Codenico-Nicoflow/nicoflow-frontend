@@ -43,6 +43,8 @@ export const BucketItem = ({ bucket, index, onProcess, onEdit, onDelete }: Bucke
         variant="default"
         borderColor="primary"
         className="cursor-pointer"
+        data-testid="bucket-item"
+        data-bucket-content={bucket.content}
         onClick={() => setMenuOpen(true)}
       >
         <div className="flex items-start gap-2 sm:gap-3">
@@ -52,7 +54,13 @@ export const BucketItem = ({ bucket, index, onProcess, onEdit, onDelete }: Bucke
           </div>
 
           <div className="flex items-center gap-1.5 flex-shrink-0 ">
-            <ItemActionsMenu align="start" actions={itemActions} open={menuOpen} onOpenChange={setMenuOpen} />
+            <ItemActionsMenu
+              align="start"
+              actions={itemActions}
+              open={menuOpen}
+              onOpenChange={setMenuOpen}
+              data-testid="bucket-item-actions"
+            />
           </div>
         </div>
       </ListItemCard>

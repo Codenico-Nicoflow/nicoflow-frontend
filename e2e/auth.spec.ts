@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 import { LIVE, loginViaUI } from './helpers/e2e-live';
 
-const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Password1test';
+const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Aa123456';
 const PASSWORD_PLACEHOLDER = '••••••••';
 
 test.describe('@core Auth journey (live)', () => {

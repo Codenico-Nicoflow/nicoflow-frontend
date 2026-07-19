@@ -141,6 +141,7 @@ export const AreaCard = ({ area, index = 0, 'data-testid': testId }: AreaCardPro
                   <ProjectRow
                     key={project.id}
                     project={project}
+                    data-testid={`project-row-${project.id}`}
                     onEdit={() => setEditProject(project)}
                     onDelete={() => setDeleteProject(project)}
                   />

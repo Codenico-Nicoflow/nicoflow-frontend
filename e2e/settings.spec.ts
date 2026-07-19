@@ -3,29 +3,32 @@ import { expect, request as playwrightRequest, test } from '@playwright/test';
 
 import { apiBase, getToken, LIVE } from './helpers/e2e-live';
 
-// @core Settings persistence: change theme → verify it persisted → RESTORE the
-// original in finally (this mutates the shared account, so it must clean up its
-// change, not a row).
-
-test.describe('@core Settings persistence (live)', () => {
+// @core Settings — a real user switching the theme in Preferences and seeing the
+// app repaint. Asserts the DOM effect (the `dark` class on <html>). Theme
+// persists to the shared account, so the original is restored in finally.
+test.describe('@core Settings preferences (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
-  test('changing theme persists, then is restored', async () => {
-    const token = getToken();
+  test('switching the theme to dark applies it, then restores', async ({ page }) => {
     const api = await playwrightRequest.newContext();
+    const token = getToken();
     const auth = { Authorization: `Bearer ${token}` };
-
-    const profile = await (await api.get(`${apiBase}/users/profile`, { headers: auth })).json();
-    const originalTheme = profile.data.theme as string;
-    const nextTheme = originalTheme === 'dark' ? 'light' : 'dark';
+    const originalTheme = (await (await api.get(`${apiBase}/users/profile`, { headers: auth })).json()).data
+      .theme as string;
 
     try {
-      const patched = await api.patch(`${apiBase}/users/me`, { headers: auth, data: { theme: nextTheme } });
-      expect(patched.ok()).toBeTruthy();
-      expect((await patched.json()).data.theme).toBe(nextTheme);
+      await page.goto('/settings');
 
+      // Pick "dark" from the theme select.
+      await page.getByTestId('settings-theme-select').click();
+      await page.getByTestId('settings-theme-dark').click();
+
+      // next-themes writes the class onto <html>; the app is now dark.
+      await expect(page.locator('html')).toHaveClass(/dark/);
+
+      // And it persisted to the account.
       const after = await (await api.get(`${apiBase}/users/profile`, { headers: auth })).json();
-      expect(after.data.theme).toBe(nextTheme);
+      expect(after.data.theme).toBe('dark');
     } finally {
       await api.patch(`${apiBase}/users/me`, { headers: auth, data: { theme: originalTheme } });
       await api.dispose();

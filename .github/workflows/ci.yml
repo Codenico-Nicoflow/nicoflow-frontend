@@ -61,7 +61,7 @@ jobs:
   # BLOCKS merge (NIC-1339 AC1). Serialized via a concurrency group so no two
   # runs touch the single shared staging account at once (AC2). Waits for
   # staging to be warm first, so a just-merged redeploy can't flake the gate.
-  test-e2e-live:
+  test-e2e:
     needs: [lint, type-check]
     runs-on: ubuntu-latest
     concurrency:
@@ -69,7 +69,6 @@ jobs:
       cancel-in-progress: false # never cancel mid-run — it would orphan e2e-* data
     env:
       E2E_LIVE: '1'
-      PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL_STAGING }}
       E2E_API_STAGING: ${{ secrets.E2E_API_STAGING }}
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
       E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
@@ -93,6 +92,13 @@ jobs:
             echo "waiting for staging ($i/20)…"; sleep 3
           done
           echo "staging did not become healthy" >&2; exit 1
+      # Build THIS branch's frontend so the E2E run tests the code under review,
+      # not a lagging deploy. The suite serves this bundle on :4173 (vite preview)
+      # and points it at the staging API.
+      - name: Build frontend for E2E
+        run: pnpm build
+        env:
+          VITE_API_URL: ${{ secrets.E2E_API_STAGING }}
       - name: Run @core against staging
         run: pnpm test:e2e --grep @core
       - uses: actions/upload-artifact@v4
@@ -103,7 +109,7 @@ jobs:
           retention-days: 30
 
   build:
-    needs: [lint, type-check, test, test-e2e-live]
+    needs: [lint, type-check, test, test-e2e]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

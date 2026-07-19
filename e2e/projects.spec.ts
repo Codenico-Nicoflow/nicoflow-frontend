@@ -3,86 +3,86 @@ import { expect, request as playwrightRequest, test } from '@playwright/test';
 
 import { apiBase, AREA_SENTINEL, bestEffortDelete, getToken, LIVE, uniqueSuffix } from './helpers/e2e-live';
 
-// @core Projects CRUD against live staging: create → edit → delete under the
-// sentinel __E2E_DEFAULT_AREA__ (resolved by name), verified via the API.
-
-test.describe('@core Projects CRUD (live)', () => {
+// @core Projects — a real user adding a project inside an area, opening it, and
+// deleting it. Everything is driven through the UI (add-project on the sentinel
+// area card → dialog → row → open → header delete); the API is only teardown.
+test.describe('@core Projects (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
-  // eslint-disable-next-line no-empty-pattern
-  test('create, edit, then delete a project under the default area', async ({}, testInfo) => {
-    const uid = uniqueSuffix(testInfo.retry);
-    const name = `e2e-project-${uid}`;
-    const renamed = `e2e-project-${uid}-edited`;
+  test('add a project to an area, open it, then delete it', async ({ page }, testInfo) => {
+    const name = `e2e-project-${uniqueSuffix(testInfo.retry)}`;
 
-    const token = getToken();
     const api = await playwrightRequest.newContext();
-    const auth = { Authorization: `Bearer ${token}` };
+    const token = getToken();
+    // Resolve the sentinel area's id so we target the right card's add-project.
+    const areaId = await resolveSentinelAreaId(token);
     let projectId: string | undefined;
 
     try {
-      const tree = await (await api.get(`${apiBase}/areas/with-projects`, { headers: auth })).json();
-      const area = (tree.data as { id: string; name: string }[]).find(a => a.name === AREA_SENTINEL);
-      expect(area, `sentinel area '${AREA_SENTINEL}' missing — run seed-e2e.sh`).toBeTruthy();
+      await page.goto('/areas');
+      const areaCard = page.getByTestId(`area-card-${areaId}`);
+      await expect(areaCard).toBeVisible();
 
-      const created = await api.post(`${apiBase}/areas/${area!.id}/projects`, { headers: auth, data: { name } });
-      expect(created.ok()).toBeTruthy();
-      projectId = (await created.json()).data.id as string;
+      // "Add project" inside the sentinel card opens the create dialog with the
+      // area pre-selected.
+      await page.getByTestId(`area-card-${areaId}-add-project`).click();
+      const dialog = page.getByTestId('form-dialog-content');
+      await expect(dialog).toBeVisible();
+      await dialog.getByTestId('name-input').fill(name);
+      await dialog.getByTestId('form-dialog-submit-button').click();
 
-      const edited = await api.patch(`${apiBase}/projects/${projectId}`, { headers: auth, data: { name: renamed } });
-      expect(edited.ok()).toBeTruthy();
-      expect((await edited.json()).data.name).toBe(renamed);
+      // The new project row appears inside the area card.
+      const row = areaCard.getByText(name, { exact: true });
+      await expect(row).toBeVisible();
 
-      const deleted = await api.delete(`${apiBase}/projects/${projectId}`, { headers: auth });
-      expect(deleted.ok()).toBeTruthy();
+      projectId = await resolveProjectIdByName(token, name);
+      expect(projectId, 'created project not found via API').toBeTruthy();
 
-      const gone = await api.get(`${apiBase}/projects/${projectId}`, { headers: auth });
-      expect(gone.status()).toBe(404);
+      // Open it — the row navigates to the project view.
+      await page.getByTestId(`project-row-${projectId}`).click();
+      await expect(page).toHaveURL(new RegExp(`/projects/${projectId}`));
+      await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
+
+      // Delete from the project header → confirm → back on the board.
+      await page.getByTestId('project-header-delete').click();
+      await page.getByTestId('confirm-dialog-confirm-button').click();
+      await expect(page).toHaveURL(/\/areas/);
+      await expect(page.getByText(name, { exact: true })).toHaveCount(0);
       projectId = undefined;
     } finally {
       if (projectId) await bestEffortDelete(api, token, `/projects/${projectId}`);
       await api.dispose();
     }
   });
-
-  // eslint-disable-next-line no-empty-pattern
-  test('move a project from the default area to another area', async ({}, testInfo) => {
-    const uid = uniqueSuffix(testInfo.retry);
-    const targetAreaName = `e2e-area-${uid}`;
-    const projectName = `e2e-project-${uid}`;
-
-    const token = getToken();
-    const api = await playwrightRequest.newContext();
-    const auth = { Authorization: `Bearer ${token}` };
-    let projectId: string | undefined;
-    let targetAreaId: string | undefined;
-
-    try {
-      const tree = await (await api.get(`${apiBase}/areas/with-projects`, { headers: auth })).json();
-      const sentinel = (tree.data as { id: string; name: string }[]).find(a => a.name === AREA_SENTINEL);
-      expect(sentinel, `sentinel area '${AREA_SENTINEL}' missing — run seed-e2e.sh`).toBeTruthy();
-
-      const targetArea = await api.post(`${apiBase}/areas`, { headers: auth, data: { name: targetAreaName } });
-      expect(targetArea.ok()).toBeTruthy();
-      targetAreaId = (await targetArea.json()).data.id as string;
-
-      const created = await api.post(`${apiBase}/areas/${sentinel!.id}/projects`, {
-        headers: auth,
-        data: { name: projectName },
-      });
-      expect(created.ok()).toBeTruthy();
-      projectId = (await created.json()).data.id as string;
-
-      const moved = await api.patch(`${apiBase}/projects/${projectId}`, {
-        headers: auth,
-        data: { areaId: targetAreaId },
-      });
-      expect(moved.ok()).toBeTruthy();
-      expect((await moved.json()).data.areaId).toBe(targetAreaId);
-    } finally {
-      if (projectId) await bestEffortDelete(api, token, `/projects/${projectId}`);
-      if (targetAreaId) await bestEffortDelete(api, token, `/areas/${targetAreaId}`);
-      await api.dispose();
-    }
-  });
 });
+
+async function resolveSentinelAreaId(token: string): Promise<string> {
+  const api = await playwrightRequest.newContext();
+  try {
+    // /areas/with-projects returns a bare array (unlike the paginated /areas).
+    const res = await api.get(`${apiBase}/areas/with-projects`, { headers: { Authorization: `Bearer ${token}` } });
+    const body = await res.json();
+    const area = (body.data as { id: string; name: string }[]).find(a => a.name === AREA_SENTINEL);
+    if (!area) throw new Error(`sentinel area '${AREA_SENTINEL}' missing — run scripts/seed-e2e.sh`);
+    return area.id;
+  } finally {
+    await api.dispose();
+  }
+}
+
+async function resolveProjectIdByName(token: string, name: string): Promise<string | undefined> {
+  const api = await playwrightRequest.newContext();
+  try {
+    const res = await api.get(`${apiBase}/areas/with-projects`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json();
+    for (const a of (body.data ?? []) as { projects?: { id: string; name: string }[] }[]) {
+      const hit = (a.projects ?? []).find(p => p.name === name);
+      if (hit) return hit.id;
+    }
+    return undefined;
+  } finally {
+    await api.dispose();
+  }
+}

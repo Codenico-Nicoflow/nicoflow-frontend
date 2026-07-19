@@ -1,0 +1,99 @@
+name: E2E Nightly (full suite vs staging)
+
+# Full @core + @extended run against deployed staging (NIC-1339 AC3). Non-blocking
+# — it reports, it doesn't gate. Sweeps stale e2e-* data first (AC4), then runs
+# everything, then notifies Slack + email on failure. (Future: open a Jira bug.)
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # 03:00 UTC daily
+  workflow_dispatch: {}
+
+concurrency:
+  group: e2e-staging # shares the PR gate's group — never runs alongside a PR gate
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    env:
+      E2E_LIVE: '1'
+      PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL_STAGING }}
+      E2E_API_STAGING: ${{ secrets.E2E_API_STAGING }}
+      E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+      E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      # ubuntu-latest has no postgres client by default.
+      - name: Install psql
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      # Self-heal: purge any e2e-* rows a crashed run left behind, sparing the
+      # __E2E_*__ sentinels. Runs BEFORE the suite (sequential steps, fail-fast)
+      # so a leaked area can't push the account past a limit and fail unrelated
+      # journeys. ON_ERROR_STOP=1 → any SQL error halts the job before tests run.
+      - name: Stale-data sweep
+        run: |
+          if [ -z "$STAGING_DATABASE_URL" ]; then
+            echo "STAGING_DATABASE_URL secret is not set — cannot sweep" >&2
+            exit 1
+          fi
+          psql "$STAGING_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/sweep-e2e.sql
+
+      - name: Wait for staging API to be warm
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS "$E2E_API_STAGING/health" >/dev/null 2>&1; then
+              echo "staging warm"; exit 0
+            fi
+            echo "waiting for staging ($i/20)…"; sleep 3
+          done
+          echo "staging did not become healthy" >&2; exit 1
+
+      - name: Run full suite (@core + @extended)
+        run: pnpm test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-nightly
+          path: playwright-report/
+          retention-days: 30
+
+      # ── notify on failure (non-blocking job, so this is the signal) ──────────
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.SLACK_E2E_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":red_circle: Nightly E2E failed on staging — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|run #${{ github.run_number }}>"
+            }
+
+      - name: Notify email on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+          subject: 'Nightly E2E failed on staging (run #${{ github.run_number }})'
+          to: ${{ secrets.E2E_ALERT_EMAIL }}
+          from: Nicoflow CI
+          body: |
+            Nightly E2E suite failed against staging.
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

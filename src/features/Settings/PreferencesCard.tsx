@@ -68,9 +68,15 @@ export const PreferencesCard = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">{t('theme.light')}</SelectItem>
-              <SelectItem value="dark">{t('theme.dark')}</SelectItem>
-              <SelectItem value="system">{t('theme.system')}</SelectItem>
+              <SelectItem value="light" data-testid="settings-theme-light">
+                {t('theme.light')}
+              </SelectItem>
+              <SelectItem value="dark" data-testid="settings-theme-dark">
+                {t('theme.dark')}
+              </SelectItem>
+              <SelectItem value="system" data-testid="settings-theme-system">
+                {t('theme.system')}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

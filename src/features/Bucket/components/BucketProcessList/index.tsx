@@ -21,6 +21,7 @@ export const BucketProcessList = ({ processingOptions, selectedType, setSelected
           <Button
             key={option.value}
             type="button"
+            data-testid={`process-option-${option.value}`}
             variant={selectedType === option.value ? 'default' : 'outline'}
             size="sm"
             onClick={() => option.enabled && setSelectedType(option.value)}

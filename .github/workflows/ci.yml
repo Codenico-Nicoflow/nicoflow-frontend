@@ -112,6 +112,20 @@ jobs:
           name: playwright-report-live
           path: playwright-report/
           retention-days: 30
+      # Raw per-test artifacts (trace.zip, screenshots, video, error-context) —
+      # only present on failure; open a trace with `npx playwright show-trace`.
+      # Exclude the seeded auth files (access token + storageState) so they never
+      # leave the runner in a downloadable artifact.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces-live
+          path: |
+            test-results/**
+            !test-results/.e2e-token
+            !test-results/.e2e-storage-state.json
+          retention-days: 30
+          if-no-files-found: ignore
 
   build:
     needs: [lint, type-check, test, test-e2e]

@@ -28,8 +28,9 @@ test.describe('@core Tasks (live)', () => {
     try {
       await page.goto(`/projects/${projectId}`);
 
+      // Quick-add renders only after the tasks query resolves — allow for a slow first fetch.
       const quickAdd = page.getByTestId('task-quick-add');
-      await expect(quickAdd).toBeVisible();
+      await expect(quickAdd).toBeVisible({ timeout: 20_000 });
       await quickAdd.fill(title);
       const created = page.waitForResponse(
         r => r.url().endsWith('/tasks') && r.request().method() === 'POST' && r.status() === 201

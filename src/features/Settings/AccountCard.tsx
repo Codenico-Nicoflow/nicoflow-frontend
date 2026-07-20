@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAppUser, useUpdateProfileMutation } from '@/lib/store';
+import { ACCOUNT_FIRST_NAME_INPUT, ACCOUNT_LAST_NAME_INPUT, ACCOUNT_SAVE_BUTTON } from '@/lib/test_ids';
 import { type ProfileFormData, profileSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 // Settings › Account. Edits firstName/lastName via PATCH /users/me. email and
@@ -50,7 +51,7 @@ export const AccountCard = () => {
                 <FormItem>
                   <FormLabel>{t('pages.settings.firstNameLabel')}</FormLabel>
                   <FormControl>
-                    <Input autoComplete="given-name" {...field} />
+                    <Input autoComplete="given-name" data-testid={ACCOUNT_FIRST_NAME_INPUT} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -64,7 +65,7 @@ export const AccountCard = () => {
                 <FormItem>
                   <FormLabel>{t('pages.settings.lastNameLabel')}</FormLabel>
                   <FormControl>
-                    <Input autoComplete="family-name" {...field} />
+                    <Input autoComplete="family-name" data-testid={ACCOUNT_LAST_NAME_INPUT} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,7 +83,12 @@ export const AccountCard = () => {
               hint={t('pages.settings.readOnlyHint')}
             />
 
-            <Button type="submit" className="self-start" disabled={isLoading || !form.formState.isDirty}>
+            <Button
+              type="submit"
+              data-testid={ACCOUNT_SAVE_BUTTON}
+              className="self-start"
+              disabled={isLoading || !form.formState.isDirty}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="me-2 h-4 w-4 animate-spin" />

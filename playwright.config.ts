@@ -24,7 +24,8 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL,
-    trace: 'on-first-retry',
+    // Full trace on every failure (open trace.zip in trace.playwright.dev).
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },

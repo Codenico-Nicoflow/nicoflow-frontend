@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { type APIRequestContext, expect, type Page } from '@playwright/test';
+import { type APIRequestContext, type Browser, type BrowserContext, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -9,6 +9,11 @@ const EMAIL = process.env['E2E_TEST_EMAIL'] ?? 'e2e@nicoflow.test';
 const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Aa123456';
 const API = process.env['E2E_API_STAGING'] ?? 'http://localhost:8080/v1';
 const PASSWORD_PLACEHOLDER = '••••••••';
+
+// FREE-plan account for plan-limit specs. Absent ⇒ those specs skip.
+const FREE_EMAIL = process.env['E2E_FREE_EMAIL'];
+const FREE_PASSWORD = process.env['E2E_FREE_PASSWORD'];
+export const freePlanConfigured = (): boolean => !!(FREE_EMAIL && FREE_PASSWORD);
 
 // Frontend origin the UI specs run against. Live builds serve the branch bundle
 // on :4173 (see playwright.config); PLAYWRIGHT_BASE_URL overrides for a run that
@@ -68,13 +73,10 @@ export async function loginViaUI(page: Page): Promise<string> {
 }
 
 export async function resolveProjectId(request: APIRequestContext, token: string, name: string): Promise<string> {
-  const res = await request.get(`${apiBase}/areas/with-projects`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const body = await res.json();
   type P = { id: string; name: string };
   type A = { projects?: P[] };
-  for (const a of (body.data ?? []) as A[]) {
+  const body = await authGetJson<{ data?: A[] }>(request, token, '/areas/with-projects', 'resolveProjectId');
+  for (const a of body.data ?? []) {
     const hit = (a.projects ?? []).find(p => p.name === name);
     if (hit) return hit.id;
   }
@@ -84,8 +86,149 @@ export async function resolveProjectId(request: APIRequestContext, token: string
 // Best-effort teardown DELETE; never throws (sweep is the safety net).
 export async function bestEffortDelete(request: APIRequestContext, token: string, path: string): Promise<void> {
   try {
-    await request.delete(`${apiBase}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+    const bypass = process.env['E2E_BYPASS_TOKEN'];
+    await request.delete(`${apiBase}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, ...(bypass ? { 'X-E2E-Bypass': bypass } : {}) },
+    });
   } catch {
     /* swallow */
   }
+}
+
+async function parseJson<T = unknown>(res: Awaited<ReturnType<APIRequestContext['get']>>, label: string): Promise<T> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(`${label}: non-JSON response (HTTP ${res.status()}): ${text.slice(0, 120)}`);
+  }
+}
+
+// Bearer + the rate-limit bypass token (so calls skip the burst limiter).
+function authHeaders(token: string): Record<string, string> {
+  const bypass = process.env['E2E_BYPASS_TOKEN'];
+  return { Authorization: `Bearer ${token}`, ...(bypass ? { 'X-E2E-Bypass': bypass } : {}) };
+}
+
+const RETRYABLE = [429, 502, 503, 504];
+
+// Authenticated GET → parsed JSON, retrying transient 429/5xx.
+export async function authGetJson<T = unknown>(
+  request: APIRequestContext,
+  token: string,
+  path: string,
+  label = `GET ${path}`
+): Promise<T> {
+  let last = '';
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const res = await request.get(`${apiBase}${path}`, { headers: authHeaders(token) });
+    if (res.ok()) return parseJson<T>(res, label);
+    last = `HTTP ${res.status()}`;
+    if (!RETRYABLE.includes(res.status())) return parseJson<T>(res, label);
+    await new Promise(r => setTimeout(r, 400 * 2 ** attempt));
+  }
+  throw new Error(`${label} failed (${last})`);
+}
+
+// Authenticated POST/PATCH → parsed JSON, same transient retry.
+export async function authSendJson<T = unknown>(
+  request: APIRequestContext,
+  token: string,
+  method: 'post' | 'patch',
+  path: string,
+  data: unknown,
+  label = `${method.toUpperCase()} ${path}`
+): Promise<T> {
+  let last = '';
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const res = await request[method](`${apiBase}${path}`, { headers: authHeaders(token), data });
+    if (res.ok()) return parseJson<T>(res, label);
+    last = `HTTP ${res.status()}`;
+    if (!RETRYABLE.includes(res.status())) return parseJson<T>(res, label);
+    await new Promise(r => setTimeout(r, 400 * 2 ** attempt));
+  }
+  throw new Error(`${label} failed (${last})`);
+}
+
+// Shared fixture creators (retrying + bypass-carrying via authSendJson).
+type Created = { data?: { id?: string }; error?: unknown };
+
+export async function createTask(
+  request: APIRequestContext,
+  token: string,
+  projectId: string,
+  title: string
+): Promise<string> {
+  const body = await authSendJson<Created>(
+    request,
+    token,
+    'post',
+    `/projects/${projectId}/tasks`,
+    { title, priority: 'low', energy: 'medium' },
+    'createTask'
+  );
+  const id = body?.data?.id;
+  if (!id) throw new Error(`create task failed: ${JSON.stringify(body?.error ?? body)}`);
+  return id;
+}
+
+export async function createArea(request: APIRequestContext, token: string, name: string): Promise<string> {
+  const body = await authSendJson<Created>(
+    request,
+    token,
+    'post',
+    '/areas',
+    { name, color: '#6366f1', icon: 'folder' },
+    'createArea'
+  );
+  const id = body?.data?.id;
+  if (!id) throw new Error(`create area failed: ${JSON.stringify(body?.error ?? body)}`);
+  return id;
+}
+
+export async function createProject(
+  request: APIRequestContext,
+  token: string,
+  areaId: string,
+  name: string
+): Promise<string> {
+  const body = await authSendJson<Created>(
+    request,
+    token,
+    'post',
+    `/areas/${areaId}/projects`,
+    { name },
+    'createProject'
+  );
+  const id = body?.data?.id;
+  if (!id) throw new Error(`create project failed: ${JSON.stringify(body?.error ?? body)}`);
+  return id;
+}
+
+// Free-plan login (guard callers with freePlanConfigured()).
+export async function loginFreePlan(request: APIRequestContext): Promise<{ token: string; user: unknown }> {
+  const res = await request.post(`${apiDirect}/auth/login`, {
+    data: { identifier: FREE_EMAIL, password: FREE_PASSWORD, remember: true },
+    headers: process.env['E2E_BYPASS_TOKEN'] ? { 'X-E2E-Bypass': process.env['E2E_BYPASS_TOKEN'] } : {},
+  });
+  const body = await res.json();
+  const token = body?.data?.token as string | undefined;
+  const user = body?.data?.user;
+  if (!token || !user) throw new Error(`free-plan login failed: ${JSON.stringify(body?.error ?? body)}`);
+  return { token, user };
+}
+
+// Browser context pre-authed as the free-plan account (caller closes it).
+export async function newFreePlanContext(browser: Browser, request: APIRequestContext): Promise<BrowserContext> {
+  const { token, user } = await loginFreePlan(request);
+  const persistRoot = JSON.stringify({
+    auth: JSON.stringify({ user, token, isLoading: false }),
+    _persist: JSON.stringify({ version: -1, rehydrated: true }),
+  });
+  return browser.newContext({
+    storageState: {
+      cookies: [],
+      origins: [{ origin: new URL(baseURL).origin, localStorage: [{ name: 'persist:root', value: persistRoot }] }],
+    },
+  });
 }

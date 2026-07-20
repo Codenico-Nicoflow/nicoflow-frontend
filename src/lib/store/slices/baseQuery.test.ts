@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
+import { authApi } from './auth/authApi';
 import authReducer from './auth/authSlice';
 import rateLimitReducer from './rateLimit/rateLimitSlice';
 import { taskApi } from './tasks/taskApi';
@@ -59,5 +60,40 @@ describe('baseQueryWithReauth — rate limiting', () => {
 
     const retryAt = store.getState().rateLimit.retryAt;
     expect(retryAt).toBeGreaterThanOrEqual(before + 25_000);
+  });
+});
+
+describe('baseQueryWithReauth — pre-session 401s skip the refresh flow', () => {
+  const makeAuthStore = () =>
+    configureStore({
+      reducer: { auth: authReducer, rateLimit: rateLimitReducer, [authApi.reducerPath]: authApi.reducer },
+      middleware: gDM => gDM().concat(authApi.middleware),
+    });
+
+  it('does not fire a /refresh-token when login returns 401 (bad credentials)', async () => {
+    let refreshCalls = 0;
+    server.use(
+      http.post(`${API}/auth/login`, () =>
+        HttpResponse.json(
+          { data: null, error: { code: 'UNAUTHORIZED', message: 'invalid credentials' } },
+          { status: 401 }
+        )
+      ),
+      http.post(`${API}/auth/refresh-token`, () => {
+        refreshCalls += 1;
+        return HttpResponse.json(
+          { data: null, error: { code: 'UNAUTHORIZED', message: 'no session' } },
+          { status: 401 }
+        );
+      })
+    );
+
+    const store = makeAuthStore();
+    const result = await store.dispatch(
+      authApi.endpoints.login.initiate({ identifier: 'a@b.com', password: 'wrong', remember: false })
+    );
+
+    expect('error' in result).toBe(true);
+    expect(refreshCalls).toBe(0);
   });
 });

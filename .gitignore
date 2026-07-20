@@ -29,7 +29,12 @@ coverage
 .env.development.local
 .env.test.local
 .env.production.local
+.env.e2e
 *.local
+
+# Playwright / E2E artifacts
+test-results/
+playwright-report/
 
 # Editor directories and files
 .vscode/*

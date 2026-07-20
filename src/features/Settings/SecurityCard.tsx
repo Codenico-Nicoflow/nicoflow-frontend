@@ -13,6 +13,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useChangePasswordMutation } from '@/lib/store';
 import {
+  SECURITY_CONFIRM_PASSWORD_INPUT,
+  SECURITY_CURRENT_PASSWORD_INPUT,
+  SECURITY_NEW_PASSWORD_INPUT,
+  SECURITY_SAVE_BUTTON,
+} from '@/lib/test_ids';
+import {
   type ChangePasswordFormData,
   changePasswordSchema,
   getApiErrorCode,
@@ -70,6 +76,7 @@ export const SecurityCard = () => {
                   <FormControl>
                     <PasswordInput
                       autoComplete="current-password"
+                      data-testid={SECURITY_CURRENT_PASSWORD_INPUT}
                       show={showPassword}
                       onToggle={() => setShowPassword(v => !v)}
                       toggleLabel={showPassword ? tAuth('form.hidePassword') : tAuth('form.showPassword')}
@@ -88,7 +95,12 @@ export const SecurityCard = () => {
                 <FormItem>
                   <FormLabel>{t('pages.settings.newPasswordLabel')}</FormLabel>
                   <FormControl>
-                    <Input type={showPassword ? 'text' : 'password'} autoComplete="new-password" {...field} />
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      data-testid={SECURITY_NEW_PASSWORD_INPUT}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,7 +114,12 @@ export const SecurityCard = () => {
                 <FormItem>
                   <FormLabel>{t('pages.settings.confirmPasswordLabel')}</FormLabel>
                   <FormControl>
-                    <Input type={showPassword ? 'text' : 'password'} autoComplete="new-password" {...field} />
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      data-testid={SECURITY_CONFIRM_PASSWORD_INPUT}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -111,7 +128,7 @@ export const SecurityCard = () => {
 
             <p className="text-xs text-muted-foreground">{t('pages.settings.changePasswordHint')}</p>
 
-            <Button type="submit" className="self-start" disabled={isLoading}>
+            <Button type="submit" data-testid={SECURITY_SAVE_BUTTON} className="self-start" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="me-2 h-4 w-4 animate-spin" />

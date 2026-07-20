@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { type APIRequestContext, expect, type Page } from '@playwright/test';
+import { type APIRequestContext, type Browser, type BrowserContext, expect, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -9,6 +9,13 @@ const EMAIL = process.env['E2E_TEST_EMAIL'] ?? 'e2e@nicoflow.test';
 const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Aa123456';
 const API = process.env['E2E_API_STAGING'] ?? 'http://localhost:8080/v1';
 const PASSWORD_PLACEHOLDER = '••••••••';
+
+// A second seeded staging account on the FREE plan, for the plan-limit prompt
+// cases (areas ≥3, projects ≥5). Absent creds ⇒ those specs skip, so the suite
+// still runs on a machine without the free account provisioned.
+const FREE_EMAIL = process.env['E2E_FREE_EMAIL'];
+const FREE_PASSWORD = process.env['E2E_FREE_PASSWORD'];
+export const freePlanConfigured = (): boolean => !!(FREE_EMAIL && FREE_PASSWORD);
 
 // Frontend origin the UI specs run against. Live builds serve the branch bundle
 // on :4173 (see playwright.config); PLAYWRIGHT_BASE_URL overrides for a run that
@@ -88,4 +95,35 @@ export async function bestEffortDelete(request: APIRequestContext, token: string
   } catch {
     /* swallow */
   }
+}
+
+// Log the free-plan account in directly against the API and return its token.
+// Guarded by freePlanConfigured(); callers must skip when it's false.
+export async function loginFreePlan(request: APIRequestContext): Promise<{ token: string; user: unknown }> {
+  const res = await request.post(`${apiDirect}/auth/login`, {
+    data: { identifier: FREE_EMAIL, password: FREE_PASSWORD, remember: true },
+    headers: process.env['E2E_BYPASS_TOKEN'] ? { 'X-E2E-Bypass': process.env['E2E_BYPASS_TOKEN'] } : {},
+  });
+  const body = await res.json();
+  const token = body?.data?.token as string | undefined;
+  const user = body?.data?.user;
+  if (!token || !user) throw new Error(`free-plan login failed: ${JSON.stringify(body?.error ?? body)}`);
+  return { token, user };
+}
+
+// Build a browser context already authenticated as the free-plan account, using
+// the same in-memory-token seed trick global-setup uses for the Pro account (so
+// no /refresh-token round-trip consumes the rotating cookie). Caller closes it.
+export async function newFreePlanContext(browser: Browser, request: APIRequestContext): Promise<BrowserContext> {
+  const { token, user } = await loginFreePlan(request);
+  const persistRoot = JSON.stringify({
+    auth: JSON.stringify({ user, token, isLoading: false }),
+    _persist: JSON.stringify({ version: -1, rehydrated: true }),
+  });
+  return browser.newContext({
+    storageState: {
+      cookies: [],
+      origins: [{ origin: new URL(baseURL).origin, localStorage: [{ name: 'persist:root', value: persistRoot }] }],
+    },
+  });
 }

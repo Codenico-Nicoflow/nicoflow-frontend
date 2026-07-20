@@ -75,13 +75,10 @@ export async function loginViaUI(page: Page): Promise<string> {
 }
 
 export async function resolveProjectId(request: APIRequestContext, token: string, name: string): Promise<string> {
-  const res = await request.get(`${apiBase}/areas/with-projects`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const body = await res.json();
   type P = { id: string; name: string };
   type A = { projects?: P[] };
-  for (const a of (body.data ?? []) as A[]) {
+  const body = await authGetJson<{ data?: A[] }>(request, token, '/areas/with-projects', 'resolveProjectId');
+  for (const a of body.data ?? []) {
     const hit = (a.projects ?? []).find(p => p.name === name);
     if (hit) return hit.id;
   }
@@ -91,10 +88,129 @@ export async function resolveProjectId(request: APIRequestContext, token: string
 // Best-effort teardown DELETE; never throws (sweep is the safety net).
 export async function bestEffortDelete(request: APIRequestContext, token: string, path: string): Promise<void> {
   try {
-    await request.delete(`${apiBase}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+    const bypass = process.env['E2E_BYPASS_TOKEN'];
+    await request.delete(`${apiBase}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, ...(bypass ? { 'X-E2E-Bypass': bypass } : {}) },
+    });
   } catch {
     /* swallow */
   }
+}
+
+async function parseJson<T = unknown>(res: Awaited<ReturnType<APIRequestContext['get']>>, label: string): Promise<T> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(`${label}: non-JSON response (HTTP ${res.status()}): ${text.slice(0, 120)}`);
+  }
+}
+
+// Auth headers for every spec API call. Carries the rate-limit bypass token
+// directly too (not only via the serve-e2e proxy) so a call that reaches staging
+// on any path still skips the burst limiter — the batch suite fans out far more
+// writes than the ~7-req burst window allows.
+function authHeaders(token: string): Record<string, string> {
+  const bypass = process.env['E2E_BYPASS_TOKEN'];
+  return { Authorization: `Bearer ${token}`, ...(bypass ? { 'X-E2E-Bypass': bypass } : {}) };
+}
+
+const RETRYABLE = [429, 502, 503, 504];
+
+// Authenticated GET → parsed JSON, retrying transient non-OK responses (502/503/429
+// from a cold or throttled staging) with a short backoff before giving up.
+export async function authGetJson<T = unknown>(
+  request: APIRequestContext,
+  token: string,
+  path: string,
+  label = `GET ${path}`
+): Promise<T> {
+  let last = '';
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const res = await request.get(`${apiBase}${path}`, { headers: authHeaders(token) });
+    if (res.ok()) return parseJson<T>(res, label);
+    last = `HTTP ${res.status()}`;
+    if (!RETRYABLE.includes(res.status())) return parseJson<T>(res, label); // let caller inspect a real error body
+    await new Promise(r => setTimeout(r, 400 * 2 ** attempt));
+  }
+  throw new Error(`${label} failed (${last})`);
+}
+
+// Authenticated write (POST/PATCH) → parsed JSON, with the same transient retry.
+export async function authSendJson<T = unknown>(
+  request: APIRequestContext,
+  token: string,
+  method: 'post' | 'patch',
+  path: string,
+  data: unknown,
+  label = `${method.toUpperCase()} ${path}`
+): Promise<T> {
+  let last = '';
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const res = await request[method](`${apiBase}${path}`, { headers: authHeaders(token), data });
+    if (res.ok()) return parseJson<T>(res, label);
+    last = `HTTP ${res.status()}`;
+    if (!RETRYABLE.includes(res.status())) return parseJson<T>(res, label);
+    await new Promise(r => setTimeout(r, 400 * 2 ** attempt));
+  }
+  throw new Error(`${label} failed (${last})`);
+}
+
+// Shared fixture creators — every spec seeds tasks/areas/projects the same way, so
+// they live here once (retrying + bypass-carrying via authSendJson) instead of
+// being copy-pasted per file where a stray raw res.json() can crash on a 429.
+type Created = { data?: { id?: string }; error?: unknown };
+
+export async function createTask(
+  request: APIRequestContext,
+  token: string,
+  projectId: string,
+  title: string
+): Promise<string> {
+  const body = await authSendJson<Created>(
+    request,
+    token,
+    'post',
+    '/tasks',
+    { projectId, title, priority: 'low', energy: 'medium' },
+    'createTask'
+  );
+  const id = body?.data?.id;
+  if (!id) throw new Error(`create task failed: ${JSON.stringify(body?.error ?? body)}`);
+  return id;
+}
+
+export async function createArea(request: APIRequestContext, token: string, name: string): Promise<string> {
+  const body = await authSendJson<Created>(
+    request,
+    token,
+    'post',
+    '/areas',
+    { name, color: '#6366f1', icon: 'folder' },
+    'createArea'
+  );
+  const id = body?.data?.id;
+  if (!id) throw new Error(`create area failed: ${JSON.stringify(body?.error ?? body)}`);
+  return id;
+}
+
+export async function createProject(
+  request: APIRequestContext,
+  token: string,
+  areaId: string,
+  name: string
+): Promise<string> {
+  const body = await authSendJson<Created>(
+    request,
+    token,
+    'post',
+    `/areas/${areaId}/projects`,
+    { name },
+    'createProject'
+  );
+  const id = body?.data?.id;
+  if (!id) throw new Error(`create project failed: ${JSON.stringify(body?.error ?? body)}`);
+  return id;
 }
 
 // Log the free-plan account in directly against the API and return its token.

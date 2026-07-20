@@ -47,11 +47,16 @@ test.describe('@core Auth journey (live)', () => {
   // A4 — wrong password stays on sign-in and surfaces an error (no navigation).
   test('login with a wrong password shows an error and stays on sign-in', async ({ page }) => {
     await page.goto('/sign-in');
-    await page.getByLabel(/email/i).fill(EMAIL);
+    // Same field selectors loginViaUI uses (proven to fill on this form).
+    await page.getByPlaceholder('you@example.com or yourname').fill(EMAIL);
     await page.getByPlaceholder(PASSWORD_PLACEHOLDER).fill('Wrong-Password-123');
-    await page.getByRole('button', { name: /sign in/i }).click();
 
-    // An error toast appears and we never leave /sign-in.
+    // Submit and wait for the login request to come back 401 — the real signal.
+    const loginResp = page.waitForResponse(r => r.url().includes('/auth/login') && r.request().method() === 'POST');
+    await page.getByRole('button', { name: /sign in/i }).click();
+    expect((await loginResp).status()).toBe(401);
+
+    // The app surfaces the failure (a sonner toast) and never leaves /sign-in.
     await expect(page.locator('[data-sonner-toast]')).toBeVisible();
     await expect(page).toHaveURL(/sign-in/);
   });

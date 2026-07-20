@@ -1,7 +1,16 @@
 /// <reference types="node" />
 import { expect, type Page, request as playwrightRequest, test } from '@playwright/test';
 
-import { apiBase, apiDirect, baseURL, bestEffortDelete, getToken, LIVE, uniqueSuffix } from './helpers/e2e-live';
+import {
+  apiDirect,
+  authGetJson,
+  authSendJson,
+  baseURL,
+  bestEffortDelete,
+  getToken,
+  LIVE,
+  uniqueSuffix,
+} from './helpers/e2e-live';
 
 // @core Bucket — THE product loop, driven through the UI: capture a thought into
 // the inbox, then process it (into a task, or to trash). We assert the item
@@ -231,12 +240,15 @@ async function createBucketViaApi(
   token: string,
   content: string
 ): Promise<string> {
-  const res = await api.post(`${apiBase}/bucket`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { content },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
+  const body = await authSendJson<{ data?: { id?: string }; error?: unknown }>(
+    api,
+    token,
+    'post',
+    '/bucket',
+    { content },
+    'createBucket'
+  );
+  const id = body?.data?.id;
   if (!id) throw new Error(`create bucket failed: ${JSON.stringify(body?.error ?? body)}`);
   return id;
 }
@@ -258,9 +270,10 @@ async function cleanupBucketByContent(
   token: string,
   content: string
 ): Promise<void> {
-  const res = await api.get(`${apiBase}/bucket`, { headers: { Authorization: `Bearer ${token}` } });
-  const body = await res.json();
-  const items = (body.data?.items ?? []) as { id: string; content: string; createdTaskId?: string | null }[];
+  const body = await authGetJson<{
+    data?: { items?: { id: string; content: string; createdTaskId?: string | null }[] };
+  }>(api, token, '/bucket', 'cleanupBucket');
+  const items = body.data?.items ?? [];
   for (const b of items.filter(b => b.content === content)) {
     if (b.createdTaskId) await bestEffortDelete(api, token, `/tasks/${b.createdTaskId}`);
     await bestEffortDelete(api, token, `/bucket/${b.id}`);

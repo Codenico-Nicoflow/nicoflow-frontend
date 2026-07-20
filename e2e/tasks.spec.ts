@@ -2,7 +2,8 @@
 import { expect, request as playwrightRequest, test } from '@playwright/test';
 
 import {
-  apiBase,
+  authGetJson,
+  authSendJson,
   bestEffortDelete,
   getToken,
   LIVE,
@@ -255,12 +256,15 @@ async function createTaskViaApi(
   projectId: string,
   title: string
 ): Promise<string> {
-  const res = await api.post(`${apiBase}/tasks`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { projectId, title, priority: 'low', energy: 'medium' },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
+  const body = await authSendJson<{ data?: { id?: string }; error?: unknown }>(
+    api,
+    token,
+    'post',
+    '/tasks',
+    { projectId, title, priority: 'low', energy: 'medium' },
+    'createTask'
+  );
+  const id = body?.data?.id;
   if (!id) throw new Error(`create task failed: ${JSON.stringify(body?.error ?? body)}`);
   return id;
 }
@@ -268,11 +272,13 @@ async function createTaskViaApi(
 async function resolveTaskIdByTitle(token: string, projectId: string, title: string): Promise<string | undefined> {
   const api = await playwrightRequest.newContext();
   try {
-    const res = await api.get(`${apiBase}/projects/${projectId}/tasks`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const body = await res.json();
-    return (body.data.items as { id: string; title: string }[]).find(t => t.title === title)?.id;
+    const body = await authGetJson<{ data?: { items?: { id: string; title: string }[] } }>(
+      api,
+      token,
+      `/projects/${projectId}/tasks`,
+      'resolveTaskIdByTitle'
+    );
+    return (body.data?.items ?? []).find(t => t.title === title)?.id;
   } finally {
     await api.dispose();
   }

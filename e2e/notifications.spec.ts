@@ -2,8 +2,10 @@
 import { expect, type Page, request as playwrightRequest, test } from '@playwright/test';
 
 import {
-  apiBase,
   bestEffortDelete,
+  createArea,
+  createProject,
+  createTask,
   getToken,
   LIVE,
   PROJECT_SENTINEL,
@@ -33,7 +35,9 @@ function badgeCount(text: string | null): number {
   return Number((text ?? '0').replace('+', '')) || 0;
 }
 
-test.describe('@core Notifications (live)', () => {
+// N1 was @core, but self-seeding a notification needs create+complete writes; that
+// write load is nightly-tier, so it lives in @extended with the rest of the flow.
+test.describe('@extended Notifications (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
   // N1 — complete a task, open the bell, see an unread notification in the panel.
@@ -42,7 +46,7 @@ test.describe('@core Notifications (live)', () => {
     const api = await playwrightRequest.newContext();
     const token = getToken();
     const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
-    const taskId = await createTaskViaApi(api, token, projectId, title);
+    const taskId = await createTask(api, token, projectId, title);
 
     try {
       await completeTaskInProject(page, projectId, taskId);
@@ -56,10 +60,6 @@ test.describe('@core Notifications (live)', () => {
       await api.dispose();
     }
   });
-});
-
-test.describe('@extended Notifications (live)', () => {
-  test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
   // N2 — after seeding via a completion, marking a notification read decrements the badge.
   test('marking a notification read decrements the badge', async ({ page }, testInfo) => {
@@ -67,7 +67,7 @@ test.describe('@extended Notifications (live)', () => {
     const api = await playwrightRequest.newContext();
     const token = getToken();
     const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
-    const taskId = await createTaskViaApi(api, token, projectId, title);
+    const taskId = await createTask(api, token, projectId, title);
 
     try {
       await completeTaskInProject(page, projectId, taskId);
@@ -95,8 +95,8 @@ test.describe('@extended Notifications (live)', () => {
     const api = await playwrightRequest.newContext();
     const token = getToken();
     const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
-    const t1 = await createTaskViaApi(api, token, projectId, `e2e-notif-a-${uniqueSuffix(testInfo.retry)}`);
-    const t2 = await createTaskViaApi(api, token, projectId, `e2e-notif-b-${uniqueSuffix(testInfo.retry)}`);
+    const t1 = await createTask(api, token, projectId, `e2e-notif-a-${uniqueSuffix(testInfo.retry)}`);
+    const t2 = await createTask(api, token, projectId, `e2e-notif-b-${uniqueSuffix(testInfo.retry)}`);
 
     try {
       await completeTaskInProject(page, projectId, t1);
@@ -120,9 +120,9 @@ test.describe('@extended Notifications (live)', () => {
     const suffix = uniqueSuffix(testInfo.retry);
     const api = await playwrightRequest.newContext();
     const token = getToken();
-    const areaId = await createAreaViaApi(api, token, `e2e-notif-area-${suffix}`);
-    const projectId = await createProjectViaApi(api, token, areaId, `e2e-notif-proj-${suffix}`);
-    const taskId = await createTaskViaApi(api, token, projectId, `e2e-notif-last-${suffix}`);
+    const areaId = await createArea(api, token, `e2e-notif-area-${suffix}`);
+    const projectId = await createProject(api, token, areaId, `e2e-notif-proj-${suffix}`);
+    const taskId = await createTask(api, token, projectId, `e2e-notif-last-${suffix}`);
 
     try {
       await completeTaskInProject(page, projectId, taskId);
@@ -144,7 +144,7 @@ test.describe('@extended Notifications (live)', () => {
     const api = await playwrightRequest.newContext();
     const token = getToken();
     const projectId = await resolveProjectId(api, token, PROJECT_SENTINEL);
-    const taskId = await createTaskViaApi(api, token, projectId, title);
+    const taskId = await createTask(api, token, projectId, title);
 
     try {
       await completeTaskInProject(page, projectId, taskId);
@@ -165,50 +165,3 @@ test.describe('@extended Notifications (live)', () => {
     }
   });
 });
-
-async function createTaskViaApi(
-  api: Awaited<ReturnType<typeof playwrightRequest.newContext>>,
-  token: string,
-  projectId: string,
-  title: string
-): Promise<string> {
-  const res = await api.post(`${apiBase}/tasks`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { projectId, title, priority: 'low', energy: 'medium' },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
-  if (!id) throw new Error(`create task failed: ${JSON.stringify(body?.error ?? body)}`);
-  return id;
-}
-
-async function createAreaViaApi(
-  api: Awaited<ReturnType<typeof playwrightRequest.newContext>>,
-  token: string,
-  name: string
-): Promise<string> {
-  const res = await api.post(`${apiBase}/areas`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { name, color: '#6366f1', icon: 'folder' },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
-  if (!id) throw new Error(`create area failed: ${JSON.stringify(body?.error ?? body)}`);
-  return id;
-}
-
-async function createProjectViaApi(
-  api: Awaited<ReturnType<typeof playwrightRequest.newContext>>,
-  token: string,
-  areaId: string,
-  name: string
-): Promise<string> {
-  const res = await api.post(`${apiBase}/areas/${areaId}/projects`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { name },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
-  if (!id) throw new Error(`create project failed: ${JSON.stringify(body?.error ?? body)}`);
-  return id;
-}

@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { expect, request as playwrightRequest, test } from '@playwright/test';
 
-import { apiBase, bestEffortDelete, getToken, LIVE, uniqueSuffix } from './helpers/e2e-live';
+import { authGetJson, bestEffortDelete, createArea, getToken, LIVE, uniqueSuffix } from './helpers/e2e-live';
 
 // @core Areas — a real user creating and deleting an Area through the board UI.
 // The browser drives every step (nav → New Area → fill dialog → submit → assert
@@ -84,7 +84,7 @@ test.describe('@extended Areas board (live)', () => {
     let areaId: string | undefined;
 
     try {
-      areaId = await createAreaViaApi(api, token, name);
+      areaId = await createArea(api, token, name);
 
       await page.goto('/areas');
       await page.getByTestId(`area-card-${areaId}-actions-trigger`).click();
@@ -118,32 +118,19 @@ test.describe('@extended Areas board (live)', () => {
   });
 });
 
-// Creates an area straight through the API so an edit/validation spec starts from
-// a known row without driving the create UI (that's AR1's job).
-async function createAreaViaApi(
-  api: Awaited<ReturnType<typeof playwrightRequest.newContext>>,
-  token: string,
-  name: string
-): Promise<string> {
-  const res = await api.post(`${apiBase}/areas`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { name, color: '#6366f1', icon: 'folder' },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
-  if (!id) throw new Error(`create area failed: ${JSON.stringify(body?.error ?? body)}`);
-  return id;
-}
-
 // Maps the just-created area's name → id via the API. Only a lookup for the
 // id-keyed testid + teardown — not the assertion under test.
 async function resolveAreaId(token: string, name: string): Promise<string | undefined> {
   const api = await playwrightRequest.newContext();
   try {
     // /areas/with-projects returns a bare array (unlike the paginated /areas).
-    const res = await api.get(`${apiBase}/areas/with-projects`, { headers: { Authorization: `Bearer ${token}` } });
-    const body = await res.json();
-    return (body.data as { id: string; name: string }[]).find(a => a.name === name)?.id;
+    const body = await authGetJson<{ data?: { id: string; name: string }[] }>(
+      api,
+      token,
+      '/areas/with-projects',
+      'resolveAreaId'
+    );
+    return (body.data ?? []).find(a => a.name === name)?.id;
   } finally {
     await api.dispose();
   }

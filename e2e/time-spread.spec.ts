@@ -2,7 +2,8 @@
 import { expect, request as playwrightRequest, test } from '@playwright/test';
 
 import {
-  apiBase,
+  authGetJson,
+  authSendJson,
   bestEffortDelete,
   getToken,
   LIVE,
@@ -26,7 +27,9 @@ function localDate(offsetDays: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-test.describe('@core Time Spread (live)', () => {
+// TS1 was @core, but scheduling a task needs create+schedule writes; that write
+// load is nightly-tier. @core stays validation-only to fit the PR-gate budget.
+test.describe('@extended Time Spread (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
   // TS1 — a task scheduled for today shows in the Today view.
@@ -48,10 +51,6 @@ test.describe('@core Time Spread (live)', () => {
       await api.dispose();
     }
   });
-});
-
-test.describe('@extended Time Spread (live)', () => {
-  test.skip(!LIVE, 'requires live staging + seeded Pro account');
 
   // TS2 — a task scheduled for tomorrow shows in Tomorrow, not Today.
   test('a task scheduled tomorrow shows in Tomorrow, not Today', async ({ page }, testInfo) => {
@@ -131,12 +130,14 @@ test.describe('@extended Time Spread (live)', () => {
     const api = await playwrightRequest.newContext();
     const token = getToken();
     try {
-      const res = await api.get(
-        `${apiBase}/time-spread?tz=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const tz = encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      const body = await authGetJson<{ data?: { today?: unknown[] } }>(
+        api,
+        token,
+        `/time-spread?tz=${tz}`,
+        'timeSpread'
       );
-      const body = await res.json();
-      const todayCount = (body.data?.today ?? []).length as number;
+      const todayCount = (body.data?.today ?? []).length;
       test.skip(todayCount > 0, 'shared account has tasks scheduled today; empty-state not reachable this run');
 
       await page.goto(TODAY_ROUTE);
@@ -153,12 +154,15 @@ async function createTaskViaApi(
   projectId: string,
   title: string
 ): Promise<string> {
-  const res = await api.post(`${apiBase}/tasks`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { projectId, title, priority: 'low', energy: 'medium' },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
+  const body = await authSendJson<{ data?: { id?: string }; error?: unknown }>(
+    api,
+    token,
+    'post',
+    '/tasks',
+    { projectId, title, priority: 'low', energy: 'medium' },
+    'createTask'
+  );
+  const id = body?.data?.id;
   if (!id) throw new Error(`create task failed: ${JSON.stringify(body?.error ?? body)}`);
   return id;
 }
@@ -171,9 +175,5 @@ async function scheduleTask(
   scheduledFor: string,
   rollsOver = true
 ): Promise<void> {
-  const res = await api.patch(`${apiBase}/tasks/${id}/schedule`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { scheduledFor, rollsOver },
-  });
-  if (!res.ok()) throw new Error(`schedule task failed: HTTP ${res.status()} ${await res.text()}`);
+  await authSendJson(api, token, 'patch', `/tasks/${id}/schedule`, { scheduledFor, rollsOver }, 'scheduleTask');
 }

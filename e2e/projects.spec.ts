@@ -1,7 +1,16 @@
 /// <reference types="node" />
 import { expect, request as playwrightRequest, test } from '@playwright/test';
 
-import { apiBase, AREA_SENTINEL, bestEffortDelete, getToken, LIVE, uniqueSuffix } from './helpers/e2e-live';
+import {
+  AREA_SENTINEL,
+  authGetJson,
+  bestEffortDelete,
+  createArea,
+  createProject,
+  getToken,
+  LIVE,
+  uniqueSuffix,
+} from './helpers/e2e-live';
 
 // @core Projects — a real user adding a project inside an area, opening it, and
 // deleting it. Everything is driven through the UI (add-project on the sentinel
@@ -94,7 +103,7 @@ test.describe('@extended Projects (live)', () => {
     let projectId: string | undefined;
 
     try {
-      projectId = await createProjectViaApi(api, token, areaId, name);
+      projectId = await createProject(api, token, areaId, name);
 
       await page.goto(`/projects/${projectId}`);
       await page.getByTestId('project-header-edit').click();
@@ -126,8 +135,8 @@ test.describe('@extended Projects (live)', () => {
     let targetAreaId: string | undefined;
 
     try {
-      targetAreaId = await createAreaViaApi(api, token, targetAreaName);
-      projectId = await createProjectViaApi(api, token, sourceAreaId, projectName);
+      targetAreaId = await createArea(api, token, targetAreaName);
+      projectId = await createProject(api, token, sourceAreaId, projectName);
 
       await page.goto(`/projects/${projectId}`);
       await page.getByTestId('project-header-edit').click();
@@ -179,7 +188,7 @@ test.describe('@extended Projects (live)', () => {
     let projectId: string | undefined;
 
     try {
-      projectId = await createProjectViaApi(api, token, areaId, name);
+      projectId = await createProject(api, token, areaId, name);
       await page.goto(`/projects/${projectId}`);
       await page.getByTestId('project-header-edit').click();
       const dialog = page.getByTestId('form-dialog-content');
@@ -202,47 +211,17 @@ test.describe('@extended Projects (live)', () => {
   });
 });
 
-// Creates a project straight through the API so edit/validation specs start from a
-// known row without re-driving the create UI (that's P1's job).
-async function createProjectViaApi(
-  api: Awaited<ReturnType<typeof playwrightRequest.newContext>>,
-  token: string,
-  areaId: string,
-  name: string
-): Promise<string> {
-  const res = await api.post(`${apiBase}/areas/${areaId}/projects`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { name },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
-  if (!id) throw new Error(`create project failed: ${JSON.stringify(body?.error ?? body)}`);
-  return id;
-}
-
-// Throwaway target area for the move spec (P5).
-async function createAreaViaApi(
-  api: Awaited<ReturnType<typeof playwrightRequest.newContext>>,
-  token: string,
-  name: string
-): Promise<string> {
-  const res = await api.post(`${apiBase}/areas`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { name, color: '#6366f1', icon: 'folder' },
-  });
-  const body = await res.json();
-  const id = body?.data?.id as string | undefined;
-  if (!id) throw new Error(`create area failed: ${JSON.stringify(body?.error ?? body)}`);
-  return id;
-}
-
 async function resolveSentinelAreaId(token: string): Promise<string> {
   const api = await playwrightRequest.newContext();
   try {
     // /areas/with-projects returns a bare array (unlike the paginated /areas).
-    const res = await api.get(`${apiBase}/areas/with-projects`, { headers: { Authorization: `Bearer ${token}` } });
-    const body = await res.json();
-    const area = (body.data as { id: string; name: string }[]).find(a => a.name === AREA_SENTINEL);
+    const body = await authGetJson<{ data?: { id: string; name: string }[] }>(
+      api,
+      token,
+      '/areas/with-projects',
+      'resolveSentinelAreaId'
+    );
+    const area = (body.data ?? []).find(a => a.name === AREA_SENTINEL);
     if (!area) throw new Error(`sentinel area '${AREA_SENTINEL}' missing — run scripts/seed-e2e.sh`);
     return area.id;
   } finally {
@@ -253,11 +232,13 @@ async function resolveSentinelAreaId(token: string): Promise<string> {
 async function resolveProjectIdByName(token: string, name: string): Promise<string | undefined> {
   const api = await playwrightRequest.newContext();
   try {
-    const res = await api.get(`${apiBase}/areas/with-projects`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const body = await res.json();
-    for (const a of (body.data ?? []) as { projects?: { id: string; name: string }[] }[]) {
+    const body = await authGetJson<{ data?: { projects?: { id: string; name: string }[] }[] }>(
+      api,
+      token,
+      '/areas/with-projects',
+      'resolveProjectIdByName'
+    );
+    for (const a of body.data ?? []) {
       const hit = (a.projects ?? []).find(p => p.name === name);
       if (hit) return hit.id;
     }

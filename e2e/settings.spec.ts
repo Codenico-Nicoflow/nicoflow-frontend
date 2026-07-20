@@ -110,7 +110,7 @@ test.describe('@extended Settings (live)', () => {
     await input.blur();
     await page.getByTestId(ACCOUNT_SAVE_BUTTON).click();
 
-    await expect(page.getByRole('alert').first()).toBeVisible();
+    await expect(page.getByTestId('form-message').first()).toBeVisible();
   });
 
   // S5 — change the password (correct current + valid new), then restore it via the
@@ -154,7 +154,7 @@ test.describe('@extended Settings (live)', () => {
     await page.getByTestId(SECURITY_CONFIRM_PASSWORD_INPUT).fill('BrandNew-Pass-1');
     await page.getByTestId(SECURITY_SAVE_BUTTON).click();
 
-    await expect(page.getByRole('alert').first()).toBeVisible();
+    await expect(page.getByTestId('form-message').first()).toBeVisible();
   });
 
   // S7 — a new password equal to the current is rejected client-side.
@@ -165,6 +165,6 @@ test.describe('@extended Settings (live)', () => {
     await page.getByTestId(SECURITY_CONFIRM_PASSWORD_INPUT).fill(PASSWORD);
     await page.getByTestId(SECURITY_SAVE_BUTTON).click();
 
-    await expect(page.getByRole('alert').first()).toBeVisible();
+    await expect(page.getByTestId('form-message').first()).toBeVisible();
   });
 });

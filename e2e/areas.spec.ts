@@ -67,7 +67,7 @@ test.describe('@core Areas board (live)', () => {
     await nameInput.fill('');
     await dialog.getByTestId('form-dialog-submit-button').click();
 
-    await expect(dialog.getByRole('alert').first()).toBeVisible();
+    await expect(dialog.getByTestId('form-message').first()).toBeVisible();
     await expect(dialog).toBeVisible();
   });
 });
@@ -113,7 +113,7 @@ test.describe('@extended Areas board (live)', () => {
     await dialog.getByTestId('name-input').fill('x'.repeat(31));
     await dialog.getByTestId('form-dialog-submit-button').click();
 
-    await expect(dialog.getByRole('alert').first()).toBeVisible();
+    await expect(dialog.getByTestId('form-message').first()).toBeVisible();
     await expect(dialog).toBeVisible();
   });
 });

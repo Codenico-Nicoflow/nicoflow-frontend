@@ -153,8 +153,8 @@ async function createTaskViaApi(
     api,
     token,
     'post',
-    '/tasks',
-    { projectId, title, priority: 'low', energy: 'medium' },
+    `/projects/${projectId}/tasks`,
+    { title, priority: 'low', energy: 'medium' },
     'createTask'
   );
   const id = body?.data?.id;

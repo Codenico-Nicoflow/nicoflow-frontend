@@ -81,7 +81,7 @@ test.describe('@core Projects (live)', () => {
       await nameInput.fill('');
       await dialog.getByTestId('form-dialog-submit-button').click();
 
-      await expect(dialog.getByRole('alert').first()).toBeVisible();
+      await expect(dialog.getByTestId('form-message').first()).toBeVisible();
       await expect(dialog).toBeVisible();
     } finally {
       await api.dispose();
@@ -172,7 +172,7 @@ test.describe('@extended Projects (live)', () => {
       await dialog.getByTestId('name-input').fill('x'.repeat(51));
       await dialog.getByTestId('form-dialog-submit-button').click();
 
-      await expect(dialog.getByRole('alert').first()).toBeVisible();
+      await expect(dialog.getByTestId('form-message').first()).toBeVisible();
       await expect(dialog).toBeVisible();
     } finally {
       await api.dispose();
@@ -196,7 +196,7 @@ test.describe('@extended Projects (live)', () => {
       await dialog.getByTestId('description-textarea').fill('x'.repeat(2001));
       await dialog.getByTestId('form-dialog-submit-button').click();
 
-      await expect(dialog.getByRole('alert').first()).toBeVisible();
+      await expect(dialog.getByTestId('form-message').first()).toBeVisible();
       await expect(dialog).toBeVisible();
     } finally {
       if (projectId) await bestEffortDelete(api, token, `/projects/${projectId}`);

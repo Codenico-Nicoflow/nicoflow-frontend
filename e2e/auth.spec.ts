@@ -71,7 +71,7 @@ test.describe('@extended Auth edge cases (live)', () => {
     await page.getByRole('button', { name: 'Create account' }).click();
 
     // Inline validation error (FormMessage → role=alert); still on the form.
-    await expect(page.getByRole('alert').first()).toBeVisible();
+    await expect(page.getByTestId('form-message').first()).toBeVisible();
     await expect(page.getByText(/check your email/i)).toHaveCount(0);
   });
 
@@ -84,7 +84,7 @@ test.describe('@extended Auth edge cases (live)', () => {
     await page.getByPlaceholder(PASSWORD_PLACEHOLDER).first().fill('alllowercase1');
     await page.getByRole('button', { name: 'Create account' }).click();
 
-    await expect(page.getByRole('alert').first()).toBeVisible();
+    await expect(page.getByTestId('form-message').first()).toBeVisible();
     await expect(page.getByText(/check your email/i)).toHaveCount(0);
   });
 
@@ -117,7 +117,7 @@ test.describe('@extended Auth edge cases (live)', () => {
     await page.getByPlaceholder('you@example.com').fill('not-an-email');
     await page.getByRole('button', { name: /send reset link/i }).click();
 
-    await expect(page.getByRole('alert').first()).toBeVisible();
+    await expect(page.getByTestId('form-message').first()).toBeVisible();
     await expect(page.getByText(/check your inbox/i)).toHaveCount(0);
   });
 
@@ -136,7 +136,7 @@ test.describe('@extended Auth edge cases (live)', () => {
     await inputs.nth(1).fill('Different-Password-123');
     await page.getByRole('button', { name: /reset password/i }).click();
 
-    await expect(page.getByRole('alert').first()).toBeVisible();
+    await expect(page.getByTestId('form-message').first()).toBeVisible();
     await expect(page).toHaveURL(/reset-password/);
   });
 });

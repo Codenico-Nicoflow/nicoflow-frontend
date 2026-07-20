@@ -146,7 +146,7 @@ test.describe('@extended Bucket (live)', () => {
     await panel.getByRole('textbox').fill('x'.repeat(501));
     await panel.getByRole('button', { name: /add to bucket/i }).click();
 
-    await expect(panel.getByRole('alert').first()).toBeVisible();
+    await expect(panel.getByTestId('form-message').first()).toBeVisible();
   });
 
   // B8 — after processing, the item shows under the Archived tab.

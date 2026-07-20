@@ -28,23 +28,23 @@ test.describe('@core Tasks (live)', () => {
     try {
       await page.goto(`/projects/${projectId}`);
 
-      // Frictionless capture: type into the quick-add and press Enter.
       const quickAdd = page.getByTestId('task-quick-add');
       await expect(quickAdd).toBeVisible();
       await quickAdd.fill(title);
+      const created = page.waitForResponse(
+        r => r.url().endsWith('/tasks') && r.request().method() === 'POST' && r.status() === 201
+      );
       await quickAdd.press('Enter');
-
-      // The task card renders in the list.
-      const card = page.getByText(title, { exact: true });
-      await expect(card).toBeVisible();
+      await created;
 
       taskId = await resolveTaskIdByTitle(token, projectId, title);
       expect(taskId, 'created task not found via API').toBeTruthy();
 
-      // Tick the checkbox → the row shows as completed (title struck through).
+      const cardHeading = page.getByTestId(`task-card-${taskId}`).getByRole('heading', { name: title });
+      await expect(cardHeading).toBeVisible();
+
       await page.getByTestId(`task-checkbox-${taskId}`).click();
-      const heading = page.getByTestId(`task-card-${taskId}`).getByRole('heading', { name: title });
-      await expect(heading).toHaveClass(/line-through/);
+      await expect(cardHeading).toHaveClass(/line-through/);
     } finally {
       if (taskId) await bestEffortDelete(api, token, `/tasks/${taskId}`);
       await api.dispose();
@@ -212,7 +212,7 @@ test.describe('@extended Tasks (live)', () => {
       await dialog.getByTestId('url-input').fill('not-a-url');
       await dialog.getByTestId('form-dialog-submit-button').click();
 
-      await expect(dialog.getByRole('alert').first()).toBeVisible();
+      await expect(dialog.getByTestId('form-message').first()).toBeVisible();
       await expect(dialog).toBeVisible();
     } finally {
       await bestEffortDelete(api, token, `/tasks/${taskId}`);
@@ -239,7 +239,7 @@ test.describe('@extended Tasks (live)', () => {
       await nameInput.fill('');
       await dialog.getByTestId('form-dialog-submit-button').click();
 
-      await expect(dialog.getByRole('alert').first()).toBeVisible();
+      await expect(dialog.getByTestId('form-message').first()).toBeVisible();
       await expect(dialog).toBeVisible();
     } finally {
       await bestEffortDelete(api, token, `/tasks/${seedId}`);
@@ -260,8 +260,8 @@ async function createTaskViaApi(
     api,
     token,
     'post',
-    '/tasks',
-    { projectId, title, priority: 'low', energy: 'medium' },
+    `/projects/${projectId}/tasks`,
+    { title, priority: 'low', energy: 'medium' },
     'createTask'
   );
   const id = body?.data?.id;

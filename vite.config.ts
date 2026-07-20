@@ -9,6 +9,12 @@ import svgr from 'vite-plugin-svgr';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Live E2E: `vite preview` proxies /v1 → the staging API so the browser hits it
+// same-origin (no CORS). Build with `VITE_API_URL=/v1` so the app calls its own
+// origin, and set E2E_API_STAGING to the staging base (…/v1). Absent target ⇒ no
+// proxy (a normal preview). Only the preview server uses this; dev/build ignore it.
+const previewProxyTarget = process.env.E2E_API_STAGING?.replace(/\/v1\/?$/, '');
+
 export default defineConfig({
   plugins: [
     react(),
@@ -17,6 +23,18 @@ export default defineConfig({
     }),
     tailwindcss(),
   ],
+  preview: previewProxyTarget
+    ? {
+        port: 4173,
+        proxy: {
+          '/v1': {
+            target: previewProxyTarget,
+            changeOrigin: true,
+            secure: true,
+          },
+        },
+      }
+    : undefined,
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

@@ -1,0 +1,72 @@
+name: Nightly E2E (staging)
+
+# Runs the E2E_LIVE-gated Playwright suite against the deployed staging API.
+# The branch frontend is built with VITE_API_URL=/v1 and served by `vite preview`,
+# whose proxy forwards /v1 → the staging API (same-origin, no CORS). Playwright
+# points at that preview via PLAYWRIGHT_BASE_URL, so it uses the running server
+# instead of spinning up its own.
+on:
+  schedule:
+    - cron: '0 3 * * *' # 03:00 UTC nightly
+  workflow_dispatch: # manual trigger from the Actions tab
+
+concurrency:
+  group: nightly-e2e
+  cancel-in-progress: true
+
+jobs:
+  e2e-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      E2E_LIVE: '1'
+      E2E_API_STAGING: ${{ secrets.E2E_API_STAGING }}
+      E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+      E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      E2E_TEST_USERNAME: ${{ secrets.E2E_TEST_USERNAME }}
+      E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+      # App calls its own origin; the preview proxy forwards /v1 → staging.
+      VITE_API_URL: /v1
+      # Use the running preview server, not Playwright's managed webServer.
+      PLAYWRIGHT_BASE_URL: http://localhost:4173
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build frontend (same-origin API)
+        run: pnpm build
+
+      - name: Start preview server (proxies /v1 → staging)
+        run: pnpm exec vite preview --port 4173 &
+
+      - name: Wait for preview to be ready
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:4173 >/dev/null && exit 0
+            sleep 2
+          done
+          echo "preview did not become ready" >&2
+          exit 1
+
+      - name: Run live E2E suite
+        run: pnpm exec playwright test
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

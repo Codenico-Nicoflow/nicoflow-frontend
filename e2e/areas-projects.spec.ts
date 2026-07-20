@@ -52,7 +52,7 @@ test.describe('Areas & Projects — board journeys (live)', () => {
       .first()
       .click();
     await page.getByPlaceholder('Enter your project name').fill(projectName);
-    await page.getByPlaceholder(/description/i).fill(description);
+    await page.getByPlaceholder("What's this project about?").fill(description);
     await page.getByTestId('form-dialog-submit-button').click();
 
     // Project row appears, open it → ProjectView header + description render
@@ -98,6 +98,8 @@ test.describe('Areas & Projects — board journeys (live)', () => {
       .click();
     await page.getByRole('menuitem', { name: /delete/i }).click();
     await page.getByRole('button', { name: /delete area/i }).click();
-    await expect(page.getByText(renamed)).not.toBeVisible();
+    // Assert on the card, not bare text: the confirm dialog also echoes the name,
+    // so getByText would match two elements (strict-mode violation).
+    await expect(page.locator('[data-testid^="area-card-"]', { hasText: renamed })).toHaveCount(0);
   });
 });

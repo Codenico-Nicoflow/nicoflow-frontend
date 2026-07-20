@@ -94,9 +94,13 @@ test.describe('Register flow', () => {
     LIVE ? 'register shows the check-your-email panel (no auto-login)' : 'register [live-only, skipped]',
     async ({ page }) => {
       test.skip(!LIVE, 'requires a live backend — set E2E_LIVE (e.g. nightly against staging)');
-      const uniqueEmail = `e2e+${Date.now()}@nicoflow.test`;
+      // Both email AND username must be unique per run — reusing TEST_USERNAME
+      // collides with the seeded account (USERNAME_ALREADY_EXISTS → stays on form).
+      const suffix = Date.now().toString().slice(-9);
+      const uniqueEmail = `e2e+${suffix}@nicoflow.test`;
+      const uniqueUsername = `e2e${suffix}`;
       await page.goto('/sign-up');
-      await page.getByLabel(/username/i).fill(TEST_USERNAME);
+      await page.getByLabel(/username/i).fill(uniqueUsername);
       await page.getByLabel(/email/i).fill(uniqueEmail);
       await page.getByPlaceholder(PASSWORD_PLACEHOLDER).fill(TEST_PASSWORD);
       await page.getByRole('button', { name: /create account/i }).click();

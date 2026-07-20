@@ -178,8 +178,7 @@ test.describe('@extended Bucket (live)', () => {
   });
 });
 
-// B7 — process-to-task on an account with zero projects shows the "no projects"
-// alert and blocks submit. Needs a dedicated zero-project account; skips without it.
+// B7 — process-to-task with zero projects shows the no-projects alert (needs a zero-project account).
 test.describe('@extended Bucket — zero projects (live)', () => {
   const ZERO_EMAIL = process.env['E2E_ZERO_PROJECT_EMAIL'];
   const ZERO_PASSWORD = process.env['E2E_ZERO_PROJECT_PASSWORD'];

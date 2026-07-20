@@ -10,9 +10,7 @@ const PASSWORD = process.env['E2E_TEST_PASSWORD'] ?? 'Aa123456';
 const API = process.env['E2E_API_STAGING'] ?? 'http://localhost:8080/v1';
 const PASSWORD_PLACEHOLDER = '••••••••';
 
-// A second seeded staging account on the FREE plan, for the plan-limit prompt
-// cases (areas ≥3, projects ≥5). Absent creds ⇒ those specs skip, so the suite
-// still runs on a machine without the free account provisioned.
+// FREE-plan account for plan-limit specs. Absent ⇒ those specs skip.
 const FREE_EMAIL = process.env['E2E_FREE_EMAIL'];
 const FREE_PASSWORD = process.env['E2E_FREE_PASSWORD'];
 export const freePlanConfigured = (): boolean => !!(FREE_EMAIL && FREE_PASSWORD);
@@ -106,10 +104,7 @@ async function parseJson<T = unknown>(res: Awaited<ReturnType<APIRequestContext[
   }
 }
 
-// Auth headers for every spec API call. Carries the rate-limit bypass token
-// directly too (not only via the serve-e2e proxy) so a call that reaches staging
-// on any path still skips the burst limiter — the batch suite fans out far more
-// writes than the ~7-req burst window allows.
+// Bearer + the rate-limit bypass token (so calls skip the burst limiter).
 function authHeaders(token: string): Record<string, string> {
   const bypass = process.env['E2E_BYPASS_TOKEN'];
   return { Authorization: `Bearer ${token}`, ...(bypass ? { 'X-E2E-Bypass': bypass } : {}) };
@@ -117,8 +112,7 @@ function authHeaders(token: string): Record<string, string> {
 
 const RETRYABLE = [429, 502, 503, 504];
 
-// Authenticated GET → parsed JSON, retrying transient non-OK responses (502/503/429
-// from a cold or throttled staging) with a short backoff before giving up.
+// Authenticated GET → parsed JSON, retrying transient 429/5xx.
 export async function authGetJson<T = unknown>(
   request: APIRequestContext,
   token: string,
@@ -130,13 +124,13 @@ export async function authGetJson<T = unknown>(
     const res = await request.get(`${apiBase}${path}`, { headers: authHeaders(token) });
     if (res.ok()) return parseJson<T>(res, label);
     last = `HTTP ${res.status()}`;
-    if (!RETRYABLE.includes(res.status())) return parseJson<T>(res, label); // let caller inspect a real error body
+    if (!RETRYABLE.includes(res.status())) return parseJson<T>(res, label);
     await new Promise(r => setTimeout(r, 400 * 2 ** attempt));
   }
   throw new Error(`${label} failed (${last})`);
 }
 
-// Authenticated write (POST/PATCH) → parsed JSON, with the same transient retry.
+// Authenticated POST/PATCH → parsed JSON, same transient retry.
 export async function authSendJson<T = unknown>(
   request: APIRequestContext,
   token: string,
@@ -156,9 +150,7 @@ export async function authSendJson<T = unknown>(
   throw new Error(`${label} failed (${last})`);
 }
 
-// Shared fixture creators — every spec seeds tasks/areas/projects the same way, so
-// they live here once (retrying + bypass-carrying via authSendJson) instead of
-// being copy-pasted per file where a stray raw res.json() can crash on a 429.
+// Shared fixture creators (retrying + bypass-carrying via authSendJson).
 type Created = { data?: { id?: string }; error?: unknown };
 
 export async function createTask(
@@ -213,8 +205,7 @@ export async function createProject(
   return id;
 }
 
-// Log the free-plan account in directly against the API and return its token.
-// Guarded by freePlanConfigured(); callers must skip when it's false.
+// Free-plan login (guard callers with freePlanConfigured()).
 export async function loginFreePlan(request: APIRequestContext): Promise<{ token: string; user: unknown }> {
   const res = await request.post(`${apiDirect}/auth/login`, {
     data: { identifier: FREE_EMAIL, password: FREE_PASSWORD, remember: true },
@@ -227,9 +218,7 @@ export async function loginFreePlan(request: APIRequestContext): Promise<{ token
   return { token, user };
 }
 
-// Build a browser context already authenticated as the free-plan account, using
-// the same in-memory-token seed trick global-setup uses for the Pro account (so
-// no /refresh-token round-trip consumes the rotating cookie). Caller closes it.
+// Browser context pre-authed as the free-plan account (caller closes it).
 export async function newFreePlanContext(browser: Browser, request: APIRequestContext): Promise<BrowserContext> {
   const { token, user } = await loginFreePlan(request);
   const persistRoot = JSON.stringify({

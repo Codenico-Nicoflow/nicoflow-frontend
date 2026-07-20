@@ -69,10 +69,8 @@ export type RefreshOutcome = 'refreshed' | 'failed';
 // the next request's 401 will retry the refresh.
 const DEFINITIVE_AUTH_FAILURES = new Set(['INVALID_TOKEN', 'UNAUTHORIZED', 'INVALID_REFRESH_TOKEN']);
 
-// Endpoints whose 401 is a domain error (bad credentials / wrong current
-// password), NOT an expired access token — they must skip the reauth flow so the
-// real error reaches the caller instead of being masked by a spurious refresh.
-// login/register/forgot/reset run pre-session (no access token to refresh at all).
+// Endpoints whose 401 is a domain error (bad credentials), not an expired token:
+// skip the reauth flow so the real error reaches the caller.
 const PRE_SESSION_401_ENDPOINTS = new Set<string>([
   AUTH_API.LOGIN,
   AUTH_API.REGISTER,
@@ -205,12 +203,9 @@ export const baseQueryWithReauth: BaseQueryFn<
     return rawBaseQuery(args, api, extraOptions);
   }
 
-  // Some auth endpoints return 401 as a DOMAIN error, not an expired session:
-  // change-password ("current password wrong"), login ("invalid credentials"),
-  // and the pre-session flows (register/forgot/reset). Passing these through the
-  // reauth flow fires a spurious /refresh-token — which itself 401s and swallows
-  // the real error, so the caller's own toast/field error never surfaces (a
-  // wrong-password login would show no feedback at all). Let the caller handle it.
+  // These 401s are domain errors — running the reauth flow fires a spurious
+  // /refresh-token that swallows the real error (wrong-password login showed
+  // no feedback). Let the caller handle it.
   if (PRE_SESSION_401_ENDPOINTS.has(url)) {
     return rawBaseQuery(args, api, extraOptions);
   }

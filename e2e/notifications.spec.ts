@@ -13,13 +13,9 @@ import {
   uniqueSuffix,
 } from './helpers/e2e-live';
 
-// Notifications — self-seeded. Rather than depend on pre-seeded unread rows, each
-// test CREATES its trigger: completing a task fires a synchronous `task_completed`
-// notification; completing a project's last task fires `project_completed`. So the
-// suite needs no notification fixtures, only the ability to create + complete tasks.
+// Notifications — self-seeded: completing a task fires task_completed.
 
-// Complete a task through the project view UI and wait for the completion request
-// to resolve (so the notification exists server-side before we open the bell).
+// Complete a task via the UI, awaiting the status PATCH so the notification exists.
 async function completeTaskInProject(page: Page, projectId: string, taskId: string): Promise<void> {
   await page.goto(`/projects/${projectId}`);
   const checkbox = page.getByTestId(`task-checkbox-${taskId}`);
@@ -35,8 +31,6 @@ function badgeCount(text: string | null): number {
   return Number((text ?? '0').replace('+', '')) || 0;
 }
 
-// N1 was @core, but self-seeding a notification needs create+complete writes; that
-// write load is nightly-tier, so it lives in @extended with the rest of the flow.
 test.describe('@extended Notifications (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 

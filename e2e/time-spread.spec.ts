@@ -12,10 +12,7 @@ import {
   uniqueSuffix,
 } from './helpers/e2e-live';
 
-// Time Spread — the today / tomorrow / next-7 lenses. Tasks are seeded via the API
-// (create + schedule to a concrete date), then the browser opens the view and
-// asserts the task lands in the right bucket. The view rendering is what's under
-// test; the scheduling mechanic is covered by the Tasks dialog specs.
+// Time Spread — seed tasks via API, then assert the view buckets them right.
 const TODAY_ROUTE = '/quick-access/today';
 const TOMORROW_ROUTE = '/quick-access/tomorrow';
 const WEEK_ROUTE = '/quick-access/next-7-days';
@@ -27,8 +24,6 @@ function localDate(offsetDays: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// TS1 was @core, but scheduling a task needs create+schedule writes; that write
-// load is nightly-tier. @core stays validation-only to fit the PR-gate budget.
 test.describe('@extended Time Spread (live)', () => {
   test.skip(!LIVE, 'requires live staging + seeded Pro account');
 

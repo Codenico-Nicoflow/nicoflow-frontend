@@ -24,10 +24,7 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL,
-    // Full interactive trace (timeline + DOM snapshots + network/API calls +
-    // console) on every failure — drag the trace.zip into trace.playwright.dev.
-    // 'on-first-retry' only traced the retry, so a first-attempt failure (or a
-    // local run with retries:0) left no trace to open.
+    // Full trace on every failure (open trace.zip in trace.playwright.dev).
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

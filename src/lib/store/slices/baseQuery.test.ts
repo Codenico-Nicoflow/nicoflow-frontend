@@ -93,7 +93,6 @@ describe('baseQueryWithReauth — pre-session 401s skip the refresh flow', () =>
       authApi.endpoints.login.initiate({ identifier: 'a@b.com', password: 'wrong', remember: false })
     );
 
-    // The login 401 must reach the caller as an error — not be masked by a refresh.
     expect('error' in result).toBe(true);
     expect(refreshCalls).toBe(0);
   });

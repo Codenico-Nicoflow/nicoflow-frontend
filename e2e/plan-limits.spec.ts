@@ -3,10 +3,8 @@ import { expect, request as playwrightRequest, test } from '@playwright/test';
 
 import { freePlanConfigured, LIVE, newFreePlanContext } from './helpers/e2e-live';
 
-// @extended Plan limits — the FREE-plan upgrade prompts. The shared suite account
-// is Pro, so these drive a separate free-plan browser context (E2E_FREE_EMAIL /
-// E2E_FREE_PASSWORD). That account must be seeded at its limits: ≥3 areas and ≥5
-// projects. Without the creds the whole file skips, so the suite still runs.
+// @extended Plan limits — FREE-plan upgrade prompts via a separate free-plan
+// context. That account must be seeded at its limits (≥3 areas, ≥5 projects).
 test.describe('@extended Plan limits (live)', () => {
   test.skip(!LIVE, 'requires live staging');
   test.skip(!freePlanConfigured(), 'requires a seeded FREE-plan account — set E2E_FREE_EMAIL / E2E_FREE_PASSWORD');

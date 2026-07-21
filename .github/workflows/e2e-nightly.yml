@@ -49,7 +49,15 @@ jobs:
             echo "STAGING_DATABASE_URL secret is not set — cannot sweep" >&2
             exit 1
           fi
-          psql "$STAGING_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/sweep-e2e.sql
+          # Render managed Postgres rejects non-SSL; force sslmode=require if the
+          # secret omits it (bare connection drops the handshake mid-negotiation).
+          url="$STAGING_DATABASE_URL"
+          case "$url" in
+            *sslmode=*) ;;
+            *\?*) url="$url&sslmode=require" ;;
+            *) url="$url?sslmode=require" ;;
+          esac
+          psql "$url" -v ON_ERROR_STOP=1 -f scripts/sweep-e2e.sql
 
       - name: Wait for staging API to be warm
         run: |

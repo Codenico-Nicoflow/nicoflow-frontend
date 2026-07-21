@@ -22,7 +22,7 @@ DELETE FROM tasks
    AND title LIKE 'e2e-%';
 
 -- 2. Unprocessed bucket items left in the inbox.
-DELETE FROM buckets
+DELETE FROM bucket
  WHERE user_id IN (SELECT id FROM users WHERE email = 'e2e@nicoflow.test')
    AND content LIKE 'e2e-%';
 

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { notificationApi } from '@/lib/store';
+import { areaApi, bucketApi, notificationApi, projectApi, taskApi } from '@/lib/store';
 
 import { createMockStore } from '../../../__tests__/renderComponent';
 
@@ -88,6 +88,50 @@ describe('useWebSocket', () => {
 
     await waitFor(() => expect(spy).toHaveBeenCalled());
     expect(spy).toHaveBeenCalledWith([['Notification'], ['NotificationCount']].flat());
+  });
+
+  it('invalidates the task family + Focus + TimeSpread on a task event', async () => {
+    const store = createMockStore({ auth: { user, token: freshToken() } });
+    const spy = vi.spyOn(taskApi.util, 'invalidateTags');
+
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
+    const socket = MockWebSocket.instances[0]!;
+    socket.emitOpen();
+    socket.emitMessage(JSON.stringify({ event: 'task.status_changed', payload: {}, timestamp: '' }));
+
+    await waitFor(() => expect(spy).toHaveBeenCalledWith(['Task', 'Focus', 'TimeSpread']));
+  });
+
+  it('invalidates Project + Area on a project event (board nests projects)', async () => {
+    const store = createMockStore({ auth: { user, token: freshToken() } });
+    const projectSpy = vi.spyOn(projectApi.util, 'invalidateTags');
+    const areaSpy = vi.spyOn(areaApi.util, 'invalidateTags');
+
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
+    const socket = MockWebSocket.instances[0]!;
+    socket.emitOpen();
+    socket.emitMessage(JSON.stringify({ event: 'project.updated', payload: {}, timestamp: '' }));
+
+    await waitFor(() => expect(projectSpy).toHaveBeenCalledWith(['Project']));
+    expect(areaSpy).toHaveBeenCalledWith(['Area']);
+  });
+
+  it('invalidates Area on an area event and Bucket on a bucket event', async () => {
+    const store = createMockStore({ auth: { user, token: freshToken() } });
+    const areaSpy = vi.spyOn(areaApi.util, 'invalidateTags');
+    const bucketSpy = vi.spyOn(bucketApi.util, 'invalidateTags');
+
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
+    const socket = MockWebSocket.instances[0]!;
+    socket.emitOpen();
+    socket.emitMessage(JSON.stringify({ event: 'area.deleted', payload: {}, timestamp: '' }));
+    socket.emitMessage(JSON.stringify({ event: 'bucket.created', payload: {}, timestamp: '' }));
+
+    await waitFor(() => expect(areaSpy).toHaveBeenCalledWith(['Area']));
+    await waitFor(() => expect(bucketSpy).toHaveBeenCalledWith(['Bucket']));
   });
 
   it('shows the paused banner after the socket drops past the first retry', async () => {

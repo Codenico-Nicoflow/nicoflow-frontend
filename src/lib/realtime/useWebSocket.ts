@@ -4,9 +4,11 @@ import { useStore } from 'react-redux';
 
 import type { RootState } from '@/lib/store';
 import {
+  areaApi,
   bucketApi,
   invalidateApiTags,
   notificationApi,
+  projectApi,
   refreshSessionFromStore,
   taskApi,
   useAppDispatch,
@@ -67,6 +69,12 @@ export const useWebSocket = (): { paused: boolean } => {
 
       const taskTags = (['Task', 'Focus', 'TimeSpread'] as const).filter(has);
       if (taskTags.length > 0) invalidateApiTags(dispatch, taskApi, taskTags);
+
+      const projectTags = (['Project'] as const).filter(has);
+      if (projectTags.length > 0) invalidateApiTags(dispatch, projectApi, projectTags);
+
+      const areaTags = (['Area'] as const).filter(has);
+      if (areaTags.length > 0) invalidateApiTags(dispatch, areaApi, areaTags);
 
       const bucketTags = (['Bucket'] as const).filter(has);
       if (bucketTags.length > 0) invalidateApiTags(dispatch, bucketApi, bucketTags);

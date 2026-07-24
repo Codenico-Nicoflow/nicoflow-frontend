@@ -1,3 +1,11 @@
+export type { AttachmentMimeType, AttachmentValidationError } from './attachment';
+export {
+  ATTACHMENT_ALLOWED_MIME_TYPES,
+  ATTACHMENT_MAX_BYTES,
+  isAllowedAttachmentMime,
+  isAllowedAttachmentSize,
+  validateAttachmentFile,
+} from './attachment';
 export {
   AuthType,
   BUCKET_PROCESSING_OPTIONS,
@@ -19,6 +27,7 @@ export {
 } from './constants';
 export {
   AREA_API,
+  ATTACHMENT_API,
   AUTH_API,
   BUCKET_API,
   NOTIFICATION_API,
@@ -30,7 +39,9 @@ export {
 export type { IconId } from './icons';
 export { ICON_IDS } from './icons';
 export type {
+  AttachmentOwnerType,
   IArea,
+  IAttachment,
   IBucket,
   INotification,
   INotificationPref,

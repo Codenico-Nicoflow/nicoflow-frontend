@@ -130,6 +130,25 @@ export { searchApi } from './slices/search/searchApi';
 export { useSearchQuery } from './slices/search/searchApi';
 export type { IAreaResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';
 
+// Attachment exports
+export { attachmentApi } from './slices/attachment/attachmentApi';
+export {
+  useConfirmAttachmentMutation,
+  useDeleteAttachmentMutation,
+  useGetAttachmentsQuery,
+  useGetDownloadUrlMutation,
+  useGetUploadUrlMutation,
+} from './slices/attachment/attachmentApi';
+export type {
+  ConfirmAttachmentRequest,
+  ConfirmAttachmentResponse,
+  GetAttachmentsRequest,
+  GetAttachmentsResponse,
+  GetDownloadUrlResponse,
+  GetUploadUrlRequest,
+  GetUploadUrlResponse,
+} from './slices/attachment/type';
+
 // Notification exports
 export { notificationApi } from './slices/notification/notificationApi';
 export {

@@ -59,6 +59,16 @@ export const SEARCH_API = {
   SEARCH: '/search',
 };
 
+// Attachments are polymorphic-flat: owner is a {ownerType, ownerId} query pair,
+// never nested under the task. `${id}/download-url` and the DELETE take the id.
+export const ATTACHMENT_API = {
+  UPLOAD_URL: '/attachments/upload-url', // POST → { url, fields, s3Key }
+  CONFIRM: '/attachments', // POST { s3Key, fileName } → AttachmentView
+  LIST: '/attachments', // GET ?ownerType=&ownerId= → AttachmentView[]
+  DOWNLOAD_URL: '/attachments/', // + `${id}/download-url` (GET) → { url }
+  DELETE: '/attachments/', // + id (DELETE) → 204
+};
+
 export const NOTIFICATION_API = {
   GET_NOTIFICATIONS: '/notifications',
   GET_UNREAD_COUNT: '/notifications/unread-count',

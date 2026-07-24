@@ -129,6 +129,21 @@ export interface ProcessingOption {
   enabled: boolean;
 }
 
+// A stored file attachment. The owner is a polymorphic {type, id} pair so tasks
+// (now) and notes (later) share one shape. All IDs are strings (backend uses
+// application-generated string PKs); s3Key never crosses the wire.
+export type AttachmentOwnerType = 'task';
+
+export interface IAttachment {
+  id: string;
+  ownerType: AttachmentOwnerType;
+  ownerId: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  createdAt: string;
+}
+
 export const ActiveTab = {
   TODAY: 'today',
   TOMORROW: 'tomorrow',

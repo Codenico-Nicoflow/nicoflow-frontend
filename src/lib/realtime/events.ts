@@ -12,10 +12,16 @@ export type WsEvent = {
 // switch) makes the mapping auditable and trivially testable. An event with no
 // entry is simply ignored — a new backend event never throws, it just no-ops until
 // we teach the client about it.
-// Task events invalidate the whole family + Focus + TimeSpread: a scheduled-date
-// or status change moves a task between Today/Next-7/Focus, which per-id
-// invalidation would miss.
-const TASK_TAGS = ['Task', 'Focus', 'TimeSpread'] as const;
+//
+// An event lists EVERY tag any open view derives from that resource, across api
+// instances (tags don't cross createApi). Under-listing leaves a cross-tab view
+// stale even though the event arrived — the reverse of over-fetching, and worse.
+
+// Task events invalidate the whole family + Focus + TimeSpread (a scheduled-date
+// or status change moves a task between Today/Next-7/Focus, which per-id would
+// miss) + Subtask (the backend reuses task.updated for subtask mutations, and the
+// subtask list is a separate api) + Search (results embed tasks).
+const TASK_TAGS = ['Task', 'Focus', 'TimeSpread', 'Subtask', 'Search'] as const;
 
 export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   'notification.created': ['Notification', 'NotificationCount'],
@@ -23,15 +29,16 @@ export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   'task.updated': TASK_TAGS,
   'task.deleted': TASK_TAGS,
   'task.status_changed': TASK_TAGS,
-  // Project events also invalidate Area: the areas board (ListWithProjects, on
-  // areaApi's Area tag) nests projects, mirroring refreshBoardOnSuccess in
-  // projectApi's own mutations.
-  'project.created': ['Project', 'Area'],
-  'project.updated': ['Project', 'Area'],
-  'project.deleted': ['Project', 'Area'],
-  'area.created': ['Area'],
-  'area.updated': ['Area'],
-  'area.deleted': ['Area'],
+  // Project events also invalidate Area (the areas board nests projects, mirroring
+  // refreshBoardOnSuccess in projectApi's own mutations) + Search (results embed
+  // projects).
+  'project.created': ['Project', 'Area', 'Search'],
+  'project.updated': ['Project', 'Area', 'Search'],
+  'project.deleted': ['Project', 'Area', 'Search'],
+  // Area events also invalidate Search (results embed areas).
+  'area.created': ['Area', 'Search'],
+  'area.updated': ['Area', 'Search'],
+  'area.deleted': ['Area', 'Search'],
   'bucket.created': ['Bucket'],
   'bucket.processed': ['Bucket'],
   'bucket.deleted': ['Bucket'],

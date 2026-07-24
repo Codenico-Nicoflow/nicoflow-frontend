@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { areaApi, bucketApi, notificationApi, projectApi, taskApi } from '@/lib/store';
+import { areaApi, bucketApi, notificationApi, projectApi, searchApi, subtaskApi, taskApi } from '@/lib/store';
 
 import { createMockStore } from '../../../__tests__/renderComponent';
 
@@ -90,23 +90,27 @@ describe('useWebSocket', () => {
     expect(spy).toHaveBeenCalledWith([['Notification'], ['NotificationCount']].flat());
   });
 
-  it('invalidates the task family + Focus + TimeSpread on a task event', async () => {
+  it('invalidates the task family + Focus + TimeSpread on a task event (incl. TimeSpread cross-tab)', async () => {
     const store = createMockStore({ auth: { user, token: freshToken() } });
-    const spy = vi.spyOn(taskApi.util, 'invalidateTags');
+    const taskSpy = vi.spyOn(taskApi.util, 'invalidateTags');
+    const subtaskSpy = vi.spyOn(subtaskApi.util, 'invalidateTags');
 
     renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
     await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
     const socket = MockWebSocket.instances[0]!;
     socket.emitOpen();
-    socket.emitMessage(JSON.stringify({ event: 'task.status_changed', payload: {}, timestamp: '' }));
+    socket.emitMessage(JSON.stringify({ event: 'task.updated', payload: {}, timestamp: '' }));
 
-    await waitFor(() => expect(spy).toHaveBeenCalledWith(['Task', 'Focus', 'TimeSpread']));
+    await waitFor(() => expect(taskSpy).toHaveBeenCalledWith(['Task', 'Focus', 'TimeSpread']));
+    // Subtask lives in its own api — the backend reuses task.updated for subtasks.
+    expect(subtaskSpy).toHaveBeenCalledWith(['Subtask']);
   });
 
-  it('invalidates Project + Area on a project event (board nests projects)', async () => {
+  it('invalidates Project + Area + Search on a project event (areas board nests projects)', async () => {
     const store = createMockStore({ auth: { user, token: freshToken() } });
     const projectSpy = vi.spyOn(projectApi.util, 'invalidateTags');
     const areaSpy = vi.spyOn(areaApi.util, 'invalidateTags');
+    const searchSpy = vi.spyOn(searchApi.util, 'invalidateTags');
 
     renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
     await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
@@ -114,8 +118,10 @@ describe('useWebSocket', () => {
     socket.emitOpen();
     socket.emitMessage(JSON.stringify({ event: 'project.updated', payload: {}, timestamp: '' }));
 
-    await waitFor(() => expect(projectSpy).toHaveBeenCalledWith(['Project']));
-    expect(areaSpy).toHaveBeenCalledWith(['Area']);
+    // Area invalidation is what re-renders the areas board (ListWithProjects).
+    await waitFor(() => expect(areaSpy).toHaveBeenCalledWith(['Area']));
+    expect(projectSpy).toHaveBeenCalledWith(['Project']);
+    expect(searchSpy).toHaveBeenCalledWith(['Search']);
   });
 
   it('invalidates Area on an area event and Bucket on a bucket event', async () => {

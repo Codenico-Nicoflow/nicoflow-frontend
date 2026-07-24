@@ -10,6 +10,8 @@ import {
   notificationApi,
   projectApi,
   refreshSessionFromStore,
+  searchApi,
+  subtaskApi,
   taskApi,
   useAppDispatch,
   useAppSelector,
@@ -70,6 +72,9 @@ export const useWebSocket = (): { paused: boolean } => {
       const taskTags = (['Task', 'Focus', 'TimeSpread'] as const).filter(has);
       if (taskTags.length > 0) invalidateApiTags(dispatch, taskApi, taskTags);
 
+      const subtaskTags = (['Subtask'] as const).filter(has);
+      if (subtaskTags.length > 0) invalidateApiTags(dispatch, subtaskApi, subtaskTags);
+
       const projectTags = (['Project'] as const).filter(has);
       if (projectTags.length > 0) invalidateApiTags(dispatch, projectApi, projectTags);
 
@@ -78,6 +83,9 @@ export const useWebSocket = (): { paused: boolean } => {
 
       const bucketTags = (['Bucket'] as const).filter(has);
       if (bucketTags.length > 0) invalidateApiTags(dispatch, bucketApi, bucketTags);
+
+      const searchTags = (['Search'] as const).filter(has);
+      if (searchTags.length > 0) invalidateApiTags(dispatch, searchApi, searchTags);
     },
     [dispatch]
   );

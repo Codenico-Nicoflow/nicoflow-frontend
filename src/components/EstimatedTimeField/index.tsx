@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 import { formatCustomLabel, isPresetValue, MAX_MINUTES, MIN_MINUTES, TIME_PRESETS } from './presets';
@@ -184,9 +185,10 @@ export const EstimatedTimeField = <T extends FieldValues>({
                   transition={{ duration: 0.18 }}
                   className="overflow-hidden"
                 >
-                  <div className="relative mt-2">
+                  {/* p-1 pads the clipped animation box so the soft focus ring isn't cut off */}
+                  <div className="relative mt-1 w-32 p-1">
                     <FormControl>
-                      <input
+                      <Input
                         id={`${customInputId}-input`}
                         data-testid={tid('estimated-time-input')}
                         type="number"
@@ -200,13 +202,12 @@ export const EstimatedTimeField = <T extends FieldValues>({
                         aria-label={resolvedLabel}
                         aria-invalid={hasError}
                         className={cn(
-                          'w-full h-10 rounded-md border border-input bg-background px-3 pe-14 text-sm',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                          'h-10 pe-12',
                           '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none'
                         )}
                       />
                     </FormControl>
-                    <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none select-none">
+                    <span className="absolute end-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none select-none">
                       {minSuffix}
                     </span>
                   </div>

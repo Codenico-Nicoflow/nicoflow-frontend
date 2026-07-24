@@ -1,4 +1,5 @@
 export * from './area';
+export * from './attachment';
 export * from './auth';
 export * from './bucket';
 export * from './notification';

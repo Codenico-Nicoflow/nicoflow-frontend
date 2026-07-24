@@ -1,0 +1,82 @@
+import { createApi } from '@reduxjs/toolkit/query/react';
+
+import type { ApiEnvelope } from '@/lib/types';
+import { ATTACHMENT_API } from '@/lib/types';
+
+import { baseQueryWithReauth } from '../baseQuery';
+
+import type {
+  ConfirmAttachmentRequest,
+  ConfirmAttachmentResponse,
+  GetAttachmentsRequest,
+  GetAttachmentsResponse,
+  GetDownloadUrlResponse,
+  GetUploadUrlRequest,
+  GetUploadUrlResponse,
+} from './type';
+
+// Owner-parameterised attachment data layer. Tagged per owner —
+// { type: 'Attachment', id: ownerId } — so a confirm/delete on one task's
+// attachments refetches only that task's list, not every owner's. Reads and
+// delete are open on any plan; upload-url + confirm are Pro-only on the backend
+// (PLAN_LIMIT_EXCEEDED / STORAGE_LIMIT_EXCEEDED surface to the UI as upgrade
+// prompts). The direct-to-S3 PUT is NOT here — see uploadToS3 (XHR, for progress).
+export const attachmentApi = createApi({
+  reducerPath: 'attachmentApi',
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['Attachment'],
+  endpoints: builder => ({
+    getAttachments: builder.query<GetAttachmentsResponse, GetAttachmentsRequest>({
+      query: ({ ownerType, ownerId }) => {
+        const qs = new URLSearchParams({ ownerType, ownerId }).toString();
+        return `${ATTACHMENT_API.LIST}?${qs}`;
+      },
+      transformResponse: (raw: ApiEnvelope<GetAttachmentsResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      providesTags: (_result, _error, { ownerId }) => [{ type: 'Attachment', id: ownerId }],
+    }),
+    getUploadUrl: builder.mutation<GetUploadUrlResponse, GetUploadUrlRequest>({
+      query: body => ({
+        url: ATTACHMENT_API.UPLOAD_URL,
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (raw: ApiEnvelope<GetUploadUrlResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+    }),
+    confirmAttachment: builder.mutation<ConfirmAttachmentResponse, ConfirmAttachmentRequest>({
+      query: body => ({
+        url: ATTACHMENT_API.CONFIRM,
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (raw: ApiEnvelope<ConfirmAttachmentResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      // Confirm returns the new AttachmentView; invalidate that owner's list.
+      invalidatesTags: result => (result ? [{ type: 'Attachment', id: result.ownerId }] : []),
+    }),
+    getDownloadUrl: builder.mutation<GetDownloadUrlResponse, string>({
+      query: id => `${ATTACHMENT_API.DOWNLOAD_URL}${id}/download-url`,
+      transformResponse: (raw: ApiEnvelope<GetDownloadUrlResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+    }),
+    // Delete takes the ownerId alongside the id purely to target the tag — the
+    // request itself is DELETE /attachments/{id}.
+    deleteAttachment: builder.mutation<void, { id: string; ownerId: string }>({
+      query: ({ id }) => ({
+        url: `${ATTACHMENT_API.DELETE}${id}`,
+        method: 'DELETE',
+      }),
+      transformErrorResponse: error => error.data,
+      invalidatesTags: (_result, _error, { ownerId }) => [{ type: 'Attachment', id: ownerId }],
+    }),
+  }),
+});
+
+export const {
+  useGetAttachmentsQuery,
+  useGetUploadUrlMutation,
+  useConfirmAttachmentMutation,
+  useGetDownloadUrlMutation,
+  useDeleteAttachmentMutation,
+} = attachmentApi;

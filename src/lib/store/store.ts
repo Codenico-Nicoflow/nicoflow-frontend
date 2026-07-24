@@ -4,6 +4,7 @@ import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, R
 import storage from 'redux-persist/lib/storage';
 
 import { areaApi } from './slices/area/areaApi';
+import { attachmentApi } from './slices/attachment/attachmentApi';
 import { authApi } from './slices/auth/authApi';
 import authReducer from './slices/auth/authSlice';
 import { bucketApi } from './slices/bucket/bucketApi';
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   [bucketApi.reducerPath]: bucketApi.reducer,
   [searchApi.reducerPath]: searchApi.reducer,
   [notificationApi.reducerPath]: notificationApi.reducer,
+  [attachmentApi.reducerPath]: attachmentApi.reducer,
 });
 
 const persistConfig = {
@@ -50,7 +52,8 @@ export const store = configureStore({
       subtaskApi.middleware,
       bucketApi.middleware,
       searchApi.middleware,
-      notificationApi.middleware
+      notificationApi.middleware,
+      attachmentApi.middleware
     ),
 });
 

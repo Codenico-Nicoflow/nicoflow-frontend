@@ -51,6 +51,8 @@ export {
   type Toast,
 } from './utils/helpers';
 export { ToastMessages } from './utils/messages';
+export type { UploadProgress, UploadToS3Args } from './utils/uploadToS3';
+export { UploadError, uploadToS3 } from './utils/uploadToS3';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

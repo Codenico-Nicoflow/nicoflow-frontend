@@ -80,6 +80,18 @@
     "estimatedTimeLabel": "זמן משוער",
     "estimatedTimePlaceholder": "הזינו זמן משוער",
     "minutes": "דקות",
+    "estChips": {
+      "15m": "15 ד׳",
+      "30m": "30 ד׳",
+      "1h": "1 ש׳",
+      "2h": "2 ש׳",
+      "4h": "4 ש׳",
+      "8h": "8 ש׳",
+      "custom": "מותאם",
+      "minSuffix": "ד׳",
+      "hourSuffix": "ש׳",
+      "clear": "נקה זמן משוער"
+    },
     "urlLabel": "קישור"
   },
   "search": {

@@ -80,6 +80,18 @@
     "estimatedTimeLabel": "Оценка времени",
     "estimatedTimePlaceholder": "Введите оценку времени",
     "minutes": "минут",
+    "estChips": {
+      "15m": "15 мин",
+      "30m": "30 мин",
+      "1h": "1 ч",
+      "2h": "2 ч",
+      "4h": "4 ч",
+      "8h": "8 ч",
+      "custom": "Другое",
+      "minSuffix": "мин",
+      "hourSuffix": "ч",
+      "clear": "Очистить оценку"
+    },
     "urlLabel": "Ссылка"
   },
   "search": {

@@ -68,7 +68,10 @@ describe('TaskDialog — edit mode', () => {
   const task = makeTask({ id: 'task-9', title: 'Existing task', energy: 'medium' });
 
   it('pre-populates from the task and shows the scheduling block', async () => {
-    server.use(http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))));
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([])))
+    );
 
     renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={task} />);
 
@@ -82,6 +85,7 @@ describe('TaskDialog — edit mode', () => {
     let deleted = false;
 
     server.use(
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
       http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([subtask]))),
       http.post(`${API}/tasks/task-9/subtasks`, async ({ request }) => {
         const body = (await request.json()) as { title: string };

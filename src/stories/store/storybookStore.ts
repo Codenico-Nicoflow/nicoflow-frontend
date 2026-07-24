@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import {
   areaApi,
+  attachmentApi,
   authApi,
   authReducer,
   bucketApi,
@@ -24,6 +25,7 @@ const storyRootReducer = combineReducers({
   [bucketApi.reducerPath]: bucketApi.reducer,
   [searchApi.reducerPath]: searchApi.reducer,
   [notificationApi.reducerPath]: notificationApi.reducer,
+  [attachmentApi.reducerPath]: attachmentApi.reducer,
 });
 
 export type StoryRootState = ReturnType<typeof storyRootReducer>;
@@ -41,6 +43,7 @@ export const createStoryStore = (preloadedState?: Partial<StoryRootState>) =>
         subtaskApi.middleware,
         bucketApi.middleware,
         searchApi.middleware,
-        notificationApi.middleware
+        notificationApi.middleware,
+        attachmentApi.middleware
       ),
   });

@@ -33,6 +33,7 @@ import {
   ToastMessages,
 } from '@/lib/utils';
 
+import { AttachmentSection } from './AttachmentSection';
 import { SubtaskAccordion } from './SubtaskAccordion';
 
 interface TaskDialogProps {
@@ -209,8 +210,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />
 
-          {/* Subtasks only exist once the task does. */}
           {isEditMode && task && <SubtaskAccordion taskId={task.id} />}
+          {isEditMode && task && <AttachmentSection ownerType="task" ownerId={task.id} />}
         </div>
       </Form>
     </FormDialog>

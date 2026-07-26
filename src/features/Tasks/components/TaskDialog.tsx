@@ -99,7 +99,19 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     }
   }, [task, form, open]);
 
-  const hasChanges = hasFormChanges(isEditMode, task, watchedValues);
+  // Only compare form-backed fields; server-only keys (id, createdAt…) would
+  // otherwise always read as "changed" and leave save perpetually enabled.
+  const hasChanges = hasFormChanges(isEditMode, task, watchedValues, [
+    'title',
+    'notes',
+    'status',
+    'priority',
+    'energy',
+    'rollsOver',
+    'scheduledFor',
+    'estimatedMinutes',
+    'url',
+  ]);
 
   const onSubmit = async (data: TaskFormData) => {
     if (isEditMode && !hasChanges) {

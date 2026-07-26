@@ -6,7 +6,7 @@ import storage from 'redux-persist/lib/storage';
 import { areaApi } from './slices/area/areaApi';
 import { attachmentApi } from './slices/attachment/attachmentApi';
 import { authApi } from './slices/auth/authApi';
-import authReducer from './slices/auth/authSlice';
+import authReducer, { clearAuth } from './slices/auth/authSlice';
 import { bucketApi } from './slices/bucket/bucketApi';
 import { notificationApi } from './slices/notification/notificationApi';
 import { projectApi } from './slices/project/projectApi';
@@ -15,7 +15,19 @@ import { searchApi } from './slices/search/searchApi';
 import { subtaskApi } from './slices/subtasks/subtaskApi';
 import { taskApi } from './slices/tasks/taskApi';
 
-const rootReducer = combineReducers({
+const apiReducerPaths = [
+  authApi.reducerPath,
+  projectApi.reducerPath,
+  areaApi.reducerPath,
+  taskApi.reducerPath,
+  subtaskApi.reducerPath,
+  bucketApi.reducerPath,
+  searchApi.reducerPath,
+  notificationApi.reducerPath,
+  attachmentApi.reducerPath,
+] as const;
+
+const combinedReducer = combineReducers({
   auth: authReducer,
   rateLimit: rateLimitReducer,
   [authApi.reducerPath]: authApi.reducer,
@@ -28,6 +40,21 @@ const rootReducer = combineReducers({
   [notificationApi.reducerPath]: notificationApi.reducer,
   [attachmentApi.reducerPath]: attachmentApi.reducer,
 });
+
+type CombinedState = ReturnType<typeof combinedReducer>;
+
+// On logout wipe every RTK Query cache so a different user never sees the
+// previous account's cached tasks/badges/etc. Blanking the api slices (passing
+// undefined = their own initial state) covers all current and future api slices
+// without a manual resetApiState() per mutation.
+export const rootReducer = (state: CombinedState | undefined, action: Parameters<typeof combinedReducer>[1]) => {
+  if (action.type === clearAuth.type && state) {
+    const cleared = { ...state };
+    for (const path of apiReducerPaths) delete cleared[path];
+    return combinedReducer(cleared as CombinedState, action);
+  }
+  return combinedReducer(state, action);
+};
 
 const persistConfig = {
   key: 'root',

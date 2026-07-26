@@ -1,6 +1,7 @@
 import { Clock, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { formatDuration } from '@/components/EstimatedTimeField/presets';
 import { Badge } from '@/components/ui/badge';
 import { type ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -42,7 +43,7 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
         aria-label={t('energy.aria', { level: energyLabel })}
         data-testid={`task-energy-${task.energy}`}
       >
-        <EnergyIcon className="h-3 w-3 me-1.5" aria-hidden />
+        <EnergyIcon className={cn('h-3 w-3 me-1.5', energyGlyph.colorClass)} aria-hidden />
         {energyLabel}
       </Badge>
 
@@ -50,7 +51,11 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
       {task.estimatedMinutes && (
         <Badge variant="secondary" className="text-xs font-medium">
           <Clock className="h-3 w-3 me-1.5" />
-          {t('badges.min', { count: task.estimatedMinutes })}
+          {formatDuration(
+            task.estimatedMinutes,
+            t('common:fields.estChips.minSuffix'),
+            t('common:fields.estChips.hourSuffix')
+          )}
         </Badge>
       )}
 

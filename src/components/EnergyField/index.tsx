@@ -61,7 +61,7 @@ export const EnergyField = <T extends FieldValues>({
                   data-testid={`${base}-group`}
                   className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1"
                 >
-                  {ENERGY_OPTIONS.map(({ value, icon: Icon, labelKey }) => {
+                  {ENERGY_OPTIONS.map(({ value, icon: Icon, labelKey, colorClass }) => {
                     const selected = current === value;
                     return (
                       <button
@@ -79,7 +79,7 @@ export const EnergyField = <T extends FieldValues>({
                             : 'text-muted-foreground hover:text-foreground'
                         )}
                       >
-                        <Icon className="h-4 w-4" aria-hidden />
+                        <Icon className={cn('h-4 w-4', selected && colorClass)} aria-hidden />
                         <span>{t(labelKey)}</span>
                       </button>
                     );

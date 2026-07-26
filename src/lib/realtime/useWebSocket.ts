@@ -5,6 +5,7 @@ import { useStore } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import {
   areaApi,
+  attachmentApi,
   bucketApi,
   invalidateApiTags,
   notificationApi,
@@ -18,7 +19,7 @@ import {
   useAppUser,
 } from '@/lib/store';
 
-import { WS_EVENT_TAGS, type WsEvent } from './events';
+import { attachmentOwnerId, WS_EVENT_TAGS, type WsEvent } from './events';
 import { buildWsUrl } from './wsUrl';
 
 // Reconnect backoff: 1 → 2 → 4 → 8 → 16 → 30s (capped). Reset to the first step on
@@ -61,7 +62,15 @@ export const useWebSocket = (): { paused: boolean } => {
   // per owning api, with that api's own tag literals so the types stay exact. We
   // invalidate (not cache-patch) so the tag/refetch model stays the source of truth.
   const dispatchTags = useCallback(
-    (event: string) => {
+    (event: string, payload: unknown) => {
+      // Attachment events invalidate per owner — { type: 'Attachment', id: ownerId }
+      // from the payload — so they're handled outside the flat WS_EVENT_TAGS map.
+      const ownerId = attachmentOwnerId(event, payload);
+      if (ownerId) {
+        invalidateApiTags(dispatch, attachmentApi, [{ type: 'Attachment', id: ownerId }]);
+        return;
+      }
+
       const tags = WS_EVENT_TAGS[event];
       if (!tags) return; // unknown event → no-op (forward-compatible)
       const has = (tag: string) => tags.includes(tag);
@@ -119,7 +128,7 @@ export const useWebSocket = (): { paused: boolean } => {
 
       socket.onmessage = e => {
         const parsed = safeParse(e.data);
-        if (parsed) dispatchTags(parsed.event);
+        if (parsed) dispatchTags(parsed.event, parsed.payload);
       };
 
       socket.onclose = async event => {

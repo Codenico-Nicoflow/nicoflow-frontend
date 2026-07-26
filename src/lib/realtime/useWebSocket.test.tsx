@@ -3,7 +3,16 @@ import type { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { areaApi, bucketApi, notificationApi, projectApi, searchApi, subtaskApi, taskApi } from '@/lib/store';
+import {
+  areaApi,
+  attachmentApi,
+  bucketApi,
+  notificationApi,
+  projectApi,
+  searchApi,
+  subtaskApi,
+  taskApi,
+} from '@/lib/store';
 
 import { createMockStore } from '../../../__tests__/renderComponent';
 
@@ -138,6 +147,62 @@ describe('useWebSocket', () => {
 
     await waitFor(() => expect(areaSpy).toHaveBeenCalledWith(['Area']));
     await waitFor(() => expect(bucketSpy).toHaveBeenCalledWith(['Bucket']));
+  });
+
+  it('invalidates the attachment list for the payload owner on attachment.created (AC1)', async () => {
+    const store = createMockStore({ auth: { user, token: freshToken() } });
+    const spy = vi.spyOn(attachmentApi.util, 'invalidateTags');
+
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
+    const socket = MockWebSocket.instances[0]!;
+    socket.emitOpen();
+    socket.emitMessage(
+      JSON.stringify({
+        event: 'attachment.created',
+        payload: { id: 'a1', ownerType: 'task', ownerId: 'task-9', fileName: 'x.pdf' },
+        timestamp: '',
+      })
+    );
+
+    await waitFor(() => expect(spy).toHaveBeenCalledWith([{ type: 'Attachment', id: 'task-9' }]));
+  });
+
+  it('invalidates the attachment list on attachment.deleted (AC2), scoped to the event owner (AC3)', async () => {
+    const store = createMockStore({ auth: { user, token: freshToken() } });
+    const spy = vi.spyOn(attachmentApi.util, 'invalidateTags');
+
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
+    const socket = MockWebSocket.instances[0]!;
+    socket.emitOpen();
+    socket.emitMessage(
+      JSON.stringify({
+        event: 'attachment.deleted',
+        payload: { id: 'a1', ownerType: 'task', ownerId: 'task-42' },
+        timestamp: '',
+      })
+    );
+
+    await waitFor(() => expect(spy).toHaveBeenCalledWith([{ type: 'Attachment', id: 'task-42' }]));
+    // Only that owner — never a bare 'Attachment' or another owner's id.
+    expect(spy).not.toHaveBeenCalledWith([{ type: 'Attachment', id: 'task-9' }]);
+    expect(spy).not.toHaveBeenCalledWith(['Attachment']);
+  });
+
+  it('ignores an attachment event with a malformed payload (no ownerId)', async () => {
+    const store = createMockStore({ auth: { user, token: freshToken() } });
+    const spy = vi.spyOn(attachmentApi.util, 'invalidateTags');
+
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
+    const socket = MockWebSocket.instances[0]!;
+    socket.emitOpen();
+    socket.emitMessage(JSON.stringify({ event: 'attachment.created', payload: {}, timestamp: '' }));
+
+    // A tick to let any (erroneous) dispatch flush.
+    await Promise.resolve();
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('shows the paused banner after the socket drops past the first retry', async () => {

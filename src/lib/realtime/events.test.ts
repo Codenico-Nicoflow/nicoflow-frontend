@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { WS_EVENT_TAGS } from './events';
+import { attachmentOwnerId, WS_EVENT_TAGS } from './events';
 
 const TASK_TAGS = ['Task', 'Focus', 'TimeSpread', 'Subtask', 'Search'];
 
@@ -35,5 +35,32 @@ describe('WS_EVENT_TAGS', () => {
 
   it('has no entry for an unknown event (ignored, not thrown)', () => {
     expect(WS_EVENT_TAGS['something.new']).toBeUndefined();
+  });
+
+  it('has no flat-tag entry for attachment events (they invalidate per owner)', () => {
+    expect(WS_EVENT_TAGS['attachment.created']).toBeUndefined();
+    expect(WS_EVENT_TAGS['attachment.deleted']).toBeUndefined();
+  });
+});
+
+describe('attachmentOwnerId', () => {
+  it('reads ownerId from a created (full AttachmentView) payload', () => {
+    const payload = { id: 'a1', ownerType: 'task', ownerId: 'task-9', fileName: 'x.pdf' };
+    expect(attachmentOwnerId('attachment.created', payload)).toBe('task-9');
+  });
+
+  it('reads ownerId from a deleted ({ id, ownerType, ownerId }) payload', () => {
+    expect(attachmentOwnerId('attachment.deleted', { id: 'a1', ownerType: 'task', ownerId: 'task-9' })).toBe('task-9');
+  });
+
+  it('returns null for a non-attachment event', () => {
+    expect(attachmentOwnerId('task.updated', { ownerId: 'task-9' })).toBeNull();
+  });
+
+  it('returns null for a malformed payload (missing/empty/non-string ownerId)', () => {
+    expect(attachmentOwnerId('attachment.created', {})).toBeNull();
+    expect(attachmentOwnerId('attachment.created', { ownerId: '' })).toBeNull();
+    expect(attachmentOwnerId('attachment.created', { ownerId: 123 })).toBeNull();
+    expect(attachmentOwnerId('attachment.created', null)).toBeNull();
   });
 });

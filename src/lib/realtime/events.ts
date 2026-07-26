@@ -43,3 +43,20 @@ export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   'bucket.processed': ['Bucket'],
   'bucket.deleted': ['Bucket'],
 };
+
+// Attachment events are the one payload-dependent case: the attachment list is
+// tagged per owner — { type: 'Attachment', id: ownerId } — so a flat string tag
+// can't express which owner to invalidate. Both events carry ownerId in the
+// payload (created = full AttachmentView, deleted = { id, ownerType, ownerId }),
+// so we read it at dispatch time rather than mapping it statically.
+export const ATTACHMENT_EVENTS = ['attachment.created', 'attachment.deleted'] as const;
+
+// Returns the owner id to invalidate for an attachment event, or null if the event
+// isn't an attachment event or the payload lacks a usable ownerId (malformed →
+// ignored, never thrown — same forward-compatible stance as WS_EVENT_TAGS).
+export const attachmentOwnerId = (event: string, payload: unknown): string | null => {
+  if (!ATTACHMENT_EVENTS.includes(event as (typeof ATTACHMENT_EVENTS)[number])) return null;
+  if (typeof payload !== 'object' || payload === null) return null;
+  const ownerId = (payload as { ownerId?: unknown }).ownerId;
+  return typeof ownerId === 'string' && ownerId.length > 0 ? ownerId : null;
+};

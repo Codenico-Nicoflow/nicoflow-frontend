@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import {
   DescriptionField,
   DialogFieldGrid,
+  EnergyField,
   EstimatedTimeField,
   FormDialog,
   NameField,
@@ -148,8 +149,10 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
 
                 <DialogFieldGrid columns={2}>
                   <PriorityField control={form.control} delay={0.2} />
-                  <EstimatedTimeField control={form.control} optional delay={0.25} />
+                  <EnergyField control={form.control} delay={0.22} />
                 </DialogFieldGrid>
+
+                <EstimatedTimeField control={form.control} optional delay={0.25} />
 
                 <UrlField control={form.control} delay={0.35} optional />
               </div>

@@ -1,6 +1,6 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
@@ -166,26 +166,19 @@ describe('NotificationPanel', () => {
     expect(await screen.findByTestId('notification-skeleton')).toBeInTheDocument();
   });
 
-  it('mark-all-read is disabled when there are no unread notifications', async () => {
+  it('mark-all-read is disabled and the list is empty when nothing is unread', async () => {
+    // Panel requests isRead=false, so a read-only inbox comes back empty — the
+    // list shows the empty state and mark-all has nothing to act on.
     server.use(
-      http.get(`${API}/notifications`, () =>
-        HttpResponse.json({
-          data: {
-            items: [makeNotification({ id: 'n1', isRead: true, readAt: new Date().toISOString() })],
-            nextCursor: '',
-          },
-          error: null,
-        })
-      )
+      http.get(`${API}/notifications`, () => HttpResponse.json({ data: { items: [], nextCursor: '' }, error: null }))
     );
 
     renderPanel(true);
-    await screen.findByTestId('notification-row');
+    await screen.findByTestId('notification-panel');
 
-    const markAll = screen.getByTestId('mark-all-read-button');
-    // No unread → the row shows only a dismiss button, and mark-all is disabled.
+    const markAll = await screen.findByTestId('mark-all-read-button');
     expect(markAll).toBeDisabled();
-    expect(within(screen.getByTestId('notification-row')).queryByTestId('mark-read-button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('notification-row')).not.toBeInTheDocument();
   });
 
   it('the desktop-notification toggle requests permission and persists when granted', async () => {

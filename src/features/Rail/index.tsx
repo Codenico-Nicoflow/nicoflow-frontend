@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useDayChange } from '@/hooks/useDayChange';
 import { useGetBucketsQuery, useGetTimeSpreadQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
@@ -46,8 +47,14 @@ const RailItem = ({ dest, active, badge }: { dest: NavDestination; active: boole
 export const Rail = () => {
   const { pathname } = useLocation();
   // The Today rail item carries a count of what's scheduled for today.
-  const { data: timeSpread } = useGetTimeSpreadQuery();
+  const { data: timeSpread, refetch: refetchTimeSpread } = useGetTimeSpreadQuery();
   const todayCount = timeSpread?.today.length ?? 0;
+
+  // The Today badge + Time Spread buckets are computed against the local calendar
+  // day. The rail is always mounted, so refetching here on midnight rollover keeps
+  // both fresh even when the app was left open on another page for days. The Time
+  // Spread view reads the same cache entry, so it updates with the badge.
+  useDayChange(refetchTimeSpread);
 
   // The Inbox rail item carries a count of unprocessed captures.
   const { data: buckets } = useGetBucketsQuery();

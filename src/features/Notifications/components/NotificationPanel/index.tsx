@@ -46,13 +46,16 @@ export const NotificationPanel = ({ open }: NotificationPanelProps) => {
   const user = useAppUser();
   const isPro = user?.status === USER_STATUS.PREMIUM;
   const desktopEnabled = useDesktopEnabled();
-  const { data, isLoading } = useGetNotificationsQuery(undefined, { skip: !open });
+  // Panel shows only unread — marking read (single or all) drops the row from the
+  // list, so "accept all" empties the panel. Read history lives server-side.
+  const { data, isLoading } = useGetNotificationsQuery({ isRead: false }, { skip: !open });
   const [markRead, { isLoading: isMarking }] = useMarkReadMutation();
   const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllReadMutation();
   const [deleteNotification, { isLoading: isDeleting }] = useDeleteNotificationMutation();
 
   const items = data?.items ?? [];
-  const hasUnread = items.some(n => !n.isRead);
+  // Every listed item is unread (panel filters isRead:false), so any item = has unread.
+  const hasUnread = items.length > 0;
   const busy = isMarking || isDeleting;
 
   const onMarkRead = (id: string) => {

@@ -66,16 +66,18 @@ const FocusChips = ({ available, onAvailableChange, energy, onEnergyChange }: Fo
           aria-label={t('focus.energyLabel')}
         >
           <span className="flex items-center gap-2">
-            {ActiveEnergyIcon && <ActiveEnergyIcon className="h-3.5 w-3.5" aria-hidden />}
+            {ActiveEnergyIcon && (
+              <ActiveEnergyIcon className={cn('h-3.5 w-3.5', activeEnergyOption?.colorClass)} aria-hidden />
+            )}
             {activeEnergyOption ? t(activeEnergyOption.labelKey) : t('focus.energyAny')}
           </span>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="any">{t('focus.energyAny')}</SelectItem>
-          {ENERGY_OPTIONS.map(({ value, icon: Icon, labelKey }) => (
+          {ENERGY_OPTIONS.map(({ value, icon: Icon, labelKey, colorClass }) => (
             <SelectItem key={value} value={value} data-testid={`focus-energy-${value}`}>
               <span className="flex items-center gap-2">
-                <Icon className="h-3.5 w-3.5" aria-hidden />
+                <Icon className={cn('h-3.5 w-3.5', colorClass)} aria-hidden />
                 {t(labelKey)}
               </span>
             </SelectItem>

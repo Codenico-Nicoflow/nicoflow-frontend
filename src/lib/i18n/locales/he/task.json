@@ -41,7 +41,15 @@
     "invalidType": "{{name}}: סוג קובץ זה אינו נתמך.",
     "tooLarge": "{{name}}: קבצים חייבים להיות עד 20MB.",
     "emptyFile": "{{name}}: הקובץ ריק.",
-    "uploadFailed": "{{name}}: ההעלאה נכשלה."
+    "uploadFailed": "{{name}}: ההעלאה נכשלה.",
+    "deleteConfirm": "למחוק?",
+    "cancel": "ביטול",
+    "deleteAction": "מחיקה",
+    "deleteSuccess": "{{name}} נמחק.",
+    "storageUsage": "{{used}} מתוך {{total}}",
+    "storageLabel": "אחסון בשימוש",
+    "proGate": "קבצים מצורפים הם תכונת Pro.",
+    "upgrade": "שדרוג ל‑Pro"
   },
   "actions": {
     "edit": "עריכת משימה",

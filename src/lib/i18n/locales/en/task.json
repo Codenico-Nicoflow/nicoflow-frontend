@@ -41,7 +41,15 @@
     "invalidType": "{{name}}: this file type isn't allowed.",
     "tooLarge": "{{name}}: files must be 20 MB or smaller.",
     "emptyFile": "{{name}}: the file is empty.",
-    "uploadFailed": "{{name}}: upload failed."
+    "uploadFailed": "{{name}}: upload failed.",
+    "deleteConfirm": "Delete?",
+    "cancel": "Cancel",
+    "deleteAction": "Delete",
+    "deleteSuccess": "{{name}} deleted.",
+    "storageUsage": "{{used}} of {{total}}",
+    "storageLabel": "Storage used",
+    "proGate": "Attachments are a Pro feature.",
+    "upgrade": "Upgrade to Pro"
   },
   "actions": {
     "edit": "Edit Task",

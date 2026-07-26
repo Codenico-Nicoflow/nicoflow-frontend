@@ -77,7 +77,8 @@ export const Empty: Story = {
   },
 };
 
-// Free user — upload zone disabled, Pro hint shown, existing files still visible.
+// Free/downgraded user — existing files stay listed + downloadable + deletable,
+// but the upload zone is replaced by a locked Pro CTA and the storage bar hides.
 export const FreeUser: Story = {
   parameters: {
     preloadedState: freeState,
@@ -87,7 +88,9 @@ export const FreeUser: Story = {
   },
   play: async () => {
     await expect(await screen.findByText('design-spec.pdf')).toBeInTheDocument();
-    await expect(screen.getByTestId('upload-zone-button')).toBeDisabled();
-    await expect(screen.getByTestId('attachment-hint')).toHaveTextContent(/Pro/i);
+    await expect(screen.getByTestId('attachment-pro-gate')).toBeInTheDocument();
+    await expect(screen.getByTestId('attachment-upgrade-cta')).toBeInTheDocument();
+    await expect(screen.queryByTestId('upload-zone')).not.toBeInTheDocument();
+    await expect(screen.queryByTestId('storage-bar')).not.toBeInTheDocument();
   },
 };

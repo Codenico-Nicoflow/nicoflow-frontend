@@ -1,6 +1,6 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
@@ -188,18 +188,16 @@ describe('AttachmentSection', () => {
     expect(uploadToS3).toHaveBeenCalledTimes(1);
   });
 
-  it('disables uploading for free users and shows the Pro hint', async () => {
+  it('replaces the upload zone with a Pro gate for free users', async () => {
     server.use(http.get(`${API}/attachments`, () => HttpResponse.json({ data: [], error: null })));
 
     const store = createMockStore({ auth: { user: makeUser({ status: 'regular' }) } });
     renderComponent(<AttachmentSection ownerType="task" ownerId="t1" />, { store });
 
     await screen.findByTestId('attachment-empty');
-    expect(screen.getByTestId('upload-zone-button')).toBeDisabled();
-    expect(screen.getByTestId('attachment-hint')).toHaveTextContent(/Pro/i);
-
-    // The guard also blocks a drop, not just the disabled button.
-    fireEvent.drop(screen.getByTestId('upload-zone'), { dataTransfer: { files: [pdf('x.pdf')] } });
-    expect(uploadToS3).not.toHaveBeenCalled();
+    // No upload affordance at all — a locked Pro panel + upgrade CTA instead.
+    expect(screen.getByTestId('attachment-pro-gate')).toBeInTheDocument();
+    expect(screen.getByTestId('attachment-upgrade-cta')).toBeInTheDocument();
+    expect(screen.queryByTestId('upload-zone')).not.toBeInTheDocument();
   });
 });

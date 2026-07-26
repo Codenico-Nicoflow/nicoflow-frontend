@@ -41,7 +41,15 @@
     "invalidType": "{{name}}: этот тип файла не поддерживается.",
     "tooLarge": "{{name}}: файлы должны быть не больше 20 МБ.",
     "emptyFile": "{{name}}: файл пустой.",
-    "uploadFailed": "{{name}}: не удалось загрузить."
+    "uploadFailed": "{{name}}: не удалось загрузить.",
+    "deleteConfirm": "Удалить?",
+    "cancel": "Отмена",
+    "deleteAction": "Удалить",
+    "deleteSuccess": "{{name}} удалён.",
+    "storageUsage": "{{used}} из {{total}}",
+    "storageLabel": "Использовано хранилище",
+    "proGate": "Вложения — функция Pro.",
+    "upgrade": "Перейти на Pro"
   },
   "actions": {
     "edit": "Изменить задачу",

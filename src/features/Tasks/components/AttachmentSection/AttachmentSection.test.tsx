@@ -56,7 +56,10 @@ describe('AttachmentSection', () => {
         return HttpResponse.json({ data, error: null });
       }),
       http.post(`${API}/attachments/upload-url`, () =>
-        HttpResponse.json({ data: { url: 'https://s3.test', fields: { key: 'k' }, s3Key: 's3/k' }, error: null })
+        HttpResponse.json({
+          data: { url: 'https://s3.test', headers: { 'Content-Type': 'application/pdf' }, s3Key: 's3/k' },
+          error: null,
+        })
       ),
       http.post(`${API}/attachments`, () =>
         HttpResponse.json({ data: makeAttachment({ fileName: 'report.pdf' }), error: null }, { status: 201 })
@@ -71,8 +74,11 @@ describe('AttachmentSection', () => {
 
     await waitFor(() => expect(screen.getByText('report.pdf')).toBeInTheDocument());
     expect(uploadToS3).toHaveBeenCalledTimes(1);
-    // fields-then-file ordering is uploadToS3's contract — we just assert it was called with them.
-    expect(uploadToS3.mock.calls[0]?.[0]).toMatchObject({ url: 'https://s3.test', fields: { key: 'k' } });
+    // The presigned PUT url + headers are forwarded to uploadToS3.
+    expect(uploadToS3.mock.calls[0]?.[0]).toMatchObject({
+      url: 'https://s3.test',
+      headers: { 'Content-Type': 'application/pdf' },
+    });
   });
 
   it('rejects an SVG client-side with no upload request (AC2)', async () => {
@@ -110,7 +116,7 @@ describe('AttachmentSection', () => {
     server.use(
       http.get(`${API}/attachments`, () => HttpResponse.json({ data: [], error: null })),
       http.post(`${API}/attachments/upload-url`, () =>
-        HttpResponse.json({ data: { url: 'https://s3.test', fields: {}, s3Key: 's3/k' }, error: null })
+        HttpResponse.json({ data: { url: 'https://s3.test', headers: {}, s3Key: 's3/k' }, error: null })
       ),
       http.post(`${API}/attachments`, () =>
         HttpResponse.json(
@@ -143,7 +149,7 @@ describe('AttachmentSection', () => {
     server.use(
       http.get(`${API}/attachments`, () => HttpResponse.json({ data: [], error: null })),
       http.post(`${API}/attachments/upload-url`, () =>
-        HttpResponse.json({ data: { url: 'https://s3.test', fields: {}, s3Key: 's3/k' }, error: null })
+        HttpResponse.json({ data: { url: 'https://s3.test', headers: {}, s3Key: 's3/k' }, error: null })
       ),
       http.post(`${API}/attachments`, () => HttpResponse.json({ data: makeAttachment(), error: null }, { status: 201 }))
     );
@@ -172,7 +178,7 @@ describe('AttachmentSection', () => {
     server.use(
       http.get(`${API}/attachments`, () => HttpResponse.json({ data: existing, error: null })),
       http.post(`${API}/attachments/upload-url`, () =>
-        HttpResponse.json({ data: { url: 'https://s3.test', fields: {}, s3Key: 's3/k' }, error: null })
+        HttpResponse.json({ data: { url: 'https://s3.test', headers: {}, s3Key: 's3/k' }, error: null })
       ),
       http.post(`${API}/attachments`, () => HttpResponse.json({ data: makeAttachment(), error: null }, { status: 201 }))
     );

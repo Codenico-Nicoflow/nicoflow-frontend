@@ -1,7 +1,11 @@
-// Direct browser → S3 upload for a presigned POST policy. This lives outside RTK
-// Query on purpose: fetch can't report upload progress, so we drop to
+// Direct browser → object-store upload via a presigned PUT. This lives outside
+// RTK Query on purpose: fetch can't report upload progress, so we drop to
 // XMLHttpRequest for its `upload.onprogress`. Framework-agnostic + import-clean
 // (no React / DOM-app coupling) so it survives the E-033 shared-package move.
+//
+// PUT, not POST: Cloudflare R2 (the staging/prod store) returns 501 for
+// presigned POST-policy form uploads (NIC-1679), so the backend hands out a
+// presigned PUT URL + the headers to send with the raw file body.
 
 export type UploadProgress = {
   loaded: number;
@@ -11,15 +15,15 @@ export type UploadProgress = {
 
 export type UploadToS3Args = {
   url: string;
-  fields: Record<string, string>;
+  headers: Record<string, string>;
   file: File;
   onProgress?: (progress: UploadProgress) => void;
   signal?: AbortSignal;
 };
 
-// Thrown on any non-2xx S3 response or a transport-level failure, carrying the
-// HTTP status (0 for network/abort) so callers can branch without parsing S3's
-// XML error body.
+// Thrown on any non-2xx store response or a transport-level failure, carrying the
+// HTTP status (0 for network/abort) so callers can branch without parsing the
+// store's XML error body.
 export class UploadError extends Error {
   readonly status: number;
 
@@ -30,24 +34,20 @@ export class UploadError extends Error {
   }
 }
 
-// Uploads `file` to the presigned POST `url`. The S3 POST policy REQUIRES the
-// policy fields to precede the file part in the multipart body, so fields are
-// appended first and `file` last — reordering makes S3 reject the upload.
-export const uploadToS3 = ({ url, fields, file, onProgress, signal }: UploadToS3Args): Promise<void> =>
+// PUTs the raw `file` bytes to the presigned `url`, sending the presigned
+// `headers` (Content-Type). The body is the file itself — no multipart form.
+export const uploadToS3 = ({ url, headers, file, onProgress, signal }: UploadToS3Args): Promise<void> =>
   new Promise((resolve, reject) => {
     if (signal?.aborted) {
       reject(new UploadError('upload aborted', 0));
       return;
     }
 
-    const form = new FormData();
-    for (const [key, value] of Object.entries(fields)) {
-      form.append(key, value);
-    }
-    form.append('file', file); // must be last for the S3 POST policy
-
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
+    xhr.open('PUT', url);
+    for (const [key, value] of Object.entries(headers)) {
+      xhr.setRequestHeader(key, value);
+    }
 
     xhr.upload.onprogress = event => {
       if (!onProgress) return;
@@ -72,5 +72,5 @@ export const uploadToS3 = ({ url, fields, file, onProgress, signal }: UploadToS3
       signal.addEventListener('abort', () => xhr.abort(), { once: true });
     }
 
-    xhr.send(form);
+    xhr.send(file);
   });

@@ -38,6 +38,7 @@ export const Edit: Story = {
             error: null,
           })
         ),
+        http.get(`${API}/attachments`, () => HttpResponse.json({ data: [], error: null })),
       ],
     },
   },

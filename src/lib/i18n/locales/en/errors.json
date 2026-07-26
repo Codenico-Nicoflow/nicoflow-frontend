@@ -70,6 +70,7 @@
   "TASK_NAME_REQUIRED": "Task name is required.",
   "TASK_DESCRIPTION_REQUIRED": "Task description is required",
   "PLAN_LIMIT_EXCEEDED": "You have reached your plan limit. Upgrade to continue.",
+  "STORAGE_LIMIT_EXCEEDED": "Your storage is full. Delete some files to free up space.",
   "AI_LIMIT_REACHED": "You have used all your free AI requests this month. Upgrade for more.",
   "CONFLICT": "This item already exists.",
   "DUPLICATE_NAME": "This name is already taken.",

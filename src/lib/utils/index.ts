@@ -34,6 +34,7 @@ export type {
 } from './utils/schemas';
 
 // Utils exports
+export { formatBytes } from './utils/formatBytes';
 export { ICON_IMPORTS } from './utils/get-icons';
 export {
   capitalize,

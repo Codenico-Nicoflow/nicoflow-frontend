@@ -70,6 +70,7 @@
   "TASK_NAME_REQUIRED": "יש להזין שם משימה.",
   "TASK_DESCRIPTION_REQUIRED": "יש להזין תיאור משימה",
   "PLAN_LIMIT_EXCEEDED": "הגעת למגבלת התוכנית שלך. שדרגו כדי להמשיך.",
+  "STORAGE_LIMIT_EXCEEDED": "שטח האחסון שלך מלא. מחקו קבצים כדי לפנות מקום.",
   "AI_LIMIT_REACHED": "ניצלת את כל בקשות ה‑AI החינמיות החודש. שדרגו לקבלת עוד.",
   "CONFLICT": "פריט זה כבר קיים.",
   "DUPLICATE_NAME": "שם זה כבר תפוס.",

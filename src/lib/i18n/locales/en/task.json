@@ -24,6 +24,25 @@
     "addPlaceholder": "Add a subtask...",
     "delete": "Delete subtask"
   },
+  "attachments": {
+    "title": "Attachments",
+    "empty": "No attachments yet.",
+    "addButton": "Add attachment",
+    "dropHint": "Drag & drop files here, or click to browse",
+    "dropActive": "Drop to upload",
+    "uploading": "Uploading…",
+    "retry": "Retry",
+    "remove": "Remove",
+    "download": "Download {{name}}",
+    "delete": "Delete {{name}}",
+    "hint": "Up to 20 MB each. Images, PDF, documents, CSV, ZIP.",
+    "proHint": "Attachments are a Pro feature. Upgrade to Pro to add files.",
+    "countCap": "You can attach up to 20 files per task.",
+    "invalidType": "{{name}}: this file type isn't allowed.",
+    "tooLarge": "{{name}}: files must be 20 MB or smaller.",
+    "emptyFile": "{{name}}: the file is empty.",
+    "uploadFailed": "{{name}}: upload failed."
+  },
   "actions": {
     "edit": "Edit Task",
     "delete": "Delete Task",

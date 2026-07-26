@@ -60,10 +60,13 @@ describe('attachmentApi slice', () => {
     expect(search).toContain('ownerId=t1');
   });
 
-  it('getUploadUrl unwraps { url, fields, s3Key }', async () => {
+  it('getUploadUrl unwraps { url, headers, s3Key }', async () => {
     server.use(
       http.post(`${API}/attachments/upload-url`, () =>
-        HttpResponse.json({ data: { url: 'https://s3.test', fields: { key: 'k' }, s3Key: 's3/k' }, error: null })
+        HttpResponse.json({
+          data: { url: 'https://s3.test', headers: { 'Content-Type': 'application/pdf' }, s3Key: 's3/k' },
+          error: null,
+        })
       )
     );
 
@@ -78,7 +81,11 @@ describe('attachmentApi slice', () => {
       })
     );
 
-    expect('data' in res && res.data).toEqual({ url: 'https://s3.test', fields: { key: 'k' }, s3Key: 's3/k' });
+    expect('data' in res && res.data).toEqual({
+      url: 'https://s3.test',
+      headers: { 'Content-Type': 'application/pdf' },
+      s3Key: 's3/k',
+    });
   });
 
   it('getDownloadUrl unwraps { url } (not { downloadUrl })', async () => {

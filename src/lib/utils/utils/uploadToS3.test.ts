@@ -2,16 +2,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UploadError, type UploadProgress, uploadToS3 } from './uploadToS3';
 
-// Minimal XMLHttpRequest fake: records what was opened/sent and exposes hooks to
-// drive progress/load/error/abort deterministically. jsdom's real XHR won't emit
-// upload progress, so we stub the global.
+// Minimal XMLHttpRequest fake: records what was opened/sent + the request headers
+// set, and exposes hooks to drive progress/load/error/abort deterministically.
+// jsdom's real XHR won't emit upload progress, so we stub the global.
 class FakeXHR {
   static instances: FakeXHR[] = [];
 
   method = '';
   url = '';
   status = 0;
-  sentBody: FormData | null = null;
+  sentBody: Blob | null = null;
+  requestHeaders: Record<string, string> = {};
   aborted = false;
 
   upload: { onprogress: ((e: ProgressEvent) => void) | null } = { onprogress: null };
@@ -28,7 +29,11 @@ class FakeXHR {
     this.url = url;
   }
 
-  send(body: FormData): void {
+  setRequestHeader(key: string, value: string): void {
+    this.requestHeaders[key] = value;
+  }
+
+  send(body: Blob): void {
     this.sentBody = body;
   }
 
@@ -74,27 +79,28 @@ afterEach(() => {
 });
 
 describe('uploadToS3', () => {
-  it('posts fields before the file (S3 POST policy order)', async () => {
+  it('PUTs the raw file with the presigned headers', async () => {
+    const file = makeFile();
     const promise = uploadToS3({
-      url: 'https://s3.test/bucket',
-      fields: { key: 'attachments/u1/task/t1/abc', 'Content-Type': 'application/pdf' },
-      file: makeFile(),
+      url: 'https://s3.test/bucket/obj?X-Amz-Signature=abc',
+      headers: { 'Content-Type': 'application/pdf' },
+      file,
     });
     const xhr = lastXHR();
-    xhr.finish(204);
+    xhr.finish(200);
     await promise;
 
-    const keys = [...(xhr.sentBody as FormData).keys()];
-    expect(keys).toEqual(['key', 'Content-Type', 'file']);
-    expect(keys[keys.length - 1]).toBe('file');
-    expect(xhr.method).toBe('POST');
+    expect(xhr.method).toBe('PUT');
+    // Body is the raw file, not a multipart form.
+    expect(xhr.sentBody).toBe(file);
+    expect(xhr.requestHeaders['Content-Type']).toBe('application/pdf');
   });
 
   it('reports increasing progress ratios and a final 1', async () => {
     const ratios: number[] = [];
     const onProgress = (p: UploadProgress) => ratios.push(p.ratio);
 
-    const promise = uploadToS3({ url: 'https://s3.test', fields: {}, file: makeFile(100), onProgress });
+    const promise = uploadToS3({ url: 'https://s3.test', headers: {}, file: makeFile(100), onProgress });
     const xhr = lastXHR();
     xhr.emitProgress(25, 100);
     xhr.emitProgress(50, 100);
@@ -112,7 +118,7 @@ describe('uploadToS3', () => {
     const ratios: number[] = [];
     const promise = uploadToS3({
       url: 'https://s3.test',
-      fields: {},
+      headers: {},
       file: makeFile(100),
       onProgress: p => ratios.push(p.ratio),
     });
@@ -125,20 +131,20 @@ describe('uploadToS3', () => {
   });
 
   it('resolves on any 2xx', async () => {
-    const promise = uploadToS3({ url: 'https://s3.test', fields: {}, file: makeFile() });
+    const promise = uploadToS3({ url: 'https://s3.test', headers: {}, file: makeFile() });
     lastXHR().finish(201);
     await expect(promise).resolves.toBeUndefined();
   });
 
   it('rejects with the status on a non-2xx', async () => {
-    const promise = uploadToS3({ url: 'https://s3.test', fields: {}, file: makeFile() });
+    const promise = uploadToS3({ url: 'https://s3.test', headers: {}, file: makeFile() });
     lastXHR().finish(403);
     await expect(promise).rejects.toMatchObject({ status: 403 });
     await expect(promise).rejects.toBeInstanceOf(UploadError);
   });
 
   it('rejects with status 0 on a network error', async () => {
-    const promise = uploadToS3({ url: 'https://s3.test', fields: {}, file: makeFile() });
+    const promise = uploadToS3({ url: 'https://s3.test', headers: {}, file: makeFile() });
     lastXHR().networkError();
     await expect(promise).rejects.toMatchObject({ status: 0 });
   });
@@ -147,14 +153,14 @@ describe('uploadToS3', () => {
     const controller = new AbortController();
     controller.abort();
     await expect(
-      uploadToS3({ url: 'https://s3.test', fields: {}, file: makeFile(), signal: controller.signal })
+      uploadToS3({ url: 'https://s3.test', headers: {}, file: makeFile(), signal: controller.signal })
     ).rejects.toBeInstanceOf(UploadError);
     expect(FakeXHR.instances).toHaveLength(0);
   });
 
   it('aborts the request when the signal fires mid-flight', async () => {
     const controller = new AbortController();
-    const promise = uploadToS3({ url: 'https://s3.test', fields: {}, file: makeFile(), signal: controller.signal });
+    const promise = uploadToS3({ url: 'https://s3.test', headers: {}, file: makeFile(), signal: controller.signal });
     controller.abort();
     await expect(promise).rejects.toBeInstanceOf(UploadError);
     expect(lastXHR().aborted).toBe(true);
@@ -171,7 +177,7 @@ describe('upload state machine', () => {
     const states: State[] = ['idle'];
     const promise = uploadToS3({
       url: 'https://s3.test',
-      fields: {},
+      headers: {},
       file: makeFile(100),
       onProgress: () => {
         if (states[states.length - 1] === 'idle') states.push('uploading');
@@ -189,7 +195,7 @@ describe('upload state machine', () => {
     const states: State[] = ['idle'];
     const promise = uploadToS3({
       url: 'https://s3.test',
-      fields: {},
+      headers: {},
       file: makeFile(100),
       onProgress: () => {
         if (states[states.length - 1] === 'idle') states.push('uploading');

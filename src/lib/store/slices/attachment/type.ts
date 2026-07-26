@@ -18,11 +18,12 @@ export type GetUploadUrlRequest = {
   fileSize: number;
 };
 
-// Presigned POST target: the fields must be posted (fields-then-file) to `url`,
-// then `s3Key` echoed back to confirm.
+// Presigned PUT target: PUT the raw file to `url` with the given `headers`
+// (Content-Type), then echo `s3Key` back to confirm. (Was a POST policy with
+// `fields`; R2 doesn't support POST policy — NIC-1679 — so uploads are PUT.)
 export type GetUploadUrlResponse = {
   url: string;
-  fields: Record<string, string>;
+  headers: Record<string, string>;
   s3Key: string;
 };
 

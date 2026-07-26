@@ -72,7 +72,7 @@ export const AttachmentSection = ({ ownerType, ownerId }: AttachmentSectionProps
     async (item: UploadItem) => {
       const { id, file } = item;
       try {
-        const { url, fields, s3Key } = await getUploadUrl({
+        const { url, headers, s3Key } = await getUploadUrl({
           ownerType,
           ownerId,
           fileName: file.name,
@@ -82,7 +82,7 @@ export const AttachmentSection = ({ ownerType, ownerId }: AttachmentSectionProps
 
         await uploadToS3({
           url,
-          fields,
+          headers,
           file,
           onProgress: ({ ratio }) => patchUpload(id, { progress: ratio }),
         });

@@ -79,3 +79,9 @@ export const NOTIFICATION_API = {
   UPDATE_PREFERENCES: '/notifications/preferences',
   PUSH_SUBSCRIBE: '/notifications/push/subscribe', // POST subscribe · DELETE unsubscribe
 };
+
+export const AI_API = {
+  SESSIONS: '/ai/sessions', // GET list · POST create
+  SESSION: '/ai/sessions/', // + id (GET detail · DELETE)
+  USAGE: '/ai/usage', // GET quota state
+};

@@ -3,6 +3,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+import { aiApi } from './slices/ai/aiApi';
 import { areaApi } from './slices/area/areaApi';
 import { attachmentApi } from './slices/attachment/attachmentApi';
 import { authApi } from './slices/auth/authApi';
@@ -25,6 +26,7 @@ const apiReducerPaths = [
   searchApi.reducerPath,
   notificationApi.reducerPath,
   attachmentApi.reducerPath,
+  aiApi.reducerPath,
 ] as const;
 
 const combinedReducer = combineReducers({
@@ -39,6 +41,7 @@ const combinedReducer = combineReducers({
   [searchApi.reducerPath]: searchApi.reducer,
   [notificationApi.reducerPath]: notificationApi.reducer,
   [attachmentApi.reducerPath]: attachmentApi.reducer,
+  [aiApi.reducerPath]: aiApi.reducer,
 });
 
 type CombinedState = ReturnType<typeof combinedReducer>;
@@ -80,7 +83,8 @@ export const store = configureStore({
       bucketApi.middleware,
       searchApi.middleware,
       notificationApi.middleware,
-      attachmentApi.middleware
+      attachmentApi.middleware,
+      aiApi.middleware
     ),
 });
 

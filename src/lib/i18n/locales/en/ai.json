@@ -1,0 +1,20 @@
+{
+  "page": {
+    "heading": "AI Assistant",
+    "subtitle": "Chat with your AI assistant to plan, break down projects, and organize your work."
+  },
+  "sessions": {
+    "heading": "Conversations",
+    "new": "New chat",
+    "openList": "Open conversations",
+    "emptyTitle": "No conversations yet",
+    "emptyDescription": "Start a new chat to get help planning your work.",
+    "delete": "Delete conversation",
+    "deleteConfirm": "This permanently deletes the conversation and all its messages."
+  },
+  "chat": {
+    "emptyTitle": "Select a conversation",
+    "emptyDescription": "Pick a conversation from the list or start a new one.",
+    "placeholder": "The chat experience is coming soon."
+  }
+}

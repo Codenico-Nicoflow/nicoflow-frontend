@@ -2,7 +2,7 @@ import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 
 import { AuthLayout, PrivateLayout } from '@/layout';
 import { useAppUser } from '@/lib/store';
-import { AreasBoard, ErrorPage, HelpAndInformation, PrivacyPolicy, Settings, TermsOfService } from '@/pages';
+import { AIPage, AreasBoard, ErrorPage, HelpAndInformation, PrivacyPolicy, Settings, TermsOfService } from '@/pages';
 import { ForgotPassword, ResetPassword, SignIn, SignUp, VerifyEmail } from '@/pages/auth';
 import { ProjectView } from '@/pages/project';
 import { Bucket, Focus, NextSevenDays, Today, Tomorrow } from '@/pages/quick-access';
@@ -27,6 +27,8 @@ const AppRoutes = () => {
         { path: '/quick-access/today', element: <Today /> },
         { path: '/quick-access/tomorrow', element: <Tomorrow /> },
         { path: '/areas', element: <AreasBoard /> },
+        { path: '/ai', element: <AIPage /> },
+        { path: '/ai/:id', element: <AIPage /> },
         { path: '/projects/:projectId', element: <ProjectView /> },
         { path: '/settings', element: <Settings /> },
         { path: '/help-information', element: <HelpAndInformation /> },

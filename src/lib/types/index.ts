@@ -26,6 +26,7 @@ export {
   USER_STATUS,
 } from './constants';
 export {
+  AI_API,
   AREA_API,
   ATTACHMENT_API,
   AUTH_API,

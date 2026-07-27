@@ -1,3 +1,4 @@
+export * from './AI';
 export * from './Area';
 export * from './Bucket';
 export * from './Project';

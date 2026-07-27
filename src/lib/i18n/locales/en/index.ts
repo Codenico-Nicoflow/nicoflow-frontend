@@ -1,3 +1,4 @@
+import ai from './ai.json';
 import area from './area.json';
 import auth from './auth.json';
 import bucket from './bucket.json';
@@ -12,6 +13,6 @@ import task from './task.json';
 // shape every other locale (and the typed-key declaration in i18next.d.ts) is
 // derived from. Keep all keys present here even if a translation is pending —
 // missing keys fall back to EN at runtime and fail type-check at build.
-export const en = { common, auth, area, project, task, bucket, nav, errors, notification } as const;
+export const en = { common, auth, area, project, task, bucket, nav, errors, notification, ai } as const;
 
 export type Resources = typeof en;

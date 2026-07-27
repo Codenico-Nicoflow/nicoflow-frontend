@@ -1,5 +1,6 @@
 import type { Resources } from '../en';
 
+import ai from './ai.json';
 import area from './area.json';
 import auth from './auth.json';
 import bucket from './bucket.json';
@@ -13,7 +14,7 @@ import task from './task.json';
 // `satisfies` enforces that every EN namespace is present and key-compatible so
 // a missing/renamed key fails type-check here, while leaving room for any
 // language-specific plural variants (matching the ru barrel's shape).
-export const he = { common, auth, area, project, task, bucket, nav, errors, notification } satisfies Record<
+export const he = { common, auth, area, project, task, bucket, nav, errors, notification, ai } satisfies Record<
   keyof Resources,
   unknown
 >;

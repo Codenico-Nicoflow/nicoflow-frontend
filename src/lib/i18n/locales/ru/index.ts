@@ -1,5 +1,6 @@
 import type { Resources } from '../en';
 
+import ai from './ai.json';
 import area from './area.json';
 import auth from './auth.json';
 import bucket from './bucket.json';
@@ -14,7 +15,7 @@ import task from './task.json';
 // `_few`/`_many` suffixes the EN shape doesn't have. `satisfies` enforces that
 // every EN namespace is present and key-compatible, while still permitting those
 // extra plural variants (which i18next resolves at runtime, not the type).
-export const ru = { common, auth, area, project, task, bucket, nav, errors, notification } satisfies Record<
+export const ru = { common, auth, area, project, task, bucket, nav, errors, notification, ai } satisfies Record<
   keyof Resources,
   unknown
 >;

@@ -172,3 +172,20 @@ export type {
   UpdatePreferencesRequest,
   UpdatePreferencesResponse,
 } from './slices/notification/type';
+
+// AI exports
+export { aiApi } from './slices/ai/aiApi';
+export {
+  useCreateAISessionMutation,
+  useDeleteAISessionMutation,
+  useGetAISessionQuery,
+  useGetAISessionsQuery,
+  useGetAIUsageQuery,
+} from './slices/ai/aiApi';
+export type {
+  CreateAISessionRequest,
+  CreateAISessionResponse,
+  GetAISessionResponse,
+  GetAISessionsResponse,
+  GetAIUsageResponse,
+} from './slices/ai/type';

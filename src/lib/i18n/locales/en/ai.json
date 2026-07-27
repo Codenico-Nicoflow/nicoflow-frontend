@@ -21,6 +21,7 @@
     "startTitle": "Start a conversation with your AI assistant",
     "startDescription": "Ask anything — plan your day, break down a project, or organize your tasks.",
     "stop": "Stop generating",
+    "streamingStatus": "Generating a response",
     "retry": "Retry",
     "jumpToLatest": "Jump to latest",
     "composer": {

@@ -84,4 +84,5 @@ export const AI_API = {
   SESSIONS: '/ai/sessions', // GET list · POST create
   SESSION: '/ai/sessions/', // + id (GET detail · DELETE)
   USAGE: '/ai/usage', // GET quota state
+  MESSAGES: (id: string) => `/ai/sessions/${id}/messages`, // POST send (SSE over POST)
 };

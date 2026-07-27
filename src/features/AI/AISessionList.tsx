@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { MessageSquarePlus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { EmptyState } from '@/components';
+import { EmptyState, Timestamp } from '@/components';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
+import { getDateLocale } from '@/lib/i18n/dateLocale';
 import { useDeleteAISessionMutation, useGetAISessionsQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
@@ -14,22 +15,28 @@ interface AISessionListProps {
   activeId?: string;
   onSelect: (id: string) => void;
   onCreate: () => void;
+  // Called after a session is deleted so the owner can navigate away from a
+  // deleted-active session (→ /ai). Passed the deleted id.
+  onDeleted?: (id: string) => void;
   isCreating?: boolean;
 }
 
 // The 280px conversation rail: lists sessions (updatedAt DESC from the backend),
 // a "new chat" action, and per-row delete. Active row is highlighted from the
 // route param. Reused verbatim inside the mobile drawer.
-export const AISessionList = ({ activeId, onSelect, onCreate, isCreating = false }: AISessionListProps) => {
-  const { t } = useTranslation('ai');
+export const AISessionList = ({ activeId, onSelect, onCreate, onDeleted, isCreating = false }: AISessionListProps) => {
+  const { t, i18n } = useTranslation('ai');
+  const dateLocale = getDateLocale(i18n.language);
   const { data: sessions, isLoading } = useGetAISessionsQuery();
   const [deleteSession, { isLoading: isDeleting }] = useDeleteAISessionMutation();
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const handleDelete = async () => {
     if (!pendingDelete) return;
-    await deleteSession(pendingDelete).unwrap();
+    const deletedId = pendingDelete;
+    await deleteSession(deletedId).unwrap();
     setPendingDelete(null);
+    onDeleted?.(deletedId);
   };
 
   return (
@@ -68,10 +75,11 @@ export const AISessionList = ({ activeId, onSelect, onCreate, isCreating = false
                   <button
                     type="button"
                     onClick={() => onSelect(session.id)}
-                    className="min-w-0 flex-1 truncate text-start"
+                    className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-start"
                     data-testid={`ai-session-${session.id}`}
                   >
-                    {session.title}
+                    <span className="w-full truncate">{session.title}</span>
+                    <Timestamp date={session.updatedAt} locale={dateLocale} />
                   </button>
                   <Button
                     variant="ghost"

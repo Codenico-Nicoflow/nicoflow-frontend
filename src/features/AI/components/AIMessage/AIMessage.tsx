@@ -70,6 +70,10 @@ export const AIMessage = ({ role, content, status, errorCode, streaming, onRetry
           isUser ? 'whitespace-pre-wrap bg-primary text-primary-foreground' : 'bg-muted text-foreground',
           failed && 'border border-destructive'
         )}
+        // Streamed assistant text is announced politely (never assertively — deltas
+        // land continuously and would otherwise interrupt on every chunk).
+        aria-live={streaming ? 'polite' : undefined}
+        aria-busy={streaming || undefined}
       >
         {isUser ? (
           content
@@ -79,7 +83,16 @@ export const AIMessage = ({ role, content, status, errorCode, streaming, onRetry
           </div>
         )}
         {streaming && (
-          <span className="ms-0.5 inline-block h-4 w-1.5 animate-pulse bg-current align-text-bottom" aria-hidden />
+          <>
+            {/* Decorative caret — motion-reduce drops the pulse to a static block
+                so the cursor still reads as "more is coming" without animating. */}
+            <span
+              className="ms-0.5 inline-block h-4 w-1.5 animate-pulse bg-current align-text-bottom motion-reduce:animate-none"
+              aria-hidden
+            />
+            {/* The caret is visual-only; announce the state for assistive tech. */}
+            <span className="sr-only">{t('chat.streamingStatus')}</span>
+          </>
         )}
       </div>
 

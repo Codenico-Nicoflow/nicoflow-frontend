@@ -21,6 +21,7 @@
     "startTitle": "התחילו שיחה עם עוזר ה-AI",
     "startDescription": "שאלו כל דבר — תכננו את היום, פרקו פרויקט או ארגנו את המשימות.",
     "stop": "עצירת יצירה",
+    "streamingStatus": "מייצר תשובה",
     "retry": "ניסיון חוזר",
     "jumpToLatest": "מעבר לחדש ביותר",
     "composer": {

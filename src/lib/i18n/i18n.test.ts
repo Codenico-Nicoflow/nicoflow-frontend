@@ -58,3 +58,52 @@ describe('i18n configuration', () => {
     expect(enValue).toBe('Nicoflow');
   });
 });
+
+// Structural guards over the locale JSON itself. These catch the two ways a
+// translation silently regresses: a key added to en but not he/ru (renders the
+// English string to a Hebrew user), and a plural key missing Hebrew's `_two`
+// form (count=2 falls back and leaks English mid-sentence).
+describe('locale files', () => {
+  const en = import.meta.glob<Record<string, unknown>>('./locales/en/*.json', { eager: true });
+  const he = import.meta.glob<Record<string, unknown>>('./locales/he/*.json', { eager: true });
+  const ru = import.meta.glob<Record<string, unknown>>('./locales/ru/*.json', { eager: true });
+
+  // Flatten a namespace object to dotted leaf paths.
+  const leaves = (value: unknown, prefix = ''): string[] => {
+    if (value === null || typeof value !== 'object') return [prefix];
+    return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) =>
+      leaves(v, prefix ? `${prefix}.${k}` : k)
+    );
+  };
+
+  const namespaces = (mod: Record<string, Record<string, unknown>>) =>
+    Object.fromEntries(
+      Object.entries(mod).map(([path, m]) => [path.split('/').pop() ?? path, leaves(m['default'] ?? m).sort()])
+    );
+
+  const enNs = namespaces(en);
+
+  it.each([
+    ['he', he],
+    ['ru', ru],
+  ])('%s has every key en has, in every namespace', (_lang, mod) => {
+    const target = namespaces(mod as Record<string, Record<string, unknown>>);
+    for (const [ns, keys] of Object.entries(enNs)) {
+      const missing = keys.filter(k => !(target[ns] ?? []).includes(k));
+      expect({ namespace: ns, missing }).toEqual({ namespace: ns, missing: [] });
+    }
+  });
+
+  // Hebrew's dual: any key with a `_one` form needs a matching `_two`, or count=2
+  // resolves to the English fallback and produces a mixed-language string.
+  it('he supplies a _two form for every plural key', () => {
+    const heNs = namespaces(he);
+    for (const [ns, keys] of Object.entries(heNs)) {
+      const missingTwo = keys
+        .filter(k => k.endsWith('_one'))
+        .map(k => k.replace(/_one$/, '_two'))
+        .filter(k => !keys.includes(k));
+      expect({ namespace: ns, missingTwo }).toEqual({ namespace: ns, missingTwo: [] });
+    }
+  });
+});

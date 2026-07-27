@@ -15,6 +15,23 @@
   "chat": {
     "emptyTitle": "בחרו שיחה",
     "emptyDescription": "בחרו שיחה מהרשימה או התחילו חדשה.",
-    "placeholder": "חוויית הצ׳אט תגיע בקרוב."
+    "startTitle": "התחילו שיחה עם עוזר ה-AI",
+    "startDescription": "שאלו כל דבר — תכננו את היום, פרקו פרויקט או ארגנו את המשימות.",
+    "stop": "עצירת יצירה",
+    "retry": "ניסיון חוזר",
+    "jumpToLatest": "מעבר לחדש ביותר",
+    "composer": {
+      "label": "הודעה",
+      "placeholder": "כתבו לעוזר ה-AI…",
+      "streamingPlaceholder": "יוצר תשובה…",
+      "send": "שליחת הודעה"
+    },
+    "error": {
+      "generic": "משהו השתבש. נסו שוב.",
+      "limitReached": "הגעתם למגבלת בקשות ה-AI שלכם.",
+      "unavailable": "עוזר ה-AI אינו זמין כרגע.",
+      "provider": "אירעה שגיאה אצל ספק ה-AI. נסו שוב.",
+      "invalidInput": "לא ניתן לשלוח הודעה זו."
+    }
   }
 }

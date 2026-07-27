@@ -1,10 +1,19 @@
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import Markdown from 'react-markdown';
 
 import { cn } from '@/lib/utils';
 
 import type { PendingStatus } from '../../hooks';
 import type { AIMessageRole } from '../../types';
+
+import { markdownOptions } from './markdown';
+
+// Assistant markdown wrapper. Child selectors give minimal, RTL-safe spacing +
+// safe-link styling without pulling in a typography plugin. The list styling is
+// intentional: GFM task-lists and ordered/unordered lists must read as lists.
+const PROSE =
+  'space-y-2 [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-foreground/10 [&_code]:px-1 [&_code]:py-0.5 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-foreground/10 [&_pre]:p-3 [&_pre>code]:bg-transparent [&_pre>code]:p-0 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ps-5 [&_ol]:ps-5';
 
 type ErrorKey =
   | 'chat.error.generic'
@@ -44,9 +53,10 @@ export interface AIMessageProps {
 
 // One chat bubble. User turns sit at the inline-end (primary), assistant turns at
 // the inline-start (muted) — logical properties so RTL mirrors with no extra
-// code. Markdown rendering is deliberately out of scope (sibling security story);
-// text renders as-is with newlines preserved. A failed user turn shows an inline
-// error + retry; a streaming assistant turn shows a blinking caret.
+// code. Assistant text is rendered through the HARDENED markdown config (see
+// markdown.tsx): HTML escaped, images blocked, links forced safe. User turns are
+// the caller's own input, rendered as plain text. A failed user turn shows an
+// inline error + retry; a streaming assistant turn shows a blinking caret.
 export const AIMessage = ({ role, content, status, errorCode, streaming, onRetry }: AIMessageProps) => {
   const { t } = useTranslation('ai');
   const isUser = role === 'user';
@@ -56,12 +66,18 @@ export const AIMessage = ({ role, content, status, errorCode, streaming, onRetry
     <div className={cn('flex flex-col gap-1', isUser ? 'items-end' : 'items-start')} data-testid={`ai-message-${role}`}>
       <div
         className={cn(
-          'max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2 text-sm',
-          isUser ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground',
+          'max-w-[85%] break-words rounded-2xl px-4 py-2 text-sm',
+          isUser ? 'whitespace-pre-wrap bg-primary text-primary-foreground' : 'bg-muted text-foreground',
           failed && 'border border-destructive'
         )}
       >
-        {content}
+        {isUser ? (
+          content
+        ) : (
+          <div className={PROSE}>
+            <Markdown {...markdownOptions}>{content}</Markdown>
+          </div>
+        )}
         {streaming && (
           <span className="ms-0.5 inline-block h-4 w-1.5 animate-pulse bg-current align-text-bottom" aria-hidden />
         )}

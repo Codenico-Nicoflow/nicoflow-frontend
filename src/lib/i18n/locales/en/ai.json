@@ -15,6 +15,23 @@
   "chat": {
     "emptyTitle": "Select a conversation",
     "emptyDescription": "Pick a conversation from the list or start a new one.",
-    "placeholder": "The chat experience is coming soon."
+    "startTitle": "Start a conversation with your AI assistant",
+    "startDescription": "Ask anything — plan your day, break down a project, or organize your tasks.",
+    "stop": "Stop generating",
+    "retry": "Retry",
+    "jumpToLatest": "Jump to latest",
+    "composer": {
+      "label": "Message",
+      "placeholder": "Message your AI assistant…",
+      "streamingPlaceholder": "Generating a response…",
+      "send": "Send message"
+    },
+    "error": {
+      "generic": "Something went wrong. Please try again.",
+      "limitReached": "You've reached your AI request limit.",
+      "unavailable": "The AI assistant is temporarily unavailable.",
+      "provider": "The AI provider had an error. Please try again.",
+      "invalidInput": "That message can't be sent."
+    }
   }
 }

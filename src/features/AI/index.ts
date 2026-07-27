@@ -1,6 +1,8 @@
 export { AIChatPanel } from './AIChatPanel';
 export { AISessionList } from './AISessionList';
 export { AITwoPanelShell } from './AITwoPanelShell';
+export { AIChat } from './components/AIChat';
+export { AIMessage } from './components/AIMessage';
 export type { PendingMessage, PendingStatus, SendOutcome, UseAIStream } from './hooks';
 export { MAX_CONTENT_LENGTH, useAIStream } from './hooks';
 export type {

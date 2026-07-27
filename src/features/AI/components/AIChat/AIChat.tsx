@@ -8,8 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetAISessionQuery } from '@/lib/store';
 
-import { useAIStream } from '../../hooks';
+import { useAIQuota, useAIStream } from '../../hooks';
+import { applyServerBlock, isQuotaBlocked } from '../../quota';
 import { AIMessage } from '../AIMessage/AIMessage';
+import { AIDisabledBanner } from '../QuotaIndicator/AIDisabledBanner';
+import { QuotaWall } from '../QuotaIndicator/QuotaWall';
 
 import { Composer } from './Composer';
 import { useAutoScroll } from './useAutoScroll';
@@ -28,6 +31,7 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
   const { t } = useTranslation('ai');
   const { data: session, isLoading, isError, refetch } = useGetAISessionQuery(sessionId, { skip: !sessionId });
   const { pending, isStreaming, send, abort, retry, reset } = useAIStream();
+  const { quota, featureDisabled } = useAIQuota();
   const { ref, pinned, scrollToBottom, jumpToLatest } = useAutoScroll<HTMLDivElement>();
 
   const history = useMemo(() => session?.messages ?? [], [session?.messages]);
@@ -62,6 +66,17 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
   // own error path surface the next failure.
   const loadFailed = isError && history.length === 0 && extraTurns.length === 0;
   const isEmpty = !isLoading && !isError && history.length === 0 && extraTurns.length === 0;
+
+  // A live AI_LIMIT_REACHED from the last send is authoritative even when the
+  // cached usage is stale (e.g. quota spent in another tab) — the wall must hold,
+  // and must show the right side of it (upsell vs. reset notice) despite counters
+  // that still read "under the cap".
+  const blockedBySend = pending.some(p => p.status === 'error' && isQuotaBlocked(p.errorCode));
+  const effectiveQuota = blockedBySend ? applyServerBlock(quota) : quota;
+  const exhausted = effectiveQuota?.state === 'exhausted';
+
+  // The assistant is switched off server-side — a feature state, not an error.
+  if (featureDisabled) return <AIDisabledBanner />;
 
   return (
     <div className="relative flex h-full flex-col" data-testid="ai-chat">
@@ -124,8 +139,16 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
         </Button>
       )}
 
-      {/* No composer while the session itself failed to load — retry first. */}
-      {!loadFailed && <Composer streaming={isStreaming} onSend={handleSend} onStop={abort} />}
+      {/* No composer while the session itself failed to load — retry first. Once
+          the quota is spent the composer is REPLACED by the wall (upsell on Free,
+          reset notice on Pro) rather than left disabled, so the next step is
+          obvious. A live stream still finishes: it started inside the quota. */}
+      {!loadFailed &&
+        (exhausted && !isStreaming && effectiveQuota ? (
+          <QuotaWall quota={effectiveQuota} />
+        ) : (
+          <Composer streaming={isStreaming} onSend={handleSend} onStop={abort} />
+        ))}
     </div>
   );
 };

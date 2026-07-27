@@ -38,5 +38,18 @@
     },
     "loadErrorTitle": "Couldn't load this conversation",
     "loadErrorDescription": "The AI assistant may be temporarily unavailable. Please try again."
+  },
+  "quota": {
+    "freeLabel": "{{used}} / {{limit}} free messages",
+    "proLabel": "{{used}} / {{limit}} this month",
+    "freeExhaustedTitle": "You've used all your free messages",
+    "freeExhaustedDescription": "Upgrade to Pro for 500 AI messages every month.",
+    "upgrade": "Upgrade to Pro",
+    "proExhaustedTitle": "You've reached this month's limit",
+    "proExhaustedDescription": "Your AI messages reset at the start of next month."
+  },
+  "disabled": {
+    "title": "The AI assistant is unavailable",
+    "description": "This feature is currently switched off. Please check back later."
   }
 }

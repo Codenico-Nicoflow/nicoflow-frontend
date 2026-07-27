@@ -38,5 +38,18 @@
     },
     "loadErrorTitle": "טעינת השיחה נכשלה",
     "loadErrorDescription": "ייתכן שעוזר ה‑AI אינו זמין כרגע. נסו שוב."
+  },
+  "quota": {
+    "freeLabel": "{{used}} / {{limit}} הודעות חינם",
+    "proLabel": "{{used}} / {{limit}} החודש",
+    "freeExhaustedTitle": "ניצלתם את כל ההודעות החינמיות",
+    "freeExhaustedDescription": "שדרגו ל‑Pro וקבלו 500 הודעות AI בכל חודש.",
+    "upgrade": "שדרוג ל‑Pro",
+    "proExhaustedTitle": "הגעתם למכסה החודשית",
+    "proExhaustedDescription": "מכסת הודעות ה‑AI מתאפסת בתחילת החודש הבא."
+  },
+  "disabled": {
+    "title": "עוזר ה‑AI אינו זמין",
+    "description": "התכונה כבויה כרגע. נסו שוב מאוחר יותר."
   }
 }

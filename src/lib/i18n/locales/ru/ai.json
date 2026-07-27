@@ -38,5 +38,18 @@
     },
     "loadErrorTitle": "Не удалось загрузить беседу",
     "loadErrorDescription": "AI-ассистент может быть временно недоступен. Попробуйте снова."
+  },
+  "quota": {
+    "freeLabel": "{{used}} / {{limit}} бесплатных сообщений",
+    "proLabel": "{{used}} / {{limit}} в этом месяце",
+    "freeExhaustedTitle": "Бесплатные сообщения закончились",
+    "freeExhaustedDescription": "Перейдите на Pro — 500 AI-сообщений каждый месяц.",
+    "upgrade": "Перейти на Pro",
+    "proExhaustedTitle": "Достигнут месячный лимит",
+    "proExhaustedDescription": "Лимит AI-сообщений обновится в начале следующего месяца."
+  },
+  "disabled": {
+    "title": "AI-ассистент недоступен",
+    "description": "Функция сейчас отключена. Загляните позже."
   }
 }

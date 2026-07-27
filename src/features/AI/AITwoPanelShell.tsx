@@ -14,6 +14,7 @@ interface AITwoPanelShellProps {
   activeId?: string;
   onSelect: (id: string) => void;
   onCreate: () => void;
+  onDeleted?: (id: string) => void;
   isCreating?: boolean;
 }
 
@@ -21,7 +22,13 @@ interface AITwoPanelShellProps {
 // desktop; on mobile the chat is the default view and the list lives in a
 // left-side drawer opened from the header. Selecting a session on mobile closes
 // the drawer so the chat is immediately visible.
-export const AITwoPanelShell = ({ activeId, onSelect, onCreate, isCreating = false }: AITwoPanelShellProps) => {
+export const AITwoPanelShell = ({
+  activeId,
+  onSelect,
+  onCreate,
+  onDeleted,
+  isCreating = false,
+}: AITwoPanelShellProps) => {
   const { t } = useTranslation('ai');
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -54,6 +61,7 @@ export const AITwoPanelShell = ({ activeId, onSelect, onCreate, isCreating = fal
                 activeId={activeId}
                 onSelect={handleSelect}
                 onCreate={handleCreate}
+                onDeleted={onDeleted}
                 isCreating={isCreating}
               />
             </SheetContent>
@@ -70,7 +78,13 @@ export const AITwoPanelShell = ({ activeId, onSelect, onCreate, isCreating = fal
   return (
     <div className="flex h-full" data-testid="ai-shell-desktop">
       <aside className="w-[280px] shrink-0 border-e">
-        <AISessionList activeId={activeId} onSelect={onSelect} onCreate={onCreate} isCreating={isCreating} />
+        <AISessionList
+          activeId={activeId}
+          onSelect={onSelect}
+          onCreate={onCreate}
+          onDeleted={onDeleted}
+          isCreating={isCreating}
+        />
       </aside>
       <div className="min-w-0 flex-1">
         <AIChatPanel sessionId={activeId} />

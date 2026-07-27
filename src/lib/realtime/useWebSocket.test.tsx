@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  aiApi,
   areaApi,
   attachmentApi,
   bucketApi,
@@ -147,6 +148,19 @@ describe('useWebSocket', () => {
 
     await waitFor(() => expect(areaSpy).toHaveBeenCalledWith(['Area']));
     await waitFor(() => expect(bucketSpy).toHaveBeenCalledWith(['Bucket']));
+  });
+
+  it('invalidates AISession on ai.session.updated (live title refresh, no polling)', async () => {
+    const store = createMockStore({ auth: { user, token: freshToken() } });
+    const spy = vi.spyOn(aiApi.util, 'invalidateTags');
+
+    renderHook(() => useWebSocket(), { wrapper: wrapper(store) });
+    await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1));
+    const socket = MockWebSocket.instances[0]!;
+    socket.emitOpen();
+    socket.emitMessage(JSON.stringify({ event: 'ai.session.updated', payload: { id: 's1' }, timestamp: '' }));
+
+    await waitFor(() => expect(spy).toHaveBeenCalledWith(['AISession']));
   });
 
   it('invalidates the attachment list for the payload owner on attachment.created (AC1)', async () => {

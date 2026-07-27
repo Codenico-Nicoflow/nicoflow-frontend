@@ -4,6 +4,7 @@ import { useStore } from 'react-redux';
 
 import type { RootState } from '@/lib/store';
 import {
+  aiApi,
   areaApi,
   attachmentApi,
   bucketApi,
@@ -95,6 +96,9 @@ export const useWebSocket = (): { paused: boolean } => {
 
       const searchTags = (['Search'] as const).filter(has);
       if (searchTags.length > 0) invalidateApiTags(dispatch, searchApi, searchTags);
+
+      const aiTags = (['AISession'] as const).filter(has);
+      if (aiTags.length > 0) invalidateApiTags(dispatch, aiApi, aiTags);
     },
     [dispatch]
   );

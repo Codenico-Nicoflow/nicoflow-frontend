@@ -42,6 +42,11 @@ export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   'bucket.created': ['Bucket'],
   'bucket.processed': ['Bucket'],
   'bucket.deleted': ['Bucket'],
+  // Fires when a session gains its server-derived title after the first message
+  // (NIC-1684). Payload is { id } but we invalidate the whole 'AISession' family
+  // rather than per-id: the title change reorders the updatedAt-DESC list, so the
+  // LIST tag must refetch, not just the one row.
+  'ai.session.updated': ['AISession'],
 };
 
 // Attachment events are the one payload-dependent case: the attachment list is

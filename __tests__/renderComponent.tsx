@@ -9,6 +9,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { LoadingOverlayProvider, ThemeProvider } from '@/components';
 import i18n from '@/lib/i18n';
 import {
+  aiApi,
   areaApi,
   attachmentApi,
   authApi,
@@ -37,6 +38,7 @@ const createRootReducer = () =>
     [searchApi.reducerPath]: searchApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [attachmentApi.reducerPath]: attachmentApi.reducer,
+    [aiApi.reducerPath]: aiApi.reducer,
   });
 
 type RootReducer = ReturnType<typeof createRootReducer>;
@@ -63,7 +65,8 @@ export const createMockStore = (preloadedState?: {
         bucketApi.middleware,
         searchApi.middleware,
         notificationApi.middleware,
-        attachmentApi.middleware
+        attachmentApi.middleware,
+        aiApi.middleware
       ),
   });
 };

@@ -33,6 +33,10 @@ describe('WS_EVENT_TAGS', () => {
     }
   });
 
+  it('maps ai.session.updated to AISession (whole family — the title reorders the list)', () => {
+    expect(WS_EVENT_TAGS['ai.session.updated']).toEqual(['AISession']);
+  });
+
   it('has no entry for an unknown event (ignored, not thrown)', () => {
     expect(WS_EVENT_TAGS['something.new']).toBeUndefined();
   });

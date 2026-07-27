@@ -43,6 +43,9 @@ export interface UseAIStream {
   abort: () => void;
   // Re-send the last failed user turn (clears its error and streams again).
   retry: () => Promise<SendOutcome>;
+  // Drop the tracked turns — used once the refetched persisted history has
+  // absorbed them, so the thread never renders a turn twice.
+  reset: () => void;
 }
 
 const now = () => new Date().toISOString();
@@ -142,7 +145,8 @@ export const useAIStream = (): UseAIStream => {
         return fail(extractEnvelopeCode(body));
       }
 
-      // 200 committed → the assistant turn is now streaming.
+      // 200 committed → the user turn is delivered and the assistant turn streams.
+      patch(userId, { status: 'done' });
       patch(assistantId, { status: 'streaming' });
 
       const parser = new SSEParser();
@@ -235,5 +239,11 @@ export const useAIStream = (): UseAIStream => {
     controllerRef.current?.abort();
   }, []);
 
-  return { pending, isStreaming, send, abort, retry };
+  // reset is a no-op while a stream is live so it can't wipe an in-flight turn.
+  const reset = useCallback(() => {
+    if (controllerRef.current) return;
+    setPending([]);
+  }, []);
+
+  return { pending, isStreaming, send, abort, retry, reset };
 };

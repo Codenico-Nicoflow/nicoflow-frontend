@@ -1,0 +1,109 @@
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { mockUser } from '@/mocks/handlers';
+
+import { AIChat } from './AIChat';
+
+const SESSION = 'http://localhost:8080/v1/ai/sessions/s1';
+const MESSAGES = 'http://localhost:8080/v1/ai/sessions/s1/messages';
+
+const authedStore = () => createMockStore({ auth: { user: mockUser, token: 'tok', isLoading: false } });
+
+const sessionEnvelope = (messages: unknown[]) => ({
+  data: { id: 's1', title: 'Chat', createdAt: '2026-07-01T00:00:00Z', updatedAt: '2026-07-01T00:00:00Z', messages },
+  error: null,
+});
+
+const frame = (obj: unknown) => `data: ${JSON.stringify(obj)}\n\n`;
+
+// An SSE response whose frames are emitted over time so the render can assert
+// incremental growth before the terminal event lands.
+const sseResponse = (frames: string[]) => {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      // Separate enqueues arrive as separate reads → the render still grows
+      // incrementally, with no timers leaking past the test.
+      for (const f of frames) controller.enqueue(encoder.encode(f));
+      controller.close();
+    },
+  });
+  return new HttpResponse(stream, { headers: { 'Content-Type': 'text/event-stream' } });
+};
+
+describe('AIChat', () => {
+  // The global afterEach runs vi.clearAllMocks(), which wipes window.matchMedia's
+  // implementation — next-themes (via ThemeProvider in renderComponent) then calls
+  // .addListener on undefined. Re-arm it before each test in this suite.
+  beforeEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('shows the empty state for a session with no messages', async () => {
+    server.use(http.get(SESSION, () => HttpResponse.json(sessionEnvelope([]))));
+    renderComponent(<AIChat sessionId="s1" />, { store: authedStore() });
+
+    expect(await screen.findByText('Start a conversation with your AI assistant')).toBeInTheDocument();
+  });
+
+  it('renders persisted history', async () => {
+    server.use(
+      http.get(SESSION, () =>
+        HttpResponse.json(
+          sessionEnvelope([
+            { id: 'm1', role: 'user', content: 'hi', createdAt: '2026-07-01T00:00:00Z' },
+            { id: 'm2', role: 'assistant', content: 'hello', createdAt: '2026-07-01T00:00:01Z' },
+          ])
+        )
+      )
+    );
+    renderComponent(<AIChat sessionId="s1" />, { store: authedStore() });
+
+    expect(await screen.findByText('hi')).toBeInTheDocument();
+    expect(screen.getByText('hello')).toBeInTheDocument();
+  });
+
+  it('streams an assistant reply incrementally after send', async () => {
+    server.use(
+      http.get(SESSION, () => HttpResponse.json(sessionEnvelope([]))),
+      http.post(MESSAGES, () =>
+        sseResponse([
+          frame({ type: 'delta', text: 'Hel' }),
+          frame({ type: 'delta', text: 'lo!' }),
+          frame({ type: 'done', messageId: 'a1', usage: { used: 1, limit: 500, scope: 'month', month: '2026-07' } }),
+        ])
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<AIChat sessionId="s1" />, { store: authedStore() });
+
+    await screen.findByText('Start a conversation with your AI assistant');
+    await user.type(screen.getByTestId('ai-composer-input'), 'hey');
+    await user.keyboard('{Enter}');
+
+    // Optimistic user turn appears immediately.
+    expect(await screen.findByText('hey')).toBeInTheDocument();
+    // Assistant text accumulates as deltas arrive.
+    await waitFor(() => expect(screen.getByText('Hello!')).toBeInTheDocument());
+  });
+});

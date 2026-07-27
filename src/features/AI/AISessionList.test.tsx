@@ -4,13 +4,19 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { Route, Routes } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { toast } from 'sonner';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CONFIRM_DIALOG_CONFIRM_BUTTON } from '@/lib/test_ids';
 
 import AIPage from '../../pages/ai/AIPage';
 
 import type { AISessionView } from './types';
+
+vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn(), warning: vi.fn() } }));
+
+const aiError = (code: string, status: number) =>
+  HttpResponse.json({ data: null, error: { code, message: code } }, { status });
 
 const API = 'http://localhost:8080/v1';
 
@@ -61,6 +67,8 @@ const renderPage = (route = '/ai') =>
   );
 
 describe('AISessionList (via AIPage)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
   it('renders the session list with title + relative date, newest highlighted from the route', async () => {
     server.use(
       http.get(`${API}/ai/sessions`, () =>
@@ -93,6 +101,66 @@ describe('AISessionList (via AIPage)', () => {
     renderPage();
 
     await waitFor(() => expect(screen.getByText('No conversations yet')).toBeInTheDocument());
+  });
+
+  it('shows an error state (not the empty state) when the list load fails (503)', async () => {
+    server.use(http.get(`${API}/ai/sessions`, () => aiError('AI_UNAVAILABLE', 503)));
+
+    renderPage();
+
+    expect(await screen.findByTestId('ai-session-list-error')).toBeInTheDocument();
+    expect(screen.getByText("Couldn't load conversations")).toBeInTheDocument();
+    // The misleading "no conversations" empty state must NOT show on an error.
+    expect(screen.queryByText('No conversations yet')).not.toBeInTheDocument();
+  });
+
+  it('retries the list load from the error state', async () => {
+    let attempt = 0;
+    server.use(
+      http.get(`${API}/ai/sessions`, () => {
+        attempt += 1;
+        return attempt === 1
+          ? aiError('AI_UNAVAILABLE', 503)
+          : HttpResponse.json({ data: [makeSession()], error: null });
+      })
+    );
+
+    renderPage();
+
+    await userEvent.click(await screen.findByTestId('ai-session-list-retry'));
+
+    expect(await screen.findByTestId('ai-session-s1')).toBeInTheDocument();
+  });
+
+  it('toasts when creating a session fails (503) and does not navigate', async () => {
+    server.use(
+      http.get(`${API}/ai/sessions`, () => HttpResponse.json({ data: [], error: null })),
+      http.post(`${API}/ai/sessions`, () => aiError('AI_UNAVAILABLE', 503))
+    );
+
+    renderPage('/ai');
+
+    await userEvent.click(await screen.findByTestId('ai-new-session'));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
+    expect(window.location.pathname).toBe('/ai');
+  });
+
+  it('toasts when deleting a session fails', async () => {
+    server.use(
+      http.get(`${API}/ai/sessions`, () => HttpResponse.json({ data: [makeSession({ id: 's1' })], error: null })),
+      http.delete(`${API}/ai/sessions/s1`, () => aiError('AI_UNAVAILABLE', 503)),
+      sessionDetail()
+    );
+
+    renderPage('/ai');
+
+    await userEvent.click(await screen.findByTestId('ai-session-delete-s1'));
+    await userEvent.click(await screen.findByTestId(CONFIRM_DIALOG_CONFIRM_BUTTON));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
+    // Row stays — the delete didn't succeed.
+    expect(screen.getByTestId('ai-session-s1')).toBeInTheDocument();
   });
 
   it('AC1: New Chat creates a session and navigates to /ai/:id', async () => {

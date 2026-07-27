@@ -10,7 +10,10 @@
     "emptyTitle": "No conversations yet",
     "emptyDescription": "Start a new chat to get help planning your work.",
     "delete": "Delete conversation",
-    "deleteConfirm": "This permanently deletes the conversation and all its messages."
+    "deleteConfirm": "This permanently deletes the conversation and all its messages.",
+    "loadErrorTitle": "Couldn't load conversations",
+    "loadErrorDescription": "The AI assistant may be temporarily unavailable. Please try again.",
+    "retry": "Try again"
   },
   "chat": {
     "emptyTitle": "Select a conversation",
@@ -32,6 +35,8 @@
       "unavailable": "The AI assistant is temporarily unavailable.",
       "provider": "The AI provider had an error. Please try again.",
       "invalidInput": "That message can't be sent."
-    }
+    },
+    "loadErrorTitle": "Couldn't load this conversation",
+    "loadErrorDescription": "The AI assistant may be temporarily unavailable. Please try again."
   }
 }

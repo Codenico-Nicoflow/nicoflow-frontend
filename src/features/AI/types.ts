@@ -38,12 +38,13 @@ export interface AIUsageView {
 }
 
 // Streaming send-message events (POST /ai/sessions/:id/messages, SSE over POST —
-// NIC-1684). Modelled here so the later chat story consumes a typed union rather
-// than re-deriving it; no streaming logic ships in this scaffold story.
+// NIC-1684). Each SSE frame is a `data: <json>` line; exactly one terminal event
+// (done | error) closes a stream. Shapes mirror the backend sink 1:1 (ai domain
+// deltaEvent / doneEvent / errorEvent) — do NOT add fields the wire doesn't send.
 //
 //   delta — an incremental text chunk of the assistant reply
-//   done  — the stream completed; carries the persisted message + fresh usage
-//   error — the stream aborted; carries a typed error code (SPEC §4)
+//   done  — the stream completed; carries the persisted message id + fresh usage
+//   error — a mid-stream failure (status already committed); carries a §4 code
 export interface AIStreamDelta {
   type: 'delta';
   text: string;
@@ -51,14 +52,13 @@ export interface AIStreamDelta {
 
 export interface AIStreamDone {
   type: 'done';
-  message: AIMessageView;
+  messageId: string;
   usage: AIUsageView;
 }
 
 export interface AIStreamError {
   type: 'error';
   code: string;
-  message: string;
 }
 
 export type AIStreamEvent = AIStreamDelta | AIStreamDone | AIStreamError;

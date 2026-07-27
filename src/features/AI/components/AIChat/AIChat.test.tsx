@@ -106,4 +106,43 @@ describe('AIChat', () => {
     // Assistant text accumulates as deltas arrive.
     await waitFor(() => expect(screen.getByText('Hello!')).toBeInTheDocument());
   });
+
+  it('shows a retry error state and hides the composer when the session fails to load (503)', async () => {
+    server.use(
+      http.get(SESSION, () =>
+        HttpResponse.json({ data: null, error: { code: 'AI_UNAVAILABLE', message: 'x' } }, { status: 503 })
+      )
+    );
+
+    renderComponent(<AIChat sessionId="s1" />, { store: authedStore() });
+
+    expect(await screen.findByTestId('ai-chat-error')).toBeInTheDocument();
+    expect(screen.getByText("Couldn't load this conversation")).toBeInTheDocument();
+    // Composer is hidden until the load recovers.
+    expect(screen.queryByTestId('ai-composer-input')).not.toBeInTheDocument();
+  });
+
+  it('recovers the thread when the error-state retry succeeds', async () => {
+    let attempt = 0;
+    server.use(
+      http.get(SESSION, () => {
+        attempt += 1;
+        return attempt === 1
+          ? HttpResponse.json({ data: null, error: { code: 'AI_UNAVAILABLE', message: 'x' } }, { status: 503 })
+          : HttpResponse.json(
+              sessionEnvelope([
+                { id: 'm1', role: 'assistant', content: 'recovered', createdAt: '2026-07-01T00:00:00Z' },
+              ])
+            );
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<AIChat sessionId="s1" />, { store: authedStore() });
+
+    await user.click(await screen.findByTestId('ai-chat-retry'));
+
+    expect(await screen.findByText('recovered')).toBeInTheDocument();
+    expect(screen.getByTestId('ai-composer-input')).toBeInTheDocument();
+  });
 });

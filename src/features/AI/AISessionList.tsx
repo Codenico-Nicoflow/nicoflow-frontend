@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
-import { MessageSquarePlus, Trash2 } from 'lucide-react';
+import { AlertTriangle, MessageSquarePlus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 import { EmptyState, Timestamp } from '@/components';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
 import { useDeleteAISessionMutation, useGetAISessionsQuery } from '@/lib/store';
-import { cn } from '@/lib/utils';
+import { cn, showErrorToast } from '@/lib/utils';
 
 interface AISessionListProps {
   activeId?: string;
@@ -27,16 +28,21 @@ interface AISessionListProps {
 export const AISessionList = ({ activeId, onSelect, onCreate, onDeleted, isCreating = false }: AISessionListProps) => {
   const { t, i18n } = useTranslation('ai');
   const dateLocale = getDateLocale(i18n.language);
-  const { data: sessions, isLoading } = useGetAISessionsQuery();
+  const { data: sessions, isLoading, isError, refetch } = useGetAISessionsQuery();
   const [deleteSession, { isLoading: isDeleting }] = useDeleteAISessionMutation();
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const handleDelete = async () => {
     if (!pendingDelete) return;
     const deletedId = pendingDelete;
-    await deleteSession(deletedId).unwrap();
-    setPendingDelete(null);
-    onDeleted?.(deletedId);
+    try {
+      await deleteSession(deletedId).unwrap();
+      setPendingDelete(null);
+      onDeleted?.(deletedId);
+    } catch (err) {
+      setPendingDelete(null);
+      showErrorToast(err, toast);
+    }
   };
 
   return (
@@ -56,6 +62,18 @@ export const AISessionList = ({ activeId, onSelect, onCreate, onDeleted, isCreat
               <Skeleton key={i} className="h-10 w-full" />
             ))}
           </div>
+        ) : isError ? (
+          <EmptyState
+            icon={AlertTriangle}
+            title={t('sessions.loadErrorTitle')}
+            description={t('sessions.loadErrorDescription')}
+            action={
+              <Button variant="outline" size="sm" onClick={() => void refetch()} data-testid="ai-session-list-retry">
+                {t('sessions.retry')}
+              </Button>
+            }
+            data-testid="ai-session-list-error"
+          />
         ) : !sessions || sessions.length === 0 ? (
           <EmptyState
             icon={MessageSquarePlus}

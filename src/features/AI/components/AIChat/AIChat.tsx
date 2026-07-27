@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 
-import { ArrowDown, Bot } from 'lucide-react';
+import { AlertTriangle, ArrowDown, Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
@@ -26,7 +26,7 @@ export interface AIChatProps {
 // twice.
 export const AIChat = ({ sessionId }: AIChatProps) => {
   const { t } = useTranslation('ai');
-  const { data: session, isLoading } = useGetAISessionQuery(sessionId, { skip: !sessionId });
+  const { data: session, isLoading, isError, refetch } = useGetAISessionQuery(sessionId, { skip: !sessionId });
   const { pending, isStreaming, send, abort, retry, reset } = useAIStream();
   const { ref, pinned, scrollToBottom, jumpToLatest } = useAutoScroll<HTMLDivElement>();
 
@@ -56,7 +56,12 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
     void send(sessionId, content);
   };
 
-  const isEmpty = !isLoading && history.length === 0 && extraTurns.length === 0;
+  // A failed history load with nothing streamed locally is a hard error — show a
+  // retry state instead of a misleading empty thread. If turns are already on
+  // screen (mid-conversation refetch blip) we keep them and let the composer's
+  // own error path surface the next failure.
+  const loadFailed = isError && history.length === 0 && extraTurns.length === 0;
+  const isEmpty = !isLoading && !isError && history.length === 0 && extraTurns.length === 0;
 
   return (
     <div className="relative flex h-full flex-col" data-testid="ai-chat">
@@ -66,6 +71,20 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
             {[...Array(3)].map((_, i) => (
               <Skeleton key={i} className="h-14 w-2/3" />
             ))}
+          </div>
+        ) : loadFailed ? (
+          <div className="flex h-full items-center justify-center">
+            <EmptyState
+              icon={AlertTriangle}
+              title={t('chat.loadErrorTitle')}
+              description={t('chat.loadErrorDescription')}
+              action={
+                <Button variant="outline" size="sm" onClick={() => void refetch()} data-testid="ai-chat-retry">
+                  {t('chat.retry')}
+                </Button>
+              }
+              data-testid="ai-chat-error"
+            />
           </div>
         ) : isEmpty ? (
           <div className="flex h-full items-center justify-center">
@@ -105,7 +124,8 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
         </Button>
       )}
 
-      <Composer streaming={isStreaming} onSend={handleSend} onStop={abort} />
+      {/* No composer while the session itself failed to load — retry first. */}
+      {!loadFailed && <Composer streaming={isStreaming} onSend={handleSend} onStop={abort} />}
     </div>
   );
 };

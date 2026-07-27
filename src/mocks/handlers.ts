@@ -154,4 +154,9 @@ export const handlers = [
   http.get('http://localhost:8080/v1/search', () =>
     HttpResponse.json(envelope({ tasks: [], projects: [], areas: [] }))
   ),
+  // Default AI quota: a Pro user well under the monthly cap, so surfaces that
+  // merely mount the chat aren't walled. Suites override per-case.
+  http.get('http://localhost:8080/v1/ai/usage', () =>
+    HttpResponse.json(envelope({ used: 12, limit: 500, scope: 'month', month: '2026-07' }))
+  ),
 ];

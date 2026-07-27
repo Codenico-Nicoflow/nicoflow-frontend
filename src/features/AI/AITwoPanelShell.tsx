@@ -7,8 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks';
 
+import { AIDisabledBanner } from './components/QuotaIndicator/AIDisabledBanner';
+import { QuotaIndicator } from './components/QuotaIndicator/QuotaIndicator';
 import { AIChatPanel } from './AIChatPanel';
 import { AISessionList } from './AISessionList';
+import { useAIQuota } from './hooks';
 
 interface AITwoPanelShellProps {
   activeId?: string;
@@ -32,6 +35,7 @@ export const AITwoPanelShell = ({
   const { t } = useTranslation('ai');
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { quota, isLoading: quotaLoading, featureDisabled } = useAIQuota();
 
   const handleSelect = (id: string) => {
     onSelect(id);
@@ -42,6 +46,10 @@ export const AITwoPanelShell = ({
     onCreate();
     setDrawerOpen(false);
   };
+
+  // Assistant off server-side (AI_UNAVAILABLE): replace the whole surface — there
+  // are no sessions to list and nothing to send. Renders instead of crashing.
+  if (featureDisabled) return <AIDisabledBanner />;
 
   if (isMobile) {
     return (
@@ -71,20 +79,25 @@ export const AITwoPanelShell = ({
         <div className="min-h-0 flex-1">
           <AIChatPanel sessionId={activeId} />
         </div>
+        {/* On mobile the rail is a drawer, so the quota footer anchors to the chat. */}
+        <QuotaIndicator quota={quota} isLoading={quotaLoading} />
       </div>
     );
   }
 
   return (
     <div className="flex h-full" data-testid="ai-shell-desktop">
-      <aside className="w-[280px] shrink-0 border-e">
-        <AISessionList
-          activeId={activeId}
-          onSelect={onSelect}
-          onCreate={onCreate}
-          onDeleted={onDeleted}
-          isCreating={isCreating}
-        />
+      <aside className="flex w-[280px] shrink-0 flex-col border-e">
+        <div className="min-h-0 flex-1">
+          <AISessionList
+            activeId={activeId}
+            onSelect={onSelect}
+            onCreate={onCreate}
+            onDeleted={onDeleted}
+            isCreating={isCreating}
+          />
+        </div>
+        <QuotaIndicator quota={quota} isLoading={quotaLoading} />
       </aside>
       <div className="min-w-0 flex-1">
         <AIChatPanel sessionId={activeId} />

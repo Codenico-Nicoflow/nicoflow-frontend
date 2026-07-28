@@ -322,6 +322,14 @@ toast.error(ToastMessages.UNEXPECTED_ERROR);
 
 **Drag and drop:** `<DragAndDropContext>` wraps dnd-kit's `DndContext`; droppable areas use id pattern `'area-${areaId}'`; drop triggers `updateProject` to change `areaId`.
 
+**Favorite projects (Rail shortcuts):** starred projects (`IProject.isFavorite`) render as one-click shortcuts in the desktop `Rail`, below a divider under the primary destinations. The selection rules live in one pure module — `src/features/Rail/favorites.ts` (`selectFavorites` / `canFavoriteMore` / `canToggleFavorite` / `MAX_FAVORITES`) — deliberately framework-agnostic so it survives the E-033 shared-package extraction. Rules worth knowing before changing any of it:
+
+- **Cap is 5, and it is enforced in the UI only** — there is no backend check. It's advisory: a second tab or a direct API call can exceed it, so `selectFavorites` always clamps on read. Don't "fix" this with `Number()`-style coercion or by trusting the list length; if favorites ever become plan-gated, it moves into the backend `project.Update` path instead.
+- **Starring goes through `useToggleFavorite`** (`src/features/Project/useToggleFavorite.ts`), shared by the row actions menu and the project header so the cap and the toast behave identically. `ProjectDialog` re-checks at submit. Over the cap ⇒ `FAVORITE_LIMIT_REACHED` toast, no disabled controls — un-starring is always allowed so a user at the cap can get back under it.
+- Favorites can't reuse `RailItem`: nav destinations carry a `LucideIcon` **component**, projects carry a `folderIcon` **`IconId` string** rendered via `<LazyIcon>`. Ordering is alphabetical by name (not `displayOrder`, which belongs to the areas board).
+- On `/projects/:id` **both** the favorite and the section-level Areas item read as active — different treatments (ring vs. fill), answering different questions. Don't "fix" that by narrowing Areas' `match`.
+- **Desktop only.** `BottomNav` is untouched: 5 labeled `flex-1` items already fill a phone width. Revisit with the Phase-6 mobile app.
+
 **Adding shadcn/ui components:** `npx shadcn@latest add <name>` → outputs to `src/components/ui/`.
 
 ---

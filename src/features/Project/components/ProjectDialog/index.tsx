@@ -19,12 +19,14 @@ import {
   PlanLimitAlert,
 } from '@/components';
 import { Form } from '@/components/ui/form.tsx';
+import { canFavoriteMore } from '@/features/Rail/favorites';
 import {
   areaApi,
   invalidateApiTags,
   projectApi,
   useCreateProjectMutation,
   useGetAreasQuery,
+  useGetProjectsQuery,
   useUpdateProjectMutation,
 } from '@/lib/store';
 import type { IProject } from '@/lib/types';
@@ -67,6 +69,7 @@ export const ProjectDialog = ({
   const [updateProject, { isLoading: isUpdateLoading }] = useUpdateProjectMutation();
   const { data: areasData, isLoading: isAreasLoading } = useGetAreasQuery();
   const areas = useMemo(() => areasData?.items ?? [], [areasData]);
+  const { data: projectsData } = useGetProjectsQuery();
   const dispatch = useDispatch();
   const [planLimitHit, setPlanLimitHit] = useState(false);
 
@@ -132,6 +135,12 @@ export const ProjectDialog = ({
     }
 
     setPlanLimitHit(false);
+
+    // Newly starring here counts against the same cap the rail enforces.
+    if (data.isFavorite && !project?.isFavorite && !canFavoriteMore(projectsData?.items ?? [])) {
+      toast.error(ToastMessages.FAVORITE_LIMIT_REACHED);
+      return;
+    }
 
     try {
       if (isEditMode) {

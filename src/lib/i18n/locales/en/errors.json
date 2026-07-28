@@ -101,5 +101,6 @@
   "UNEXPECTED_ERROR": "Something went wrong. Please try again.",
   "GENERAL_ERROR": "Server error. Please try again later.",
   "INVALID_DROP_TARGET": "Invalid drop target.",
-  "PREFERENCES_UPDATE_FAILED": "Couldn't update your preference. Check your connection and try again."
+  "PREFERENCES_UPDATE_FAILED": "Couldn't update your preference. Check your connection and try again.",
+  "FAVORITE_LIMIT_REACHED": "You can pin up to 5 favorites. Unstar one to make room."
 }

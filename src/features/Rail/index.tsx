@@ -1,12 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
+import { LazyIcon } from '@/components';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useDayChange } from '@/hooks/useDayChange';
-import { useGetBucketsQuery, useGetTimeSpreadQuery } from '@/lib/store';
+import { useGetBucketsQuery, useGetProjectsQuery, useGetTimeSpreadQuery } from '@/lib/store';
+import type { IconId, IProject } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { isActive, NAV_DESTINATIONS, type NavDestination, SETTINGS_DESTINATION } from './data';
+import { selectFavorites } from './favorites';
 
 const RailItem = ({ dest, active, badge }: { dest: NavDestination; active: boolean; badge?: number }) => {
   const { t, i18n } = useTranslation('nav');
@@ -44,6 +47,37 @@ const RailItem = ({ dest, active, badge }: { dest: NavDestination; active: boole
   );
 };
 
+// Favorites render their project's folderIcon (an IconId string via LazyIcon),
+// not a LucideIcon component — so they can't reuse RailItem. Active state is a
+// ring rather than a fill, so a favorite and the section-level Areas item can
+// both read as active without looking like two competing selections.
+const RailFavorite = ({ project, active }: { project: IProject; active: boolean }) => {
+  const { i18n } = useTranslation('nav');
+  const side = i18n.dir() === 'rtl' ? 'left' : 'right';
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Link
+          to={`/projects/${project.id}`}
+          aria-label={project.name}
+          aria-current={active ? 'page' : undefined}
+          data-testid={`rail-favorite-${project.id}`}
+          className={cn(
+            'flex h-9 w-9 items-center justify-center rounded-md transition-colors',
+            active
+              ? 'text-primary ring-2 ring-primary/60'
+              : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+          )}
+        >
+          <LazyIcon iconId={(project.folderIcon as IconId) || 'folder'} className="h-4 w-4" />
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side={side}>{project.name}</TooltipContent>
+    </Tooltip>
+  );
+};
+
 export const Rail = () => {
   const { pathname } = useLocation();
   // The Today rail item carries a count of what's scheduled for today.
@@ -60,6 +94,10 @@ export const Rail = () => {
   const { data: buckets } = useGetBucketsQuery();
   const inboxCount = buckets?.items.filter(b => !b.processedAt).length ?? 0;
 
+  // Starred projects get a one-click shortcut under the primary destinations.
+  const { data: projectsData } = useGetProjectsQuery();
+  const favorites = selectFavorites(projectsData?.items ?? []);
+
   const badgeFor = (id: string) => {
     if (id === 'today') return todayCount;
     if (id === 'inbox') return inboxCount;
@@ -72,6 +110,16 @@ export const Rail = () => {
         {NAV_DESTINATIONS.map(dest => (
           <RailItem key={dest.to} dest={dest} active={isActive(pathname, dest)} badge={badgeFor(dest.id)} />
         ))}
+
+        {favorites.length > 0 && (
+          <>
+            <div className="my-1 h-px w-6 bg-border/60" data-testid="rail-favorites-divider" />
+            {favorites.map(project => (
+              <RailFavorite key={project.id} project={project} active={pathname === `/projects/${project.id}`} />
+            ))}
+          </>
+        )}
+
         <div className="mt-auto">
           <RailItem dest={SETTINGS_DESTINATION} active={isActive(pathname, SETTINGS_DESTINATION)} />
         </div>

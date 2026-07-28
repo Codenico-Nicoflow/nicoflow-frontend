@@ -52,27 +52,40 @@ src/
 ├── components/            — Shared, domain-agnostic components
 │   ├── ui/                — shadcn/ui primitives (CLI-generated, edit carefully)
 │   ├── NameField/ DescriptionField/ DueDateField/ EstimatedTimeField/ PriorityField/
-│   ├── IconField/ CheckboxField/ UrlField/         — form field wrappers (one folder each)
+│   ├── IconField/ CheckboxField/ UrlField/ ColorField/  — form field wrappers (one folder each)
+│   ├── PriorityField/ EnergyField/ StatusField/ ScheduledForField/ DueDateField/ EstimatedTimeField/
 │   ├── FormDialog/ ConfirmDialog/ CustomDialog/ DialogFieldGrid/  — dialog shells + layout
 │   ├── AnimatedListItem/ ListItemCard/ ItemActionsMenu/ EmptyState/ Timestamp/  — list UI
-│   ├── Divider/ PageStub/                            — misc primitives
+│   ├── Divider/ PageStub/ OptionalBadge/              — misc primitives
+│   ├── PlanLimitAlert/ RateLimitBanner/               — gating / throttle notices
 │   ├── LazyIcon/                                     — dynamic Lucide icon by name string
 │   ├── DragAndDropContext/                           — dnd-kit DndContext wrapper (project reorder between areas)
-│   ├── ModeToggle/ ThemeProvider/ Toaster/ LoadingOverlayProvider/  — app chrome
+│   ├── ModeToggle/ ThemeProvider/ Toaster/ LoadingOverlayProvider/ LanguageSwitcher/  — app chrome
 │   └── index.ts
 ├── features/              — Feature-first modules; each exports from index.(tsx|ts).
 │   │                        Larger features nest components/ + states/ + utils/ subfolders.
+│   ├── AI/                — AIChatPanel, AISessionList, AITwoPanelShell + components/ hooks/ quota.ts
 │   ├── Area/              — components/ + index.tsx
+│   ├── BottomNav/         — mobile bottom navigation (renders NAV_DESTINATIONS from Rail/data.ts)
 │   ├── Bucket/            — components/ + utils/ + index.tsx
+│   ├── Focus/             — FocusView + components/ states/ data.ts useFocusSession/useFocusChips
+│   ├── Notifications/     — components/ desktop/ push/ + notificationTypes.ts
 │   ├── Project/           — components/ + states/ + index.tsx
-│   ├── Sidebar/           — AppSidebar via components/; Areas/ QuickAccess/ Footer/ + data.ts + index.tsx
+│   ├── Rail/              — desktop left nav rail; data.ts owns NAV_DESTINATIONS + isActive()
+│   ├── Search/            — SearchCommand (⌘K) + recentSearches/useSearchNavigation/highlightMatch
+│   ├── Settings/          — AccountCard, PreferencesCard, SecurityCard + notifications/
 │   ├── SignForm/          — SignForm.tsx, BottomText, RememberMe, SocialButtons + index.ts
-│   └── Tasks/             — components/ + states/ + utils/ + index.ts
+│   ├── Tasks/             — components/ + states/ + utils/ + index.ts
+│   ├── TimeSpread/        — TimeSpreadView + components/ + utils.ts
+│   └── Topbar/            — app header (logo, search trigger, notifications, user menu)
 ├── hooks/
-│   ├── useMobile.ts       — breakpoint detection
-│   └── useCustomDialog.ts — open/close state helper
+│   ├── useMobile.ts       — breakpoint detection (768px; Rail ↔ BottomNav switch)
+│   ├── useCustomDialog.ts — open/close state helper
+│   ├── useDayChange.ts    — fires on local midnight rollover (Today badge / Time Spread refetch)
+│   ├── useDebouncedValue.ts
+│   └── usePreferences.ts
 ├── layout/
-│   ├── AuthLayout.tsx · PrivateLayout.tsx · CustomSidebarTrigger.tsx · QuickAddButton.tsx
+│   ├── AuthLayout.tsx · PrivateLayout.tsx · QuickAddButton.tsx
 ├── lib/
 │   ├── store/
 │   │   ├── store.ts       — configureStore, persistedReducer (persist whitelist: ['auth'])
@@ -81,33 +94,39 @@ src/
 │   │   ├── utils/invalidateTags.ts  — invalidateApiTags() helper
 │   │   └── slices/
 │   │       ├── baseQuery.ts          — fetchBaseQuery + async-mutex reauth logic
-│   │       ├── auth/  area/  project/  tasks/  bucket/   — each: <name>Api.ts (+ authSlice, type.ts)
+│   │       ├── auth/  area/  project/  tasks/  subtasks/  bucket/  — each: <name>Api.ts (+ authSlice, type.ts)
+│   │       └── ai/  attachment/  notification/  rateLimit/  search/
 │   ├── types/
 │   │   ├── interfaces/index.ts       — IArea, IProject, ITask, IBucket, IUser + ApiEnvelope<T>
 │   │   ├── constants.ts              — TaskStatus, TaskPriority, ScheduledFor, FilterBy, PROJECT_STATUS, etc.
 │   │   ├── endpoints.ts              — AUTH_API, AREA_API, PROJECT_API, TASKS_API, BUCKET_API
 │   │   ├── icons.ts                  — IconId union + ICON_IDS
 │   │   └── index.ts                  — barrel (ApiEnvelope re-exported here)
+│   ├── constants/         — app-wide constants
+│   ├── i18n/              — i18next setup + locales/{en,he,ru}/*.json (RTL support for he)
+│   ├── realtime/          — WebSocket client + <LiveUpdates /> (maps WS events → tag invalidation)
+│   ├── test_ids/          — shared data-testid constants
 │   └── utils/
 │       ├── index.ts                  — barrel for schemas + messages + helpers
 │       └── utils/                    — schemas.ts, messages.ts, helpers.ts, get-icons.ts (+ .test.ts)
 ├── mocks/
 │   └── handlers.ts        — MSW request handlers (envelope() helper matches the API shape)
 ├── pages/
-│   ├── auth/              — SignIn, SignUp, ForgotPassword, ResetPassword (+ co-located .test.tsx)
-│   ├── quick-access/      — Bucket, Today, Tomorrow, NextSevenDays
+│   ├── ai/                — AIPage
+│   ├── area/              — AreasBoard
+│   ├── auth/              — SignIn, SignUp, ForgotPassword, ResetPassword, VerifyEmail (+ co-located .test.tsx)
+│   ├── quick-access/      — Bucket, Today, Tomorrow, NextSevenDays, Focus
 │   ├── project/           — ProjectView
-│   ├── Profile.tsx · ErrorPage.tsx · HelpAndInformation.tsx · PrivacyPolicy.tsx · TermsOfService.tsx
+│   ├── Settings.tsx · ErrorPage.tsx · HelpAndInformation.tsx · PrivacyPolicy.tsx · TermsOfService.tsx
 └── router.tsx             — useRoutes config; PrivateRoutes guard reads useAppUser()
 
 __tests__/
 ├── setup.ts              — mocks: matchMedia, localStorage, sessionStorage, IntersectionObserver, ResizeObserver
 ├── server.ts             — MSW node server (exported for integration tests)
 ├── renderComponent.tsx   — render helper (Redux + Router + Theme + LoadingOverlay)
-├── mocks/                — shared test mock data
 ├── PrivateRoutes.test.tsx · SessionRestorer.test.tsx
-e2e/
-├── smoke.spec.ts · auth.spec.ts   — Playwright (Chromium)
+e2e/                      — Playwright (Chromium)
+├── auth · areas · projects · tasks · bucket · focus · time-spread · notifications · settings · plan-limits
 ```
 
 ---
@@ -116,15 +135,17 @@ e2e/
 
 ```
 / (PrivateLayout — requires user in Redux auth slice)
-  /                       → redirect to /quick-access/bucket
-  /quick-access/Bucket    /quick-access/today    /quick-access/tomorrow    /quick-access/next-7-days
+  /                       → redirect to /quick-access/today
+  /quick-access/bucket    /quick-access/today    /quick-access/tomorrow    /quick-access/next-7-days
+  /quick-access/focus
+  /areas
   /projects/:projectId
-  /projects/new           → placeholder <div>New Project</div>
-  /profile
+  /ai        /ai/:id
+  /settings
   /help-information
 
 / (AuthLayout — public)
-  /sign-in   /sign-up   /forgot-password   /reset-password
+  /sign-in   /sign-up   /forgot-password   /reset-password   /verify-email
 
 /privacy-policy   /terms-of-service   (standalone)
 * → ErrorPage

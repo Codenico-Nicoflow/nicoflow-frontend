@@ -6,7 +6,13 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAppUser, useConfirmAttachmentMutation, useGetAttachmentsQuery, useGetUploadUrlMutation } from '@/lib/store';
+import {
+  useAppUser,
+  useConfirmAttachmentMutation,
+  useGetAttachmentsQuery,
+  useGetStorageUsageQuery,
+  useGetUploadUrlMutation,
+} from '@/lib/store';
 import type { AttachmentOwnerType } from '@/lib/types';
 import { USER_STATUS } from '@/lib/types';
 import { validateAttachmentFile } from '@/lib/types/attachment';
@@ -52,6 +58,8 @@ export const AttachmentSection = ({ ownerType, ownerId }: AttachmentSectionProps
   const isPro = user?.status === USER_STATUS.PREMIUM;
 
   const { data: attachments = [], isLoading } = useGetAttachmentsQuery({ ownerType, ownerId });
+  // Account-wide usage — only Pro sees the bar, so don't fetch it otherwise.
+  const { data: storageUsage, isLoading: isUsageLoading } = useGetStorageUsageQuery(undefined, { skip: !isPro });
   const [getUploadUrl] = useGetUploadUrlMutation();
   const [confirmAttachment] = useConfirmAttachmentMutation();
 
@@ -153,7 +161,13 @@ export const AttachmentSection = ({ ownerType, ownerId }: AttachmentSectionProps
         <p className="text-sm font-semibold text-foreground">{t('attachments.title')}</p>
       </div>
 
-      {isPro && !isLoading && attachments.length > 0 && <StorageBar attachments={attachments} />}
+      {isPro && (
+        <StorageBar
+          usedBytes={storageUsage?.usedBytes}
+          limitBytes={storageUsage?.limitBytes}
+          isLoading={isUsageLoading}
+        />
+      )}
 
       {isLoading && (
         <ul className="space-y-1" data-testid="attachment-skeleton">

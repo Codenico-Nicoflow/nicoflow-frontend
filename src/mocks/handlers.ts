@@ -119,6 +119,10 @@ const envelope = <T>(data: T) => ({ data, error: null });
 
 export const handlers = [
   http.get('http://localhost:8080/v1/areas/with-projects', () => HttpResponse.json(envelope([]))),
+  // Registered before /attachments so the literal path wins over the list route.
+  http.get('http://localhost:8080/v1/attachments/usage', () =>
+    HttpResponse.json(envelope({ usedBytes: 0, limitBytes: 100 * 1024 * 1024 }))
+  ),
   http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),

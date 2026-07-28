@@ -39,3 +39,10 @@ export type ConfirmAttachmentResponse = IAttachment;
 export type GetDownloadUrlResponse = {
   url: string;
 };
+
+// Account-wide storage footprint. The byte cap spans every owner, so this can't
+// be summed from one owner's list — the server is the only source.
+export type GetStorageUsageResponse = {
+  usedBytes: number;
+  limitBytes: number;
+};

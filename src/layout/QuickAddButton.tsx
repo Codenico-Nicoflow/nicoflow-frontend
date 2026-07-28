@@ -23,7 +23,9 @@ const QuickAddButton = () => {
   const projectMatch = matchPath('/projects/:projectId', location.pathname);
   const projectId = projectMatch?.params.projectId;
 
-  if (location.pathname === '/quick-access/bucket') {
+  // Bucket already is the capture surface; on /ai the FAB sits on top of the
+  // composer's send button and swallows the click.
+  if (location.pathname === '/quick-access/bucket' || location.pathname.startsWith('/ai')) {
     return null;
   }
 

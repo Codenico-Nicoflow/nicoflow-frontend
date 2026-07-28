@@ -1,21 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
 
-import type { IAttachment } from '@/lib/types';
-
 import { StorageBar } from './StorageBar';
 
 const MB = 1024 * 1024;
-
-const att = (fileSize: number, id: string): IAttachment => ({
-  id,
-  ownerType: 'task',
-  ownerId: 'task-1',
-  fileName: `${id}.pdf`,
-  fileSize,
-  mimeType: 'application/pdf',
-  createdAt: '2026-07-24T08:00:00Z',
-});
+const LIMIT = 100 * MB;
 
 const meta: Meta<typeof StorageBar> = {
   title: 'Tasks/StorageBar',
@@ -34,11 +23,11 @@ export default meta;
 type Story = StoryObj<typeof StorageBar>;
 
 // Green — well under the 100 MB cap.
-export const Ok: Story = { args: { attachments: [att(20 * MB, 'a'), att(10 * MB, 'b')] } };
+export const Ok: Story = { args: { usedBytes: 30 * MB, limitBytes: LIMIT } };
 
 // Amber — 82 MB used, the warning band.
 export const Warning: Story = {
-  args: { attachments: [att(82 * MB, 'a')] },
+  args: { usedBytes: 82 * MB, limitBytes: LIMIT },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('82.0 MB of 100 MB')).toBeInTheDocument();
@@ -47,4 +36,7 @@ export const Warning: Story = {
 };
 
 // Red — at/above 95%.
-export const Critical: Story = { args: { attachments: [att(98 * MB, 'a')] } };
+export const Critical: Story = { args: { usedBytes: 98 * MB, limitBytes: LIMIT } };
+
+// Usage request still in flight.
+export const Loading: Story = { args: { isLoading: true } };

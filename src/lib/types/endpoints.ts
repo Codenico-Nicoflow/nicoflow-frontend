@@ -65,6 +65,7 @@ export const ATTACHMENT_API = {
   UPLOAD_URL: '/attachments/upload-url', // POST → { url, fields, s3Key }
   CONFIRM: '/attachments', // POST { s3Key, fileName } → AttachmentView
   LIST: '/attachments', // GET ?ownerType=&ownerId= → AttachmentView[]
+  USAGE: '/attachments/usage', // GET → { usedBytes, limitBytes } (whole account)
   DOWNLOAD_URL: '/attachments/', // + `${id}/download-url` (GET) → { url }
   DELETE: '/attachments/', // + id (DELETE) → 204
 };

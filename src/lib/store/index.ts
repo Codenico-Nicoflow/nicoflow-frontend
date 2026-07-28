@@ -137,6 +137,7 @@ export {
   useDeleteAttachmentMutation,
   useGetAttachmentsQuery,
   useGetDownloadUrlMutation,
+  useGetStorageUsageQuery,
   useGetUploadUrlMutation,
 } from './slices/attachment/attachmentApi';
 export type {

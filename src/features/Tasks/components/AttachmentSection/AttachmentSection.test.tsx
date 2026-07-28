@@ -160,15 +160,16 @@ describe('AttachmentSection', () => {
 
     await user.upload(screen.getByTestId('upload-zone-input'), [pdf('one.pdf'), pdf('two.pdf')]);
 
+    // Scoped to the per-upload bars — the account storage bar is also a progressbar.
     await waitFor(() => {
-      const bars = screen.getAllByRole('progressbar');
+      const bars = screen.getAllByTestId(/^upload-progress-/);
       expect(bars).toHaveLength(2);
       bars.forEach(bar => expect(bar).toHaveAttribute('aria-valuenow', '50'));
     });
 
     // Let both uploads finish; both rows leave once confirmed.
     gates.forEach(resolve => resolve());
-    await waitFor(() => expect(screen.queryAllByRole('progressbar')).toHaveLength(0));
+    await waitFor(() => expect(screen.queryAllByTestId(/^upload-progress-/)).toHaveLength(0));
   });
 
   it('surfaces the count cap when more files than the remaining slots are added (AC — count cap)', async () => {

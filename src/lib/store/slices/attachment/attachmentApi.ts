@@ -11,6 +11,7 @@ import type {
   GetAttachmentsRequest,
   GetAttachmentsResponse,
   GetDownloadUrlResponse,
+  GetStorageUsageResponse,
   GetUploadUrlRequest,
   GetUploadUrlResponse,
 } from './type';
@@ -24,8 +25,15 @@ import type {
 export const attachmentApi = createApi({
   reducerPath: 'attachmentApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Attachment'],
+  tagTypes: ['Attachment', 'StorageUsage'],
   endpoints: builder => ({
+    // Account-wide, so it carries no owner id: a confirm/delete anywhere moves it.
+    getStorageUsage: builder.query<GetStorageUsageResponse, void>({
+      query: () => ATTACHMENT_API.USAGE,
+      transformResponse: (raw: ApiEnvelope<GetStorageUsageResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      providesTags: ['StorageUsage'],
+    }),
     getAttachments: builder.query<GetAttachmentsResponse, GetAttachmentsRequest>({
       query: ({ ownerType, ownerId }) => {
         const qs = new URLSearchParams({ ownerType, ownerId }).toString();
@@ -52,8 +60,10 @@ export const attachmentApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<ConfirmAttachmentResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      // Confirm returns the new AttachmentView; invalidate that owner's list.
-      invalidatesTags: result => (result ? [{ type: 'Attachment', id: result.ownerId }] : []),
+      // Confirm returns the new AttachmentView; invalidate that owner's list and
+      // the account-wide usage the storage bar reads.
+      invalidatesTags: result =>
+        result ? [{ type: 'Attachment' as const, id: result.ownerId }, 'StorageUsage' as const] : [],
     }),
     getDownloadUrl: builder.mutation<GetDownloadUrlResponse, string>({
       query: id => `${ATTACHMENT_API.DOWNLOAD_URL}${id}/download-url`,
@@ -68,13 +78,17 @@ export const attachmentApi = createApi({
         method: 'DELETE',
       }),
       transformErrorResponse: error => error.data,
-      invalidatesTags: (_result, _error, { ownerId }) => [{ type: 'Attachment', id: ownerId }],
+      invalidatesTags: (_result, _error, { ownerId }) => [
+        { type: 'Attachment' as const, id: ownerId },
+        'StorageUsage' as const,
+      ],
     }),
   }),
 });
 
 export const {
   useGetAttachmentsQuery,
+  useGetStorageUsageQuery,
   useGetUploadUrlMutation,
   useConfirmAttachmentMutation,
   useGetDownloadUrlMutation,

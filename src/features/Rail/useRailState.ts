@@ -9,7 +9,10 @@ type RailState = {
   closedAreaIds: string[];
 };
 
-const DEFAULT_STATE: RailState = { expanded: false, closedAreaIds: [] };
+// Expanded by default: the tree is the reason the rail exists, and a user who
+// never finds the toggle should still get project navigation. Collapsing is the
+// deliberate act, and it persists.
+const DEFAULT_STATE: RailState = { expanded: true, closedAreaIds: [] };
 
 // Rail width is device-shaped, not account-shaped — the same user wants a wide
 // rail on a 27" display and icons on a laptop — so this stays in localStorage

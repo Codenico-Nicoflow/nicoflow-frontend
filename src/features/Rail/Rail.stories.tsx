@@ -37,27 +37,30 @@ export default meta;
 
 type Story = StoryObj<typeof Rail>;
 
-/** Icon-only — the default for a user who has never toggled the rail. */
-export const Collapsed: Story = {
-  play: async ({ canvasElement }) => {
-    window.localStorage.removeItem('nicoflow-rail');
-    const canvas = within(canvasElement);
-    await expect(canvas.getByTestId('rail-areas')).toBeInTheDocument();
-    await expect(canvas.getByTestId('rail-settings')).toBeInTheDocument();
-    await expect(canvas.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'false');
-  },
-};
-
-/** Labels plus the Area › Project tree. */
+/** Labels plus the Area › Project tree — what a new user sees by default. */
 export const Expanded: Story = {
   beforeEach: () => {
-    window.localStorage.setItem('nicoflow-rail', JSON.stringify({ expanded: true, closedAreaIds: [] }));
+    window.localStorage.removeItem('nicoflow-rail');
     return () => window.localStorage.removeItem('nicoflow-rail');
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'true');
     await expect(await canvas.findByTestId('rail-project-p1')).toBeInTheDocument();
+  },
+};
+
+/** Icon-only — after the user deliberately collapses the rail. */
+export const Collapsed: Story = {
+  beforeEach: () => {
+    window.localStorage.setItem('nicoflow-rail', JSON.stringify({ expanded: false, closedAreaIds: [] }));
+    return () => window.localStorage.removeItem('nicoflow-rail');
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('rail-areas')).toBeInTheDocument();
+    await expect(canvas.getByTestId('rail-settings')).toBeInTheDocument();
+    await expect(canvas.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'false');
   },
 };
 

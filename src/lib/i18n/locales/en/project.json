@@ -55,7 +55,9 @@
     "edit": "Edit",
     "delete": "Delete",
     "dragHandle": "Drag to reorder or move project",
-    "actionsMenu": "Project actions"
+    "actionsMenu": "Project actions",
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites"
   },
   "view": {
     "description": "Description",

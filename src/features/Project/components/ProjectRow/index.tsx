@@ -12,6 +12,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import type { IconId, IProject } from '@/lib/types';
 import { cn, getProjectStatusColor } from '@/lib/utils';
 
+import { useToggleFavorite } from '../../useToggleFavorite';
+
 interface ProjectRowProps {
   project: IProject;
   onEdit: () => void;
@@ -23,6 +25,7 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
   const { t } = useTranslation('project');
   const navigate = useNavigate();
   const open = () => navigate(`/projects/${project.id}`);
+  const { toggle: toggleFavorite, isPending: isTogglingFavorite } = useToggleFavorite();
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: projectDragId(project.id),
@@ -93,6 +96,12 @@ export const ProjectRow = ({ project, onEdit, onDelete, 'data-testid': testId }:
         data-testid={testId ? `${testId}-actions` : 'project-row-actions'}
         actions={[
           { label: t('row.open'), icon: SquareArrowOutUpRight, onClick: open },
+          {
+            label: project.isFavorite ? t('row.unfavorite') : t('row.favorite'),
+            icon: Star,
+            onClick: () => void toggleFavorite(project),
+            disabled: isTogglingFavorite,
+          },
           { label: t('row.edit'), icon: Pencil, onClick: onEdit },
           { label: t('row.delete'), icon: Trash2, onClick: onDelete, destructive: true },
         ]}

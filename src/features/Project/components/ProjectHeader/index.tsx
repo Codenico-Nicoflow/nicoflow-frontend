@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button.tsx';
 import { type IconId, type IProject } from '@/lib/types';
 import { cn, getProjectStatusColor } from '@/lib/utils';
 
+import { useToggleFavorite } from '../../useToggleFavorite';
+
 interface ProjectHeaderProps {
   project: IProject;
   onEdit: () => void;
@@ -17,6 +19,7 @@ interface ProjectHeaderProps {
 
 export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps) => {
   const { t } = useTranslation('project');
+  const { toggle: toggleFavorite, isPending: isTogglingFavorite } = useToggleFavorite();
 
   const isOverdue = project?.dueDate && new Date() > new Date(project.dueDate) && project.status === 'active';
 
@@ -56,15 +59,24 @@ export const ProjectHeader = ({ project, onEdit, onDelete }: ProjectHeaderProps)
                 {project?.name}
               </motion.h1>
 
-              {project?.isFavorite && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
-                >
-                  <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                </motion.div>
-              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                type="button"
+                aria-pressed={!!project?.isFavorite}
+                aria-label={project?.isFavorite ? t('row.unfavorite') : t('row.favorite')}
+                disabled={isTogglingFavorite}
+                onClick={() => void toggleFavorite(project)}
+                data-testid="project-header-favorite"
+                className="h-8 w-8 shrink-0"
+              >
+                <Star
+                  className={cn(
+                    'h-5 w-5',
+                    project?.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'
+                  )}
+                />
+              </Button>
             </div>
 
             <div className="flex items-center gap-4 flex-wrap">

@@ -4,7 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { makeBucket, makeTask } from '@/mocks/handlers';
+import { makeBucket, makeProject, makeTask } from '@/mocks/handlers';
 
 import { Rail } from './index';
 
@@ -90,5 +90,64 @@ describe('Rail', () => {
     renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
 
     await waitFor(() => expect(screen.getByTestId('rail-inbox-badge')).toHaveTextContent('9+'));
+  });
+
+  describe('favorites', () => {
+    const withProjects = (items: ReturnType<typeof makeProject>[]) =>
+      server.use(http.get(`${API}/projects`, () => HttpResponse.json(env({ items }))));
+
+    it('shows a shortcut per starred project, alphabetically', async () => {
+      withProjects([
+        makeProject({ id: 'p1', name: 'Zebra', isFavorite: true }),
+        makeProject({ id: 'p2', name: 'Apple', isFavorite: true }),
+        makeProject({ id: 'p3', name: 'Unstarred', isFavorite: false }),
+      ]);
+
+      renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+      await waitFor(() => expect(screen.getByTestId('rail-favorite-p1')).toBeInTheDocument());
+      expect(screen.queryByTestId('rail-favorite-p3')).not.toBeInTheDocument();
+
+      const rendered = screen.getAllByTestId(/^rail-favorite-/).map(el => el.getAttribute('aria-label'));
+      expect(rendered).toEqual(['Apple', 'Zebra']);
+    });
+
+    it('renders no divider when nothing is starred', async () => {
+      withProjects([makeProject({ id: 'p1', name: 'Plain', isFavorite: false })]);
+
+      renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+      await waitFor(() => expect(screen.getByTestId('rail-inbox')).toBeInTheDocument());
+      expect(screen.queryByTestId('rail-favorites-divider')).not.toBeInTheDocument();
+    });
+
+    it('marks the favorite active on its own project route, alongside Areas', async () => {
+      withProjects([makeProject({ id: 'p1', name: 'Alpha', isFavorite: true })]);
+
+      renderComponent(<Rail />, { initialRoute: '/projects/p1' });
+
+      await waitFor(() => expect(screen.getByTestId('rail-favorite-p1')).toHaveAttribute('aria-current', 'page'));
+      // Areas stays section-active — the two answer different questions.
+      expect(screen.getByTestId('rail-areas')).toHaveAttribute('aria-current', 'page');
+    });
+
+    it('does not mark a favorite active on a different project route', async () => {
+      withProjects([makeProject({ id: 'p1', name: 'Alpha', isFavorite: true })]);
+
+      renderComponent(<Rail />, { initialRoute: '/projects/other' });
+
+      await waitFor(() => expect(screen.getByTestId('rail-favorite-p1')).toBeInTheDocument());
+      expect(screen.getByTestId('rail-favorite-p1')).not.toHaveAttribute('aria-current');
+    });
+
+    it('shows at most five shortcuts when more are starred', async () => {
+      withProjects(
+        Array.from({ length: 7 }, (_, i) => makeProject({ id: `p${i}`, name: `Fav ${i}`, isFavorite: true }))
+      );
+
+      renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+      await waitFor(() => expect(screen.getAllByTestId(/^rail-favorite-/)).toHaveLength(5));
+    });
   });
 });

@@ -101,5 +101,6 @@
   "UNEXPECTED_ERROR": "משהו השתבש. אנא נסו שוב.",
   "GENERAL_ERROR": "שגיאת שרת. אנא נסו שוב מאוחר יותר.",
   "INVALID_DROP_TARGET": "יעד שחרור לא תקין.",
-  "PREFERENCES_UPDATE_FAILED": "עדכון ההעדפה נכשל. בדקו את החיבור ונסו שוב."
+  "PREFERENCES_UPDATE_FAILED": "עדכון ההעדפה נכשל. בדקו את החיבור ונסו שוב.",
+  "FAVORITE_LIMIT_REACHED": "אפשר להצמיד עד 5 מועדפים. הסירו כוכב מאחד כדי לפנות מקום."
 }

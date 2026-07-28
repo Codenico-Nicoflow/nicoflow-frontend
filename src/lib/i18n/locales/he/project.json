@@ -55,7 +55,9 @@
     "edit": "עריכה",
     "delete": "מחיקה",
     "dragHandle": "גרור כדי לסדר מחדש או להעביר פרויקט",
-    "actionsMenu": "פעולות פרויקט"
+    "actionsMenu": "פעולות פרויקט",
+    "favorite": "הוספה למועדפים",
+    "unfavorite": "הסרה מהמועדפים"
   },
   "view": {
     "description": "תיאור",

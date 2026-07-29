@@ -14,6 +14,7 @@ import {
   attachmentApi,
   authApi,
   bucketApi,
+  focusSessionApi,
   notificationApi,
   projectApi,
   recurrenceApi,
@@ -23,6 +24,7 @@ import {
 } from '@/lib/store';
 import type { AuthState } from '@/lib/store/slices/auth/authSlice';
 import authReducer from '@/lib/store/slices/auth/authSlice';
+import focusLiveReducer from '@/lib/store/slices/focusSession/focusLiveSlice';
 import type { RateLimitState } from '@/lib/store/slices/rateLimit/rateLimitSlice';
 import rateLimitReducer from '@/lib/store/slices/rateLimit/rateLimitSlice';
 
@@ -30,6 +32,7 @@ const createRootReducer = () =>
   combineReducers({
     auth: authReducer,
     rateLimit: rateLimitReducer,
+    focusLive: focusLiveReducer,
     [authApi.reducerPath]: authApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
     [areaApi.reducerPath]: areaApi.reducer,
@@ -41,6 +44,7 @@ const createRootReducer = () =>
     [attachmentApi.reducerPath]: attachmentApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
     [recurrenceApi.reducerPath]: recurrenceApi.reducer,
+    [focusSessionApi.reducerPath]: focusSessionApi.reducer,
   });
 
 type RootReducer = ReturnType<typeof createRootReducer>;
@@ -69,7 +73,8 @@ export const createMockStore = (preloadedState?: {
         notificationApi.middleware,
         attachmentApi.middleware,
         aiApi.middleware,
-        recurrenceApi.middleware
+        recurrenceApi.middleware,
+        focusSessionApi.middleware
       ),
   });
 };

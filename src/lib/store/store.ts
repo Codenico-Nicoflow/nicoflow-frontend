@@ -9,6 +9,8 @@ import { attachmentApi } from './slices/attachment/attachmentApi';
 import { authApi } from './slices/auth/authApi';
 import authReducer, { clearAuth } from './slices/auth/authSlice';
 import { bucketApi } from './slices/bucket/bucketApi';
+import focusLiveReducer from './slices/focusSession/focusLiveSlice';
+import { focusSessionApi } from './slices/focusSession/focusSessionApi';
 import { notificationApi } from './slices/notification/notificationApi';
 import { projectApi } from './slices/project/projectApi';
 import rateLimitReducer from './slices/rateLimit/rateLimitSlice';
@@ -29,11 +31,13 @@ const apiReducerPaths = [
   attachmentApi.reducerPath,
   aiApi.reducerPath,
   recurrenceApi.reducerPath,
+  focusSessionApi.reducerPath,
 ] as const;
 
 const combinedReducer = combineReducers({
   auth: authReducer,
   rateLimit: rateLimitReducer,
+  focusLive: focusLiveReducer,
   [authApi.reducerPath]: authApi.reducer,
   [projectApi.reducerPath]: projectApi.reducer,
   [areaApi.reducerPath]: areaApi.reducer,
@@ -45,6 +49,7 @@ const combinedReducer = combineReducers({
   [attachmentApi.reducerPath]: attachmentApi.reducer,
   [aiApi.reducerPath]: aiApi.reducer,
   [recurrenceApi.reducerPath]: recurrenceApi.reducer,
+  [focusSessionApi.reducerPath]: focusSessionApi.reducer,
 });
 
 type CombinedState = ReturnType<typeof combinedReducer>;
@@ -88,7 +93,8 @@ export const store = configureStore({
       notificationApi.middleware,
       attachmentApi.middleware,
       aiApi.middleware,
-      recurrenceApi.middleware
+      recurrenceApi.middleware,
+      focusSessionApi.middleware
     ),
 });
 

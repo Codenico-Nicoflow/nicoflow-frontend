@@ -2,6 +2,8 @@
 // Payloads are full resources; we deliberately don't type each one — the client
 // reacts by invalidating RTK Query tags and refetching, never by patching cache
 // from the payload, so the exact payload shape doesn't matter here.
+import type { IFocusSession } from '@/lib/types';
+
 export type WsEvent = {
   event: string;
   payload: unknown;
@@ -55,6 +57,12 @@ export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   'recurrence.created': ['RecurrenceRule', 'RecurrenceStats', ...TASK_TAGS],
   'recurrence.updated': ['RecurrenceRule', 'RecurrenceStats', ...TASK_TAGS],
   'recurrence.deleted': ['RecurrenceRule', 'RecurrenceStats', ...TASK_TAGS],
+  // A closed segment changes the task's totalFocusSeconds, which the Focus list
+  // carries (E-049/NIC-1712) — refetch it so the cumulative display refreshes.
+  // session_started changes no derived data (the prior segment's close emits its
+  // own ended event), so it has no tag entry; both events also feed the timer
+  // hook through focusSessionEvent below.
+  'focus.session_ended': ['Focus'],
 };
 
 // Attachment events are the one payload-dependent case: the attachment list is
@@ -72,4 +80,22 @@ export const attachmentOwnerId = (event: string, payload: unknown): string | nul
   if (typeof payload !== 'object' || payload === null) return null;
   const ownerId = (payload as { ownerId?: unknown }).ownerId;
   return typeof ownerId === 'string' && ownerId.length > 0 ? ownerId : null;
+};
+
+// Focus session events are the second payload-dependent case: the timer hook
+// needs the SessionView itself (which session started/ended, and its measured
+// duration) to stop a zombie tick or credit a closed segment — a tag refetch
+// alone can't say "this tab's segment is over". Malformed payloads are ignored,
+// never thrown, same stance as above.
+export const focusSessionEvent = (
+  event: string,
+  payload: unknown
+): { kind: 'started' | 'ended'; session: IFocusSession } | null => {
+  const kind = event === 'focus.session_started' ? 'started' : event === 'focus.session_ended' ? 'ended' : null;
+  if (!kind) return null;
+  if (typeof payload !== 'object' || payload === null) return null;
+  const session = payload as IFocusSession;
+  if (typeof session.id !== 'string' || session.id.length === 0) return null;
+  if (typeof session.taskId !== 'string' || session.taskId.length === 0) return null;
+  return { kind, session };
 };

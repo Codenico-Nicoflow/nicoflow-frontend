@@ -16,6 +16,7 @@ import FocusLoadingState from './states/FocusLoadingState';
 import { FOCUS_LIMIT } from './data';
 import { useFocusChips } from './useFocusChips';
 import { useFocusSession } from './useFocusSession';
+import { useFocusTimer } from './useFocusTimer';
 
 // The signature screen: state how much time you have, get a ranked shortlist,
 // then run a calm one-at-a-time execution loop — never leaving the page.
@@ -35,6 +36,7 @@ const FocusView = () => {
   const isRanking = isFetching || (hasTimeBudget && debouncedAvailable !== available);
 
   const session = useFocusSession(tasks);
+  const timer = useFocusTimer(session.current);
 
   const handleDone = async () => {
     const done = session.current;
@@ -80,6 +82,7 @@ const FocusView = () => {
           <div className="space-y-6" data-testid="focus-session">
             <FocusNowCard
               task={session.current}
+              timer={timer}
               onDone={() => void handleDone()}
               onCancel={session.cancel}
               isBusy={isCompleting}

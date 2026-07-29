@@ -6,8 +6,13 @@ import { Button } from '@/components/ui/button';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
 import type { ITask } from '@/lib/types';
 
+import type { FocusTimer as FocusTimerState } from '../useFocusTimer';
+
+import FocusTimer from './FocusTimer';
+
 interface FocusNowCardProps {
   task: ITask;
+  timer: FocusTimerState;
   onDone: () => void;
   onCancel: () => void;
   isBusy: boolean;
@@ -16,7 +21,7 @@ interface FocusNowCardProps {
 // The NOW card — the single task the user is doing right now, given room to
 // breathe above the dimmed "next up" list. Done finishes it; Not now exits back
 // to the shortlist (to switch, the user Starts another task from up next).
-const FocusNowCard = ({ task, onDone, onCancel, isBusy }: FocusNowCardProps) => {
+const FocusNowCard = ({ task, timer, onDone, onCancel, isBusy }: FocusNowCardProps) => {
   const { t } = useTranslation('task');
 
   return (
@@ -36,6 +41,17 @@ const FocusNowCard = ({ task, onDone, onCancel, isBusy }: FocusNowCardProps) => 
 
       <div className="mt-3">
         <TaskBadges task={task} />
+      </div>
+
+      <div className="mt-4 rounded-xl border border-border/60 bg-background/60 p-3 sm:p-4">
+        <FocusTimer
+          seconds={timer.seconds}
+          estimatedMinutes={task.estimatedMinutes ?? null}
+          status={timer.status}
+          isBusy={timer.isBusy}
+          onPause={timer.pause}
+          onResume={timer.resume}
+        />
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-3">

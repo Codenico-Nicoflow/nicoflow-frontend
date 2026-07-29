@@ -171,6 +171,16 @@ export type {
   UpdateRecurrenceRuleRequest,
 } from './slices/recurrence/type';
 
+// Focus session exports (E-049)
+export { focusWsEvent, selectFocusLive } from './slices/focusSession/focusLiveSlice';
+export { focusSessionApi } from './slices/focusSession/focusSessionApi';
+export {
+  useCloseFocusSessionMutation,
+  useFocusHeartbeatMutation,
+  useOpenFocusSessionMutation,
+} from './slices/focusSession/focusSessionApi';
+export type { FocusLiveEvent, OpenFocusSessionRequest } from './slices/focusSession/type';
+
 // Notification exports
 export { notificationApi } from './slices/notification/notificationApi';
 export {

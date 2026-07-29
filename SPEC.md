@@ -1105,6 +1105,78 @@ Bucketing keys off the task's soft `scheduledFor` (its only date):
 
 ---
 
+#### Focus Timer — sessions (E-049)
+
+Measures real time-on-task. One row per contiguous active run (a **segment**); a task's total is derived as the SUM over its closed segments — there is no cached total. **Server-authoritative:** every timestamp is stamped by the server, and a client-supplied duration is never accepted. **FREE on every plan.**
+
+**One open segment per user.** Opening a segment closes any other the user has open, in one transaction. That is why close/heartbeat address `current` rather than an id.
+
+**`SessionView`** — the response body and the WS payload for both events:
+
+```json
+{
+  "id": "sess_123",
+  "taskId": "task_456",
+  "startedAt": "2026-07-29T10:00:00Z",
+  "endedAt": null,
+  "lastSeen": "2026-07-29T10:00:30Z",
+  "durationSeconds": 0
+}
+```
+
+`endedAt` is `null` while the segment is open; `durationSeconds` is `0` until it closes (the client renders the live tick from `startedAt`).
+
+##### POST /v1/focus/sessions
+
+Opens a segment, auto-closing any other open one for the user.
+
+- **Auth required:** Yes
+- **Body:** `{ "taskId": "task_456" }`
+
+**Response — 201 Created** — `SessionView` (the newly-opened segment)
+
+**Errors:** `INVALID_INPUT` (400 — missing/blank `taskId`, malformed body, unknown field) · `TASK_NOT_FOUND` (404 — not owned, missing, or terminal `done`/`cancelled`/`missed`) · `UNAUTHORIZED` (401)
+
+##### POST /v1/focus/sessions/current/close
+
+Closes the user's open segment.
+
+- **Auth required:** Yes
+
+**Response — 200 OK** — `SessionView` with `endedAt` set
+
+**Errors:** `RESOURCE_NOT_FOUND` (404 — no open segment) · `UNAUTHORIZED` (401)
+
+##### POST /v1/focus/sessions/current/heartbeat
+
+Bumps `lastSeen` on the open segment (~30s client cadence). **Silent — never broadcasts.**
+
+- **Auth required:** Yes
+
+**Response — 204 No Content** (empty body)
+
+**Errors:** `RESOURCE_NOT_FOUND` (404 — no open segment) · `UNAUTHORIZED` (401)
+
+> **`endedAt = lastSeen`, never `now()`.** Every close stamps the last proven heartbeat, so a browser that dies mid-run contributes the time it actually proved rather than the time until a sweep noticed. A stale sweep closes abandoned segments on the same rule.
+
+##### POST /internal/jobs/focus-stale
+
+Crash recovery: closes open segments whose client stopped heartbeating and never sent a close (tab crash, quit-and-left). **Not part of the public `/v1` contract** — `InternalToken`-guarded (`X-Internal-Token`, the shared `CRON_SECRET`), like every other internal job, and folded into `run-all` so the single Render cron already reaches it.
+
+Each segment is closed at **its own `lastSeen`** — never the sweep's wall clock and never a fixed cap — so a stranded session contributes neither phantom time nor a truncated total, whether it was abandoned after two minutes or genuinely ran for three hours. `?dryRun=true` reports what would close without touching a row. Idempotent and per-item resilient: one row that fails to close does not strand the rest, and the next run retries it.
+
+**Response — 200 OK** — `{ "considered": 3, "closed": 2, "dryRun": false }`
+
+**Errors:** `401 UNAUTHORIZED` (missing/wrong token) · `503 SERVICE_UNAVAILABLE` (`CRON_SECRET` unset — the endpoint is disabled, never open) · `500` on a listing failure
+
+Staleness threshold is **90s** (3× the ~30s client heartbeat, so one dropped beat never costs a live user their timer). A stranded session is therefore closed within roughly one sweep interval.
+
+> ⚠️ **Cron cadence is not yet decided** (NIC-1711 open question). The endpoint is wired into `run-all`, which today runs hourly — so a stranded segment is currently reclaimed within the hour, not within 90s. Whether to shorten `run-all` or give focus-stale its own more frequent cron is an ops call; the sweep itself is correct either way, since it always closes at `lastSeen`.
+
+---
+
+---
+
 ### 3.8 NLP Smart Scheduling (Pro only)
 
 #### POST /v1/nlp/parse

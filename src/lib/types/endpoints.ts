@@ -59,6 +59,14 @@ export const SEARCH_API = {
   SEARCH: '/search',
 };
 
+// Focus timer sessions (E-049). One open segment per user, so close/heartbeat
+// address "current" rather than an id.
+export const FOCUS_SESSION_API = {
+  OPEN: '/focus/sessions',
+  CLOSE: '/focus/sessions/current/close',
+  HEARTBEAT: '/focus/sessions/current/heartbeat',
+};
+
 // Attachments are polymorphic-flat: owner is a {ownerType, ownerId} query pair,
 // never nested under the task. `${id}/download-url` and the DELETE take the id.
 export const ATTACHMENT_API = {

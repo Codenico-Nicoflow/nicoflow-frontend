@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-import type { IArea, IBucket, IProject, ISubtask, ITask, IUser } from '@/lib/types';
+import type { IArea, IBucket, IFocusSession, IProject, ISubtask, ITask, IUser } from '@/lib/types';
 import { TaskEnergy, TaskPriority, TaskStatus } from '@/lib/types/constants';
 
 export const mockUser: IUser = {
@@ -116,6 +116,16 @@ export const makeBucket = (overrides?: Partial<IBucket>): IBucket => ({
   ...overrides,
 });
 
+export const makeFocusSession = (overrides?: Partial<IFocusSession>): IFocusSession => ({
+  id: 'session-1',
+  taskId: 'task-1',
+  startedAt: '2026-01-01T09:00:00Z',
+  endedAt: null,
+  lastSeen: '2026-01-01T09:00:00Z',
+  durationSeconds: 0,
+  ...overrides,
+});
+
 const envelope = <T>(data: T) => ({ data, error: null });
 
 export const handlers = [
@@ -128,6 +138,16 @@ export const handlers = [
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),
   http.get('http://localhost:8080/v1/focus', () => HttpResponse.json(envelope({ items: [] }))),
+  // Focus timer segments (E-049): open echoes the requested task; close returns
+  // the segment with a measured duration; heartbeat is a silent 204.
+  http.post('http://localhost:8080/v1/focus/sessions', async ({ request }) => {
+    const body = (await request.json()) as { taskId: string };
+    return HttpResponse.json(envelope(makeFocusSession({ taskId: body.taskId })), { status: 201 });
+  }),
+  http.post('http://localhost:8080/v1/focus/sessions/current/close', () =>
+    HttpResponse.json(envelope(makeFocusSession({ endedAt: '2026-01-01T09:00:30Z', durationSeconds: 30 })))
+  ),
+  http.post('http://localhost:8080/v1/focus/sessions/current/heartbeat', () => new HttpResponse(null, { status: 204 })),
   http.get('http://localhost:8080/v1/time-spread', () =>
     HttpResponse.json(envelope({ today: [], tomorrow: [], thisWeek: [] }))
   ),

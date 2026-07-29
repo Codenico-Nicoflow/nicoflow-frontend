@@ -171,6 +171,16 @@
       "title": "Nothing fits that window.",
       "description": "No live task fits this much time right now. Try a longer window.",
       "changeTime": "Change time"
+    },
+    "timer": {
+      "label": "Time on task",
+      "paused": "Paused",
+      "pause": "Pause",
+      "resume": "Resume",
+      "endedElsewhere": "Focus continued in another tab or device.",
+      "ofEstimate": "of ~{{minutes}}m estimated",
+      "overEstimate": "over the ~{{minutes}}m estimate",
+      "noEstimate": "No estimate — just flow."
     }
   },
   "timeSpread": {

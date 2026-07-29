@@ -8,6 +8,7 @@ import {
   areaApi,
   attachmentApi,
   bucketApi,
+  focusWsEvent,
   invalidateApiTags,
   notificationApi,
   projectApi,
@@ -21,7 +22,7 @@ import {
   useAppUser,
 } from '@/lib/store';
 
-import { attachmentOwnerId, WS_EVENT_TAGS, type WsEvent } from './events';
+import { attachmentOwnerId, focusSessionEvent, WS_EVENT_TAGS, type WsEvent } from './events';
 import { buildWsUrl } from './wsUrl';
 
 // Reconnect backoff: 1 → 2 → 4 → 8 → 16 → 30s (capped). Reset to the first step on
@@ -65,6 +66,11 @@ export const useWebSocket = (): { paused: boolean } => {
   // invalidate (not cache-patch) so the tag/refetch model stays the source of truth.
   const dispatchTags = useCallback(
     (event: string, payload: unknown) => {
+      // Focus session events also feed the timer hook (cross-tab zombie-tick stop)
+      // through the focusLive slice — in addition to any tag invalidation below.
+      const focusEvent = focusSessionEvent(event, payload);
+      if (focusEvent) dispatch(focusWsEvent(focusEvent));
+
       // Attachment events invalidate per owner — { type: 'Attachment', id: ownerId }
       // from the payload — so they're handled outside the flat WS_EVENT_TAGS map.
       const ownerId = attachmentOwnerId(event, payload);

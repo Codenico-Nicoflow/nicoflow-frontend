@@ -27,32 +27,49 @@ const workArea = (projects = [makeProject({ id: 'p1', name: 'Launch', areaId: 'a
 
 beforeEach(() => window.localStorage.clear());
 
+const collapsedStorage = () =>
+  window.localStorage.setItem('nicoflow-rail', JSON.stringify({ expanded: false, closedAreaIds: [] }));
+
 describe('Rail expansion', () => {
-  it('starts collapsed with no stored preference', () => {
+  it('starts expanded with no stored preference, showing labels and the tree', async () => {
+    withTree([workArea()]);
     renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+    expect(screen.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'true');
+    expect(within(screen.getByTestId('rail-areas')).getByText('Areas')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('rail-tree')).toBeInTheDocument());
+  });
+
+  it('collapses on toggle and hides the tree', async () => {
+    withTree([workArea()]);
+    renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+    await waitFor(() => expect(screen.getByTestId('rail-tree')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByTestId('rail-toggle'));
+
     expect(screen.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByTestId('rail-tree')).not.toBeInTheDocument();
   });
 
-  it('expands on toggle and reveals destination labels', async () => {
+  it('persists the collapsed choice to storage', async () => {
+    renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
+
+    await userEvent.click(screen.getByTestId('rail-toggle'));
+
+    await waitFor(() => expect(JSON.parse(window.localStorage.getItem('nicoflow-rail') ?? '{}').expanded).toBe(false));
+  });
+
+  it('restores a stored collapsed state on mount', () => {
+    collapsedStorage();
     withTree([workArea()]);
+
     renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
 
-    await userEvent.click(screen.getByTestId('rail-toggle'));
-
-    expect(screen.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'true');
-    expect(within(screen.getByTestId('rail-areas')).getByText('Areas')).toBeInTheDocument();
+    expect(screen.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByTestId('rail-tree')).not.toBeInTheDocument();
   });
 
-  it('persists the expanded choice to storage', async () => {
-    renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
-
-    await userEvent.click(screen.getByTestId('rail-toggle'));
-
-    await waitFor(() => expect(JSON.parse(window.localStorage.getItem('nicoflow-rail') ?? '{}').expanded).toBe(true));
-  });
-
-  it('restores the expanded state from storage on mount', async () => {
+  it('restores a stored expanded state on mount', async () => {
     expandedStorage();
     withTree([workArea()]);
 
@@ -62,10 +79,10 @@ describe('Rail expansion', () => {
     await waitFor(() => expect(screen.getByTestId('rail-tree')).toBeInTheDocument());
   });
 
-  it('ignores malformed stored state', () => {
+  it('falls back to the expanded default when stored state is malformed', () => {
     window.localStorage.setItem('nicoflow-rail', 'not json');
     renderComponent(<Rail />, { initialRoute: '/quick-access/today' });
-    expect(screen.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByTestId('rail-toggle')).toHaveAttribute('aria-expanded', 'true');
   });
 });
 

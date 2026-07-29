@@ -108,7 +108,12 @@ describe('Rail', () => {
       await waitFor(() => expect(screen.getByTestId('rail-favorite-p1')).toBeInTheDocument());
       expect(screen.queryByTestId('rail-favorite-p3')).not.toBeInTheDocument();
 
-      const rendered = screen.getAllByTestId(/^rail-favorite-/).map(el => el.getAttribute('aria-label'));
+      // Read the accessible name rather than aria-label: expanded rows carry a
+      // visible label instead, so asserting the attribute would only pass in
+      // the collapsed variant.
+      const rendered = screen
+        .getAllByTestId(/^rail-favorite-/)
+        .map(el => el.textContent?.trim() || el.getAttribute('aria-label'));
       expect(rendered).toEqual(['Apple', 'Zebra']);
     });
 

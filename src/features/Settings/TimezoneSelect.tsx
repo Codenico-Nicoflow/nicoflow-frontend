@@ -26,8 +26,9 @@ export const TimezoneSelect = () => {
   // profile that predates the field.
   const current = user?.timezone || resolveTimeZone();
 
-  // The detected zone may not be in the curated list (it's a shortlist, not the
-  // full IANA database), so it's added explicitly rather than silently dropped.
+  // On engines without Intl.supportedValuesOf the list is a spanning fallback,
+  // not the full database — so a stored zone outside it is prepended rather than
+  // silently dropped, which would otherwise blank the control.
   const options = SUPPORTED_TIMEZONES.includes(current) ? SUPPORTED_TIMEZONES : [current, ...SUPPORTED_TIMEZONES];
 
   const onChange = async (timezone: string) => {

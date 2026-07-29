@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { attachmentOwnerId, WS_EVENT_TAGS } from './events';
+import { attachmentOwnerId, focusSessionEvent, WS_EVENT_TAGS } from './events';
 
 const TASK_TAGS = ['Task', 'Focus', 'TimeSpread', 'Subtask', 'Search'];
 
@@ -66,5 +66,41 @@ describe('attachmentOwnerId', () => {
     expect(attachmentOwnerId('attachment.created', { ownerId: '' })).toBeNull();
     expect(attachmentOwnerId('attachment.created', { ownerId: 123 })).toBeNull();
     expect(attachmentOwnerId('attachment.created', null)).toBeNull();
+  });
+});
+
+describe('focusSessionEvent', () => {
+  const session = {
+    id: 'sess-1',
+    taskId: 'task-9',
+    startedAt: '2026-07-29T10:00:00Z',
+    endedAt: null,
+    lastSeen: '2026-07-29T10:00:30Z',
+    durationSeconds: 0,
+  };
+
+  it('parses focus.session_started into a started event', () => {
+    expect(focusSessionEvent('focus.session_started', session)).toEqual({ kind: 'started', session });
+  });
+
+  it('parses focus.session_ended into an ended event', () => {
+    const ended = { ...session, endedAt: '2026-07-29T10:05:00Z', durationSeconds: 300 };
+    expect(focusSessionEvent('focus.session_ended', ended)).toEqual({ kind: 'ended', session: ended });
+  });
+
+  it('returns null for a non-focus event', () => {
+    expect(focusSessionEvent('task.updated', session)).toBeNull();
+  });
+
+  it('returns null for a malformed payload (missing/empty ids, non-object)', () => {
+    expect(focusSessionEvent('focus.session_started', {})).toBeNull();
+    expect(focusSessionEvent('focus.session_started', { ...session, id: '' })).toBeNull();
+    expect(focusSessionEvent('focus.session_started', { ...session, taskId: 7 })).toBeNull();
+    expect(focusSessionEvent('focus.session_started', null)).toBeNull();
+  });
+
+  it('session_ended also invalidates Focus (cumulative totals moved); started has no tag entry', () => {
+    expect(WS_EVENT_TAGS['focus.session_ended']).toEqual(['Focus']);
+    expect(WS_EVENT_TAGS['focus.session_started']).toBeUndefined();
   });
 });

@@ -174,6 +174,19 @@ export interface IRecurrenceRule {
   updatedAt: string;
 }
 
+// One focus-timer segment (E-049): a contiguous active run on a single task.
+// Server-authoritative — every timestamp is stamped by the backend. endedAt is
+// null while the segment is open; durationSeconds is 0 until it closes (the
+// client renders the live tick from its own open-time anchor).
+export interface IFocusSession {
+  id: string;
+  taskId: string;
+  startedAt: string; // RFC3339
+  endedAt: string | null;
+  lastSeen: string; // RFC3339
+  durationSeconds: number;
+}
+
 // Derived rule history. Never stored server-side — a counter would count
 // materializations rather than completions and drift.
 export interface IRecurrenceStats {

@@ -11,6 +11,7 @@ import {
   invalidateApiTags,
   notificationApi,
   projectApi,
+  recurrenceApi,
   refreshSessionFromStore,
   searchApi,
   subtaskApi,
@@ -99,6 +100,9 @@ export const useWebSocket = (): { paused: boolean } => {
 
       const aiTags = (['AISession'] as const).filter(has);
       if (aiTags.length > 0) invalidateApiTags(dispatch, aiApi, aiTags);
+
+      const recurrenceTags = (['RecurrenceRule', 'RecurrenceStats'] as const).filter(has);
+      if (recurrenceTags.length > 0) invalidateApiTags(dispatch, recurrenceApi, recurrenceTags);
     },
     [dispatch]
   );

@@ -1,4 +1,4 @@
-import { Clock, ExternalLink } from 'lucide-react';
+import { Clock, ExternalLink, Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { formatDuration } from '@/components/EstimatedTimeField/presets';
@@ -13,7 +13,7 @@ interface TaskBadgesProps {
 }
 
 const TaskBadges = ({ task }: TaskBadgesProps) => {
-  const { t } = useTranslation(['task', 'common']);
+  const { t } = useTranslation(['task', 'common', 'recurrence']);
 
   const gentleDate = formatTaskGentleDate(task);
   const priorityResult = task.priority ? formatTaskPriority(task.priority) : null;
@@ -75,6 +75,23 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
       {task.priority && priorityResult && (
         <Badge variant="outline" className={cn('text-xs font-medium', priorityResult.className)}>
           {priorityLabel}
+        </Badge>
+      )}
+
+      {/* Repeat marker. Deliberately not the full schedule summary: that needs
+          the rule, and fetching one per row would be N+1. The badge says "this
+          comes back"; the schedule itself lives in Settings › Repeating tasks. */}
+      {task.recurrenceRuleId && (
+        <Badge variant="outline" className="text-xs font-medium" data-testid="task-recurring">
+          <Repeat className="h-3 w-3 me-1.5" />
+          {t('recurrence:badge.repeats')}
+        </Badge>
+      )}
+
+      {/* A lapsed occurrence: the window closed, not a failure to shout about. */}
+      {task.status === 'missed' && (
+        <Badge variant="outline" className="text-xs font-medium text-muted-foreground" data-testid="task-missed">
+          {t('task:status.missed')}
         </Badge>
       )}
 

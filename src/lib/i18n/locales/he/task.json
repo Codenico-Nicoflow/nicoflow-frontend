@@ -62,7 +62,8 @@
     "done": "הושלם",
     "cancelled": "בוטל",
     "inbox": "תיבת נכנס",
-    "active": "פעיל"
+    "active": "פעיל",
+    "missed": "הוחמץ"
   },
   "priority": {
     "low": "נמוכה",
@@ -84,7 +85,8 @@
     "done": "הושלם",
     "cancelled": "בוטל",
     "energyAll": "כל האנרגיה",
-    "energyLabel": "סינון לפי אנרגיה"
+    "energyLabel": "סינון לפי אנרגיה",
+    "missed": "הוחמצו"
   },
   "header": {
     "title": "משימות",

@@ -2,7 +2,7 @@
 // IMPORTS
 // ============================================
 
-import type { ProcessingResult, TaskEnergy, TaskPriority, TaskStatus } from '../constants';
+import type { ProcessingResult, RecurrenceFreq, TaskEnergy, TaskPriority, TaskStatus } from '../constants';
 import type { IconId } from '../icons';
 
 // ============================================
@@ -60,6 +60,10 @@ export interface ITask {
   completedAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  // Set only on a materialized recurring occurrence (E-050); both null on an
+  // ordinary task.
+  recurrenceRuleId?: string | null;
+  occurrenceDate?: string | null; // ISO date "YYYY-MM-DD"
 }
 
 export interface ISubtask {
@@ -142,6 +146,38 @@ export interface IAttachment {
   fileSize: number;
   mimeType: string;
   createdAt: string;
+}
+
+// A recurrence rule: a task template plus a schedule and a cursor (E-050). The
+// tasks it produces are ordinary ITask rows carrying recurrenceRuleId. All IDs
+// are strings; every date is an ISO "YYYY-MM-DD" (there is no time-of-day).
+export interface IRecurrenceRule {
+  id: string;
+  projectId: string;
+  title: string;
+  notes?: string | null;
+  priority: TaskPriority;
+  energy: TaskEnergy;
+  estimatedMinutes?: number | null;
+  freq: RecurrenceFreq;
+  interval: number; // 1..366
+  byWeekday: number[]; // weekly only; 0=Sun..6=Sat. Always an array, never null.
+  byMonthday?: number | null; // monthly only; 1..31 or -1 (last day)
+  startDate: string;
+  endDate?: string | null; // null = runs forever
+  nextOccurrence?: string | null; // null = series exhausted
+  paused: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Derived rule history. Never stored server-side — a counter would count
+// materializations rather than completions and drift.
+export interface IRecurrenceStats {
+  done: number;
+  missed: number;
+  cancelled: number;
+  streak: number;
 }
 
 export const ActiveTab = {

@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
+import type { RecurrenceValue } from '@/components';
 import {
   CheckboxField,
   DescriptionField,
@@ -16,12 +17,13 @@ import {
   NameField,
   PlanLimitAlert,
   PriorityField,
+  RecurrenceField,
   ScheduledForField,
   StatusField,
   UrlField,
 } from '@/components';
 import { Form } from '@/components/ui/form';
-import { useCreateTaskMutation, useUpdateTaskMutation } from '@/lib/store';
+import { useCreateRecurrenceRuleMutation, useCreateTaskMutation, useUpdateTaskMutation } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import type { TaskFormData } from '@/lib/utils';
 import {
@@ -32,6 +34,7 @@ import {
   taskSchema,
   ToastMessages,
 } from '@/lib/utils';
+import { normalizeScheduleForFreq } from '@/lib/utils/utils/recurrence';
 
 import { AttachmentSection } from './AttachmentSection';
 import { SubtaskAccordion } from './SubtaskAccordion';
@@ -50,8 +53,13 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
 
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
+  const [createRule, { isLoading: isRuleLoading }] = useCreateRecurrenceRuleMutation();
 
   const [planLimitHit, setPlanLimitHit] = useState(false);
+  // null = an ordinary task. Non-null turns the create into a rule create, which
+  // materializes instance #1 server-side. Editing a rule happens in Settings, so
+  // this is create-only — an existing task's series is not re-editable here.
+  const [recurrence, setRecurrence] = useState<RecurrenceValue | null>(null);
 
   const form = useForm<TaskFormData>({
     defaultValues: {
@@ -72,6 +80,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
 
   useEffect(() => {
     setPlanLimitHit(false);
+    setRecurrence(null);
     if (task) {
       form.reset({
         title: task.title,
@@ -135,6 +144,19 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           url: data.url || '',
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
+      } else if (recurrence) {
+        // A repeating task is created as a rule; the backend stamps instance #1
+        // from this same template inside the same transaction.
+        await createRule({
+          projectId,
+          title: data.title,
+          priority: data.priority,
+          energy: data.energy,
+          notes: data.notes ?? undefined,
+          estimatedMinutes: data.estimatedMinutes ?? undefined,
+          ...normalizeScheduleForFreq(recurrence),
+        }).unwrap();
+        showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
       } else {
         await createTask({
           projectId,
@@ -169,7 +191,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       description={isEditMode ? t('dialog.editDescription') : t('dialog.createDescription')}
       icon={CheckSquare}
       isEditMode={isEditMode}
-      isLoading={isCreateLoading || isUpdateLoading}
+      isLoading={isCreateLoading || isUpdateLoading || isRuleLoading}
       hasChanges={hasChanges}
       onSubmit={form.handleSubmit(onSubmit)}
       maxWidth="xl"
@@ -218,6 +240,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
               delay={0.29}
             />
           </div>
+
+          {/* Repeating is a create-time choice: an existing series is managed
+              from Settings, so the section is hidden in edit mode. */}
+          {!isEditMode && <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />}
 
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />

@@ -62,7 +62,8 @@
     "done": "Done",
     "cancelled": "Cancelled",
     "inbox": "Inbox",
-    "active": "Active"
+    "active": "Active",
+    "missed": "Missed"
   },
   "priority": {
     "low": "Low",
@@ -84,7 +85,8 @@
     "done": "Done",
     "cancelled": "Cancelled",
     "energyAll": "All energy",
-    "energyLabel": "Filter by energy"
+    "energyLabel": "Filter by energy",
+    "missed": "Missed"
   },
   "header": {
     "title": "Tasks",

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AccountCard } from '@/features/Settings/AccountCard';
 import { NotificationsCard } from '@/features/Settings/notifications/NotificationsCard';
 import { PreferencesCard } from '@/features/Settings/PreferencesCard';
+import { RecurrenceCard } from '@/features/Settings/recurrence/RecurrenceCard';
 import { SecurityCard } from '@/features/Settings/SecurityCard';
 import { useAppUser } from '@/lib/store';
 import { USER_STATUS } from '@/lib/types';
@@ -33,6 +34,8 @@ const Settings = () => {
       <PreferencesCard />
 
       <NotificationsCard />
+
+      <RecurrenceCard />
 
       {isFree && (
         <Card className="border-primary/20 bg-accent">

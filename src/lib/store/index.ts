@@ -150,6 +150,27 @@ export type {
   GetUploadUrlResponse,
 } from './slices/attachment/type';
 
+// Recurrence exports (E-050)
+export { recurrenceApi } from './slices/recurrence/recurrenceApi';
+export {
+  useCreateRecurrenceRuleMutation,
+  useDeleteRecurrenceRuleMutation,
+  useGetRecurrenceRuleQuery,
+  useGetRecurrenceRulesQuery,
+  useGetRecurrenceStatsQuery,
+  usePauseRecurrenceRuleMutation,
+  useUpdateRecurrenceRuleMutation,
+} from './slices/recurrence/recurrenceApi';
+export type {
+  CreateRecurrenceRuleRequest,
+  ListRecurrenceRulesRequest,
+  ListRecurrenceRulesResponse,
+  PauseRecurrenceRuleRequest,
+  RecurrenceSchedule,
+  RecurrenceStatsResponse,
+  UpdateRecurrenceRuleRequest,
+} from './slices/recurrence/type';
+
 // Notification exports
 export { notificationApi } from './slices/notification/notificationApi';
 export {

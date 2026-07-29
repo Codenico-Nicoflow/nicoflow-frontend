@@ -156,7 +156,9 @@
         "terms": "Terms of Service",
         "privacy": "Privacy Policy",
         "help": "Help & Information"
-      }
+      },
+      "timezoneLabel": "Timezone",
+      "timezoneDescription": "Used to decide when your day starts for reminders and repeating tasks."
     },
     "profile": {
       "title": "Profile"

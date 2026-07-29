@@ -10,6 +10,7 @@ import {
   notificationApi,
   projectApi,
   rateLimitReducer,
+  recurrenceApi,
   searchApi,
   subtaskApi,
   taskApi,
@@ -28,6 +29,7 @@ const storyRootReducer = combineReducers({
   [notificationApi.reducerPath]: notificationApi.reducer,
   [attachmentApi.reducerPath]: attachmentApi.reducer,
   [aiApi.reducerPath]: aiApi.reducer,
+  [recurrenceApi.reducerPath]: recurrenceApi.reducer,
 });
 
 export type StoryRootState = ReturnType<typeof storyRootReducer>;
@@ -47,6 +49,7 @@ export const createStoryStore = (preloadedState?: Partial<StoryRootState>) =>
         searchApi.middleware,
         notificationApi.middleware,
         attachmentApi.middleware,
-        aiApi.middleware
+        aiApi.middleware,
+        recurrenceApi.middleware
       ),
   });

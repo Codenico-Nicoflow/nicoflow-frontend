@@ -64,6 +64,9 @@ export interface ITask {
   // ordinary task.
   recurrenceRuleId?: string | null;
   occurrenceDate?: string | null; // ISO date "YYYY-MM-DD"
+  // SUM of closed focus segments in seconds (E-049). Enriched only on
+  // GET /tasks/:id and GET /focus — always 0 on the project task-list.
+  totalFocusSeconds: number;
 }
 
 export interface ISubtask {

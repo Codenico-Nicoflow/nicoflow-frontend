@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { usePreferences } from '@/hooks/usePreferences';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '@/lib/i18n';
 
+import { TimezoneSelect } from './TimezoneSelect';
+
 const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
   en: 'English',
   he: 'עברית',
@@ -80,6 +82,8 @@ export const PreferencesCard = () => {
             </SelectContent>
           </Select>
         </div>
+
+        <TimezoneSelect />
       </CardContent>
     </Card>
   );

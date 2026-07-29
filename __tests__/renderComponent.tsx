@@ -16,6 +16,7 @@ import {
   bucketApi,
   notificationApi,
   projectApi,
+  recurrenceApi,
   searchApi,
   subtaskApi,
   taskApi,
@@ -39,6 +40,7 @@ const createRootReducer = () =>
     [notificationApi.reducerPath]: notificationApi.reducer,
     [attachmentApi.reducerPath]: attachmentApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
+    [recurrenceApi.reducerPath]: recurrenceApi.reducer,
   });
 
 type RootReducer = ReturnType<typeof createRootReducer>;
@@ -66,7 +68,8 @@ export const createMockStore = (preloadedState?: {
         searchApi.middleware,
         notificationApi.middleware,
         attachmentApi.middleware,
-        aiApi.middleware
+        aiApi.middleware,
+        recurrenceApi.middleware
       ),
   });
 };

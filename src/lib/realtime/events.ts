@@ -47,6 +47,14 @@ export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   // rather than per-id: the title change reorders the updatedAt-DESC list, so the
   // LIST tag must refetch, not just the one row.
   'ai.session.updated': ['AISession'],
+  // Recurrence events (E-050) also invalidate the task family: every rule
+  // mutation moves task rows too — create materializes instance #1, edit
+  // re-stamps the live instance, delete reaps the pending one — and the sweep
+  // emits recurrence.updated when it materializes. RecurrenceStats is derived
+  // from those same occurrence rows, so it moves with them.
+  'recurrence.created': ['RecurrenceRule', 'RecurrenceStats', ...TASK_TAGS],
+  'recurrence.updated': ['RecurrenceRule', 'RecurrenceStats', ...TASK_TAGS],
+  'recurrence.deleted': ['RecurrenceRule', 'RecurrenceStats', ...TASK_TAGS],
 };
 
 // Attachment events are the one payload-dependent case: the attachment list is

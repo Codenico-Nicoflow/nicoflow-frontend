@@ -12,6 +12,7 @@ import { bucketApi } from './slices/bucket/bucketApi';
 import { notificationApi } from './slices/notification/notificationApi';
 import { projectApi } from './slices/project/projectApi';
 import rateLimitReducer from './slices/rateLimit/rateLimitSlice';
+import { recurrenceApi } from './slices/recurrence/recurrenceApi';
 import { searchApi } from './slices/search/searchApi';
 import { subtaskApi } from './slices/subtasks/subtaskApi';
 import { taskApi } from './slices/tasks/taskApi';
@@ -27,6 +28,7 @@ const apiReducerPaths = [
   notificationApi.reducerPath,
   attachmentApi.reducerPath,
   aiApi.reducerPath,
+  recurrenceApi.reducerPath,
 ] as const;
 
 const combinedReducer = combineReducers({
@@ -42,6 +44,7 @@ const combinedReducer = combineReducers({
   [notificationApi.reducerPath]: notificationApi.reducer,
   [attachmentApi.reducerPath]: attachmentApi.reducer,
   [aiApi.reducerPath]: aiApi.reducer,
+  [recurrenceApi.reducerPath]: recurrenceApi.reducer,
 });
 
 type CombinedState = ReturnType<typeof combinedReducer>;
@@ -84,7 +87,8 @@ export const store = configureStore({
       searchApi.middleware,
       notificationApi.middleware,
       attachmentApi.middleware,
-      aiApi.middleware
+      aiApi.middleware,
+      recurrenceApi.middleware
     ),
 });
 

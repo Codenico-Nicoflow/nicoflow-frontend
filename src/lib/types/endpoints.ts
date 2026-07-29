@@ -70,6 +70,16 @@ export const ATTACHMENT_API = {
   DELETE: '/attachments/', // + id (DELETE) → 204
 };
 
+// Recurrence rules (E-050). Creation is nested under the owning project; every
+// other verb is flat on the rule id.
+export const RECURRENCE_API = {
+  CREATE: '/projects/', // + `${projectId}/recurrence-rules` (POST) → IRecurrenceRule
+  LIST: '/recurrence-rules', // GET ?projectId= → { items }
+  DETAIL: '/recurrence-rules/', // + id (GET | PATCH | DELETE)
+  PAUSE: '/recurrence-rules/', // + `${id}/pause` (PATCH { paused })
+  STATS: '/recurrence-rules/', // + `${id}/stats` (GET) → IRecurrenceStats
+};
+
 export const NOTIFICATION_API = {
   GET_NOTIFICATIONS: '/notifications',
   GET_UNREAD_COUNT: '/notifications/unread-count',

@@ -1,0 +1,112 @@
+{
+  "field": {
+    "label": "Повтор",
+    "description": "Сделать задачу повторяющейся.",
+    "freqLabel": "Частота",
+    "intervalLabel": "Каждые",
+    "weekdayLabel": "По дням",
+    "monthdayLabel": "День месяца",
+    "startDateLabel": "Начало",
+    "endLabel": "Окончание",
+    "endNever": "Никогда",
+    "endOnDate": "В дату",
+    "endDateLabel": "Дата окончания",
+    "lastDayOfMonth": "Последний день месяца"
+  },
+  "freq": {
+    "daily": "Ежедневно",
+    "weekly": "Еженедельно",
+    "monthly": "Ежемесячно",
+    "yearly": "Ежегодно"
+  },
+  "unit": {
+    "day_one": "день",
+    "day_few": "дня",
+    "day_many": "дней",
+    "day_other": "дня",
+    "week_one": "неделя",
+    "week_few": "недели",
+    "week_many": "недель",
+    "week_other": "недели",
+    "month_one": "месяц",
+    "month_few": "месяца",
+    "month_many": "месяцев",
+    "month_other": "месяца",
+    "year_one": "год",
+    "year_few": "года",
+    "year_many": "лет",
+    "year_other": "года"
+  },
+  "weekdayShort": {
+    "0": "Вс",
+    "1": "Пн",
+    "2": "Вт",
+    "3": "Ср",
+    "4": "Чт",
+    "5": "Пт",
+    "6": "Сб"
+  },
+  "summary": {
+    "daily_one": "Каждый день",
+    "daily_few": "Каждые {{count}} дня",
+    "daily_many": "Каждые {{count}} дней",
+    "daily_other": "Каждые {{count}} дня",
+    "weekly_one": "Каждую неделю: {{days}}",
+    "weekly_few": "Каждые {{count}} недели: {{days}}",
+    "weekly_many": "Каждые {{count}} недель: {{days}}",
+    "weekly_other": "Каждые {{count}} недели: {{days}}",
+    "monthly_one": "Каждый месяц {{day}}-го",
+    "monthly_few": "Каждые {{count}} месяца {{day}}-го",
+    "monthly_many": "Каждые {{count}} месяцев {{day}}-го",
+    "monthly_other": "Каждые {{count}} месяца {{day}}-го",
+    "monthlyLast_one": "Каждый месяц в последний день",
+    "monthlyLast_few": "Каждые {{count}} месяца в последний день",
+    "monthlyLast_many": "Каждые {{count}} месяцев в последний день",
+    "monthlyLast_other": "Каждые {{count}} месяца в последний день",
+    "yearly_one": "Каждый год",
+    "yearly_few": "Каждые {{count}} года",
+    "yearly_many": "Каждые {{count}} лет",
+    "yearly_other": "Каждые {{count}} года",
+    "until": "{{summary}} до {{date}}"
+  },
+  "badge": {
+    "repeats": "Повтор",
+    "missedLast": "пропущено в прошлый раз",
+    "pending": "{{count}} в ожидании",
+    "paused": "Приостановлено"
+  },
+  "settings": {
+    "title": "Повторяющиеся задачи",
+    "description": "Задачи, которые возвращаются по расписанию. Изменение правила влияет на будущие повторы.",
+    "empty": "Повторяющихся задач пока нет.",
+    "emptyHint": "Включите «Повтор» при создании задачи, чтобы настроить её.",
+    "nextLabel": "Следующее",
+    "nextNone": "Больше повторов нет",
+    "pause": "Приостановить",
+    "resume": "Возобновить",
+    "edit": "Изменить",
+    "delete": "Удалить",
+    "deleteTitle": "Удалить повторяющуюся задачу?",
+    "deleteDescription": "Это завершит серию. Выполненные повторы останутся в истории; ожидающий будет удалён.",
+    "limitReached": "Достигнут лимит в {{limit}} повторяющиеся задачи на бесплатном тарифе.",
+    "upgrade": "Перейти на Pro"
+  },
+  "stats": {
+    "title": "История",
+    "done": "Выполнено",
+    "missed": "Пропущено",
+    "cancelled": "Отменено",
+    "streak": "Текущая серия",
+    "streakValue_one": "{{count}} подряд",
+    "streakValue_few": "{{count}} подряд",
+    "streakValue_many": "{{count}} подряд",
+    "streakValue_other": "{{count}} подряд"
+  },
+  "toast": {
+    "created": "Повторяющаяся задача создана",
+    "updated": "Повторяющаяся задача обновлена",
+    "deleted": "Повторяющаяся задача удалена",
+    "paused": "Повторяющаяся задача приостановлена",
+    "resumed": "Повторяющаяся задача возобновлена"
+  }
+}

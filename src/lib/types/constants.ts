@@ -32,6 +32,10 @@ export const TaskStatus = {
   SOMEDAY: 'someday',
   DONE: 'done',
   CANCELLED: 'cancelled',
+  // A recurring occurrence whose window closed without completion (E-050).
+  // Distinct from CANCELLED — that is the user deciding against it, and the
+  // streak calculation has to tell them apart. Set only by the backend sweep.
+  MISSED: 'missed',
 } as const;
 
 export const TaskPriority = {
@@ -66,6 +70,41 @@ export const FilterBy = {
   SOMEDAY: 'someday',
   DONE: 'done',
   CANCELLED: 'cancelled',
+  MISSED: 'missed',
+} as const;
+
+// ============================================
+// RECURRENCE CONSTANTS (E-050)
+// ============================================
+
+// A deliberate subset of RFC 5545, stored as fields rather than an RRULE string
+// so the UI can render a human summary without a parser.
+export const RecurrenceFreq = {
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  MONTHLY: 'monthly',
+  YEARLY: 'yearly',
+} as const;
+
+// Weekday values match Date.getDay() / the backend's by_weekday (0 = Sunday).
+export const RECURRENCE_WEEKDAYS = [0, 1, 2, 3, 4, 5, 6] as const;
+
+// -1 selects the last day of the month, whatever its length. The only legal
+// byMonthday outside 1..31.
+export const MONTHDAY_LAST = -1;
+
+// Interval bounds mirror the backend CHECK (1..366).
+export const RECURRENCE_MIN_INTERVAL = 1;
+export const RECURRENCE_MAX_INTERVAL = 366;
+
+// Free plan rule cap (SPEC §5). The 4th attempt returns PLAN_LIMIT_EXCEEDED.
+export const FREE_PLAN_RULE_LIMIT = 3;
+
+// The end condition the UI offers. There is deliberately no "after N times" —
+// `count` was dropped from the schema.
+export const RecurrenceEnd = {
+  NEVER: 'never',
+  ON_DATE: 'onDate',
 } as const;
 
 // ============================================
@@ -93,6 +132,8 @@ export type TaskPriority = (typeof TaskPriority)[keyof typeof TaskPriority];
 export type TaskEnergy = (typeof TaskEnergy)[keyof typeof TaskEnergy];
 export type TaskSortOrder = (typeof TaskSortOrder)[keyof typeof TaskSortOrder];
 export type ProcessingResult = (typeof ProcessingResult)[keyof typeof ProcessingResult];
+export type RecurrenceFreq = (typeof RecurrenceFreq)[keyof typeof RecurrenceFreq];
+export type RecurrenceEnd = (typeof RecurrenceEnd)[keyof typeof RecurrenceEnd];
 
 // ============================================
 // AUTH CONSTANTS

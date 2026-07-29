@@ -62,7 +62,8 @@
     "done": "Готово",
     "cancelled": "Отменено",
     "inbox": "Входящие",
-    "active": "Активна"
+    "active": "Активна",
+    "missed": "Пропущено"
   },
   "priority": {
     "low": "Низкий",
@@ -84,7 +85,8 @@
     "done": "Готово",
     "cancelled": "Отменённые",
     "energyAll": "Вся энергия",
-    "energyLabel": "Фильтр по энергии"
+    "energyLabel": "Фильтр по энергии",
+    "missed": "Пропущенные"
   },
   "header": {
     "title": "Задачи",

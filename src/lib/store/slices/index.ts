@@ -6,6 +6,7 @@ export * from './bucket';
 export * from './notification';
 export * from './project';
 export * from './rateLimit';
+export * from './recurrence';
 export * from './search';
 export * from './subtasks';
 export * from './tasks';

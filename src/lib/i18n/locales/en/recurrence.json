@@ -1,0 +1,92 @@
+{
+  "field": {
+    "label": "Repeats",
+    "description": "Turn this into a repeating task.",
+    "freqLabel": "Frequency",
+    "intervalLabel": "Every",
+    "weekdayLabel": "On days",
+    "monthdayLabel": "Day of month",
+    "startDateLabel": "Starts",
+    "endLabel": "Ends",
+    "endNever": "Never",
+    "endOnDate": "On date",
+    "endDateLabel": "End date",
+    "lastDayOfMonth": "Last day of month"
+  },
+  "freq": {
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly"
+  },
+  "unit": {
+    "day_one": "day",
+    "day_other": "days",
+    "week_one": "week",
+    "week_other": "weeks",
+    "month_one": "month",
+    "month_other": "months",
+    "year_one": "year",
+    "year_other": "years"
+  },
+  "weekdayShort": {
+    "0": "Sun",
+    "1": "Mon",
+    "2": "Tue",
+    "3": "Wed",
+    "4": "Thu",
+    "5": "Fri",
+    "6": "Sat"
+  },
+  "summary": {
+    "daily_one": "Every day",
+    "daily_other": "Every {{count}} days",
+    "weekly_one": "Every week on {{days}}",
+    "weekly_other": "Every {{count}} weeks on {{days}}",
+    "monthly_one": "Every month on day {{day}}",
+    "monthly_other": "Every {{count}} months on day {{day}}",
+    "monthlyLast_one": "Every month on the last day",
+    "monthlyLast_other": "Every {{count}} months on the last day",
+    "yearly_one": "Every year",
+    "yearly_other": "Every {{count}} years",
+    "until": "{{summary}} until {{date}}"
+  },
+  "badge": {
+    "repeats": "Repeats",
+    "missedLast": "missed last time",
+    "pending": "{{count}} pending",
+    "paused": "Paused"
+  },
+  "settings": {
+    "title": "Repeating tasks",
+    "description": "Tasks that come back on a schedule. Editing a rule changes future occurrences.",
+    "empty": "No repeating tasks yet.",
+    "emptyHint": "Turn on \"Repeats\" when creating a task to set one up.",
+    "nextLabel": "Next",
+    "nextNone": "No more occurrences",
+    "pause": "Pause",
+    "resume": "Resume",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Delete repeating task?",
+    "deleteDescription": "This ends the series. Completed occurrences are kept in your history; the pending one is removed.",
+    "limitReached": "You've reached the {{limit}} repeating tasks included in the free plan.",
+    "upgrade": "Upgrade to Pro"
+  },
+  "stats": {
+    "title": "History",
+    "done": "Completed",
+    "missed": "Missed",
+    "cancelled": "Cancelled",
+    "streak": "Current streak",
+    "streakValue_one": "{{count}} in a row",
+    "streakValue_other": "{{count}} in a row"
+  },
+  "toast": {
+    "created": "Repeating task created",
+    "updated": "Repeating task updated",
+    "deleted": "Repeating task deleted",
+    "paused": "Repeating task paused",
+    "resumed": "Repeating task resumed"
+  }
+}

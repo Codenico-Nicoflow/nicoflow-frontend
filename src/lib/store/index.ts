@@ -75,6 +75,7 @@ export { taskApi } from './slices/tasks/taskApi';
 export {
   useCreateTaskMutation,
   useDeleteTaskMutation,
+  useGetCalendarTasksQuery,
   useGetFocusQuery,
   useGetTaskQuery,
   useGetTasksQuery,
@@ -87,6 +88,8 @@ export {
 export type {
   CreateTaskRequest,
   CreateTaskResponse,
+  GetCalendarTasksRequest,
+  GetCalendarTasksResponse,
   GetFocusRequest,
   GetTimeSpreadResponse,
   UpdateTaskRequest,

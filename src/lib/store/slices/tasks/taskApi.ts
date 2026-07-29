@@ -10,6 +10,8 @@ import type {
   CreateTaskResponse,
   DeleteTaskRequest,
   DeleteTaskResponse,
+  GetCalendarTasksRequest,
+  GetCalendarTasksResponse,
   GetFocusRequest,
   GetFocusResponse,
   GetTaskRequest,
@@ -175,6 +177,19 @@ export const taskApi = createApi({
       transformErrorResponse: error => error.data,
       providesTags: ['TimeSpread'],
     }),
+    // Calendar range — the flat window the hour grid renders. Deliberately under
+    // the 'Task' tag rather than a tag of its own: it IS the task list for a date
+    // window, so every existing task mutation and WS task event already
+    // invalidates it, and the calendar stays live for free.
+    getCalendarTasks: builder.query<GetCalendarTasksResponse, GetCalendarTasksRequest>({
+      query: params => ({
+        url: '/tasks',
+        params,
+      }),
+      transformResponse: (raw: ApiEnvelope<{ items: GetCalendarTasksResponse }>) => raw.data.items,
+      transformErrorResponse: error => error.data,
+      providesTags: ['Task'],
+    }),
   }),
 });
 
@@ -189,4 +204,5 @@ export const {
   useScheduleTaskMutation,
   useGetFocusQuery,
   useGetTimeSpreadQuery,
+  useGetCalendarTasksQuery,
 } = taskApi;

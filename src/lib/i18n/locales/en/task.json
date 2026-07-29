@@ -211,5 +211,21 @@
       "emptyTitle": "Nothing on the next 7 days.",
       "emptyDescription": "Schedule a few tasks and they'll show up here by day."
     }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Your scheduled work, hour by hour.",
+    "today": "Today",
+    "previous": "Previous period",
+    "next": "Next period",
+    "viewSwitcher": "Calendar view",
+    "allDay": "All day",
+    "views": {
+      "day": "Day",
+      "week": "Week"
+    },
+    "minutesShort": "{{minutes}} min",
+    "blockLabel": "{{title}} at {{time}}, {{minutes}} minutes",
+    "blockUnestimatedLabel": "{{title}} at {{time}}, no estimate"
   }
 }

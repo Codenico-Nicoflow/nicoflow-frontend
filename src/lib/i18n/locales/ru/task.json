@@ -211,5 +211,21 @@
       "emptyTitle": "На ближайшие 7 дней ничего нет.",
       "emptyDescription": "Запланируйте несколько задач, они появятся здесь по дням."
     }
+  },
+  "calendar": {
+    "title": "Календарь",
+    "subtitle": "Ваши запланированные задачи по часам.",
+    "today": "Сегодня",
+    "previous": "Предыдущий период",
+    "next": "Следующий период",
+    "viewSwitcher": "Вид календаря",
+    "allDay": "Весь день",
+    "views": {
+      "day": "День",
+      "week": "Неделя"
+    },
+    "minutesShort": "{{minutes}} мин",
+    "blockLabel": "{{title}} в {{time}}, {{minutes}} минут",
+    "blockUnestimatedLabel": "{{title}} в {{time}}, без оценки"
   }
 }

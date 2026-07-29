@@ -1,6 +1,7 @@
 export * from './ai';
 export * from './area';
 export * from './auth';
+export { default as Calendar } from './Calendar';
 export { default as ErrorPage } from './ErrorPage';
 export { default as HelpAndInformation } from './HelpAndInformation';
 export { default as PrivacyPolicy } from './PrivacyPolicy';

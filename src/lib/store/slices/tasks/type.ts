@@ -26,6 +26,7 @@ export type CreateTaskRequest = {
   energy?: TaskEnergy;
   rollsOver?: boolean;
   scheduledFor?: string; // soft intention — ISO date "YYYY-MM-DD"
+  scheduledTime?: string | null; // "HH:MM" on a 15-min boundary (E-051, Pro-only to set)
   estimatedMinutes?: number;
   url?: string;
 };
@@ -43,6 +44,7 @@ export type UpdateTaskRequest = {
   energy?: TaskEnergy;
   rollsOver?: boolean;
   scheduledFor?: string | null;
+  scheduledTime?: string | null;
   estimatedMinutes?: number | null;
   url?: string | null;
 };
@@ -75,9 +77,21 @@ export type GetFocusResponse = ITask[];
 export type ScheduleTaskRequest = {
   id: string;
   scheduledFor: string | null;
+  scheduledTime?: string | null;
   rollsOver?: boolean;
 };
 export type ScheduleTaskResponse = ITask;
+
+// Calendar range (GET /tasks?scheduledFrom=&scheduledTo=) — flat list of tasks
+// scheduled inside an inclusive date window, ordered (scheduledFor,
+// scheduledTime NULLS FIRST, displayOrder). Unlike Time Spread NO roll-forward
+// is applied: a task comes back on the date it is actually scheduled for, so a
+// grid never lies about history. Span is capped at 62 days server-side.
+export type GetCalendarTasksRequest = {
+  scheduledFrom: string; // inclusive ISO date "YYYY-MM-DD"
+  scheduledTo: string; // inclusive ISO date "YYYY-MM-DD"
+};
+export type GetCalendarTasksResponse = ITask[];
 
 // Time Spread (GET /time-spread) — active+inbox tasks bucketed into the day
 // views, with the no-guilt roll-forward already applied server-side. Buckets

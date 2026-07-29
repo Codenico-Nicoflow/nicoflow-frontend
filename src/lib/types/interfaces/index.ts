@@ -54,6 +54,10 @@ export interface ITask {
   energy: TaskEnergy;
   rollsOver: boolean;
   scheduledFor?: string | null; // soft intention — ISO date "YYYY-MM-DD"
+  // Optional time-of-day on the scheduledFor day (E-051), "HH:MM" 24-hour on a
+  // 15-minute boundary. Null = all-day. Setting one is Pro-only; clearing is
+  // open on every plan.
+  scheduledTime?: string | null;
   estimatedMinutes?: number | null;
   url?: string | null;
   displayOrder: number;

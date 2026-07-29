@@ -81,6 +81,7 @@ export const makeTask = (overrides?: Partial<ITask>): ITask => ({
   energy: TaskEnergy.MEDIUM,
   rollsOver: true,
   scheduledFor: null,
+  scheduledTime: null,
   estimatedMinutes: null,
   url: null,
   displayOrder: 0,
@@ -134,10 +135,15 @@ export const handlers = [
   http.get('http://localhost:8080/v1/attachments/usage', () =>
     HttpResponse.json(envelope({ usedBytes: 0, limitBytes: 100 * 1024 * 1024 }))
   ),
+  // TaskDialog lists attachments for whatever task it opens; without a default
+  // any suite that opens the dialog logs an unhandled-request warning.
+  http.get('http://localhost:8080/v1/attachments', () => HttpResponse.json(envelope({ items: [] }))),
   http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),
   http.get('http://localhost:8080/v1/focus', () => HttpResponse.json(envelope({ items: [] }))),
+  // Calendar range (E-051) — flat window the hour grid reads.
+  http.get('http://localhost:8080/v1/tasks', () => HttpResponse.json(envelope({ items: [] }))),
   // Focus timer segments (E-049): open echoes the requested task; close returns
   // the segment with a measured duration; heartbeat is a silent 204.
   http.post('http://localhost:8080/v1/focus/sessions', async ({ request }) => {

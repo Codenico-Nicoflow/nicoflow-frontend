@@ -1,4 +1,4 @@
-import { Bot, Inbox, LayoutGrid, type LucideIcon, Settings, Sun, Target } from 'lucide-react';
+import { Bot, CalendarDays, Inbox, LayoutGrid, type LucideIcon, Settings, Sun, Target } from 'lucide-react';
 
 import type { Resources } from '@/lib/i18n/locales/en';
 
@@ -29,6 +29,7 @@ export const NAV_DESTINATIONS: NavDestination[] = [
   },
   { id: 'focus', labelKey: 'focus', icon: Target, to: '/quick-access/focus', match: ['/quick-access/focus'] },
   { id: 'areas', labelKey: 'areas', icon: LayoutGrid, to: '/areas', match: ['/areas', '/projects'] },
+  { id: 'calendar', labelKey: 'calendar', icon: CalendarDays, to: '/calendar', match: ['/calendar'] },
   { id: 'ai', labelKey: 'ai', icon: Bot, to: '/ai', match: ['/ai'] },
 ];
 

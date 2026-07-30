@@ -26,8 +26,11 @@ const HourGrid = ({ days, tasksByDay, now, onSelect }: HourGridProps) => {
   const hasAllDay = days.some(day => allDayTasks(tasksByDay.get(toDayKey(day)) ?? []).length > 0);
 
   return (
+    // The grid scrolls inside its own box, never the page body: a horizontally
+    // scrolling body would make every future drag gesture (NIC-1808) ambiguous.
+    // Below md the caller passes a single day, so the min-width never engages.
     <div className="overflow-x-auto" data-testid="calendar-grid">
-      <div className="min-w-[600px]">
+      <div className="md:min-w-[600px]">
         {/* Day headers */}
         <div className="flex border-b border-border/60">
           <div className="w-14 shrink-0" aria-hidden />

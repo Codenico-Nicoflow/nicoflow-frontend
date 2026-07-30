@@ -222,10 +222,14 @@
     "allDay": "כל היום",
     "views": {
       "day": "יום",
-      "week": "שבוע"
+      "week": "שבוע",
+      "month": "חודש"
     },
     "minutesShort": "{{minutes}} דק׳",
     "blockLabel": "{{title}} בשעה {{time}}, {{minutes}} דקות",
-    "blockUnestimatedLabel": "{{title}} בשעה {{time}}, ללא הערכה"
+    "blockUnestimatedLabel": "{{title}} בשעה {{time}}, ללא הערכה",
+    "emptyTitle": "אין דבר מתוזמן",
+    "emptyDescription": "משימות שתתזמן לשבוע זה יופיעו כאן.",
+    "monthCellLabel": "{{date}}, {{count}} משימות"
   }
 }

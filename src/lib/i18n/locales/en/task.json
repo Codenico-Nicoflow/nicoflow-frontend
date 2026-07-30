@@ -222,10 +222,14 @@
     "allDay": "All day",
     "views": {
       "day": "Day",
-      "week": "Week"
+      "week": "Week",
+      "month": "Month"
     },
     "minutesShort": "{{minutes}} min",
     "blockLabel": "{{title}} at {{time}}, {{minutes}} minutes",
-    "blockUnestimatedLabel": "{{title}} at {{time}}, no estimate"
+    "blockUnestimatedLabel": "{{title}} at {{time}}, no estimate",
+    "emptyTitle": "Nothing scheduled",
+    "emptyDescription": "Tasks you schedule for this week will show up here.",
+    "monthCellLabel": "{{date}}, {{count}} tasks"
   }
 }

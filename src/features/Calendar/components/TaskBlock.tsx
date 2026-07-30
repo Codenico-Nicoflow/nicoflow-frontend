@@ -4,6 +4,7 @@ import { useReducedMotion } from 'framer-motion';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX, MINUTES_PER_DAY, RESIZE_HANDLE_PX } from '../data';
@@ -35,6 +36,7 @@ const TaskBlock = ({ layout, onSelect, onDragCommit }: TaskBlockProps) => {
   const { t } = useTranslation('task');
   const reduce = useReducedMotion();
   const { task, top, height, isUnestimated, column, columns } = layout;
+  const isDone = task.status === TaskStatus.DONE;
   // A drag ends with a click event on the same element; without this the block
   // would both reschedule and open the dialog from one gesture.
   const suppressClick = useRef(false);
@@ -98,10 +100,14 @@ const TaskBlock = ({ layout, onSelect, onDragCommit }: TaskBlockProps) => {
           isDragging && 'cursor-grabbing shadow-lg ring-2 ring-primary/40',
           isUnestimated
             ? 'border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10'
-            : 'border-primary/30 bg-primary/15 hover:bg-primary/25'
+            : 'border-primary/30 bg-primary/15 hover:bg-primary/25',
+          // Done work stays on the grid — the day should show what happened —
+          // but recedes so the eye lands on what is still open.
+          isDone && 'border-border/50 bg-muted/40 hover:bg-muted/60'
         )}
         data-testid={`calendar-block-${task.id}`}
         data-unestimated={isUnestimated || undefined}
+        data-done={isDone || undefined}
         data-dragging={isDragging || undefined}
         aria-label={
           isUnestimated
@@ -113,7 +119,14 @@ const TaskBlock = ({ layout, onSelect, onDragCommit }: TaskBlockProps) => {
               })
         }
       >
-        <span className="block truncate text-xs font-medium text-foreground">{task.title}</span>
+        <span
+          className={cn(
+            'block truncate text-xs font-medium',
+            isDone ? 'text-muted-foreground line-through' : 'text-foreground'
+          )}
+        >
+          {task.title}
+        </span>
         {(!isUnestimated || drag?.mode === 'resize') && (
           <span className="block truncate text-[11px] text-muted-foreground">
             {drag ? toTimeString(drag.startMinutes) : task.scheduledTime} ·{' '}

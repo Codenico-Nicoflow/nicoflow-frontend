@@ -241,6 +241,12 @@
     "timedSchedulingLocked": "Планирование по времени — функция Pro. Перейдите на Pro, чтобы перетаскивать задачи на конкретное время.",
     "teaserTitle": "Планирование по времени — функция Pro",
     "teaserDescription": "Это ваш реальный месяц. Перейдите на Pro, чтобы ставить задачи на конкретное время и перетаскивать их по дню.",
-    "lockedHint": "Pro"
+    "lockedHint": "Pro",
+    "allDayMore": "+ещё {{count}}",
+    "allDayMore_few": "+ещё {{count}}",
+    "allDayMore_other": "+ещё {{count}}",
+    "allDayCollapse": "Показать меньше задач на весь день",
+    "allDayMore_one": "+ещё {{count}}",
+    "allDayMore_many": "+ещё {{count}}"
   }
 }

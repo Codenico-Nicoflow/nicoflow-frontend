@@ -170,3 +170,25 @@ export const LockedTeaserMobile: Story = {
     ]),
   },
 };
+
+/**
+ * Untimed tasks have a date but no hour, so they sit in the all-day rail above
+ * the grid. Completed work stays visible but recedes, and the rail is capped so
+ * one heavy day can't push the hour grid below the fold.
+ */
+export const AllDayRailWithCompleted: Story = {
+  parameters: range([
+    mockTask({ id: 'ad1', title: 'Read the RFC', scheduledFor: DAY, scheduledTime: null }),
+    mockTask({ id: 'ad2', title: 'Shipped the release', scheduledFor: DAY, scheduledTime: null, status: 'done' }),
+    mockTask({ id: 'ad3', title: 'Standup', scheduledFor: DAY, scheduledTime: '09:00', estimatedMinutes: 30 }),
+  ]),
+};
+
+/** Past the cap the rail collapses behind "+N more" instead of growing. */
+export const AllDayRailOverflow: Story = {
+  parameters: range(
+    Array.from({ length: 5 }, (_, index) =>
+      mockTask({ id: `ov${index}`, title: `Untimed task ${index + 1}`, scheduledFor: DAY, scheduledTime: null })
+    )
+  ),
+};

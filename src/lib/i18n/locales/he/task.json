@@ -237,6 +237,9 @@
     "monthEmptyDescription": "משימות שתתזמן לחודש זה יופיעו כאן.",
     "chipTimedLabel": "{{title}} בשעה {{time}}",
     "chipUntimedLabel": "{{title}}, כל היום",
-    "timedSchedulingLocked": "תזמון לפי שעה הוא תכונת Pro. שדרגו כדי לגרור משימות לשעה מסוימת."
+    "timedSchedulingLocked": "תזמון לפי שעה הוא תכונת Pro. שדרגו כדי לגרור משימות לשעה מסוימת.",
+    "teaserTitle": "תזמון לפי שעה הוא תכונת Pro",
+    "teaserDescription": "זהו החודש האמיתי שלך. שדרגו כדי לקבוע משימות לשעה מסוימת ולגרור אותן לאורך היום.",
+    "lockedHint": "Pro"
   }
 }

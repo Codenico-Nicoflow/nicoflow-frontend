@@ -1,11 +1,11 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { makeTask } from '@/mocks/handlers';
+import { makeTask, makeUser } from '@/mocks/handlers';
 
 import CalendarView from './index';
 
@@ -14,6 +14,14 @@ vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 const API = 'http://localhost:8080/v1';
 const env = <T,>(data: T) => ({ data, error: null });
 const NOW = new Date(2026, 7, 5, 10, 30); // Wed 2026-08-05
+
+// Timed scheduling is Pro; a free user gets the locked teaser rather than these
+// shapes, so every case here signs in as Pro.
+const renderCalendar = (initialRoute: string) =>
+  renderComponent(<CalendarView now={NOW} />, {
+    initialRoute,
+    store: createMockStore({ auth: { user: makeUser({ status: 'premium' }), token: 't', isLoading: false } }),
+  });
 
 /**
  * useIsMobile reads window.innerWidth and subscribes to matchMedia, so a
@@ -49,7 +57,7 @@ describe('CalendarView — mobile shapes', () => {
   it('renders the week as an agenda below the breakpoint, with no hour grid', async () => {
     setViewport(PHONE);
     rangeReturns([makeTask({ id: 't1', title: 'Standup', scheduledFor: '2026-08-05', scheduledTime: '09:00' })]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=week&date=2026-08-05' });
+    renderCalendar('/calendar?view=week&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-agenda')).toBeInTheDocument());
     expect(screen.queryByTestId('calendar-grid')).not.toBeInTheDocument();
@@ -59,7 +67,7 @@ describe('CalendarView — mobile shapes', () => {
   it('keeps the week as an hour grid above the breakpoint', async () => {
     setViewport(DESKTOP);
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=week&date=2026-08-05' });
+    renderCalendar('/calendar?view=week&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-grid')).toBeInTheDocument());
     expect(screen.queryByTestId('calendar-agenda')).not.toBeInTheDocument();
@@ -68,7 +76,7 @@ describe('CalendarView — mobile shapes', () => {
   it('shows exactly one day column in the mobile hour grid', async () => {
     setViewport(PHONE);
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=day&date=2026-08-05' });
+    renderCalendar('/calendar?view=day&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-day-2026-08-05')).toBeInTheDocument());
     expect(screen.queryByTestId('calendar-day-2026-08-06')).not.toBeInTheDocument();
@@ -79,7 +87,7 @@ describe('CalendarView — mobile shapes', () => {
     // breakpoint must win over the orientation.
     setViewport(LANDSCAPE_PHONE);
     rangeReturns([makeTask({ id: 't1', scheduledFor: '2026-08-05', scheduledTime: '09:00' })]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=week&date=2026-08-05' });
+    renderCalendar('/calendar?view=week&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-agenda')).toBeInTheDocument());
     expect(screen.queryByTestId('calendar-grid')).not.toBeInTheDocument();
@@ -88,7 +96,7 @@ describe('CalendarView — mobile shapes', () => {
   it('collapses empty days out of the agenda', async () => {
     setViewport(PHONE);
     rangeReturns([makeTask({ id: 't1', scheduledFor: '2026-08-05', scheduledTime: '09:00' })]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=week&date=2026-08-05' });
+    renderCalendar('/calendar?view=week&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-agenda-day-2026-08-05')).toBeInTheDocument());
     expect(screen.queryByTestId('calendar-agenda-day-2026-08-06')).not.toBeInTheDocument();
@@ -97,7 +105,7 @@ describe('CalendarView — mobile shapes', () => {
   it('labels an untimed agenda row as all-day rather than leaving a blank gutter', async () => {
     setViewport(PHONE);
     rangeReturns([makeTask({ id: 't1', title: 'Read the RFC', scheduledFor: '2026-08-05', scheduledTime: null })]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=week&date=2026-08-05' });
+    renderCalendar('/calendar?view=week&date=2026-08-05');
 
     const row = await screen.findByTestId('calendar-agenda-task-t1');
     expect(row).toHaveTextContent('All day');
@@ -111,7 +119,7 @@ describe('CalendarView — month density', () => {
       makeTask({ id: 'a', scheduledFor: '2026-08-05', scheduledTime: '09:00' }),
       makeTask({ id: 'b', scheduledFor: '2026-08-05', scheduledTime: '10:00' }),
     ]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=month&date=2026-08-05' });
+    renderCalendar('/calendar?view=month&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-month')).toBeInTheDocument());
     expect(screen.getByTestId('calendar-month-density-2026-08-05')).toBeInTheDocument();
@@ -123,7 +131,7 @@ describe('CalendarView — month density', () => {
     const user = userEvent.setup();
     setViewport(PHONE);
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=month&date=2026-08-05' });
+    renderCalendar('/calendar?view=month&date=2026-08-05');
 
     await user.click(await screen.findByTestId('calendar-month-cell-2026-08-12'));
 
@@ -134,7 +142,7 @@ describe('CalendarView — month density', () => {
   it('pads the month to whole weeks so the grid stays rectangular', async () => {
     setViewport(PHONE);
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=month&date=2026-08-05' });
+    renderCalendar('/calendar?view=month&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-month')).toBeInTheDocument());
     // August 2026 starts on a Saturday, so the grid opens in late July.
@@ -149,7 +157,7 @@ describe('CalendarView — per-view skeletons', () => {
   it('uses the month skeleton for the month view', async () => {
     setViewport(PHONE);
     pending();
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=month&date=2026-08-05' });
+    renderCalendar('/calendar?view=month&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-skeleton-month')).toBeInTheDocument());
   });
@@ -157,7 +165,7 @@ describe('CalendarView — per-view skeletons', () => {
   it('uses the agenda skeleton for the mobile week view', async () => {
     setViewport(PHONE);
     pending();
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=week&date=2026-08-05' });
+    renderCalendar('/calendar?view=week&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-skeleton-agenda')).toBeInTheDocument());
   });
@@ -165,7 +173,7 @@ describe('CalendarView — per-view skeletons', () => {
   it('uses the grid skeleton for the desktop week view', async () => {
     setViewport(DESKTOP);
     pending();
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=week&date=2026-08-05' });
+    renderCalendar('/calendar?view=week&date=2026-08-05');
 
     await waitFor(() => expect(screen.getByTestId('calendar-skeleton-grid')).toBeInTheDocument());
   });
@@ -175,7 +183,7 @@ describe('CalendarView — layout safety', () => {
   it('confines horizontal scrolling to the grid, never the page body', async () => {
     setViewport(PHONE);
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=day&date=2026-08-05' });
+    renderCalendar('/calendar?view=day&date=2026-08-05');
 
     const grid = await screen.findByTestId('calendar-grid');
     // The scroll container is the grid itself; below md its inner min-width is

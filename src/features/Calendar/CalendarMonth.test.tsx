@@ -37,12 +37,17 @@ const setViewport = (width: number) => {
 const rangeReturns = (tasks: ReturnType<typeof makeTask>[]) =>
   server.use(http.get(`${API}/tasks`, () => HttpResponse.json(env({ items: tasks }))));
 
-const storeInZone = (timezone: string) => createMockStore({ auth: { user: { ...mockUser, timezone } } });
+// Timed scheduling is Pro; a free user sees the locked teaser instead of the
+// month grid, so these cases sign in as Pro.
+const proStore = (timezone?: string) =>
+  createMockStore({
+    auth: { user: { ...mockUser, status: 'premium', ...(timezone ? { timezone } : {}) }, token: 't', isLoading: false },
+  });
 
 const renderMonth = (options?: { timezone?: string }) =>
   renderComponent(<CalendarView now={NOW} />, {
     initialRoute: MONTH_ROUTE,
-    ...(options?.timezone ? { store: storeInZone(options.timezone) } : {}),
+    store: proStore(options?.timezone),
   });
 
 const DESKTOP = 1280;

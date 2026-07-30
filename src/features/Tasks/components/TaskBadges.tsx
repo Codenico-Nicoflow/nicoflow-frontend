@@ -1,4 +1,4 @@
-import { Clock, ExternalLink, Repeat } from 'lucide-react';
+import { AlarmClock, Clock, ExternalLink, Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { formatDuration } from '@/components/EstimatedTimeField/presets';
@@ -56,6 +56,16 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
             t('common:fields.estChips.minSuffix'),
             t('common:fields.estChips.hourSuffix')
           )}
+        </Badge>
+      )}
+
+      {/* Time of day, read-only. Shown on ANY plan: a downgraded user keeps the
+          times they set as Pro — stripping them would delete real user data —
+          so the label stays and only the ability to change it is gated. */}
+      {task.scheduledTime && (
+        <Badge variant="outline" className="text-xs font-medium" data-testid={`task-time-${task.id}`}>
+          <AlarmClock className="h-3 w-3 me-1.5" aria-hidden />
+          {task.scheduledTime}
         </Badge>
       )}
 

@@ -1,3 +1,4 @@
+import { Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -11,6 +12,8 @@ type RailItemProps = {
   active: boolean;
   expanded: boolean;
   badge?: number;
+  /** Pro-gated for this user: shows a lock, still navigates (the page teases). */
+  locked?: boolean;
   /** Renders the active state as a muted marker instead of a fill. Used for
    *  Areas when expanded: the tree below already shows the exact project, so a
    *  second full-strength highlight competes with it. */
@@ -29,9 +32,13 @@ const Badge = ({ id, count, className }: { id: string; count: number; className?
   </span>
 );
 
-export const RailItem = ({ dest, active, expanded, badge, mutedActive }: RailItemProps) => {
+export const RailItem = ({ dest, active, expanded, badge, mutedActive, locked }: RailItemProps) => {
   const { t, i18n } = useTranslation('nav');
+  const { t: tTask } = useTranslation('task');
   const label = t(dest.labelKey);
+  // The lock is part of the destination's meaning, so it belongs in the
+  // accessible name — a sighted user sees the icon, everyone else hears it.
+  const lockedLabel = locked ? `${label} (${tTask('calendar.lockedHint')})` : label;
   // The rail hugs the inline-start edge, so its tooltip opens toward the content
   // (the inline-end side) — which is 'left' in RTL and 'right' in LTR.
   const side = i18n.dir() === 'rtl' ? 'left' : 'right';
@@ -40,7 +47,7 @@ export const RailItem = ({ dest, active, expanded, badge, mutedActive }: RailIte
   const link = (
     <Link
       to={dest.to}
-      aria-label={expanded ? undefined : label}
+      aria-label={expanded && !locked ? undefined : lockedLabel}
       aria-current={active ? 'page' : undefined}
       data-testid={`rail-${dest.id}`}
       className={cn(
@@ -55,6 +62,13 @@ export const RailItem = ({ dest, active, expanded, badge, mutedActive }: RailIte
     >
       <dest.icon className="h-5 w-5 shrink-0" />
       {expanded && <span className="flex-1 truncate text-sm">{label}</span>}
+      {locked && (
+        <Lock
+          className={cn('h-3 w-3 shrink-0 text-muted-foreground', !expanded && 'absolute -bottom-0.5 -end-0.5')}
+          aria-hidden
+          data-testid={`rail-${dest.id}-lock`}
+        />
+      )}
       {showBadge && <Badge id={dest.id} count={badge} className={cn(!expanded && 'absolute -top-0.5 -end-0.5')} />}
     </Link>
   );
@@ -66,7 +80,7 @@ export const RailItem = ({ dest, active, expanded, badge, mutedActive }: RailIte
   return (
     <Tooltip>
       <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side={side}>{label}</TooltipContent>
+      <TooltipContent side={side}>{lockedLabel}</TooltipContent>
     </Tooltip>
   );
 };

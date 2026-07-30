@@ -236,6 +236,9 @@
     "monthEmptyDescription": "Tasks you schedule this month will show up here.",
     "chipTimedLabel": "{{title}} at {{time}}",
     "chipUntimedLabel": "{{title}}, all day",
-    "timedSchedulingLocked": "Timed scheduling is a Pro feature. Upgrade to drag tasks to a specific time."
+    "timedSchedulingLocked": "Timed scheduling is a Pro feature. Upgrade to drag tasks to a specific time.",
+    "teaserTitle": "Timed scheduling is a Pro feature",
+    "teaserDescription": "This is your real month. Upgrade to place tasks at a specific time and drag them around your day.",
+    "lockedHint": "Pro"
   }
 }

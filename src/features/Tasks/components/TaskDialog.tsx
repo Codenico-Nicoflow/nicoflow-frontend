@@ -56,7 +56,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
   const [createRule, { isLoading: isRuleLoading }] = useCreateRecurrenceRuleMutation();
 
-  const [planLimitHit, setPlanLimitHit] = useState(false);
+  // Which limit the server refused. A timed-scheduling 403 gets copy naming the
+  // time, because the generic "plan limit" reads as "too many tasks" and sends
+  // the user hunting for the wrong thing to delete.
+  const [planLimitHit, setPlanLimitHit] = useState<'generic' | 'timedScheduling' | null>(null);
   // null = an ordinary task. Non-null turns the create into a rule create, which
   // materializes instance #1 server-side. Editing a rule happens in Settings, so
   // this is create-only — an existing task's series is not re-editable here.
@@ -90,7 +93,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   }, [hasScheduledDate, form]);
 
   useEffect(() => {
-    setPlanLimitHit(false);
+    setPlanLimitHit(null);
     setRecurrence(null);
     if (task) {
       form.reset({
@@ -142,7 +145,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       return;
     }
 
-    setPlanLimitHit(false);
+    setPlanLimitHit(null);
 
     try {
       if (isEditMode) {
@@ -191,7 +194,9 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     } catch (error) {
       // A plan-limit 403 becomes an inline upgrade CTA, not a generic error toast.
       if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
-        setPlanLimitHit(true);
+        // Only a submitted time can have tripped the timed-scheduling gate; any
+        // other 403 on this form is a task/project count.
+        setPlanLimitHit(data.scheduledTime ? 'timedScheduling' : 'generic');
         return;
       }
       showErrorToast(error, toast);
@@ -213,7 +218,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     >
       <Form {...form}>
         <div className="space-y-4">
-          {planLimitHit && <PlanLimitAlert />}
+          {planLimitHit && (
+            <PlanLimitAlert
+              message={planLimitHit === 'timedScheduling' ? t('calendar.timedSchedulingLocked') : undefined}
+            />
+          )}
 
           <NameField
             control={form.control}

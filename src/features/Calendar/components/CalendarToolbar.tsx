@@ -14,9 +14,13 @@ interface CalendarToolbarProps {
   onViewChange: (view: CalendarView) => void;
   onShift: (direction: 1 | -1) => void;
   onToday: () => void;
+  /** Locked users get one shape (the teaser month), so the switcher is dropped
+   *  rather than disabled — three dead buttons explain nothing. Month stepping
+   *  stays: browsing your own locked data is the point of the teaser. */
+  hideViewSwitcher?: boolean;
 }
 
-const CalendarToolbar = ({ view, anchor, onViewChange, onShift, onToday }: CalendarToolbarProps) => {
+const CalendarToolbar = ({ view, anchor, onViewChange, onShift, onToday, hideViewSwitcher }: CalendarToolbarProps) => {
   const { t, i18n } = useTranslation('task');
   const locale = getDateLocale(i18n.language);
 
@@ -50,21 +54,23 @@ const CalendarToolbar = ({ view, anchor, onViewChange, onShift, onToday }: Calen
         </span>
       </div>
 
-      <div className="flex items-center gap-1" role="group" aria-label={t('calendar.viewSwitcher')}>
-        {CALENDAR_VIEWS.map(option => (
-          <Button
-            key={option}
-            variant={view === option ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => onViewChange(option)}
-            aria-pressed={view === option}
-            className={cn('capitalize')}
-            data-testid={`calendar-view-${option}`}
-          >
-            {t(`calendar.views.${option}`)}
-          </Button>
-        ))}
-      </div>
+      {!hideViewSwitcher && (
+        <div className="flex items-center gap-1" role="group" aria-label={t('calendar.viewSwitcher')}>
+          {CALENDAR_VIEWS.map(option => (
+            <Button
+              key={option}
+              variant={view === option ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onViewChange(option)}
+              aria-pressed={view === option}
+              className={cn('capitalize')}
+              data-testid={`calendar-view-${option}`}
+            >
+              {t(`calendar.views.${option}`)}
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

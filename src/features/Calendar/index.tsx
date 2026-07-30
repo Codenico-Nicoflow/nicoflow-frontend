@@ -6,13 +6,14 @@ import { toast } from 'sonner';
 
 import { PlanLimitAlert } from '@/components';
 import { TaskDialog } from '@/features/Tasks';
-import { useIsMobile } from '@/hooks';
+import { useIsMobile, useIsPro } from '@/hooks';
 import { useAppUser, useGetCalendarTasksQuery, useScheduleTaskMutation, useUpdateTaskMutation } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import { getApiErrorCode, showErrorToast } from '@/lib/utils';
 
 import AgendaList from './components/AgendaList';
 import { AgendaSkeleton, GridSkeleton, MonthSkeleton } from './components/CalendarSkeletons';
+import CalendarTeaser from './components/CalendarTeaser';
 import CalendarToolbar from './components/CalendarToolbar';
 import HourGrid from './components/HourGrid';
 import MonthDensity from './components/MonthDensity';
@@ -44,6 +45,9 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   // is worse for an hour grid, not better.
   const isMobile = useIsMobile();
   const user = useAppUser();
+  // Timed scheduling is Pro. The gate is UI-only — the backend refuses the write
+  // regardless — so this decides what to *render*, never what is allowed.
+  const isLocked = !useIsPro();
 
   // URL is the single source of truth for view+date, so a refreshed or shared
   // link restores the exact same grid.
@@ -61,10 +65,14 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   const [scheduleTask] = useScheduleTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
 
-  const range = useMemo(() => rangeFor(view, anchor), [view, anchor]);
+  // Locked users always get the month window regardless of the view param: the
+  // teaser is a month, and honouring ?view=day would fetch a range its chrome
+  // never draws.
+  const effectiveView = isLocked ? 'month' : view;
+  const range = useMemo(() => rangeFor(effectiveView, anchor), [effectiveView, anchor]);
   const { data, isLoading } = useGetCalendarTasksQuery(range);
 
-  const days = useMemo(() => visibleDays(view, anchor), [view, anchor]);
+  const days = useMemo(() => visibleDays(effectiveView, anchor), [effectiveView, anchor]);
   // Below the breakpoint the hour grid is always a single column — week becomes
   // the agenda instead, so only `day` ever reaches the grid on mobile.
   const gridDays = isMobile ? days.slice(0, 1) : days;
@@ -123,9 +131,10 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   // Each view maps to the shape that survives the available width rather than
   // being squeezed into it: a 7-column grid at 375px is ~50px per day, too
   // narrow to read a title or hit a block.
-  const isAgenda = isMobile && view === 'week';
-  const isMonth = view === 'month';
+  const isAgenda = isMobile && effectiveView === 'week';
+  const isMonth = effectiveView === 'month';
 
+  // Locked always resolves to the month teaser, so its skeleton is the month one.
   const skeleton = isMonth ? (
     <MonthSkeleton />
   ) : isAgenda ? (
@@ -136,7 +145,9 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
 
   // Desktop has the width for real chips; a ~50px phone cell only ever fits
   // density dots, so the two month shapes stay separate components.
-  const content = isMonth ? (
+  const content = isLocked ? (
+    <CalendarTeaser days={days} anchor={anchor} tasksByDay={tasksByDay} todayKey={todayKey} isMobile={isMobile} />
+  ) : isMonth ? (
     isMobile ? (
       <MonthDensity
         days={days}
@@ -177,11 +188,12 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
         </div>
 
         <CalendarToolbar
-          view={view}
+          view={effectiveView}
           anchor={anchor}
           onViewChange={next => commit({ view: next })}
-          onShift={direction => commit({ date: shiftAnchor(view, anchor, direction) })}
+          onShift={direction => commit({ date: shiftAnchor(effectiveView, anchor, direction) })}
           onToday={() => commit({ date: now })}
+          hideViewSwitcher={isLocked}
         />
 
         {/* A free user's drag is refused by the server, so the upgrade path is

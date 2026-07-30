@@ -211,5 +211,21 @@
       "emptyTitle": "אין כלום ב-7 הימים הבאים.",
       "emptyDescription": "תזמנו כמה משימות והן יופיעו כאן לפי יום."
     }
+  },
+  "calendar": {
+    "title": "לוח שנה",
+    "subtitle": "העבודה המתוזמנת שלך, שעה אחר שעה.",
+    "today": "היום",
+    "previous": "התקופה הקודמת",
+    "next": "התקופה הבאה",
+    "viewSwitcher": "תצוגת לוח שנה",
+    "allDay": "כל היום",
+    "views": {
+      "day": "יום",
+      "week": "שבוע"
+    },
+    "minutesShort": "{{minutes}} דק׳",
+    "blockLabel": "{{title}} בשעה {{time}}, {{minutes}} דקות",
+    "blockUnestimatedLabel": "{{title}} בשעה {{time}}, ללא הערכה"
   }
 }

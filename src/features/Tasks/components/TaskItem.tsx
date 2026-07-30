@@ -8,6 +8,8 @@ import { useUpdateTaskStatusMutation } from '@/lib/store';
 import { type ITask, TaskStatus } from '@/lib/types';
 import { cn, showErrorToast } from '@/lib/utils';
 
+import { useConfirmComplete } from '../useConfirmComplete';
+
 import TaskBadges from './TaskBadges';
 
 interface TaskItemProps {
@@ -22,17 +24,20 @@ interface TaskItemProps {
 const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) => {
   const { t } = useTranslation('task');
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  const { guardComplete, confirmDialog } = useConfirmComplete();
   const isCompleted = task.status === TaskStatus.DONE;
 
   // The checkbox cycles inbox/active → done and back. The mutation is optimistic
   // (see taskApi) so the row flips instantly and rolls back if the request fails.
-  const handleToggle = async () => {
+  const handleToggle = () => {
     const next = isCompleted ? TaskStatus.ACTIVE : TaskStatus.DONE;
-    try {
-      await updateTaskStatus({ id: task.id, status: next }).unwrap();
-    } catch (error) {
-      showErrorToast(error, toast);
-    }
+    guardComplete(task, next, async () => {
+      try {
+        await updateTaskStatus({ id: task.id, status: next }).unwrap();
+      } catch (error) {
+        showErrorToast(error, toast);
+      }
+    });
   };
 
   const handleMoveToSomeday = async () => {
@@ -116,7 +121,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) 
               data-testid={`task-checkbox-${task.id}`}
               onClick={e => {
                 e.stopPropagation();
-                void handleToggle();
+                handleToggle();
               }}
               value={task.id}
               checked={isCompleted}
@@ -124,6 +129,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) 
           </div>
         </div>
       </ListItemCard>
+      {confirmDialog}
     </AnimatedListItem>
   );
 };

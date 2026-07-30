@@ -69,6 +69,9 @@ export const buildProcessBucketDto = ({
         title: taskData.title,
         notes: taskData.notes || undefined,
         priority: taskData.priority,
+        energy: taskData.energy,
+        rollsOver: taskData.rollsOver,
+        scheduledFor: taskData.scheduledFor || undefined,
         estimatedMinutes: taskData.estimatedMinutes || undefined,
         url: taskData.url || undefined,
       };

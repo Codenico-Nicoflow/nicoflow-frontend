@@ -62,7 +62,7 @@ describe('buildProcessBucketDto', () => {
     priority: 'high' as const,
     energy: 'medium' as const,
     rollsOver: true,
-    scheduledFor: null,
+    scheduledFor: '2026-08-01',
     estimatedMinutes: 30,
     url: 'https://x.dev',
   };
@@ -82,6 +82,9 @@ describe('buildProcessBucketDto', () => {
         title: 'Write the launch email',
         notes: 'body',
         priority: 'high',
+        energy: 'medium',
+        rollsOver: true,
+        scheduledFor: '2026-08-01',
         estimatedMinutes: 30,
         url: 'https://x.dev',
       },
@@ -93,12 +96,15 @@ describe('buildProcessBucketDto', () => {
       bucketId: 'b1',
       selectedType: ProcessingResult.TASK,
       selectedProjectId: 'p1',
-      taskData: { ...taskData, notes: '', url: '', estimatedMinutes: null },
+      taskData: { ...taskData, notes: '', url: '', scheduledFor: null, estimatedMinutes: null },
     });
     expect(dto.taskDetails).toEqual({
       title: 'Write the launch email',
       notes: undefined,
       priority: 'high',
+      energy: 'medium',
+      rollsOver: true,
+      scheduledFor: undefined,
       estimatedMinutes: undefined,
       url: undefined,
     });

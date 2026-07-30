@@ -3,6 +3,7 @@ import { Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
+import { useConfirmComplete } from '@/features/Tasks/useConfirmComplete';
 import { useDebouncedValue } from '@/hooks';
 import { useGetFocusQuery, useUpdateTaskStatusMutation } from '@/lib/store';
 import { TaskStatus } from '@/lib/types';
@@ -24,6 +25,7 @@ const FocusView = () => {
   const { t } = useTranslation('task');
   const { available, energy, setAvailable, setEnergy, clear, hasTimeBudget } = useFocusChips();
   const [updateTaskStatus, { isLoading: isCompleting }] = useUpdateTaskStatusMutation();
+  const { guardComplete, confirmDialog } = useConfirmComplete();
 
   const debouncedAvailable = useDebouncedValue(available, 300);
   const debouncedEnergy = useDebouncedValue(energy, 300);
@@ -38,16 +40,18 @@ const FocusView = () => {
   const session = useFocusSession(tasks);
   const timer = useFocusTimer(session.current);
 
-  const handleDone = async () => {
+  const handleDone = () => {
     const done = session.current;
     if (!done) return;
-    try {
-      await updateTaskStatus({ id: done.id, status: TaskStatus.DONE }).unwrap();
-      toast.success(t('focus.completed'));
-      session.advance();
-    } catch (error) {
-      showErrorToast(error, toast);
-    }
+    guardComplete(done, TaskStatus.DONE, async () => {
+      try {
+        await updateTaskStatus({ id: done.id, status: TaskStatus.DONE }).unwrap();
+        toast.success(t('focus.completed'));
+        session.advance();
+      } catch (error) {
+        showErrorToast(error, toast);
+      }
+    });
   };
 
   return (
@@ -83,7 +87,7 @@ const FocusView = () => {
             <FocusNowCard
               task={session.current}
               timer={timer}
-              onDone={() => void handleDone()}
+              onDone={handleDone}
               onCancel={session.cancel}
               isBusy={isCompleting}
             />
@@ -112,6 +116,7 @@ const FocusView = () => {
           <FocusEmptyState onClearChips={clear} />
         )}
       </motion.div>
+      {confirmDialog}
     </div>
   );
 };

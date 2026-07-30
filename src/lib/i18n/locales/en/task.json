@@ -24,6 +24,12 @@
     "addPlaceholder": "Add a subtask...",
     "delete": "Delete subtask"
   },
+  "completeConfirm": {
+    "title": "Complete this task?",
+    "description_one": "This task still has {{count}} unfinished subtask. Completing it leaves the subtask open.",
+    "description_other": "This task still has {{count}} unfinished subtasks. Completing it leaves them open.",
+    "confirm": "Complete anyway"
+  },
   "attachments": {
     "title": "Attachments",
     "empty": "No attachments yet.",

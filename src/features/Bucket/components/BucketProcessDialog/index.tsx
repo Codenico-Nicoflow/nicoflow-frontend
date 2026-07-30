@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, CheckSquare } from 'lucide-react';
+import { AlertCircle, CheckSquare, Repeat } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
 import {
+  CheckboxField,
   DescriptionField,
   DialogFieldGrid,
   EnergyField,
@@ -14,6 +15,7 @@ import {
   FormDialog,
   NameField,
   PriorityField,
+  ScheduledForField,
   UrlField,
 } from '@/components';
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
@@ -152,7 +154,25 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
                   <EnergyField control={form.control} delay={0.22} />
                 </DialogFieldGrid>
 
-                <EstimatedTimeField control={form.control} optional delay={0.25} />
+                {/* Mirrors TaskDialog's scheduling block minus scheduledTime, which
+                    is Pro-gated and not part of the process contract. */}
+                <div
+                  className="space-y-3 rounded-lg border border-border/60 p-3"
+                  data-testid="process-scheduling-block"
+                >
+                  <p className="text-sm font-semibold text-foreground">{t('task:dialog.schedulingTitle')}</p>
+                  <ScheduledForField control={form.control} delay={0.24} />
+                  <CheckboxField
+                    control={form.control}
+                    fieldName="rollsOver"
+                    icon={Repeat}
+                    label={t('task:dialog.rollsOverLabel')}
+                    description={t('task:dialog.rollsOverDescription')}
+                    delay={0.25}
+                  />
+                </div>
+
+                <EstimatedTimeField control={form.control} optional delay={0.3} />
 
                 <UrlField control={form.control} delay={0.35} optional />
               </div>

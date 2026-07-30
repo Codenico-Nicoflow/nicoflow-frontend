@@ -28,5 +28,14 @@ export const MAX_DENSITY_DOTS = 3;
 /** Padded month grid is always whole weeks, so rows stay rectangular. */
 export const MONTH_GRID_DAYS = 42;
 
+export const DAYS_PER_WEEK = 7;
+
+/**
+ * Chips a desktop month cell shows before collapsing the rest into "+N more".
+ * Four would push a 6-week grid past a laptop viewport and turn the month into
+ * a scroll, which defeats the at-a-glance read it exists for.
+ */
+export const MAX_MONTH_CHIPS = 3;
+
 /** Server caps a range request at 62 days; every view here is far inside that. */
 export const MAX_RANGE_DAYS = 62;

@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { TaskDialog } from '@/features/Tasks';
 import { useIsMobile } from '@/hooks';
-import { useGetCalendarTasksQuery } from '@/lib/store';
+import { useAppUser, useGetCalendarTasksQuery } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 
 import AgendaList from './components/AgendaList';
@@ -13,8 +13,18 @@ import { AgendaSkeleton, GridSkeleton, MonthSkeleton } from './components/Calend
 import CalendarToolbar from './components/CalendarToolbar';
 import HourGrid from './components/HourGrid';
 import MonthDensity from './components/MonthDensity';
+import MonthGrid from './components/MonthGrid';
 import type { CalendarView } from './data';
-import { groupByDayKey, parseDayParam, parseViewParam, rangeFor, shiftAnchor, toDayKey, visibleDays } from './utils';
+import {
+  groupByDayKey,
+  parseDayParam,
+  parseViewParam,
+  rangeFor,
+  shiftAnchor,
+  toDayKey,
+  todayKeyIn,
+  visibleDays,
+} from './utils';
 
 interface CalendarViewProps {
   /** Injected clock — keeps the now-line deterministic in tests and stories. */
@@ -28,11 +38,16 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   // orientation-based: a landscape phone is ~650px wide and ~350px tall, which
   // is worse for an hour grid, not better.
   const isMobile = useIsMobile();
+  const user = useAppUser();
 
   // URL is the single source of truth for view+date, so a refreshed or shared
   // link restores the exact same grid.
   const view = parseViewParam(searchParams.get('view'));
   const anchor = parseDayParam(searchParams.get('date'), now);
+
+  // Every scheduledFor and every server sweep is keyed to the account zone, so
+  // "today" has to be too — a traveller must still see their account's day.
+  const todayKey = todayKeyIn(user?.timezone, now);
 
   const [editTask, setEditTask] = useState<ITask | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -78,13 +93,27 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
     <GridSkeleton columns={gridDays.length} />
   );
 
+  // Desktop has the width for real chips; a ~50px phone cell only ever fits
+  // density dots, so the two month shapes stay separate components.
   const content = isMonth ? (
-    <MonthDensity
-      days={days}
-      anchor={anchor}
-      tasksByDay={tasksByDay}
-      onDrillDown={day => commit({ view: 'day', date: day })}
-    />
+    isMobile ? (
+      <MonthDensity
+        days={days}
+        anchor={anchor}
+        tasksByDay={tasksByDay}
+        todayKey={todayKey}
+        onDrillDown={day => commit({ view: 'day', date: day })}
+      />
+    ) : (
+      <MonthGrid
+        days={days}
+        anchor={anchor}
+        tasksByDay={tasksByDay}
+        todayKey={todayKey}
+        onDrillDown={day => commit({ view: 'day', date: day })}
+        onSelect={handleSelect}
+      />
+    )
   ) : isAgenda ? (
     <AgendaList days={days} tasksByDay={tasksByDay} onSelect={handleSelect} />
   ) : (

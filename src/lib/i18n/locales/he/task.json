@@ -230,6 +230,12 @@
     "blockUnestimatedLabel": "{{title}} בשעה {{time}}, ללא הערכה",
     "emptyTitle": "אין דבר מתוזמן",
     "emptyDescription": "משימות שתתזמן לשבוע זה יופיעו כאן.",
-    "monthCellLabel": "{{date}}, {{count}} משימות"
+    "monthCellLabel": "{{date}}, {{count}} משימות",
+    "moreCount_one": "עוד {{count}}",
+    "moreCount_two": "עוד {{count}}",
+    "moreCount_other": "עוד {{count}}",
+    "monthEmptyDescription": "משימות שתתזמן לחודש זה יופיעו כאן.",
+    "chipTimedLabel": "{{title}} בשעה {{time}}",
+    "chipUntimedLabel": "{{title}}, כל היום"
   }
 }

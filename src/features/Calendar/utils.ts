@@ -2,12 +2,37 @@ import { addDays, addMonths, endOfWeek, format, parseISO, startOfMonth, startOfW
 
 import type { ITask } from '@/lib/types';
 
-import { CALENDAR_VIEWS, type CalendarView, DEFAULT_VIEW, MONTH_GRID_DAYS } from './data';
+import { CALENDAR_VIEWS, type CalendarView, DAYS_PER_WEEK, DEFAULT_VIEW, MONTH_GRID_DAYS } from './data';
 
 /** The wire/URL date format, shared with `scheduledFor`. */
 export const DAY_KEY = 'yyyy-MM-dd';
 
 export const toDayKey = (date: Date): string => format(date, DAY_KEY);
+
+/**
+ * Today's day key in the account's timezone, which is the zone every
+ * `scheduledFor` and every server-side sweep is keyed to. A traveller in UTC+13
+ * looking at a UTC-5 account must see the account's day highlighted, not the
+ * one their laptop happens to be in.
+ *
+ * `en-CA` is the locale that formats as `YYYY-MM-DD`, so no reassembly is
+ * needed. An unknown zone throws inside Intl; falling back to browser-local is
+ * strictly better than crashing the grid.
+ */
+export const todayKeyIn = (timezone: string | undefined, now: Date): string => {
+  if (!timezone) return toDayKey(now);
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(now);
+  } catch {
+    return toDayKey(now);
+  }
+};
+
+/** Split the padded month grid into its 6 rendered weeks. */
+export const monthGridWeeks = (days: Date[]): Date[][] =>
+  Array.from({ length: Math.ceil(days.length / DAYS_PER_WEEK) }, (_, week) =>
+    days.slice(week * DAYS_PER_WEEK, week * DAYS_PER_WEEK + DAYS_PER_WEEK)
+  );
 
 /**
  * Parse a `?date=` param. Falls back to `fallback` for anything unparseable so

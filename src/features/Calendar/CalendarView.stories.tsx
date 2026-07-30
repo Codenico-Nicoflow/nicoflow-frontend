@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { http, HttpResponse } from 'msw';
+import { reactRouterParameters } from 'storybook-addon-remix-react-router';
 
 import { mockTask } from '@/stories/mocks';
 
@@ -56,4 +57,38 @@ export const WithAllDay: Story = {
     mockTask({ id: 'f', title: 'Read the RFC', scheduledFor: DAY, scheduledTime: null }),
     mockTask({ id: 'g', title: 'Standup', scheduledFor: DAY, scheduledTime: '09:00', estimatedMinutes: 30 }),
   ]),
+};
+
+/**
+ * Below 768px the week becomes a vertical agenda — a 7-column grid at phone
+ * width is ~50px per day, too narrow to read a title or hit a block.
+ */
+export const MobileAgenda: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    reactRouter: reactRouterParameters({
+      location: { path: '/calendar', searchParams: { view: 'week', date: DAY } },
+      routing: { path: '/calendar' },
+    }),
+    ...range([
+      mockTask({ id: 'h', title: 'Standup', scheduledFor: DAY, scheduledTime: '09:00', estimatedMinutes: 30 }),
+      mockTask({ id: 'i', title: 'Read the RFC', scheduledFor: DAY, scheduledTime: null }),
+    ]),
+  },
+};
+
+/** Month answers "which days are heavy?"; tapping a cell drills into the day. */
+export const MonthDensityGrid: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    reactRouter: reactRouterParameters({
+      location: { path: '/calendar', searchParams: { view: 'month', date: DAY } },
+      routing: { path: '/calendar' },
+    }),
+    ...range([
+      mockTask({ id: 'j', scheduledFor: DAY, scheduledTime: '09:00' }),
+      mockTask({ id: 'k', scheduledFor: DAY, scheduledTime: '11:00' }),
+      mockTask({ id: 'l', scheduledFor: '2026-08-12', scheduledTime: '14:00' }),
+    ]),
+  },
 };

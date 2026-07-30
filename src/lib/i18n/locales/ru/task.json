@@ -222,10 +222,14 @@
     "allDay": "Весь день",
     "views": {
       "day": "День",
-      "week": "Неделя"
+      "week": "Неделя",
+      "month": "Месяц"
     },
     "minutesShort": "{{minutes}} мин",
     "blockLabel": "{{title}} в {{time}}, {{minutes}} минут",
-    "blockUnestimatedLabel": "{{title}} в {{time}}, без оценки"
+    "blockUnestimatedLabel": "{{title}} в {{time}}, без оценки",
+    "emptyTitle": "Ничего не запланировано",
+    "emptyDescription": "Задачи, запланированные на эту неделю, появятся здесь.",
+    "monthCellLabel": "{{date}}, задач: {{count}}"
   }
 }

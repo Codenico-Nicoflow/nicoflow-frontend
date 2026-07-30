@@ -14,11 +14,19 @@ export const MINUTES_PER_DAY = 24 * 60;
 
 export const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 
-/** Views the route can render. Month arrives with NIC-1803. */
-export const CALENDAR_VIEWS = ['day', 'week'] as const;
+export const CALENDAR_VIEWS = ['day', 'week', 'month'] as const;
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];
 
 export const DEFAULT_VIEW: CalendarView = 'week';
+
+/**
+ * Dots shown in a mobile month cell before it degrades to a "+". A ~50px cell
+ * cannot hold more without wrapping, and the count already carries the number.
+ */
+export const MAX_DENSITY_DOTS = 3;
+
+/** Padded month grid is always whole weeks, so rows stay rectangular. */
+export const MONTH_GRID_DAYS = 42;
 
 /** Server caps a range request at 62 days; every view here is far inside that. */
 export const MAX_RANGE_DAYS = 62;

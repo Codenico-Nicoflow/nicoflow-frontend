@@ -1,8 +1,8 @@
-import { addDays, endOfWeek, format, parseISO, startOfWeek } from 'date-fns';
+import { addDays, addMonths, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from 'date-fns';
 
 import type { ITask } from '@/lib/types';
 
-import { CALENDAR_VIEWS, type CalendarView, DEFAULT_VIEW } from './data';
+import { CALENDAR_VIEWS, type CalendarView, DEFAULT_VIEW, MONTH_GRID_DAYS } from './data';
 
 /** The wire/URL date format, shared with `scheduledFor`. */
 export const DAY_KEY = 'yyyy-MM-dd';
@@ -28,6 +28,12 @@ export const parseViewParam = (value: string | null): CalendarView =>
  */
 export const visibleDays = (view: CalendarView, anchor: Date): Date[] => {
   if (view === 'day') return [anchor];
+  if (view === 'month') {
+    // Pad to whole weeks so the grid is always rectangular — a ragged first row
+    // would misalign every weekday column beneath it.
+    const start = startOfWeek(startOfMonth(anchor), { weekStartsOn: 1 });
+    return Array.from({ length: MONTH_GRID_DAYS }, (_, offset) => addDays(start, offset));
+  }
   const start = startOfWeek(anchor, { weekStartsOn: 1 });
   return Array.from({ length: 7 }, (_, offset) => addDays(start, offset));
 };
@@ -38,6 +44,12 @@ export const rangeFor = (view: CalendarView, anchor: Date): { scheduledFrom: str
     const key = toDayKey(anchor);
     return { scheduledFrom: key, scheduledTo: key };
   }
+  if (view === 'month') {
+    // The padded grid is 42 days — comfortably inside the server's 62-day cap,
+    // so a month is always exactly one request.
+    const days = visibleDays('month', anchor);
+    return { scheduledFrom: toDayKey(days[0]!), scheduledTo: toDayKey(days[days.length - 1]!) };
+  }
   return {
     scheduledFrom: toDayKey(startOfWeek(anchor, { weekStartsOn: 1 })),
     scheduledTo: toDayKey(endOfWeek(anchor, { weekStartsOn: 1 })),
@@ -45,8 +57,10 @@ export const rangeFor = (view: CalendarView, anchor: Date): { scheduledFrom: str
 };
 
 /** Step one view-length forward (+1) or back (-1). */
-export const shiftAnchor = (view: CalendarView, anchor: Date, direction: 1 | -1): Date =>
-  addDays(anchor, direction * (view === 'day' ? 1 : 7));
+export const shiftAnchor = (view: CalendarView, anchor: Date, direction: 1 | -1): Date => {
+  if (view === 'month') return addMonths(anchor, direction);
+  return addDays(anchor, direction * (view === 'day' ? 1 : 7));
+};
 
 /**
  * Bucket a flat range response by day key. The API already returns the window

@@ -1,4 +1,5 @@
 import type { ITask } from '@/lib/types';
+import { TaskStatus } from '@/lib/types';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX, MINUTES_PER_DAY } from './data';
 
@@ -118,8 +119,20 @@ export const layoutDay = (tasks: ITask[]): BlockLayout[] => {
   return out;
 };
 
-/** Tasks with no usable time — rendered in the all-day rail above the grid. */
-export const allDayTasks = (tasks: ITask[]): ITask[] => tasks.filter(task => parseMinutes(task.scheduledTime) === null);
+/**
+ * Tasks with no usable time — rendered in the all-day rail above the grid.
+ *
+ * Open work sorts ahead of completed work: the rail is capped, and a day whose
+ * finished tasks pushed the open ones out of view would hide exactly what the
+ * user still has to do.
+ */
+export const allDayTasks = (tasks: ITask[]): ITask[] =>
+  tasks
+    .filter(task => parseMinutes(task.scheduledTime) === null)
+    .sort((a, b) => {
+      const byDone = Number(a.status === TaskStatus.DONE) - Number(b.status === TaskStatus.DONE);
+      return byDone !== 0 ? byDone : a.displayOrder - b.displayOrder;
+    });
 
 /**
  * Offset of the now-line. Returns null when `now` is not inside the rendered

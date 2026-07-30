@@ -6,10 +6,11 @@ import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { HOUR_HEIGHT_PX, HOURS } from '../data';
-import { allDayTasks, layoutDay, nowOffset } from '../geometry';
+import { layoutDay, nowOffset } from '../geometry';
 import type { BlockDragCommit } from '../useBlockDrag';
 import { toDayKey } from '../utils';
 
+import AllDayRail from './AllDayRail';
 import TaskBlock from './TaskBlock';
 
 interface HourGridProps {
@@ -23,10 +24,8 @@ interface HourGridProps {
 }
 
 const HourGrid = ({ days, tasksByDay, now, onSelect, onDragCommit }: HourGridProps) => {
-  const { t, i18n } = useTranslation('task');
+  const { i18n } = useTranslation('task');
   const locale = getDateLocale(i18n.language);
-
-  const hasAllDay = days.some(day => allDayTasks(tasksByDay.get(toDayKey(day)) ?? []).length > 0);
 
   return (
     // The grid scrolls inside its own box, never the page body: a horizontally
@@ -53,32 +52,9 @@ const HourGrid = ({ days, tasksByDay, now, onSelect, onDragCommit }: HourGridPro
           ))}
         </div>
 
-        {/* All-day rail — untimed tasks never enter the hour grid */}
-        {hasAllDay && (
-          <div className="flex border-b border-border/60 bg-muted/20" data-testid="calendar-all-day">
-            <div className="flex w-14 shrink-0 items-center justify-end pe-2 text-[11px] text-muted-foreground">
-              {t('calendar.allDay')}
-            </div>
-            {days.map(day => {
-              const key = toDayKey(day);
-              return (
-                <div key={key} className="flex-1 space-y-1 p-1" data-testid={`calendar-all-day-${key}`}>
-                  {allDayTasks(tasksByDay.get(key) ?? []).map(task => (
-                    <button
-                      key={task.id}
-                      type="button"
-                      onClick={() => onSelect(task.id)}
-                      className="block w-full truncate rounded border border-border/60 bg-background px-2 py-1 text-start text-xs text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      data-testid={`calendar-allday-task-${task.id}`}
-                    >
-                      {task.title}
-                    </button>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* Untimed tasks have a date but no hour, so they live here rather than
+            being forced onto a row that would claim a time they don't have. */}
+        <AllDayRail days={days} tasksByDay={tasksByDay} onSelect={onSelect} />
 
         {/* Hour rows + positioned blocks */}
         <div className="flex">

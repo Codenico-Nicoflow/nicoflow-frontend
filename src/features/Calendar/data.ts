@@ -37,6 +37,15 @@ export const DAYS_PER_WEEK = 7;
  */
 export const MAX_MONTH_CHIPS = 3;
 
+/**
+ * Rows the all-day rail shows before collapsing behind "+N more".
+ *
+ * Uncapped, a single heavy day stretched the rail and pushed the hour grid —
+ * the thing the view exists for — below the fold, while every lighter day sat
+ * as whitespace beside it.
+ */
+export const MAX_ALL_DAY_ROWS = 2;
+
 /** Server caps a range request at 62 days; every view here is far inside that. */
 export const MAX_RANGE_DAYS = 62;
 

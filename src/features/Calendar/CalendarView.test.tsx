@@ -6,6 +6,7 @@ import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
+import { TaskStatus } from '@/lib/types';
 import { makeTask, makeUser } from '@/mocks/handlers';
 
 import CalendarView from './index';
@@ -375,5 +376,79 @@ describe('CalendarView — Pro gate', () => {
     await waitFor(() => expect(url).toBeDefined());
     // The whole padded month, not the single day the param asked for.
     expect(url!.searchParams.get('scheduledFrom')).toBe('2026-07-27');
+  });
+});
+
+describe('CalendarView — all-day rail', () => {
+  const untimed = (id: string, title: string, status?: 'done') =>
+    makeTask({
+      id,
+      title,
+      scheduledFor: '2026-08-05',
+      scheduledTime: null,
+      ...(status === 'done' ? { status: TaskStatus.DONE } : {}),
+    });
+
+  it('distinguishes completed all-day tasks from open ones', async () => {
+    rangeReturns([untimed('ad1', 'Read the RFC'), untimed('ad2', 'Shipped it', 'done')]);
+    renderCalendar();
+
+    const done = await screen.findByTestId('calendar-allday-task-ad2');
+    expect(done).toHaveAttribute('data-done', 'true');
+    // Open work carries no marker, so the two never read the same.
+    expect(screen.getByTestId('calendar-allday-task-ad1')).not.toHaveAttribute('data-done');
+  });
+
+  it('sorts open work ahead of completed so the cap never hides what is left to do', async () => {
+    rangeReturns([
+      untimed('ad3', 'Finished A', 'done'),
+      untimed('ad4', 'Finished B', 'done'),
+      untimed('ad5', 'Still open'),
+    ]);
+    renderCalendar();
+
+    await screen.findByTestId('calendar-allday-task-ad5');
+    // Only two rows show before the cap; the open task must be one of them.
+    expect(screen.queryByTestId('calendar-allday-task-ad4')).not.toBeInTheDocument();
+  });
+
+  it('caps the rail and reveals the rest on demand rather than stretching the row', async () => {
+    const user = userEvent.setup();
+    rangeReturns([untimed('c1', 'One'), untimed('c2', 'Two'), untimed('c3', 'Three'), untimed('c4', 'Four')]);
+    renderCalendar();
+
+    await screen.findByTestId('calendar-allday-task-c1');
+    expect(screen.queryByTestId('calendar-allday-task-c3')).not.toBeInTheDocument();
+
+    await user.click(screen.getByTestId('calendar-all-day-expand'));
+
+    expect(screen.getByTestId('calendar-allday-task-c3')).toBeInTheDocument();
+    expect(screen.getByTestId('calendar-allday-task-c4')).toBeInTheDocument();
+  });
+
+  it('omits the rail entirely when every task has a time', async () => {
+    rangeReturns([makeTask({ id: 'timed', title: 'Standup', scheduledFor: '2026-08-05', scheduledTime: '09:00' })]);
+    renderCalendar();
+
+    await screen.findByTestId('calendar-block-timed');
+    expect(screen.queryByTestId('calendar-all-day')).not.toBeInTheDocument();
+  });
+
+  it('recedes a completed timed block without removing it from the day', async () => {
+    rangeReturns([
+      makeTask({
+        id: 'dt1',
+        title: 'Shipped it',
+        scheduledFor: '2026-08-05',
+        scheduledTime: '09:00',
+        estimatedMinutes: 60,
+        status: TaskStatus.DONE,
+      }),
+    ]);
+    renderCalendar();
+
+    const block = await screen.findByTestId('calendar-block-dt1');
+    expect(block).toHaveAttribute('data-done', 'true');
+    expect(block).toHaveTextContent('Shipped it');
   });
 });

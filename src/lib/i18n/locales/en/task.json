@@ -239,6 +239,10 @@
     "timedSchedulingLocked": "Timed scheduling is a Pro feature. Upgrade to drag tasks to a specific time.",
     "teaserTitle": "Timed scheduling is a Pro feature",
     "teaserDescription": "This is your real month. Upgrade to place tasks at a specific time and drag them around your day.",
-    "lockedHint": "Pro"
+    "lockedHint": "Pro",
+    "allDayMore": "+{{count}} more",
+    "allDayMore_other": "+{{count}} more",
+    "allDayCollapse": "Show fewer all-day tasks",
+    "allDayMore_one": "+{{count}} more"
   }
 }

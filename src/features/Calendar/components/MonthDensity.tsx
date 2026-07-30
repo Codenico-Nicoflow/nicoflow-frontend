@@ -1,4 +1,4 @@
-import { format, isSameMonth, isToday } from 'date-fns';
+import { format, isSameMonth } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { getDateLocale } from '@/lib/i18n/dateLocale';
@@ -13,6 +13,8 @@ interface MonthDensityProps {
   days: Date[];
   anchor: Date;
   tasksByDay: Map<string, ITask[]>;
+  /** Today in the account timezone, not the browser's. */
+  todayKey: string;
   onDrillDown: (day: Date) => void;
 }
 
@@ -21,7 +23,7 @@ interface MonthDensityProps {
  * few dots but never a task title — so the month answers "which days are
  * heavy?" and delegates "what exactly?" to a tap that drills into the day view.
  */
-const MonthDensity = ({ days, anchor, tasksByDay, onDrillDown }: MonthDensityProps) => {
+const MonthDensity = ({ days, anchor, tasksByDay, todayKey, onDrillDown }: MonthDensityProps) => {
   const { t, i18n } = useTranslation('task');
   const locale = getDateLocale(i18n.language);
 
@@ -58,12 +60,13 @@ const MonthDensity = ({ days, anchor, tasksByDay, onDrillDown }: MonthDensityPro
                 'hover:bg-accent'
               )}
               data-testid={`calendar-month-cell-${key}`}
+              data-today={key === todayKey || undefined}
               aria-label={t('calendar.monthCellLabel', {
                 date: format(day, 'PPP', { locale }),
                 count,
               })}
             >
-              <span className={cn('text-sm', isToday(day) && 'font-bold text-primary')}>
+              <span className={cn('text-sm', key === todayKey && 'font-bold text-primary')}>
                 {format(day, 'd', { locale })}
               </span>
 

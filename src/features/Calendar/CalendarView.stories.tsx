@@ -77,6 +77,50 @@ export const MobileAgenda: Story = {
   },
 };
 
+const monthAt = (searchParams: Record<string, string>) =>
+  reactRouterParameters({
+    location: { path: '/calendar', searchParams: { view: 'month', ...searchParams } },
+    routing: { path: '/calendar' },
+  });
+
+/**
+ * Desktop month. Wide enough for real chips, so a cell shows the first few
+ * tasks and collapses the rest into a count rather than scrolling.
+ */
+export const DesktopMonth: Story = {
+  parameters: {
+    reactRouter: monthAt({ date: DAY }),
+    ...range([
+      mockTask({ id: 'm1', title: 'Standup', scheduledFor: DAY, scheduledTime: '09:00' }),
+      mockTask({ id: 'm2', title: 'Design review', scheduledFor: DAY, scheduledTime: '11:00' }),
+      mockTask({ id: 'm3', title: 'Read the RFC', scheduledFor: DAY, scheduledTime: null }),
+      mockTask({ id: 'm4', title: '1:1', scheduledFor: '2026-08-12', scheduledTime: '15:00' }),
+    ]),
+  },
+};
+
+/** A day busier than the cap keeps three chips and counts the remainder. */
+export const DesktopMonthOverflow: Story = {
+  parameters: {
+    reactRouter: monthAt({ date: DAY }),
+    ...range(
+      Array.from({ length: 6 }, (_, index) =>
+        mockTask({
+          id: `o${index}`,
+          title: `Task ${index + 1}`,
+          scheduledFor: DAY,
+          scheduledTime: `${String(index + 8).padStart(2, '0')}:00`,
+        })
+      )
+    ),
+  },
+};
+
+/** An empty month reads as empty, never as a broken or still-loading grid. */
+export const DesktopMonthEmpty: Story = {
+  parameters: { reactRouter: monthAt({ date: DAY }) },
+};
+
 /** Month answers "which days are heavy?"; tapping a cell drills into the day. */
 export const MonthDensityGrid: Story = {
   parameters: {

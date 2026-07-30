@@ -230,6 +230,13 @@
     "blockUnestimatedLabel": "{{title}} в {{time}}, без оценки",
     "emptyTitle": "Ничего не запланировано",
     "emptyDescription": "Задачи, запланированные на эту неделю, появятся здесь.",
-    "monthCellLabel": "{{date}}, задач: {{count}}"
+    "monthCellLabel": "{{date}}, задач: {{count}}",
+    "moreCount_one": "+ещё {{count}}",
+    "moreCount_few": "+ещё {{count}}",
+    "moreCount_many": "+ещё {{count}}",
+    "moreCount_other": "+ещё {{count}}",
+    "monthEmptyDescription": "Задачи, запланированные на этот месяц, появятся здесь.",
+    "chipTimedLabel": "{{title}} в {{time}}",
+    "chipUntimedLabel": "{{title}}, весь день"
   }
 }

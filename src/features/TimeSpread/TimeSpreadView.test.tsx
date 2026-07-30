@@ -1,11 +1,11 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
-import { makeTask } from '@/mocks/handlers';
+import { makeTask, makeUser } from '@/mocks/handlers';
 
 import TimeSpreadView from './index';
 
@@ -143,5 +143,29 @@ describe('TimeSpreadView', () => {
 
     const list = await screen.findByTestId('timespread-list');
     expect(within(list).getByText('Scoped')).toBeInTheDocument();
+  });
+});
+
+describe('TimeSpreadView — graceful downgrade', () => {
+  // Downgrading must never delete data the user created while Pro: the time is
+  // kept and shown, only the ability to change it is gated.
+  it('still shows the time on a task scheduled while the user was pro', async () => {
+    server.use(
+      http.get(`${API}/time-spread`, () =>
+        HttpResponse.json(
+          env({
+            today: [makeTask({ id: 'd1', title: 'Standup', scheduledTime: '09:00' })],
+            tomorrow: [],
+            thisWeek: [],
+          })
+        )
+      )
+    );
+
+    renderComponent(<TimeSpreadView activeTab="today" />, {
+      store: createMockStore({ auth: { user: makeUser({ status: 'regular' }), token: 't', isLoading: false } }),
+    });
+
+    await waitFor(() => expect(screen.getByTestId('task-time-d1')).toHaveTextContent('09:00'));
   });
 });

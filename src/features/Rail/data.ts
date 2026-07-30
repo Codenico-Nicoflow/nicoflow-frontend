@@ -14,6 +14,9 @@ export interface NavDestination {
   to: string;
   /** Prefix used for active-state matching (e.g. Areas stays active on /projects/:id). */
   match: string[];
+  /** Pro-gated destination. It still renders and still navigates — the page owns
+   *  the locked experience — this only drives the lock affordance. */
+  proOnly?: boolean;
 }
 
 // Primary destinations, shared by the desktop Rail and the mobile BottomNav.
@@ -29,7 +32,7 @@ export const NAV_DESTINATIONS: NavDestination[] = [
   },
   { id: 'focus', labelKey: 'focus', icon: Target, to: '/quick-access/focus', match: ['/quick-access/focus'] },
   { id: 'areas', labelKey: 'areas', icon: LayoutGrid, to: '/areas', match: ['/areas', '/projects'] },
-  { id: 'calendar', labelKey: 'calendar', icon: CalendarDays, to: '/calendar', match: ['/calendar'] },
+  { id: 'calendar', labelKey: 'calendar', icon: CalendarDays, to: '/calendar', match: ['/calendar'], proOnly: true },
   { id: 'ai', labelKey: 'ai', icon: Bot, to: '/ai', match: ['/ai'] },
 ];
 

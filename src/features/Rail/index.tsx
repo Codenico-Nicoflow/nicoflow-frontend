@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useMatch } from 'react-router-dom';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { useIsPro } from '@/hooks';
 import { useDayChange } from '@/hooks/useDayChange';
 import { useGetBucketsQuery, useGetProjectsQuery, useGetTimeSpreadQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ export const Rail = () => {
   const activeProjectId = projectMatch?.params.projectId;
 
   const { expanded, closedAreaIds, toggleExpanded, toggleArea } = useRailState();
+  const isPro = useIsPro();
 
   // The Today rail item carries a count of what's scheduled for today.
   const { data: timeSpread, refetch: refetchTimeSpread } = useGetTimeSpreadQuery();
@@ -63,6 +65,7 @@ export const Rail = () => {
                 active={isActive(pathname, dest)}
                 expanded={expanded}
                 badge={badgeFor(dest.id)}
+                locked={dest.proOnly && !isPro}
                 // Expanded, the tree below points at the exact project, so Areas
                 // steps back to a muted marker instead of competing with it.
                 mutedActive={expanded && dest.id === 'areas'}

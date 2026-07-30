@@ -62,6 +62,31 @@ describe('TaskDialog — create mode', () => {
     expect(toast.error).not.toHaveBeenCalled();
     expect(toast.success).not.toHaveBeenCalled();
   });
+
+  it('names the time when the refused field was the time, not the task count', async () => {
+    server.use(
+      http.post(`${API}/projects/project-1/tasks`, () =>
+        HttpResponse.json(
+          { data: null, error: { code: 'PLAN_LIMIT_EXCEEDED', message: 'timed scheduling requires pro' } },
+          { status: 403 }
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" />);
+
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'Timed task');
+    // A date first — the time input is inert without one.
+    await user.click(screen.getByTestId('scheduled-for-trigger'));
+    await user.click(within(screen.getByTestId('scheduled-for-calendar')).getAllByRole('gridcell')[20]!);
+    fireEvent.change(screen.getByTestId('scheduled-time-input'), { target: { value: '09:00' } });
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    const alert = await screen.findByTestId('plan-limit-alert');
+    expect(alert).toHaveTextContent(/time/i);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
 });
 
 describe('TaskDialog — edit mode', () => {

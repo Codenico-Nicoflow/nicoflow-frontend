@@ -1,4 +1,4 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,7 +6,7 @@ import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
-import { makeTask } from '@/mocks/handlers';
+import { makeTask, makeUser } from '@/mocks/handlers';
 
 import CalendarView from './index';
 
@@ -19,6 +19,17 @@ const env = <T,>(data: T) => ({ data, error: null });
 // the suite happens to run.
 const NOW = new Date(2026, 7, 5, 10, 30); // Wed 2026-08-05
 
+// Timed scheduling is Pro; a free user gets the locked teaser instead of the
+// grid, so every interactive case signs in as Pro explicitly.
+const asPlan = (status: 'premium' | 'regular') =>
+  createMockStore({ auth: { user: makeUser({ status }), token: 't', isLoading: false } });
+
+const renderCalendar = (options?: { status?: 'premium' | 'regular'; initialRoute?: string }) =>
+  renderComponent(<CalendarView now={NOW} />, {
+    store: asPlan(options?.status ?? 'premium'),
+    ...(options?.initialRoute ? { initialRoute: options.initialRoute } : {}),
+  });
+
 const rangeReturns = (tasks: ReturnType<typeof makeTask>[], onQuery?: (url: URL) => void) =>
   server.use(
     http.get(`${API}/tasks`, ({ request }) => {
@@ -30,7 +41,7 @@ const rangeReturns = (tasks: ReturnType<typeof makeTask>[], onQuery?: (url: URL)
 describe('CalendarView', () => {
   it('renders the current week with the now-line on today', async () => {
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     await waitFor(() => expect(screen.getByTestId('calendar-grid')).toBeInTheDocument());
     // Monday-first week around Wed 2026-08-05.
@@ -46,7 +57,7 @@ describe('CalendarView', () => {
     rangeReturns([], captured => {
       url = captured;
     });
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     await waitFor(() => expect(url).toBeDefined());
     expect(url!.searchParams.get('scheduledFrom')).toBe('2026-08-03');
@@ -63,7 +74,7 @@ describe('CalendarView', () => {
         estimatedMinutes: 60,
       }),
     ]);
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     const block = await screen.findByTestId('calendar-block-t1');
     expect(screen.getByTestId('calendar-block-wrapper-t1')).toHaveStyle({ top: '432px', height: '48px' });
@@ -90,7 +101,7 @@ describe('CalendarView', () => {
       })
     );
 
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     const block = await screen.findByTestId('calendar-block-t2');
     expect(block).toHaveAttribute('data-unestimated', 'true');
@@ -100,7 +111,7 @@ describe('CalendarView', () => {
 
   it('puts untimed tasks in the all-day rail rather than the hour grid', async () => {
     rangeReturns([makeTask({ id: 't3', title: 'Read the RFC', scheduledFor: '2026-08-05', scheduledTime: null })]);
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     await waitFor(() => expect(screen.getByTestId('calendar-allday-task-t3')).toBeInTheDocument());
     expect(screen.queryByTestId('calendar-block-t3')).not.toBeInTheDocument();
@@ -111,7 +122,7 @@ describe('CalendarView', () => {
       makeTask({ id: 'a', title: 'A', scheduledFor: '2026-08-05', scheduledTime: '09:00', estimatedMinutes: 60 }),
       makeTask({ id: 'b', title: 'B', scheduledFor: '2026-08-05', scheduledTime: '09:00', estimatedMinutes: 60 }),
     ]);
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     await screen.findByTestId('calendar-block-a');
     expect(screen.getByTestId('calendar-block-wrapper-a')).toHaveStyle({ width: '50%' });
@@ -120,7 +131,7 @@ describe('CalendarView', () => {
 
   it('restores view and date from the URL', async () => {
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />, { initialRoute: '/calendar?view=day&date=2026-08-20' });
+    renderCalendar({ initialRoute: '/calendar?view=day&date=2026-08-20' });
 
     await waitFor(() => expect(screen.getByTestId('calendar-day-2026-08-20')).toBeInTheDocument());
     // Day view renders exactly one column.
@@ -130,7 +141,7 @@ describe('CalendarView', () => {
   it('writes view changes back to the URL so the grid is shareable', async () => {
     const user = userEvent.setup();
     rangeReturns([]);
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     await waitFor(() => expect(screen.getByTestId('calendar-view-day')).toBeInTheDocument());
     await user.click(screen.getByTestId('calendar-view-day'));
@@ -158,7 +169,7 @@ describe('CalendarView', () => {
         return HttpResponse.json(env(current));
       })
     );
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     const block = await screen.findByTestId('calendar-block-t5');
     // 09:00 sits at 432px; +96px of pointer travel is two hours.
@@ -186,7 +197,7 @@ describe('CalendarView', () => {
         HttpResponse.json({ data: null, error: { code: 'INTERNAL_ERROR', message: 'boom' } }, { status: 500 })
       )
     );
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     const block = await screen.findByTestId('calendar-block-t6');
     fireEvent.pointerDown(block, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 440 });
@@ -216,7 +227,7 @@ describe('CalendarView', () => {
         )
       )
     );
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     const block = await screen.findByTestId('calendar-block-t7');
     fireEvent.pointerDown(block, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 440 });
@@ -249,7 +260,7 @@ describe('CalendarView', () => {
         return HttpResponse.json(env(current));
       })
     );
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     await screen.findByTestId('calendar-block-t8');
     const handle = screen.getByTestId('calendar-resize-t8');
@@ -280,7 +291,7 @@ describe('CalendarView', () => {
         return HttpResponse.json(env(makeTask()));
       })
     );
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     const block = await screen.findByTestId('calendar-block-t9');
     fireEvent.pointerDown(block, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 440 });
@@ -301,11 +312,68 @@ describe('CalendarView', () => {
         estimatedMinutes: 30,
       }),
     ]);
-    renderComponent(<CalendarView now={NOW} />);
+    renderCalendar();
 
     await user.click(await screen.findByTestId('calendar-block-t4'));
 
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
     expect(within(screen.getByRole('dialog')).getByDisplayValue('Standup')).toBeInTheDocument();
+  });
+});
+
+describe('CalendarView — Pro gate', () => {
+  it('shows a free user their own month behind the teaser instead of the grid', async () => {
+    rangeReturns([
+      makeTask({ id: 'l1', title: 'Standup', scheduledFor: '2026-08-05', scheduledTime: '09:00' }),
+      makeTask({ id: 'l2', title: 'Design review', scheduledFor: '2026-08-12', scheduledTime: '11:00' }),
+    ]);
+    renderCalendar({ status: 'regular' });
+
+    await waitFor(() => expect(screen.getByTestId('calendar-teaser')).toBeInTheDocument());
+    // Real data, not a placeholder: the user's own chips are what is blurred.
+    expect(within(screen.getByTestId('calendar-teaser-grid')).getByText('Standup')).toBeInTheDocument();
+    expect(screen.getByTestId('calendar-teaser-cta')).toBeInTheDocument();
+    // No hour grid means no drag surface at all.
+    expect(screen.queryByTestId('calendar-grid')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('calendar-block-l1')).not.toBeInTheDocument();
+  });
+
+  it('keeps the blurred chrome out of reach of pointer and keyboard', async () => {
+    rangeReturns([makeTask({ id: 'l3', title: 'Standup', scheduledFor: '2026-08-05', scheduledTime: '09:00' })]);
+    renderCalendar({ status: 'regular' });
+
+    const blurred = await screen.findByTestId('calendar-teaser-grid');
+    expect(blurred).toHaveAttribute('inert');
+    expect(blurred).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('drops the view switcher for a locked user — one shape, no dead buttons', async () => {
+    rangeReturns([]);
+    renderCalendar({ status: 'regular' });
+
+    await waitFor(() => expect(screen.getByTestId('calendar-teaser')).toBeInTheDocument());
+    expect(screen.queryByTestId('calendar-view-day')).not.toBeInTheDocument();
+    // Stepping months still works: browsing your own locked data is the point.
+    expect(screen.getByTestId('calendar-prev')).toBeInTheDocument();
+  });
+
+  it('renders no teaser at all for a pro user', async () => {
+    rangeReturns([makeTask({ id: 'l4', title: 'Standup', scheduledFor: '2026-08-05', scheduledTime: '09:00' })]);
+    renderCalendar();
+
+    await screen.findByTestId('calendar-block-l4');
+    expect(screen.queryByTestId('calendar-teaser')).not.toBeInTheDocument();
+  });
+
+  it('ignores a day-view URL while locked rather than fetching a range it never draws', async () => {
+    let url: URL | undefined;
+    rangeReturns([], captured => {
+      url = captured;
+    });
+    renderCalendar({ status: 'regular', initialRoute: '/calendar?view=day&date=2026-08-05' });
+
+    await waitFor(() => expect(url).toBeDefined());
+    // The whole padded month, not the single day the param asked for.
+    expect(url!.searchParams.get('scheduledFrom')).toBe('2026-07-27');
   });
 });

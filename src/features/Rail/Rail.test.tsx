@@ -1,10 +1,10 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { makeBucket, makeProject, makeTask } from '@/mocks/handlers';
+import { makeBucket, makeProject, makeTask, makeUser } from '@/mocks/handlers';
 
 import { Rail } from './index';
 
@@ -149,5 +149,25 @@ describe('Rail', () => {
 
       await waitFor(() => expect(screen.getAllByTestId(/^rail-favorite-/)).toHaveLength(5));
     });
+  });
+});
+
+describe('Rail — Pro gate', () => {
+  const withPlan = (status: 'premium' | 'regular') =>
+    createMockStore({ auth: { user: makeUser({ status }), token: 't', isLoading: false } });
+
+  it('marks the calendar destination locked for a free user without hiding it', () => {
+    renderComponent(<Rail />, { initialRoute: '/quick-access/today', store: withPlan('regular') });
+
+    // Visible and still navigable — the page owns the locked experience.
+    expect(screen.getByTestId('rail-calendar')).toHaveAttribute('href', '/calendar');
+    expect(screen.getByTestId('rail-calendar-lock')).toBeInTheDocument();
+  });
+
+  it('leaves the calendar destination unlocked for a pro user', () => {
+    renderComponent(<Rail />, { initialRoute: '/quick-access/today', store: withPlan('premium') });
+
+    expect(screen.getByTestId('rail-calendar')).toBeInTheDocument();
+    expect(screen.queryByTestId('rail-calendar-lock')).not.toBeInTheDocument();
   });
 });

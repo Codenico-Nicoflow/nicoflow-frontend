@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { http, HttpResponse } from 'msw';
 import { reactRouterParameters } from 'storybook-addon-remix-react-router';
 
-import { mockTask } from '@/stories/mocks';
+import { mockTask, mockUser } from '@/stories/mocks';
 
 import CalendarView from './index';
 
@@ -17,12 +17,18 @@ const range = (items: unknown[]) => ({
   msw: { handlers: [http.get(`${API}/tasks`, () => HttpResponse.json(env({ items })))] },
 });
 
+// Timed scheduling is Pro, so the default stories sign in as one — a free user
+// gets the locked teaser instead (see the Locked* stories below).
+const asPlan = (status: 'premium' | 'regular') => ({
+  preloadedState: { auth: { user: mockUser({ status }), token: 't', isLoading: false } },
+});
+
 const meta: Meta<typeof CalendarView> = {
   title: 'Calendar/CalendarView',
   component: CalendarView,
   tags: ['autodocs'],
   args: { now: NOW },
-  parameters: { layout: 'fullscreen', ...range([]) },
+  parameters: { layout: 'fullscreen', ...asPlan('premium'), ...range([]) },
 };
 export default meta;
 
@@ -133,6 +139,34 @@ export const MonthDensityGrid: Story = {
       mockTask({ id: 'j', scheduledFor: DAY, scheduledTime: '09:00' }),
       mockTask({ id: 'k', scheduledFor: DAY, scheduledTime: '11:00' }),
       mockTask({ id: 'l', scheduledFor: '2026-08-12', scheduledTime: '14:00' }),
+    ]),
+  },
+};
+
+/**
+ * The conversion surface. A free user sees their OWN month behind the blur —
+ * real counts, real chips — because locked real data converts far better than a
+ * hidden nav item or a generic screenshot.
+ */
+export const LockedTeaser: Story = {
+  parameters: {
+    ...asPlan('regular'),
+    ...range([
+      mockTask({ id: 'p1', title: 'Standup', scheduledFor: DAY, scheduledTime: '09:00' }),
+      mockTask({ id: 'p2', title: 'Design review', scheduledFor: DAY, scheduledTime: '11:00' }),
+      mockTask({ id: 'p3', title: '1:1', scheduledFor: '2026-08-12', scheduledTime: '15:00' }),
+    ]),
+  },
+};
+
+/** Locked resolves to the month teaser at any width; the phone gets density dots. */
+export const LockedTeaserMobile: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    ...asPlan('regular'),
+    ...range([
+      mockTask({ id: 'p4', scheduledFor: DAY, scheduledTime: '09:00' }),
+      mockTask({ id: 'p5', scheduledFor: '2026-08-12', scheduledTime: '15:00' }),
     ]),
   },
 };

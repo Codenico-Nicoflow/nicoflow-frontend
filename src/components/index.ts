@@ -29,6 +29,7 @@ export { RecurrenceField } from './RecurrenceField';
 export type { RecurrenceValue } from './RecurrenceField/types';
 export { defaultRecurrence, todayISO } from './RecurrenceField/types';
 export { ScheduledForField } from './ScheduledForField';
+export { ScheduledTimeField } from './ScheduledTimeField';
 export { StatusField } from './StatusField';
 export { ThemeProvider, useTheme } from './ThemeProvider';
 export { Timestamp } from './Timestamp';

@@ -51,7 +51,8 @@
     "urlInvalid": "Please enter a valid URL",
     "bucketContentRequired": "Bucket content is required",
     "bucketContentMax": "Content must be less than 500 characters",
-    "processingResultInvalid": "Please choose a valid option"
+    "processingResultInvalid": "Please choose a valid option",
+    "scheduledTimeInvalid": "Time must be on a 15-minute boundary (e.g. 09:15)"
   },
   "language": {
     "label": "Language",
@@ -92,7 +93,11 @@
       "hourSuffix": "h",
       "clear": "Clear estimated time"
     },
-    "urlLabel": "URL"
+    "urlLabel": "URL",
+    "scheduledTimeLabel": "Scheduled time",
+    "scheduledTimeHint": "Time of day on the calendar, in 15-minute steps.",
+    "scheduledTimeNeedsDate": "Pick a scheduled date first.",
+    "scheduledTimeClear": "Clear time"
   },
   "search": {
     "placeholder": "Search tasks, projects, areas…",

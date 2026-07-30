@@ -51,7 +51,8 @@
     "urlInvalid": "Введите корректный URL",
     "bucketContentRequired": "Введите содержимое",
     "bucketContentMax": "Содержимое должно содержать менее 500 символов",
-    "processingResultInvalid": "Выберите корректный вариант"
+    "processingResultInvalid": "Выберите корректный вариант",
+    "scheduledTimeInvalid": "Время должно быть кратно 15 минутам (например, 09:15)"
   },
   "language": {
     "label": "Язык",
@@ -92,7 +93,11 @@
       "hourSuffix": "ч",
       "clear": "Очистить оценку"
     },
-    "urlLabel": "Ссылка"
+    "urlLabel": "Ссылка",
+    "scheduledTimeLabel": "Запланированное время",
+    "scheduledTimeHint": "Время дня в календаре с шагом 15 минут.",
+    "scheduledTimeNeedsDate": "Сначала выберите запланированную дату.",
+    "scheduledTimeClear": "Очистить время"
   },
   "search": {
     "placeholder": "Поиск задач, проектов, областей…",

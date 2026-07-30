@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import type { ApiEnvelope } from '@/lib/types';
+import type { ApiEnvelope, ITask } from '@/lib/types';
 import { TASKS_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
@@ -28,6 +28,39 @@ import type {
   UpdateTaskStatusRequest,
   UpdateTaskStatusResponse,
 } from './type';
+
+// Derived from the RTK utils themselves rather than importing RootState: the
+// slice must stay importable without a circular dependency on the configured
+// store, and these follow the toolkit's own types across upgrades.
+type TaskApiState = Parameters<typeof taskApi.util.selectInvalidatedBy>[0];
+type CalendarPatch = ReturnType<typeof taskApi.util.updateQueryData>;
+type TaskApiDispatch = <T extends CalendarPatch>(patch: T) => ReturnType<T>;
+
+/**
+ * Apply `mutate` to a task inside every cached calendar window, returning the
+ * patch handles so a failed mutation can undo them.
+ *
+ * Only `getCalendarTasks` entries are touched: the per-project lists have no
+ * drag surface, and re-patching them would duplicate work the invalidation
+ * already does on success.
+ */
+const patchCalendarCaches = (
+  state: TaskApiState,
+  dispatch: TaskApiDispatch,
+  id: string,
+  mutate: (task: ITask) => void
+) =>
+  taskApi.util
+    .selectInvalidatedBy(state, [{ type: 'Task' }])
+    .filter(entry => entry.endpointName === 'getCalendarTasks')
+    .map(entry =>
+      dispatch(
+        taskApi.util.updateQueryData('getCalendarTasks', entry.originalArgs as GetCalendarTasksRequest, draft => {
+          const found = draft.find(task => task.id === id);
+          if (found) mutate(found);
+        })
+      )
+    );
 
 export const taskApi = createApi({
   reducerPath: 'taskApi',
@@ -70,6 +103,21 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<UpdateTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
+      // Only the calendar windows are patched optimistically — a resize on the
+      // grid must track the pointer. Dialog edits go through the same endpoint
+      // and simply get a patch that no cached window contains.
+      onQueryStarted: async ({ id, ...body }, { dispatch, getState, queryFulfilled }) => {
+        const patches = patchCalendarCaches(getState(), dispatch, id, task => {
+          if (body.estimatedMinutes !== undefined) task.estimatedMinutes = body.estimatedMinutes;
+          if (body.scheduledTime !== undefined) task.scheduledTime = body.scheduledTime;
+          if (body.scheduledFor !== undefined) task.scheduledFor = body.scheduledFor;
+        });
+        try {
+          await queryFulfilled;
+        } catch {
+          patches.forEach(patch => patch.undo());
+        }
+      },
       invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     deleteTask: builder.mutation<DeleteTaskResponse, DeleteTaskRequest>({
@@ -153,6 +201,21 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<ScheduleTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
+      // Optimistic so a calendar drag lands under the pointer instead of after a
+      // round trip; a rejected mutation (including the free-plan 403) undoes the
+      // patch and the block visibly springs back.
+      onQueryStarted: async ({ id, ...body }, { dispatch, getState, queryFulfilled }) => {
+        const patches = patchCalendarCaches(getState(), dispatch, id, task => {
+          if (body.scheduledFor !== undefined) task.scheduledFor = body.scheduledFor;
+          if (body.scheduledTime !== undefined) task.scheduledTime = body.scheduledTime;
+          if (body.rollsOver !== undefined) task.rollsOver = body.rollsOver;
+        });
+        try {
+          await queryFulfilled;
+        } catch {
+          patches.forEach(patch => patch.undo());
+        }
+      },
       invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     // Focus — "what can I do right now?" Ranked across all projects, so it lives

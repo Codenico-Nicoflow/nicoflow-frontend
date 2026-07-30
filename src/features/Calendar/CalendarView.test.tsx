@@ -1,8 +1,9 @@
 import { renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
 import { makeTask } from '@/mocks/handlers';
@@ -65,7 +66,7 @@ describe('CalendarView', () => {
     renderComponent(<CalendarView now={NOW} />);
 
     const block = await screen.findByTestId('calendar-block-t1');
-    expect(block).toHaveStyle({ top: '432px', height: '48px' });
+    expect(screen.getByTestId('calendar-block-wrapper-t1')).toHaveStyle({ top: '432px', height: '48px' });
     expect(block).not.toHaveAttribute('data-unestimated');
   });
 
@@ -93,7 +94,7 @@ describe('CalendarView', () => {
 
     const block = await screen.findByTestId('calendar-block-t2');
     expect(block).toHaveAttribute('data-unestimated', 'true');
-    expect(block).toHaveStyle({ height: '24px' });
+    expect(screen.getByTestId('calendar-block-wrapper-t2')).toHaveStyle({ height: '24px' });
     expect(patched).toBe(false);
   });
 
@@ -112,10 +113,9 @@ describe('CalendarView', () => {
     ]);
     renderComponent(<CalendarView now={NOW} />);
 
-    const first = await screen.findByTestId('calendar-block-a');
-    const second = await screen.findByTestId('calendar-block-b');
-    expect(first).toHaveStyle({ width: '50%' });
-    expect(second).toHaveStyle({ width: '50%' });
+    await screen.findByTestId('calendar-block-a');
+    expect(screen.getByTestId('calendar-block-wrapper-a')).toHaveStyle({ width: '50%' });
+    expect(screen.getByTestId('calendar-block-wrapper-b')).toHaveStyle({ width: '50%' });
   });
 
   it('restores view and date from the URL', async () => {
@@ -137,6 +137,157 @@ describe('CalendarView', () => {
 
     await waitFor(() => expect(window.location.search).toContain('view=day'));
     expect(window.location.search).toContain('date=2026-08-05');
+  });
+
+  it('moves a block by drag and persists the snapped time via the schedule endpoint', async () => {
+    // Stateful mock: the post-mutation refetch must return the moved task, or
+    // the grid would legitimately snap back and hide a real regression.
+    let current = makeTask({
+      id: 't5',
+      title: 'Standup',
+      scheduledFor: '2026-08-05',
+      scheduledTime: '09:00',
+      estimatedMinutes: 60,
+    });
+    let scheduleBody: Record<string, unknown> | undefined;
+    server.use(
+      http.get(`${API}/tasks`, () => HttpResponse.json(env({ items: [current] }))),
+      http.patch(`${API}/tasks/t5/schedule`, async ({ request }) => {
+        scheduleBody = (await request.json()) as Record<string, unknown>;
+        current = { ...current, scheduledTime: scheduleBody['scheduledTime'] as string };
+        return HttpResponse.json(env(current));
+      })
+    );
+    renderComponent(<CalendarView now={NOW} />);
+
+    const block = await screen.findByTestId('calendar-block-t5');
+    // 09:00 sits at 432px; +96px of pointer travel is two hours.
+    fireEvent.pointerDown(block, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 440 });
+    fireEvent.pointerMove(block, { pointerId: 1, clientY: 536 });
+    fireEvent.pointerUp(block, { pointerId: 1, clientY: 536 });
+
+    await waitFor(() => expect(scheduleBody).toEqual({ scheduledFor: '2026-08-05', scheduledTime: '11:00' }));
+    const wrapper = screen.getByTestId('calendar-block-wrapper-t5');
+    await waitFor(() => expect(wrapper).toHaveStyle({ top: '528px' }));
+  });
+
+  it('rolls the block back and shows an error toast when the move fails', async () => {
+    rangeReturns([
+      makeTask({
+        id: 't6',
+        title: 'Standup',
+        scheduledFor: '2026-08-05',
+        scheduledTime: '09:00',
+        estimatedMinutes: 60,
+      }),
+    ]);
+    server.use(
+      http.patch(`${API}/tasks/t6/schedule`, () =>
+        HttpResponse.json({ data: null, error: { code: 'INTERNAL_ERROR', message: 'boom' } }, { status: 500 })
+      )
+    );
+    renderComponent(<CalendarView now={NOW} />);
+
+    const block = await screen.findByTestId('calendar-block-t6');
+    fireEvent.pointerDown(block, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 440 });
+    fireEvent.pointerMove(block, { pointerId: 1, clientY: 536 });
+    fireEvent.pointerUp(block, { pointerId: 1, clientY: 536 });
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalled());
+    // The optimistic patch has been undone — the block is back at 09:00.
+    await waitFor(() => expect(screen.getByTestId('calendar-block-wrapper-t6')).toHaveStyle({ top: '432px' }));
+  });
+
+  it("surfaces a free user's 403 as the upgrade prompt, not a generic error", async () => {
+    rangeReturns([
+      makeTask({
+        id: 't7',
+        title: 'Standup',
+        scheduledFor: '2026-08-05',
+        scheduledTime: '09:00',
+        estimatedMinutes: 60,
+      }),
+    ]);
+    server.use(
+      http.patch(`${API}/tasks/t7/schedule`, () =>
+        HttpResponse.json(
+          { data: null, error: { code: 'PLAN_LIMIT_EXCEEDED', message: 'timed scheduling requires pro' } },
+          { status: 403 }
+        )
+      )
+    );
+    renderComponent(<CalendarView now={NOW} />);
+
+    const block = await screen.findByTestId('calendar-block-t7');
+    fireEvent.pointerDown(block, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 440 });
+    fireEvent.pointerMove(block, { pointerId: 1, clientY: 536 });
+    fireEvent.pointerUp(block, { pointerId: 1, clientY: 536 });
+
+    await waitFor(() => expect(screen.getByTestId('plan-limit-alert')).toBeInTheDocument());
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('resize writes estimatedMinutes and never touches the schedule endpoint', async () => {
+    let current = makeTask({
+      id: 't8',
+      title: 'Standup',
+      scheduledFor: '2026-08-05',
+      scheduledTime: '09:00',
+      estimatedMinutes: 60,
+    });
+    let updateBody: Record<string, unknown> | undefined;
+    let scheduleCalled = false;
+    server.use(
+      http.get(`${API}/tasks`, () => HttpResponse.json(env({ items: [current] }))),
+      http.patch(`${API}/tasks/t8/schedule`, () => {
+        scheduleCalled = true;
+        return HttpResponse.json(env(current));
+      }),
+      http.patch(`${API}/tasks/t8`, async ({ request }) => {
+        updateBody = (await request.json()) as Record<string, unknown>;
+        current = { ...current, estimatedMinutes: updateBody['estimatedMinutes'] as number };
+        return HttpResponse.json(env(current));
+      })
+    );
+    renderComponent(<CalendarView now={NOW} />);
+
+    await screen.findByTestId('calendar-block-t8');
+    const handle = screen.getByTestId('calendar-resize-t8');
+    // +48px on the bottom edge is one more hour of duration.
+    fireEvent.pointerDown(handle, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 480 });
+    fireEvent.pointerMove(handle, { pointerId: 1, clientY: 528 });
+    fireEvent.pointerUp(handle, { pointerId: 1, clientY: 528 });
+
+    await waitFor(() => expect(updateBody).toEqual({ estimatedMinutes: 120 }));
+    expect(scheduleCalled).toBe(false);
+    await waitFor(() => expect(screen.getByTestId('calendar-block-wrapper-t8')).toHaveStyle({ height: '96px' }));
+  });
+
+  it('treats a sub-threshold wiggle as a click, not a reschedule', async () => {
+    let mutated = false;
+    rangeReturns([
+      makeTask({
+        id: 't9',
+        title: 'Standup',
+        scheduledFor: '2026-08-05',
+        scheduledTime: '09:00',
+        estimatedMinutes: 60,
+      }),
+    ]);
+    server.use(
+      http.patch(`${API}/tasks/t9/schedule`, () => {
+        mutated = true;
+        return HttpResponse.json(env(makeTask()));
+      })
+    );
+    renderComponent(<CalendarView now={NOW} />);
+
+    const block = await screen.findByTestId('calendar-block-t9');
+    fireEvent.pointerDown(block, { button: 0, pointerId: 1, pointerType: 'mouse', clientY: 440 });
+    fireEvent.pointerMove(block, { pointerId: 1, clientY: 442 });
+    fireEvent.pointerUp(block, { pointerId: 1, clientY: 442 });
+
+    expect(mutated).toBe(false);
   });
 
   it('opens the shared TaskDialog when a block is clicked', async () => {

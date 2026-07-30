@@ -235,6 +235,7 @@
     "moreCount_other": "+{{count}} more",
     "monthEmptyDescription": "Tasks you schedule this month will show up here.",
     "chipTimedLabel": "{{title}} at {{time}}",
-    "chipUntimedLabel": "{{title}}, all day"
+    "chipUntimedLabel": "{{title}}, all day",
+    "timedSchedulingLocked": "Timed scheduling is a Pro feature. Upgrade to drag tasks to a specific time."
   }
 }

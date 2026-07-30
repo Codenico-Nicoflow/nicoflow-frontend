@@ -240,6 +240,11 @@
     "timedSchedulingLocked": "תזמון לפי שעה הוא תכונת Pro. שדרגו כדי לגרור משימות לשעה מסוימת.",
     "teaserTitle": "תזמון לפי שעה הוא תכונת Pro",
     "teaserDescription": "זהו החודש האמיתי שלך. שדרגו כדי לקבוע משימות לשעה מסוימת ולגרור אותן לאורך היום.",
-    "lockedHint": "Pro"
+    "lockedHint": "Pro",
+    "allDayMore": "עוד {{count}}",
+    "allDayMore_two": "עוד {{count}}",
+    "allDayMore_other": "עוד {{count}}",
+    "allDayCollapse": "הצג פחות משימות יומיות",
+    "allDayMore_one": "עוד {{count}}"
   }
 }

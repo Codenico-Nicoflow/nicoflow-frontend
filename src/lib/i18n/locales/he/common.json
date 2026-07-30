@@ -51,7 +51,8 @@
     "urlInvalid": "יש להזין כתובת URL תקינה",
     "bucketContentRequired": "יש להזין תוכן",
     "bucketContentMax": "התוכן חייב להכיל פחות מ-500 תווים",
-    "processingResultInvalid": "יש לבחור אפשרות תקינה"
+    "processingResultInvalid": "יש לבחור אפשרות תקינה",
+    "scheduledTimeInvalid": "השעה חייבת להיות בגבול של 15 דקות (למשל 09:15)"
   },
   "language": {
     "label": "שפה",
@@ -92,7 +93,11 @@
       "hourSuffix": "ש׳",
       "clear": "נקה זמן משוער"
     },
-    "urlLabel": "קישור"
+    "urlLabel": "קישור",
+    "scheduledTimeLabel": "שעה מתוכננת",
+    "scheduledTimeHint": "שעה ביום בלוח השנה, בקפיצות של 15 דקות.",
+    "scheduledTimeNeedsDate": "קודם בחרו תאריך מתוכנן.",
+    "scheduledTimeClear": "ניקוי שעה"
   },
   "search": {
     "placeholder": "חיפוש משימות, פרויקטים, תחומים…",

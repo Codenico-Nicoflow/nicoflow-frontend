@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 import { HOUR_HEIGHT_PX, HOURS } from '../data';
 import { allDayTasks, layoutDay, nowOffset } from '../geometry';
+import type { BlockDragCommit } from '../useBlockDrag';
 import { toDayKey } from '../utils';
 
 import TaskBlock from './TaskBlock';
@@ -17,9 +18,11 @@ interface HourGridProps {
   /** Injected so the now-line is deterministic in tests and stories. */
   now: Date;
   onSelect: (taskId: string) => void;
+  /** Absent makes the grid read-only — blocks still open, nothing drags. */
+  onDragCommit?: (taskId: string, commit: BlockDragCommit) => void;
 }
 
-const HourGrid = ({ days, tasksByDay, now, onSelect }: HourGridProps) => {
+const HourGrid = ({ days, tasksByDay, now, onSelect, onDragCommit }: HourGridProps) => {
   const { t, i18n } = useTranslation('task');
   const locale = getDateLocale(i18n.language);
 
@@ -105,7 +108,7 @@ const HourGrid = ({ days, tasksByDay, now, onSelect }: HourGridProps) => {
                 ))}
 
                 {layoutDay(dayTasks).map(layout => (
-                  <TaskBlock key={layout.task.id} layout={layout} onSelect={onSelect} />
+                  <TaskBlock key={layout.task.id} layout={layout} onSelect={onSelect} onDragCommit={onDragCommit} />
                 ))}
 
                 {offset !== null && (

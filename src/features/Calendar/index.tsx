@@ -2,11 +2,14 @@ import { useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
+import { PlanLimitAlert } from '@/components';
 import { TaskDialog } from '@/features/Tasks';
 import { useIsMobile } from '@/hooks';
-import { useAppUser, useGetCalendarTasksQuery } from '@/lib/store';
+import { useAppUser, useGetCalendarTasksQuery, useScheduleTaskMutation, useUpdateTaskMutation } from '@/lib/store';
 import type { ITask } from '@/lib/types';
+import { getApiErrorCode, showErrorToast } from '@/lib/utils';
 
 import AgendaList from './components/AgendaList';
 import { AgendaSkeleton, GridSkeleton, MonthSkeleton } from './components/CalendarSkeletons';
@@ -15,6 +18,8 @@ import HourGrid from './components/HourGrid';
 import MonthDensity from './components/MonthDensity';
 import MonthGrid from './components/MonthGrid';
 import type { CalendarView } from './data';
+import { toTimeString } from './dragMath';
+import type { BlockDragCommit } from './useBlockDrag';
 import {
   groupByDayKey,
   parseDayParam,
@@ -51,6 +56,10 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
 
   const [editTask, setEditTask] = useState<ITask | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [planLimitHit, setPlanLimitHit] = useState(false);
+
+  const [scheduleTask] = useScheduleTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
 
   const range = useMemo(() => rangeFor(view, anchor), [view, anchor]);
   const { data, isLoading } = useGetCalendarTasksQuery(range);
@@ -77,6 +86,38 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
     // Reuse the existing dialog — the calendar deliberately has no editor of its own.
     setEditTask(task);
     setIsDialogOpen(true);
+  };
+
+  /**
+   * Persist a finished drag.
+   *
+   * A move writes only the time; a resize writes only `estimatedMinutes`. They
+   * stay on separate endpoints so moving a block can never invent a duration
+   * for a task the user never estimated.
+   */
+  const handleDragCommit = async (taskId: string, commit: BlockDragCommit) => {
+    const task = (data ?? []).find(candidate => candidate.id === taskId);
+    if (!task?.scheduledFor) return;
+
+    try {
+      if (commit.mode === 'move') {
+        await scheduleTask({
+          id: taskId,
+          scheduledFor: task.scheduledFor,
+          scheduledTime: toTimeString(commit.startMinutes),
+        }).unwrap();
+      } else {
+        await updateTask({ id: taskId, estimatedMinutes: commit.minutes }).unwrap();
+      }
+    } catch (error) {
+      // The optimistic patch has already rolled back by here, so the block is
+      // visibly back where it started; this only explains why.
+      if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
+        setPlanLimitHit(true);
+        return;
+      }
+      showErrorToast(error, toast);
+    }
   };
 
   // Each view maps to the shape that survives the available width rather than
@@ -118,7 +159,13 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
     <AgendaList days={days} tasksByDay={tasksByDay} onSelect={handleSelect} />
   ) : (
     // Mobile day is the real hour grid at full width — the primary mobile view.
-    <HourGrid days={gridDays} tasksByDay={tasksByDay} now={now} onSelect={handleSelect} />
+    <HourGrid
+      days={gridDays}
+      tasksByDay={tasksByDay}
+      now={now}
+      onSelect={handleSelect}
+      onDragCommit={handleDragCommit}
+    />
   );
 
   return (
@@ -136,6 +183,10 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
           onShift={direction => commit({ date: shiftAnchor(view, anchor, direction) })}
           onToday={() => commit({ date: now })}
         />
+
+        {/* A free user's drag is refused by the server, so the upgrade path is
+            explained in place rather than as a toast that scrolls away. */}
+        {planLimitHit && <PlanLimitAlert message={t('calendar.timedSchedulingLocked')} />}
 
         {isLoading ? <div data-testid="calendar-loading">{skeleton}</div> : content}
       </div>

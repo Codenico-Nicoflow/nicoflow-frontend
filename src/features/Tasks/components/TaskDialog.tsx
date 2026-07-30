@@ -19,6 +19,7 @@ import {
   PriorityField,
   RecurrenceField,
   ScheduledForField,
+  ScheduledTimeField,
   StatusField,
   UrlField,
 } from '@/components';
@@ -70,6 +71,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       energy: task?.energy || 'medium',
       rollsOver: task?.rollsOver ?? true,
       scheduledFor: task?.scheduledFor ?? undefined,
+      scheduledTime: task?.scheduledTime ?? undefined,
       estimatedMinutes: task?.estimatedMinutes || undefined,
       url: task?.url || '',
     },
@@ -77,6 +79,15 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   });
 
   const watchedValues = form.watch();
+  // A time without a day has nowhere to land (the backend 422s it), so clearing
+  // the date clears the time with it and the time input stays disabled until a
+  // date exists.
+  const hasScheduledDate = !!watchedValues.scheduledFor;
+  useEffect(() => {
+    if (!hasScheduledDate && form.getValues('scheduledTime')) {
+      form.setValue('scheduledTime', null, { shouldDirty: true });
+    }
+  }, [hasScheduledDate, form]);
 
   useEffect(() => {
     setPlanLimitHit(false);
@@ -90,6 +101,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         energy: task.energy || 'medium',
         rollsOver: task.rollsOver ?? true,
         scheduledFor: task.scheduledFor ?? undefined,
+        scheduledTime: task.scheduledTime ?? undefined,
         estimatedMinutes: task.estimatedMinutes || undefined,
         url: task.url || '',
       });
@@ -102,6 +114,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         energy: 'medium',
         rollsOver: true,
         scheduledFor: undefined,
+        scheduledTime: undefined,
         estimatedMinutes: undefined,
         url: '',
       });
@@ -118,6 +131,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     'energy',
     'rollsOver',
     'scheduledFor',
+    'scheduledTime',
     'estimatedMinutes',
     'url',
   ]);
@@ -167,6 +181,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           notes: data.notes ?? undefined,
           estimatedMinutes: data.estimatedMinutes ?? undefined,
           scheduledFor: data.scheduledFor ?? undefined,
+          scheduledTime: data.scheduledTime ?? undefined,
           url: data.url || '',
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
@@ -231,6 +246,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
             <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
             <ScheduledForField control={form.control} delay={0.27} />
+            <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />
             <CheckboxField
               control={form.control}
               fieldName="rollsOver"

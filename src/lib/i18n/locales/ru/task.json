@@ -237,6 +237,7 @@
     "moreCount_other": "+ещё {{count}}",
     "monthEmptyDescription": "Задачи, запланированные на этот месяц, появятся здесь.",
     "chipTimedLabel": "{{title}} в {{time}}",
-    "chipUntimedLabel": "{{title}}, весь день"
+    "chipUntimedLabel": "{{title}}, весь день",
+    "timedSchedulingLocked": "Планирование по времени — функция Pro. Перейдите на Pro, чтобы перетаскивать задачи на конкретное время."
   }
 }

@@ -236,6 +236,7 @@
     "moreCount_other": "עוד {{count}}",
     "monthEmptyDescription": "משימות שתתזמן לחודש זה יופיעו כאן.",
     "chipTimedLabel": "{{title}} בשעה {{time}}",
-    "chipUntimedLabel": "{{title}}, כל היום"
+    "chipUntimedLabel": "{{title}}, כל היום",
+    "timedSchedulingLocked": "תזמון לפי שעה הוא תכונת Pro. שדרגו כדי לגרור משימות לשעה מסוימת."
   }
 }

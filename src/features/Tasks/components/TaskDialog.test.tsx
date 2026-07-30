@@ -1,6 +1,6 @@
 import { renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
@@ -77,6 +77,36 @@ describe('TaskDialog — edit mode', () => {
 
     await waitFor(() => expect(screen.getByPlaceholderText('Enter task name')).toHaveValue('Existing task'));
     expect(screen.getByTestId('scheduling-block')).toBeInTheDocument();
+  });
+
+  it('changes time and duration from the form — the keyboard path to move and resize', async () => {
+    const scheduled = makeTask({
+      id: 'task-10',
+      title: 'Standup',
+      scheduledFor: '2026-08-05',
+      scheduledTime: '09:00',
+      estimatedMinutes: 30,
+    });
+    let patchBody: Record<string, unknown> | undefined;
+    server.use(
+      http.get(`${API}/tasks/task-10/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.patch(`${API}/tasks/task-10`, async ({ request }) => {
+        patchBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope({ ...scheduled, ...patchBody }));
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={scheduled} />);
+
+    const timeInput = await screen.findByTestId('scheduled-time-input');
+    expect(timeInput).toHaveValue('09:00');
+    fireEvent.change(timeInput, { target: { value: '11:00' } });
+    await user.click(screen.getByTestId('chip-60'));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(patchBody).toMatchObject({ scheduledTime: '11:00', estimatedMinutes: 60 }));
   });
 
   it('adds, toggles and deletes a subtask through the accordion', async () => {

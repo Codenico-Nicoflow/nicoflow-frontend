@@ -39,6 +39,7 @@ const V = {
   taskTitleMax: 'validation.taskTitleMax',
   estimatedTimeMin: 'validation.estimatedTimeMin',
   estimatedTimeMax: 'validation.estimatedTimeMax',
+  scheduledTimeInvalid: 'validation.scheduledTimeInvalid',
   urlInvalid: 'validation.urlInvalid',
   bucketContentRequired: 'validation.bucketContentRequired',
   bucketContentMax: 'validation.bucketContentMax',
@@ -153,6 +154,12 @@ const taskSchema = z.object({
   rollsOver: z.boolean().optional(),
   // soft intention — ISO date string "YYYY-MM-DD"
   scheduledFor: z.string().optional().nullable(),
+  // "HH:MM" on a 15-minute boundary — the same value a calendar drag writes
+  scheduledTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):(00|15|30|45)$/, V.scheduledTimeInvalid)
+    .optional()
+    .nullable(),
   estimatedMinutes: z.number().min(1, V.estimatedTimeMin).max(1440, V.estimatedTimeMax).optional().nullable(),
   url: z.string().url(V.urlInvalid).or(z.literal('')).optional().nullable(),
 });

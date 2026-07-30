@@ -127,6 +127,25 @@ if (!HTMLElement.prototype.releasePointerCapture) {
   HTMLElement.prototype.releasePointerCapture = () => {};
 }
 
+// jsdom has no PointerEvent; without it fireEvent.pointerDown falls back to a
+// bare Event and drops button/clientY/pointerId, so drag gestures never arm.
+if (!window.PointerEvent) {
+  class PointerEventPolyfill extends MouseEvent {
+    pointerId: number;
+    pointerType: string;
+    constructor(type: string, init: PointerEventInit = {}) {
+      super(type, init);
+      this.pointerId = init.pointerId ?? 0;
+      this.pointerType = init.pointerType ?? '';
+    }
+  }
+  Object.defineProperty(window, 'PointerEvent', {
+    writable: true,
+    configurable: true,
+    value: PointerEventPolyfill,
+  });
+}
+
 // Radix UI scrolls via scrollIntoView which is not implemented in jsdom
 if (!HTMLElement.prototype.scrollIntoView) {
   HTMLElement.prototype.scrollIntoView = () => {};

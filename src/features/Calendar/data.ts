@@ -39,3 +39,24 @@ export const MAX_MONTH_CHIPS = 3;
 
 /** Server caps a range request at 62 days; every view here is far inside that. */
 export const MAX_RANGE_DAYS = 62;
+
+/**
+ * Granularity every drag and resize snaps to. Matches the backend's stored
+ * boundary, so a dragged value round-trips unchanged.
+ */
+export const SNAP_MINUTES = 15;
+
+/**
+ * Pointer travel before a mouse drag starts. Below this a gesture is a click
+ * that opens the dialog, so a slightly shaky click never silently reschedules.
+ */
+export const DRAG_THRESHOLD_PX = 4;
+
+/**
+ * Hold time before a touch drag lifts. On a scrolling grid an immediate touch
+ * drag would steal every vertical swipe, so touch must announce intent first.
+ */
+export const LONG_PRESS_MS = 350;
+
+/** Hit area of the bottom-edge resize handle. */
+export const RESIZE_HANDLE_PX = 10;

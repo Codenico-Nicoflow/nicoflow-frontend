@@ -1,13 +1,13 @@
 {
   "today": "Today",
-  "timeSpread": "Time Spread",
+  "timeSpread": "Today",
   "focus": "Focus",
   "tomorrow": "Tomorrow",
   "nextSevenDays": "Next 7 Days",
   "bucket": "Bucket",
   "inbox": "Inbox",
   "areas": "Areas",
-  "ai": "AI Assistant",
+  "ai": "AI",
   "settings": "Settings",
   "notifications": "Notifications",
   "logout": "Log out",
@@ -18,5 +18,6 @@
   "primary": "Primary",
   "expandRail": "Expand sidebar",
   "collapseRail": "Collapse sidebar",
-  "calendar": "Calendar"
+  "calendar": "Calendar",
+  "more": "More"
 }

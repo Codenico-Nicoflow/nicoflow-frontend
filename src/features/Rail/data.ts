@@ -17,31 +17,63 @@ export interface NavDestination {
   /** Pro-gated destination. It still renders and still navigates — the page owns
    *  the locked experience — this only drives the lock affordance. */
   proOnly?: boolean;
+  /** Gets its own cell in the mobile BottomNav. Non-primary destinations move
+   *  into the More sheet; the Rail ignores this and renders all six flat. */
+  primary: boolean;
 }
 
 // Primary destinations, shared by the desktop Rail and the mobile BottomNav.
+// Order is the render order in both: the four `primary` ones fill the phone bar.
 export const NAV_DESTINATIONS: NavDestination[] = [
   // Inbox first — capture is the entry point of the GTD flow.
-  { id: 'inbox', labelKey: 'inbox', icon: Inbox, to: '/quick-access/bucket', match: ['/quick-access/bucket'] },
+  {
+    id: 'inbox',
+    labelKey: 'inbox',
+    icon: Inbox,
+    to: '/quick-access/bucket',
+    match: ['/quick-access/bucket'],
+    primary: true,
+  },
   {
     id: 'today',
     labelKey: 'timeSpread',
     icon: Sun,
     to: '/quick-access/today',
     match: ['/quick-access/today', '/quick-access/tomorrow', '/quick-access/next-7-days'],
+    primary: true,
   },
-  { id: 'focus', labelKey: 'focus', icon: Target, to: '/quick-access/focus', match: ['/quick-access/focus'] },
-  { id: 'areas', labelKey: 'areas', icon: LayoutGrid, to: '/areas', match: ['/areas', '/projects'] },
-  { id: 'calendar', labelKey: 'calendar', icon: CalendarDays, to: '/calendar', match: ['/calendar'], proOnly: true },
-  { id: 'ai', labelKey: 'ai', icon: Bot, to: '/ai', match: ['/ai'] },
+  { id: 'areas', labelKey: 'areas', icon: LayoutGrid, to: '/areas', match: ['/areas', '/projects'], primary: true },
+  {
+    id: 'calendar',
+    labelKey: 'calendar',
+    icon: CalendarDays,
+    to: '/calendar',
+    match: ['/calendar'],
+    proOnly: true,
+    primary: true,
+  },
+  {
+    id: 'focus',
+    labelKey: 'focus',
+    icon: Target,
+    to: '/quick-access/focus',
+    match: ['/quick-access/focus'],
+    primary: false,
+  },
+  { id: 'ai', labelKey: 'ai', icon: Bot, to: '/ai', match: ['/ai'], primary: false },
 ];
 
+export const PRIMARY_DESTINATIONS = NAV_DESTINATIONS.filter(d => d.primary);
+export const OVERFLOW_DESTINATIONS = NAV_DESTINATIONS.filter(d => !d.primary);
+
+// Rail-only: the BottomNav reaches Settings through the Topbar account menu.
 export const SETTINGS_DESTINATION: NavDestination = {
   id: 'settings',
   labelKey: 'settings',
   icon: Settings,
   to: '/settings',
   match: ['/settings'],
+  primary: true,
 };
 
 export const isActive = (pathname: string, dest: NavDestination) =>

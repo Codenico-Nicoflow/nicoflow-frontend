@@ -1,7 +1,9 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { Repeat } from 'lucide-react';
+import { Repeat, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { snapTimeString, TIME_STEP_MINUTES } from '@/components/ScheduledTimeField';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -236,6 +238,38 @@ export const RecurrenceField = ({
               />
             </div>
           )}
+
+          <div className="space-y-1.5">
+            <Label htmlFor={`${testId}-time`} className="text-xs">
+              {t('recurrence:field.timeLabel')}
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id={`${testId}-time`}
+                type="time"
+                step={TIME_STEP_MINUTES * 60}
+                className="w-40"
+                value={rule.scheduledTime ?? ''}
+                disabled={disabled}
+                onChange={e => patch({ scheduledTime: e.target.value || null })}
+                onBlur={() => rule.scheduledTime && patch({ scheduledTime: snapTimeString(rule.scheduledTime) })}
+                data-testid={`${testId}-time`}
+              />
+              {rule.scheduledTime && !disabled && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label={t('recurrence:field.timeClear')}
+                  onClick={() => patch({ scheduledTime: null })}
+                  data-testid={`${testId}-time-clear`}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">{t('recurrence:field.timeHint')}</p>
+          </div>
 
           <p className="text-xs text-muted-foreground" data-testid={`${testId}-summary`}>
             {renderSummary(rule)}

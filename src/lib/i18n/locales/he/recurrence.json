@@ -11,7 +11,10 @@
     "endNever": "אף פעם",
     "endOnDate": "בתאריך",
     "endDateLabel": "תאריך סיום",
-    "lastDayOfMonth": "היום האחרון בחודש"
+    "lastDayOfMonth": "היום האחרון בחודש",
+    "timeLabel": "שעה ביום",
+    "timeHint": "כל מופע יתרחש בשעה הזו. השאירו ריק למשימה לכל היום.",
+    "timeClear": "ניקוי השעה"
   },
   "freq": {
     "daily": "יומי",

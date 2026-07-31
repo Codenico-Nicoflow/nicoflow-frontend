@@ -11,7 +11,10 @@
     "endNever": "Never",
     "endOnDate": "On date",
     "endDateLabel": "End date",
-    "lastDayOfMonth": "Last day of month"
+    "lastDayOfMonth": "Last day of month",
+    "timeLabel": "Time of day",
+    "timeHint": "Every occurrence lands at this time. Leave empty for an all-day task.",
+    "timeClear": "Clear the time"
   },
   "freq": {
     "daily": "Daily",

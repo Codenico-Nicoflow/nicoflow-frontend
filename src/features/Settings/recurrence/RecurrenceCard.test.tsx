@@ -1,4 +1,4 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { IRecurrenceRule } from '@/lib/types';
 import { RecurrenceFreq } from '@/lib/types';
+import { makeUser } from '@/mocks/handlers';
 
 import { RecurrenceCard } from './RecurrenceCard';
 
@@ -94,6 +95,25 @@ describe('RecurrenceCard', () => {
     renderComponent(<RecurrenceCard />);
 
     expect(await screen.findByTestId('recurrence-limit-hint')).toBeInTheDocument();
+  });
+
+  it('never shows the free-plan cap to a Pro user, who has no limit', async () => {
+    listReturns([makeRule({ id: 'r1' }), makeRule({ id: 'r2' }), makeRule({ id: 'r3' })]);
+    statsReturns();
+    renderComponent(<RecurrenceCard />, {
+      store: createMockStore({ auth: { user: makeUser({ status: 'premium' }), token: 't', isLoading: false } }),
+    });
+
+    expect(await screen.findByTestId('recurrence-rule-r1')).toBeInTheDocument();
+    expect(screen.queryByTestId('recurrence-limit-hint')).not.toBeInTheDocument();
+  });
+
+  it('shows the time of day alongside the next occurrence when the rule is timed', async () => {
+    listReturns([makeRule({ scheduledTime: '09:00' })]);
+    statsReturns();
+    renderComponent(<RecurrenceCard />);
+
+    expect(await screen.findByText(/2026-03-09 · 09:00/)).toBeInTheDocument();
   });
 
   it('sends a pause request from the row menu', async () => {

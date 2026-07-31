@@ -9,6 +9,9 @@ export type RecurrenceSchedule = {
   byMonthday?: number | null;
   startDate: string;
   endDate?: string | null;
+  // "HH:MM" or null for all-day. Pro-only to SET — the server's 403 becomes the
+  // dialog's upgrade prompt; clearing is open on every plan.
+  scheduledTime?: string | null;
 };
 
 // POST /projects/:projectId/recurrence-rules — creates the rule and materializes

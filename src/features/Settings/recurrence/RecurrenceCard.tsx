@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsPro } from '@/hooks';
 import {
   useDeleteRecurrenceRuleMutation,
   useGetRecurrenceRulesQuery,
@@ -24,6 +25,7 @@ import { RecurrenceRuleRow } from './RecurrenceRuleRow';
 export const RecurrenceCard = () => {
   const { t } = useTranslation('recurrence');
   const { data, isLoading } = useGetRecurrenceRulesQuery({});
+  const isPro = useIsPro();
   const [pauseRule, { isLoading: isPausing }] = usePauseRecurrenceRuleMutation();
   const [deleteRule, { isLoading: isDeleting }] = useDeleteRecurrenceRuleMutation();
 
@@ -84,7 +86,7 @@ export const RecurrenceCard = () => {
                 isMutating={isMutating}
               />
             ))}
-            {rules.length >= FREE_PLAN_RULE_LIMIT && (
+            {!isPro && rules.length >= FREE_PLAN_RULE_LIMIT && (
               <p className="text-xs text-muted-foreground" data-testid="recurrence-limit-hint">
                 {t('settings.limitReached', { limit: FREE_PLAN_RULE_LIMIT })}
               </p>

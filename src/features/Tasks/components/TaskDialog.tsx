@@ -206,9 +206,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     } catch (error) {
       // A plan-limit 403 becomes an inline upgrade CTA, not a generic error toast.
       if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
-        // Only a submitted time can have tripped the timed-scheduling gate; any
-        // other 403 on this form is a task/project count.
-        setPlanLimitHit(data.scheduledTime ? 'timedScheduling' : 'generic');
+        // Only a submitted time can have tripped the timed-scheduling gate — on
+        // either the task or the recurrence rule; any other 403 on this form is a
+        // task/project/rule count.
+        const submittedTime = data.scheduledTime || recurrence?.scheduledTime;
+        setPlanLimitHit(submittedTime ? 'timedScheduling' : 'generic');
         return;
       }
       showErrorToast(error, toast);

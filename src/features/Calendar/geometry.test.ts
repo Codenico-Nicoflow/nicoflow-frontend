@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { TaskStatus } from '@/lib/types';
 import { makeTask } from '@/mocks/handlers';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX } from './data';
@@ -96,6 +97,23 @@ describe('allDayTasks', () => {
       makeTask({ id: 'malformed', scheduledTime: 'nope' }),
     ];
     expect(allDayTasks(tasks).map(task => task.id)).toEqual(['untimed', 'malformed']);
+  });
+
+  it('sorts open work ahead of completed so a cap never hides what is left to do', () => {
+    const tasks = [
+      makeTask({ id: 'done-first', scheduledTime: null, status: TaskStatus.DONE, displayOrder: 0 }),
+      makeTask({ id: 'open', scheduledTime: null, displayOrder: 1 }),
+      makeTask({ id: 'done-second', scheduledTime: null, status: TaskStatus.DONE, displayOrder: 2 }),
+    ];
+    expect(allDayTasks(tasks).map(task => task.id)).toEqual(['open', 'done-first', 'done-second']);
+  });
+
+  it('keeps displayOrder within each group so the order is stable', () => {
+    const tasks = [
+      makeTask({ id: 'b', scheduledTime: null, displayOrder: 2 }),
+      makeTask({ id: 'a', scheduledTime: null, displayOrder: 1 }),
+    ];
+    expect(allDayTasks(tasks).map(task => task.id)).toEqual(['a', 'b']);
   });
 });
 

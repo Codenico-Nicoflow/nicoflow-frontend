@@ -1,13 +1,13 @@
 {
   "today": "Сегодня",
-  "timeSpread": "Расклад по времени",
+  "timeSpread": "Сегодня",
   "focus": "Фокус",
   "tomorrow": "Завтра",
   "nextSevenDays": "Следующие 7 дней",
   "bucket": "Корзина",
   "inbox": "Входящие",
   "areas": "Области",
-  "ai": "AI-ассистент",
+  "ai": "AI",
   "settings": "Настройки",
   "notifications": "Уведомления",
   "logout": "Выйти",
@@ -18,5 +18,6 @@
   "primary": "Основная навигация",
   "expandRail": "Развернуть боковую панель",
   "collapseRail": "Свернуть боковую панель",
-  "calendar": "Календарь"
+  "calendar": "Календарь",
+  "more": "Ещё"
 }

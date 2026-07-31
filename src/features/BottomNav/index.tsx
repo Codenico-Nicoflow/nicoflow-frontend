@@ -1,51 +1,72 @@
-import { Lock } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 
-import { isActive, NAV_DESTINATIONS } from '@/features/Rail/data';
+import { MoreHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { isActive, OVERFLOW_DESTINATIONS, PRIMARY_DESTINATIONS } from '@/features/Rail/data';
 import { useIsPro } from '@/hooks';
 import { cn } from '@/lib/utils';
 
-const ITEMS = [...NAV_DESTINATIONS];
+import { BottomNavItem } from './BottomNavItem';
 
 export const BottomNav = () => {
   const { pathname } = useLocation();
   const { t } = useTranslation('nav');
-  const { t: tTask } = useTranslation('task');
   const isPro = useIsPro();
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  // Without this the user loses all sense of place while on Focus or AI, since
+  // neither has a cell of its own.
+  const overflowActive = OVERFLOW_DESTINATIONS.some(dest => isActive(pathname, dest));
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-border/60 bg-background">
-      {ITEMS.map(dest => {
-        const active = isActive(pathname, dest);
-        const label = t(dest.labelKey);
-        const locked = dest.proOnly && !isPro;
-        return (
-          <Link
-            key={dest.to}
-            to={dest.to}
-            aria-label={locked ? `${label} (${tTask('calendar.lockedHint')})` : label}
-            aria-current={active ? 'page' : undefined}
-            data-testid={`bottomnav-${dest.id}`}
-            className={cn(
-              'flex flex-1 flex-col items-center justify-center gap-0.5 text-xs transition-colors',
-              active ? 'text-primary' : 'text-muted-foreground'
-            )}
+    <nav
+      aria-label={t('primary')}
+      // pb keeps the cells clear of the iPhone home indicator; h-16 is the bar
+      // itself, so the inset adds to it rather than eating into the touch targets.
+      className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-border/60 bg-background pb-[env(safe-area-inset-bottom)]"
+    >
+      {PRIMARY_DESTINATIONS.map(dest => (
+        <BottomNavItem key={dest.to} dest={dest} active={isActive(pathname, dest)} locked={dest.proOnly && !isPro} />
+      ))}
+
+      <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+        <SheetTrigger
+          data-testid="bottomnav-more"
+          className={cn(
+            'flex flex-1 flex-col items-center justify-center gap-0.5 px-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+            overflowActive ? 'font-medium text-primary' : 'text-muted-foreground'
+          )}
+        >
+          <span
+            className={cn('flex h-7 w-12 items-center justify-center rounded-full', overflowActive && 'bg-primary/15')}
           >
-            <span className="relative">
-              <dest.icon className="h-5 w-5" />
-              {locked && (
-                <Lock
-                  className="absolute -bottom-0.5 -end-1 h-3 w-3 text-muted-foreground"
-                  aria-hidden
-                  data-testid={`bottomnav-${dest.id}-lock`}
+            <MoreHorizontal className="h-5 w-5 shrink-0" />
+          </span>
+          <span className="max-w-full truncate">{t('more')}</span>
+        </SheetTrigger>
+
+        <SheetContent side="bottom" data-testid="bottomnav-more-sheet" className="pb-[env(safe-area-inset-bottom)]">
+          <SheetHeader>
+            <SheetTitle>{t('more')}</SheetTitle>
+          </SheetHeader>
+          <ul className="flex flex-col gap-1 px-4 pb-4">
+            {OVERFLOW_DESTINATIONS.map(dest => (
+              <li key={dest.to}>
+                <BottomNavItem
+                  dest={dest}
+                  active={isActive(pathname, dest)}
+                  locked={dest.proOnly && !isPro}
+                  variant="row"
+                  onNavigate={() => setMoreOpen(false)}
                 />
-              )}
-            </span>
-            {label}
-          </Link>
-        );
-      })}
+              </li>
+            ))}
+          </ul>
+        </SheetContent>
+      </Sheet>
     </nav>
   );
 };

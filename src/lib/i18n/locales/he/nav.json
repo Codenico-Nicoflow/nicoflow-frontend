@@ -1,13 +1,13 @@
 {
   "today": "היום",
-  "timeSpread": "פריסת זמן",
+  "timeSpread": "היום",
   "focus": "פוקוס",
   "tomorrow": "מחר",
   "nextSevenDays": "7 ימים הבאים",
   "bucket": "סל",
   "inbox": "תיבת נכנס",
   "areas": "תחומים",
-  "ai": "עוזר AI",
+  "ai": "AI",
   "settings": "הגדרות",
   "notifications": "התראות",
   "logout": "התנתקות",
@@ -18,5 +18,6 @@
   "primary": "ניווט ראשי",
   "expandRail": "הרחבת סרגל הצד",
   "collapseRail": "כיווץ סרגל הצד",
-  "calendar": "לוח שנה"
+  "calendar": "לוח שנה",
+  "more": "עוד"
 }

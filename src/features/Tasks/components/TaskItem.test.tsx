@@ -6,6 +6,7 @@ import { format, subDays } from 'date-fns';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
+import { CONFIRM_DIALOG_CANCEL_BUTTON, CONFIRM_DIALOG_CONFIRM_BUTTON } from '@/lib/test_ids';
 import { makeTask } from '@/mocks/handlers';
 
 import TaskItem from './TaskItem';
@@ -92,6 +93,88 @@ describe('TaskItem', () => {
 
     await user.click(screen.getByTestId('item-actions-menu-trigger'));
     expect(onEdit).not.toHaveBeenCalled();
+  });
+
+  it('completes straight away when no subtask is open', async () => {
+    let patched = false;
+    server.use(
+      http.patch(`${API}/tasks/t9/status`, () => {
+        patched = true;
+        return HttpResponse.json(envelope(makeTask({ id: 't9', status: 'done' })));
+      })
+    );
+
+    const user = userEvent.setup();
+    const task = makeTask({ id: 't9', status: 'active', subtaskCount: 2, openSubtaskCount: 0 });
+    renderComponent(<TaskItem task={task} index={0} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('task-checkbox-t9'));
+
+    await waitFor(() => expect(patched).toBe(true));
+    expect(screen.queryByTestId(CONFIRM_DIALOG_CONFIRM_BUTTON)).not.toBeInTheDocument();
+  });
+
+  it('asks before completing a task that still has open subtasks', async () => {
+    let patched = false;
+    server.use(
+      http.patch(`${API}/tasks/t10/status`, () => {
+        patched = true;
+        return HttpResponse.json(envelope(makeTask({ id: 't10', status: 'done' })));
+      })
+    );
+
+    const user = userEvent.setup();
+    const task = makeTask({ id: 't10', status: 'active', subtaskCount: 3, openSubtaskCount: 2 });
+    renderComponent(<TaskItem task={task} index={0} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('task-checkbox-t10'));
+
+    expect(await screen.findByText(/2 unfinished subtasks/)).toBeInTheDocument();
+    expect(patched).toBe(false);
+
+    await user.click(screen.getByTestId(CONFIRM_DIALOG_CONFIRM_BUTTON));
+    await waitFor(() => expect(patched).toBe(true));
+  });
+
+  it('leaves the task alone when the completion is cancelled', async () => {
+    let patched = false;
+    server.use(
+      http.patch(`${API}/tasks/t11/status`, () => {
+        patched = true;
+        return HttpResponse.json(envelope(makeTask({ id: 't11', status: 'done' })));
+      })
+    );
+
+    const user = userEvent.setup();
+    const task = makeTask({ id: 't11', status: 'active', subtaskCount: 1, openSubtaskCount: 1 });
+    renderComponent(<TaskItem task={task} index={0} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('task-checkbox-t11'));
+    await user.click(await screen.findByTestId(CONFIRM_DIALOG_CANCEL_BUTTON));
+
+    await waitFor(() => expect(screen.queryByTestId(CONFIRM_DIALOG_CANCEL_BUTTON)).not.toBeInTheDocument());
+    expect(patched).toBe(false);
+    expect(screen.getByTestId('task-checkbox-t11')).not.toBeChecked();
+  });
+
+  it('does not ask when reopening a completed task with open subtasks', async () => {
+    let patchedStatus: unknown;
+    server.use(
+      http.patch(`${API}/tasks/t12/status`, async ({ request }) => {
+        const body = (await request.json()) as { status: string };
+        patchedStatus = body.status;
+        return HttpResponse.json(envelope(makeTask({ id: 't12', status: 'active' })));
+      })
+    );
+
+    const user = userEvent.setup();
+    const task = makeTask({ id: 't12', status: 'done', subtaskCount: 2, openSubtaskCount: 2 });
+    renderComponent(<TaskItem task={task} index={0} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('task-checkbox-t12'));
+
+    await waitFor(() => expect(patchedStatus).toBe('active'));
+    expect(screen.queryByTestId(CONFIRM_DIALOG_CONFIRM_BUTTON)).not.toBeInTheDocument();
   });
 
   it('moves the task to someday from the three-dot menu', async () => {

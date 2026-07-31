@@ -71,6 +71,10 @@ export interface ITask {
   // SUM of closed focus segments in seconds (E-049). Enriched only on
   // GET /tasks/:id and GET /focus — always 0 on the project task-list.
   totalFocusSeconds: number;
+  // Populated on every task read, list included — completing a task with
+  // openSubtaskCount > 0 asks for confirmation first.
+  subtaskCount: number;
+  openSubtaskCount: number;
 }
 
 export interface ISubtask {

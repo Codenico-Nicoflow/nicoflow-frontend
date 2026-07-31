@@ -37,6 +37,8 @@ import {
 } from '@/lib/utils';
 import { normalizeScheduleForFreq } from '@/lib/utils/utils/recurrence';
 
+import { useConfirmComplete } from '../useConfirmComplete';
+
 import { AttachmentSection } from './AttachmentSection';
 import { SubtaskAccordion } from './SubtaskAccordion';
 
@@ -55,6 +57,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
   const [createRule, { isLoading: isRuleLoading }] = useCreateRecurrenceRuleMutation();
+  const { guardComplete, confirmDialog } = useConfirmComplete();
 
   // Which limit the server refused. A timed-scheduling 403 gets copy naming the
   // time, because the generic "plan limit" reads as "too many tasks" and sends
@@ -139,12 +142,21 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     'url',
   ]);
 
-  const onSubmit = async (data: TaskFormData) => {
+  // Saving an edit that flips status to done is the same completion the list
+  // checkbox performs, so it asks the same question when subtasks are open.
+  const onSubmit = (data: TaskFormData) => {
     if (isEditMode && !hasChanges) {
       onOpenChange(false);
       return;
     }
+    if (isEditMode && task && data.status) {
+      guardComplete(task, data.status, () => submit(data));
+      return;
+    }
+    return submit(data);
+  };
 
+  const submit = async (data: TaskFormData) => {
     setPlanLimitHit(null);
 
     try {
@@ -277,6 +289,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
           {isEditMode && task && <AttachmentSection ownerType="task" ownerId={task.id} />}
         </div>
       </Form>
+      {confirmDialog}
     </FormDialog>
   );
 };

@@ -45,7 +45,10 @@ export const RecurrenceRuleRow = ({ rule, onPauseToggle, onDelete, isMutating }:
           </div>
           <p className="text-xs text-muted-foreground">{renderSummary(rule)}</p>
           <p className="text-xs text-muted-foreground">
-            {t('recurrence:settings.nextLabel')}: {rule.nextOccurrence ?? t('recurrence:settings.nextNone')}
+            {t('recurrence:settings.nextLabel')}:{' '}
+            {rule.nextOccurrence
+              ? `${rule.nextOccurrence}${rule.scheduledTime ? ` · ${rule.scheduledTime}` : ''}`
+              : t('recurrence:settings.nextNone')}
           </p>
         </div>
 

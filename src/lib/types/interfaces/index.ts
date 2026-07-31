@@ -170,6 +170,7 @@ export interface IRecurrenceRule {
   priority: TaskPriority;
   energy: TaskEnergy;
   estimatedMinutes?: number | null;
+  scheduledTime?: string | null; // "HH:MM" stamped onto every occurrence; null = all-day
   freq: RecurrenceFreq;
   interval: number; // 1..366
   byWeekday: number[]; // weekly only; 0=Sun..6=Sat. Always an array, never null.

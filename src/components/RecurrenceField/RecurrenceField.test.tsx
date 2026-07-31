@@ -102,4 +102,44 @@ describe('RecurrenceField', () => {
     expect(screen.getByTestId('recurrence-interval')).toBeDisabled();
     expect(screen.getByTestId('recurrence-weekday-1')).toBeDisabled();
   });
+
+  it('starts all-day and emits the time the user picks', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(<RecurrenceField value={weekly} onChange={onChange} />);
+
+    const input = screen.getByTestId('recurrence-time');
+    expect(input).toHaveValue('');
+
+    await user.type(input, '09:00');
+    await waitFor(() => expect(onChange).toHaveBeenCalled());
+    expect(onChange.mock.calls.at(-1)?.[0]).toMatchObject({ scheduledTime: '09:00' });
+  });
+
+  it('snaps a typed off-grid time onto the 15-minute boundary on blur', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(<RecurrenceField value={{ ...weekly, scheduledTime: '09:07' }} onChange={onChange} />);
+
+    await user.click(screen.getByTestId('recurrence-time'));
+    await user.tab();
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ scheduledTime: '09:00' })));
+  });
+
+  it('clears the time back to all-day', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    renderComponent(<RecurrenceField value={{ ...weekly, scheduledTime: '09:00' }} onChange={onChange} />);
+
+    await user.click(screen.getByTestId('recurrence-time-clear'));
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ scheduledTime: null })));
+  });
+
+  it('offers no clear button while the rule is all-day', () => {
+    renderComponent(<RecurrenceField value={weekly} onChange={vi.fn()} />);
+
+    expect(screen.queryByTestId('recurrence-time-clear')).not.toBeInTheDocument();
+  });
 });

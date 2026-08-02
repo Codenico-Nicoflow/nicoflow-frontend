@@ -133,9 +133,17 @@ export const authApi = createApi({
       transformResponse: (raw: ApiEnvelope<IUser>) => raw.data,
       // Persist the returned user back into the auth slice so the rest of the app
       // (and the persisted store) immediately reflects the new theme/language.
+      //
+      // A rejected `queryFulfilled` is swallowed here on purpose: the caller
+      // handles the failure via `.unwrap()`, and leaving this promise unhandled
+      // surfaces as an unhandled rejection independent of that catch.
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        dispatch(setUser(data));
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data));
+        } catch {
+          // Nothing to persist — the profile is unchanged.
+        }
       },
       invalidatesTags: ['User'],
     }),

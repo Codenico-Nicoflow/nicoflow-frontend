@@ -127,4 +127,26 @@ describe('nowOffset', () => {
     const now = new Date(2026, 7, 1, 6, 30);
     expect(nowOffset(now, new Date(2026, 7, 2))).toBeNull();
   });
+
+  describe('with an account timezone', () => {
+    // 22:30 UTC on the 5th is 07:30 on the 6th in Tokyo, 18:30 on the 5th in NY.
+    const INSTANT = new Date('2026-08-05T22:30:00Z');
+
+    it('draws the line at the account wall clock, not the browser one', () => {
+      expect(nowOffset(INSTANT, new Date(2026, 7, 6), 'Asia/Tokyo')).toBe(7.5 * HOUR_HEIGHT_PX);
+      expect(nowOffset(INSTANT, new Date(2026, 7, 5), 'America/New_York')).toBe(18.5 * HOUR_HEIGHT_PX);
+    });
+
+    it('matches the account day rather than the browser day', () => {
+      // In Tokyo it is already the 6th, so the 5th must not carry the line.
+      expect(nowOffset(INSTANT, new Date(2026, 7, 5), 'Asia/Tokyo')).toBeNull();
+      expect(nowOffset(INSTANT, new Date(2026, 7, 6), 'America/New_York')).toBeNull();
+    });
+
+    it('falls back to browser-local on an unknown zone rather than blanking the line', () => {
+      expect(nowOffset(INSTANT, INSTANT, 'Mars/Olympus_Mons')).toBe(
+        ((INSTANT.getHours() * 60 + INSTANT.getMinutes()) / 60) * HOUR_HEIGHT_PX
+      );
+    });
+  });
 });

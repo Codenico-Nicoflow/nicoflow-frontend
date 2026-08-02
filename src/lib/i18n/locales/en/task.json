@@ -249,6 +249,13 @@
     "allDayMore": "+{{count}} more",
     "allDayMore_other": "+{{count}} more",
     "allDayCollapse": "Show fewer all-day tasks",
-    "allDayMore_one": "+{{count}} more"
+    "allDayMore_one": "+{{count}} more",
+    "timezoneDrift": {
+      "title": "Your calendar is showing a different timezone",
+      "description": "Your account is set to {{accountZone}}, but this device is in {{browserZone}}. Times here follow your account, so reminders fire when you expect.",
+      "update": "Use this device's timezone",
+      "dismiss": "Keep account timezone",
+      "updated": "Timezone updated to {{zone}}."
+    }
   }
 }

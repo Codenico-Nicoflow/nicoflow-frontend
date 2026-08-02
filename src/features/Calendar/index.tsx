@@ -9,7 +9,7 @@ import { TaskDialog } from '@/features/Tasks';
 import { useIsMobile, useIsPro } from '@/hooks';
 import { useAppUser, useGetCalendarTasksQuery, useScheduleTaskMutation, useUpdateTaskMutation } from '@/lib/store';
 import type { ITask } from '@/lib/types';
-import { getApiErrorCode, showErrorToast } from '@/lib/utils';
+import { getApiErrorCode, resolveTimeZone, showErrorToast } from '@/lib/utils';
 
 import AgendaList from './components/AgendaList';
 import { AgendaSkeleton, GridSkeleton, MonthSkeleton } from './components/CalendarSkeletons';
@@ -18,8 +18,11 @@ import CalendarToolbar from './components/CalendarToolbar';
 import HourGrid from './components/HourGrid';
 import MonthDensity from './components/MonthDensity';
 import MonthGrid from './components/MonthGrid';
+import TimezoneDriftBanner from './components/TimezoneDriftBanner';
 import type { CalendarView } from './data';
 import { toTimeString } from './dragMath';
+import { isDriftDismissed } from './timezoneDismissal';
+import { detectTimezoneDrift } from './timezoneDrift';
 import type { BlockDragCommit } from './useBlockDrag';
 import {
   groupByDayKey,
@@ -61,6 +64,15 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   const [editTask, setEditTask] = useState<ITask | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [planLimitHit, setPlanLimitHit] = useState(false);
+  // Resolving the banner is a within-session decision; the durable record lives
+  // in localStorage so it also survives a reload.
+  const [isDriftResolved, setIsDriftResolved] = useState(false);
+
+  // The account zone is authoritative and is never overwritten automatically —
+  // this only decides whether to *ask*. Compared by current UTC offset, so two
+  // names for the same wall clock (Berlin vs Paris) never nag.
+  const drift = useMemo(() => detectTimezoneDrift(user?.timezone, resolveTimeZone(), now), [user?.timezone, now]);
+  const showDrift = drift !== null && !isDriftResolved && !isDriftDismissed(drift.accountZone, drift.browserZone);
 
   const [scheduleTask] = useScheduleTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
@@ -174,6 +186,8 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
       days={gridDays}
       tasksByDay={tasksByDay}
       now={now}
+      todayKey={todayKey}
+      timezone={user?.timezone}
       onSelect={handleSelect}
       onDragCommit={handleDragCommit}
     />
@@ -186,6 +200,12 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t('calendar.title')}</h1>
           <p className="text-sm text-muted-foreground">{t('calendar.subtitle')}</p>
         </div>
+
+        {/* Above the toolbar because it qualifies every time drawn below it —
+            a user must know the grid is in their account zone before reading it. */}
+        {showDrift && drift && (
+          <TimezoneDriftBanner drift={drift} now={now} onResolved={() => setIsDriftResolved(true)} />
+        )}
 
         <CalendarToolbar
           view={effectiveView}

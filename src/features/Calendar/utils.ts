@@ -9,24 +9,56 @@ export const DAY_KEY = 'yyyy-MM-dd';
 
 export const toDayKey = (date: Date): string => format(date, DAY_KEY);
 
+/** A wall-clock reading of an instant in some zone. */
+export interface WallClock {
+  dayKey: string;
+  hours: number;
+  minutes: number;
+}
+
+/**
+ * Read an instant as the wall clock of the account's timezone — the same zone
+ * `todayKeyIn` resolves, so the now-line and the highlighted day can never
+ * disagree about which day it is.
+ *
+ * An absent or unknown zone falls back to browser-local: degrading to the old
+ * behaviour beats blanking the now-line entirely.
+ */
+export const wallClockIn = (timezone: string | undefined, now: Date): WallClock => {
+  const local = (): WallClock => ({ dayKey: toDayKey(now), hours: now.getHours(), minutes: now.getMinutes() });
+  if (!timezone) return local();
+
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).formatToParts(now);
+
+    const value = (type: Intl.DateTimeFormatPartTypes): string => parts.find(part => part.type === type)?.value ?? '';
+    const dayKey = `${value('year')}-${value('month')}-${value('day')}`;
+    // Some engines render midnight as hour 24; 24:00 is 00:00 of the same day.
+    const hours = Number(value('hour')) % 24;
+    const minutes = Number(value('minute'));
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return local();
+
+    return { dayKey, hours, minutes };
+  } catch {
+    return local();
+  }
+};
+
 /**
  * Today's day key in the account's timezone, which is the zone every
  * `scheduledFor` and every server-side sweep is keyed to. A traveller in UTC+13
  * looking at a UTC-5 account must see the account's day highlighted, not the
  * one their laptop happens to be in.
- *
- * `en-CA` is the locale that formats as `YYYY-MM-DD`, so no reassembly is
- * needed. An unknown zone throws inside Intl; falling back to browser-local is
- * strictly better than crashing the grid.
  */
-export const todayKeyIn = (timezone: string | undefined, now: Date): string => {
-  if (!timezone) return toDayKey(now);
-  try {
-    return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(now);
-  } catch {
-    return toDayKey(now);
-  }
-};
+export const todayKeyIn = (timezone: string | undefined, now: Date): string => wallClockIn(timezone, now).dayKey;
 
 /** Split the padded month grid into its 6 rendered weeks. */
 export const monthGridWeeks = (days: Date[]): Date[][] =>

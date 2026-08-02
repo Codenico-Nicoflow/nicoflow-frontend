@@ -2,6 +2,7 @@ import type { ITask } from '@/lib/types';
 import { TaskStatus } from '@/lib/types';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX, MINUTES_PER_DAY } from './data';
+import { toDayKey, wallClockIn } from './utils';
 
 /** A timed task placed on the grid, in pixels from the top of the day column. */
 export interface BlockGeometry {
@@ -137,10 +138,14 @@ export const allDayTasks = (tasks: ITask[]): ITask[] =>
 /**
  * Offset of the now-line. Returns null when `now` is not inside the rendered
  * day, so a week view draws the line only on today's column.
+ *
+ * Both the day match and the height are read in the account zone, because that
+ * is the zone every `scheduledFor` and every block on this grid is keyed to. A
+ * traveller reading browser-local time would get the line drawn hours away from
+ * the blocks it is supposed to sit among.
  */
-export const nowOffset = (now: Date, day: Date): number | null => {
-  if (now.getFullYear() !== day.getFullYear() || now.getMonth() !== day.getMonth() || now.getDate() !== day.getDate()) {
-    return null;
-  }
-  return ((now.getHours() * 60 + now.getMinutes()) / 60) * HOUR_HEIGHT_PX;
+export const nowOffset = (now: Date, day: Date, timezone?: string): number | null => {
+  const wall = wallClockIn(timezone, now);
+  if (wall.dayKey !== toDayKey(day)) return null;
+  return ((wall.hours * 60 + wall.minutes) / 60) * HOUR_HEIGHT_PX;
 };

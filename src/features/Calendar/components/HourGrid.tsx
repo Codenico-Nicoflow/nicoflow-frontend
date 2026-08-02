@@ -1,4 +1,4 @@
-import { format, isToday } from 'date-fns';
+import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { getDateLocale } from '@/lib/i18n/dateLocale';
@@ -18,12 +18,16 @@ interface HourGridProps {
   tasksByDay: Map<string, ITask[]>;
   /** Injected so the now-line is deterministic in tests and stories. */
   now: Date;
+  /** Today in the account zone — the same key the month views highlight. */
+  todayKey: string;
+  /** Account zone, so the now-line sits at the account's wall clock. */
+  timezone?: string;
   onSelect: (taskId: string) => void;
   /** Absent makes the grid read-only — blocks still open, nothing drags. */
   onDragCommit?: (taskId: string, commit: BlockDragCommit) => void;
 }
 
-const HourGrid = ({ days, tasksByDay, now, onSelect, onDragCommit }: HourGridProps) => {
+const HourGrid = ({ days, tasksByDay, now, todayKey, timezone, onSelect, onDragCommit }: HourGridProps) => {
   const { i18n } = useTranslation('task');
   const locale = getDateLocale(i18n.language);
 
@@ -45,7 +49,9 @@ const HourGrid = ({ days, tasksByDay, now, onSelect, onDragCommit }: HourGridPro
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
                 {format(day, 'EEE', { locale })}
               </div>
-              <div className={cn('text-sm font-semibold', isToday(day) ? 'text-primary' : 'text-foreground')}>
+              <div
+                className={cn('text-sm font-semibold', toDayKey(day) === todayKey ? 'text-primary' : 'text-foreground')}
+              >
                 {format(day, 'd', { locale })}
               </div>
             </div>
@@ -75,7 +81,7 @@ const HourGrid = ({ days, tasksByDay, now, onSelect, onDragCommit }: HourGridPro
           {days.map(day => {
             const key = toDayKey(day);
             const dayTasks = tasksByDay.get(key) ?? [];
-            const offset = nowOffset(now, day);
+            const offset = nowOffset(now, day, timezone);
 
             return (
               <div key={key} className="relative flex-1 border-s border-border/60" data-testid={`calendar-day-${key}`}>

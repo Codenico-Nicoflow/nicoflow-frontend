@@ -252,6 +252,13 @@
     "allDayMore_two": "עוד {{count}}",
     "allDayMore_other": "עוד {{count}}",
     "allDayCollapse": "הצג פחות משימות יומיות",
-    "allDayMore_one": "עוד {{count}}"
+    "allDayMore_one": "עוד {{count}}",
+    "timezoneDrift": {
+      "title": "היומן שלך מציג אזור זמן אחר",
+      "description": "החשבון שלך מוגדר ל-{{accountZone}}, אך המכשיר הזה נמצא ב-{{browserZone}}. השעות כאן מבוססות על החשבון שלך, כך שתזכורות יישלחו כמצופה.",
+      "update": "השתמש באזור הזמן של המכשיר",
+      "dismiss": "השאר את אזור הזמן של החשבון",
+      "updated": "אזור הזמן עודכן ל-{{zone}}."
+    }
   }
 }

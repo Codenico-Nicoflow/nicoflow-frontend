@@ -170,7 +170,17 @@
         "calendarCapHint": "Up to {{max}} calendars can be shown at once.",
         "calendarCapReached": "Maximum of {{max}} calendars selected. Uncheck one to choose another.",
         "calendarsUnavailable": "Couldn't load your Google calendars. Try again shortly.",
-        "noCalendars": "No calendars found on this Google account."
+        "noCalendars": "No calendars found on this Google account.",
+        "title": "Google Calendar",
+        "help": "Show your Google events behind your tasks. Nicoflow only reads them — it never changes your Google calendar.",
+        "connect": "Connect Google Calendar",
+        "connectedAs": "Connected as",
+        "disconnect": "Disconnect",
+        "disconnected": "Google Calendar disconnected",
+        "disconnectTitle": "Disconnect Google Calendar?",
+        "disconnectDescription": "This revokes Nicoflow's access with Google, and your events will stop appearing on the calendar. You can reconnect at any time.",
+        "connectionUnavailable": "Couldn't check your Google connection. Try again shortly.",
+        "lastErrorHint": "The last sync with Google failed. Your events may be out of date."
       }
     },
     "profile": {

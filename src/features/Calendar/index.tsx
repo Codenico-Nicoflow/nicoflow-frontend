@@ -24,12 +24,14 @@ import { AgendaSkeleton, GridSkeleton, MonthSkeleton } from './components/Calend
 import CalendarTeaser from './components/CalendarTeaser';
 import CalendarToolbar from './components/CalendarToolbar';
 import GoogleEventPopover from './components/GoogleEventPopover';
+import GoogleStatusStrip from './components/GoogleStatusStrip';
 import HourGrid from './components/HourGrid';
 import MonthDensity from './components/MonthDensity';
 import MonthGrid from './components/MonthGrid';
 import TimezoneDriftBanner from './components/TimezoneDriftBanner';
 import type { CalendarView } from './data';
 import { toTimeString } from './dragMath';
+import { clearDismissedStatus, dismissStatus, isStatusDismissed } from './googleStatusDismissal';
 import { isDriftDismissed } from './timezoneDismissal';
 import { detectTimezoneDrift } from './timezoneDrift';
 import type { BlockDragCommit } from './useBlockDrag';
@@ -107,6 +109,16 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   const googleEvents = googleData?.events ?? [];
 
   const [selectedEvent, setSelectedEvent] = useState<IGoogleEvent | null>(null);
+
+  // Within-session dismissal; the durable record lives in localStorage so it
+  // also survives a reload.
+  const [isGoogleStatusResolved, setIsGoogleStatusResolved] = useState(false);
+  const googleStatus = googleData?.googleStatus ?? 'ok';
+  // A healthy fetch clears the stored dismissal, so the NEXT genuine failure is
+  // not pre-silenced by an answer to an older, unrelated one.
+  if (googleStatus === 'ok') clearDismissedStatus();
+  const showGoogleStatus =
+    !isLocked && googleStatus !== 'ok' && !isGoogleStatusResolved && !isStatusDismissed(googleStatus);
 
   const days = useMemo(() => visibleDays(effectiveView, anchor), [effectiveView, anchor]);
   // Below the breakpoint the hour grid is always a single column — week becomes
@@ -241,6 +253,18 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
           onToday={() => commit({ date: now })}
           hideViewSwitcher={isLocked}
         />
+
+        {/* Google is a secondary layer: this says so in place, while every task
+            below still renders normally. */}
+        {showGoogleStatus && (
+          <GoogleStatusStrip
+            status={googleStatus}
+            onDismiss={() => {
+              dismissStatus(googleStatus);
+              setIsGoogleStatusResolved(true);
+            }}
+          />
+        )}
 
         {/* A free user's drag is refused by the server, so the upgrade path is
             explained in place rather than as a toast that scrolls away. */}

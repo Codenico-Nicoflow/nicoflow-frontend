@@ -263,6 +263,10 @@
     "googleEventCount_one": "אירוע {{count}}",
     "googleEventCount_two": "{{count}} אירועים",
     "googleEventCount_other": "{{count}} אירועים",
-    "openInGoogle": "פתח ביומן Google"
+    "openInGoogle": "פתח ביומן Google",
+    "googleDisconnected": "יומן Google מנותק — האירועים שלך אינם מוצגים.",
+    "googleUnavailable": "יומן Google אינו זמין כרגע. המשימות שלך אינן מושפעות.",
+    "googleReconnect": "התחבר מחדש",
+    "googleDismiss": "סגור"
   }
 }

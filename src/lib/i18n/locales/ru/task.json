@@ -267,6 +267,10 @@
     "googleEventCount_few": "{{count}} события",
     "googleEventCount_many": "{{count}} событий",
     "googleEventCount_other": "{{count}} события",
-    "openInGoogle": "Открыть в Google Календаре"
+    "openInGoogle": "Открыть в Google Календаре",
+    "googleDisconnected": "Google Календарь отключён — ваши события не показаны.",
+    "googleUnavailable": "Google Календарь сейчас недоступен. На ваши задачи это не влияет.",
+    "googleReconnect": "Подключить снова",
+    "googleDismiss": "Скрыть"
   }
 }

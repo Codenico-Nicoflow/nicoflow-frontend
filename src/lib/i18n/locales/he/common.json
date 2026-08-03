@@ -170,7 +170,17 @@
         "calendarCapHint": "אפשר להציג עד {{max}} יומנים בו-זמנית.",
         "calendarCapReached": "נבחרו {{max}} יומנים — המקסימום. בטל בחירה של אחד כדי לבחור אחר.",
         "calendarsUnavailable": "לא הצלחנו לטעון את יומני Google שלך. נסה שוב בעוד רגע.",
-        "noCalendars": "לא נמצאו יומנים בחשבון Google הזה."
+        "noCalendars": "לא נמצאו יומנים בחשבון Google הזה.",
+        "title": "יומן Google",
+        "help": "הצג את אירועי Google שלך מאחורי המשימות. Nicoflow רק קורא אותם — הוא לעולם לא משנה את יומן Google שלך.",
+        "connect": "התחבר ליומן Google",
+        "connectedAs": "מחובר כ-",
+        "disconnect": "התנתק",
+        "disconnected": "יומן Google נותק",
+        "disconnectTitle": "לנתק את יומן Google?",
+        "disconnectDescription": "פעולה זו מבטלת את הגישה של Nicoflow מול Google, והאירועים שלך יפסיקו להופיע ביומן. אפשר להתחבר מחדש בכל עת.",
+        "connectionUnavailable": "לא הצלחנו לבדוק את החיבור ל-Google. נסה שוב בעוד רגע.",
+        "lastErrorHint": "הסנכרון האחרון עם Google נכשל. ייתכן שהאירועים שלך אינם מעודכנים."
       }
     },
     "profile": {

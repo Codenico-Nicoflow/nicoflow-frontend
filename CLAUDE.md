@@ -68,12 +68,13 @@ src/
 │   ├── Area/              — components/ + index.tsx
 │   ├── BottomNav/         — mobile bottom navigation (renders NAV_DESTINATIONS from Rail/data.ts)
 │   ├── Bucket/            — components/ + utils/ + index.tsx
+│   ├── Calendar/          — HourGrid/Month/Agenda + displayPrefs · googleOverlay · googleColor · geometry · dragMath
 │   ├── Focus/             — FocusView + components/ states/ data.ts useFocusSession/useFocusChips
 │   ├── Notifications/     — components/ desktop/ push/ + notificationTypes.ts
 │   ├── Project/           — components/ + states/ + index.tsx
 │   ├── Rail/              — desktop left nav rail; data.ts owns NAV_DESTINATIONS + isActive()
 │   ├── Search/            — SearchCommand (⌘K) + recentSearches/useSearchNavigation/highlightMatch
-│   ├── Settings/          — AccountCard, PreferencesCard, SecurityCard + notifications/
+│   ├── Settings/          — Account/Preferences/Security/Calendar/Recurrence cards + google/ notifications/
 │   ├── SignForm/          — SignForm.tsx, BottomText, RememberMe, SocialButtons + index.ts
 │   ├── Tasks/             — components/ + states/ + utils/ + index.ts
 │   ├── TimeSpread/        — TimeSpreadView + components/ + utils.ts
@@ -261,7 +262,8 @@ IArea    { id: string; name; color; icon?; displayOrder?; createdAt; updatedAt; 
 IProject { id: string; areaId: string; name; status: 'active'|'archived'|'completed'; folderIcon; dueDate?|null; isFavorite?; description?|null; displayOrder?; createdAt; updatedAt }
 ITask    { id: string; projectId: string; title; notes?|null; status: TaskStatus; priority: TaskPriority; dueDate?|null; scheduledFor?: 'today'|'tomorrow'|'this_week'|null; estimatedMinutes?|null; url?|null; displayOrder?; completedAt?|null; createdAt; updatedAt }
 IBucket  { id: string; userId: string; content; processedAt?|null; processingResult?|null; createdTaskId?|null; createdNoteId?|null; projectId?|null; createdAt; updatedAt }
-IUser    { id: string; email; firstName; lastName; username; theme: 'light'|'dark'; imageUrl; status: 'premium'|'regular' }
+IUser    { id: string; email; firstName; lastName; username; theme: 'light'|'dark'; imageUrl; status: 'premium'|'regular'; calendar?: ICalendarPrefs }
+ICalendarPrefs { weekStart: number; workdays: number[]; dayStartHour: number; dayEndHour: number }   // 0=Sunday…6=Saturday; dayEndHour EXCLUSIVE (24 = through midnight)
 ```
 
 Task fields: `title` (VARCHAR 255) and `notes` (TEXT, optional/nullable) — **not** `name`/`description`.
@@ -329,6 +331,16 @@ toast.error(ToastMessages.UNEXPECTED_ERROR);
 - Favorites can't reuse `RailItem`: nav destinations carry a `LucideIcon` **component**, projects carry a `folderIcon` **`IconId` string** rendered via `<LazyIcon>`. Ordering is alphabetical by name (not `displayOrder`, which belongs to the areas board).
 - On `/projects/:id` **both** the favorite and the section-level Areas item read as active — different treatments (ring vs. fill), answering different questions. Don't "fix" that by narrowing Areas' `match`.
 - **Desktop only.** `BottomNav` is untouched: 5 labeled `flex-1` items already fill a phone width. Revisit with the Phase-6 mobile app.
+
+**Calendar grid (E-051/E-052).** Three things about it are load-bearing and easy to undo by accident:
+
+- **The row height is dynamic.** Narrowing the visible-hours window (NIC-1890) makes rows taller, capped at 2×, which is what makes 15- and 30-minute blocks distinguishable — at the base 48px/hour a quarter-hour block was 12px and got clamped up, so the grid stated a duration it was not drawing. **Every px↔minute conversion must take the height actually rendered**, never `HOUR_HEIGHT_PX`: geometry, the Google chips and `useBlockDrag` all thread it, and it is a `useCallback` dependency in the drag hook. A drag converting pointer pixels at the base scale while the grid drew a taller row lands the gesture at the wrong time.
+- **Minimum block size is a duration, not a pixel value** (`MIN_BLOCK_MINUTES`, 30) and applies to tasks _and_ Google chips. A px floor means different durations at different row heights.
+- **The hour window is a default view, never a filter.** Anything scheduled outside it widens the grid (`visibleHourRange`) rather than vanishing — events included, since a meeting the user does not control disappearing is as bad as a task doing so. A display setting that silently hides scheduled work is indistinguishable from losing it.
+
+Google events render as chips **behind** the task layer, absolutely positioned, so they can never move a task **in time** — a block's top and height come from its own `scheduledTime` and nothing else touches them. **Width is shared both ways** (NIC-1893): `layoutDay` reserves columns for overlapping event spans and `eventChips` reserves the same count for overlapping task spans, so the two layers agree on one divisor without either laying the other out. The task always keeps the **leading** column — the user's own work is never the thing pushed aside — and a block with nothing sharing its minutes stays full width. Getting this one-directional is what let a task paint straight over a chip. Colours come from Google's own `backgroundColor` (validated before it reaches a style attribute) with a hashed — not positional — fallback, so unsharing a calendar cannot silently recolour the grid.
+
+**Short blocks drop text rather than clip it** (`blockDensity`, NIC-1892). Whether a second line fits is an **absolute pixel** question about the type, never a share of the row — scaling that threshold with `hourHeight` is what cut `08:00 · 15 min` through the middle of the glyphs. The full text always reaches assistive tech via `aria-label`, so dropping a line costs presentation only.
 
 **Adding shadcn/ui components:** `npx shadcn@latest add <name>` → outputs to `src/components/ui/`.
 

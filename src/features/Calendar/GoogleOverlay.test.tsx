@@ -85,10 +85,11 @@ describe('Google event overlay', () => {
   });
 
   /**
-   * The load-bearing guarantee of this feature: the overlay participates in no
-   * layout, so events arriving late can never move the user's own work.
+   * The load-bearing guarantee: an event can never move the user's work in TIME.
+   * Width is shared (see below), but a task's vertical position and height are
+   * derived from its own `scheduledTime` alone and no event can touch them.
    */
-  it('does not change task block position or width when events are present', () => {
+  it('does not change task block position or height when events are present', () => {
     const tasks = [task('t1', '09:00'), task('t2', '11:00')];
 
     const withoutEvents = renderGrid([], tasks);
@@ -98,7 +99,18 @@ describe('Google event overlay', () => {
     renderGrid([event('a', '09:00', '10:00'), event('b', '09:30', '12:00')], tasks);
     const after = { t1: blockBox('t1'), t2: blockBox('t2') };
 
-    expect(after).toEqual(before);
+    expect(after.t1.top).toBe(before.t1.top);
+    expect(after.t1.height).toBe(before.t1.height);
+    expect(after.t2.top).toBe(before.t2.top);
+    expect(after.t2.height).toBe(before.t2.height);
+  });
+
+  // A day with no events is unchanged — width is only ever given up to something
+  // that genuinely shares the minutes.
+  it('leaves a task at full width when no event overlaps it', () => {
+    renderGrid([event('a', '14:00', '15:00')], [task('t1', '09:00')]);
+
+    expect(blockBox('t1').width).toBe('100%');
   });
 
   /**
@@ -126,11 +138,14 @@ describe('Google event overlay', () => {
     expect(chips.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('keeps full column width for tasks that overlap an event', () => {
+  // Tasks and chips reserve each other's columns from BOTH sides, so neither
+  // layer paints over the other. The task keeps the LEADING column — the user's
+  // own work is never the thing pushed aside.
+  it('shares width with an event that overlaps it, keeping the leading column', () => {
     renderGrid([event('a', '09:00', '10:00')], [task('t1', '09:00')]);
 
-    // A single task owns the whole column — the event does not take a share.
-    expect(blockBox('t1').width).toBe('100%');
+    expect(blockBox('t1').width).toBe('50%');
+    expect(blockBox('t1').insetInlineStart).toBe('0%');
   });
 
   // Events size themselves the way task blocks do: full column alone, split
@@ -148,13 +163,16 @@ describe('Google event overlay', () => {
     expect(screen.getByTestId('google-event-chip-b').style.width).toBe('50%');
   });
 
-  // The event gives up the width, never the task. Drawn at full width it would
-  // sit under the block and read as a stray sliver.
-  it('narrows an event beside the task it overlaps, leaving the task full width', () => {
+  // The two layers must agree on one grid: the chip takes the column the task
+  // left, not a share of its own layer.
+  it('places the event chip beside the task rather than beneath it', () => {
     renderGrid([event('a', '09:00', '10:00')], [task('t1', '09:00')]);
 
-    expect(screen.getByTestId('google-event-chip-a').style.width).toBe('50%');
-    expect(blockBox('t1').width).toBe('100%');
+    const chip = screen.getByTestId('google-event-chip-a');
+    expect(chip.style.width).toBe('50%');
+    expect(chip.style.insetInlineStart).toBe('50%');
+    // Same divisor on both sides — a mismatch would leave a gap or an overlap.
+    expect(blockBox('t1').width).toBe(chip.style.width);
   });
 
   it('shows an event count in the day header', () => {

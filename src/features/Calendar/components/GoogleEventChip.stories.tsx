@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { expect, within } from 'storybook/test';
 
 import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
 import type { ITask } from '@/lib/types';
@@ -214,5 +215,97 @@ export const AutoExpandsForEarlyWork: Story = {
     prefs: resolveCalendarPrefs({ dayStartHour: 9, dayEndHour: 17 }),
     tasksByDay: new Map([[DAY, [task('t1', 'Early flight', '06:00', 60)]]]),
     googleEvents: [event('a', 'Standup', '09:00', '09:30')],
+  },
+};
+
+/**
+ * The reported clipping case (NIC-1892): a 05:00–24:00 window with 15-minute
+ * tasks. The 19-hour span keeps rows near the base height, so the boxes are too
+ * short for two lines — the meta line is dropped rather than cut mid-glyph.
+ */
+export const ShortTasksInWideWindow: Story = {
+  args: {
+    prefs: resolveCalendarPrefs({ dayStartHour: 5, dayEndHour: 24 }),
+    tasksByDay: new Map([
+      [
+        DAY,
+        [
+          task('t1', 'Water the plants', '08:00', 15),
+          task('t2', 'Drill the bathtub seat hole', '11:00', 15),
+          task('t3', 'Fold laundry', '13:30', 30),
+        ],
+      ],
+    ]),
+    googleEvents: [],
+  },
+  // Runs in real Chromium under the Storybook test project, so this measures
+  // actual layout — the clipping it guards against is invisible to jsdom, which
+  // reports every height as 0.
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    for (const id of ['t1', 't2', 't3']) {
+      const block = await canvas.findByTestId(`calendar-block-${id}`);
+      // The bug: content taller than its box, cut through the middle of the
+      // glyphs. Any positive overflow here is the regression.
+      await expect(block.scrollHeight).toBeLessThanOrEqual(block.clientHeight);
+    }
+
+    // The title must survive — dropping a line is only acceptable while the
+    // block still says which task it is.
+    await expect(await canvas.findByText('Water the plants')).toBeVisible();
+  },
+};
+
+/**
+ * Several tasks and several events on one day (NIC-1893). Tasks and chips
+ * reserve each other's columns from both sides, so no block is ever painted
+ * over: a task keeps the leading column and the chip takes what is left, both
+ * against the same divisor.
+ */
+export const TasksAndEventsTogether: Story = {
+  args: {
+    tasksByDay: new Map([
+      [
+        DAY,
+        [
+          task('t1', 'Clean Mamad', '12:30', 120),
+          task('t2', 'Write the spec', '09:00', 90),
+          task('t3', 'Habit feature', '16:00', 60),
+        ],
+      ],
+    ]),
+    googleEvents: [
+      event('a', 'Standup', '09:00', '09:30'),
+      event('b', 'Design review', '12:30', '14:00', 'family'),
+      event('c', 'Evening class', '19:00', '20:00', 'holidays'),
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // A task overlapping an event gives up half the column but keeps the
+    // leading edge — the user's own work is never the thing pushed aside.
+    const clean = await canvas.findByTestId('calendar-block-wrapper-t1');
+    const review = await canvas.findByTestId('google-event-chip-b');
+    await expect(clean.style.width).toBe('50%');
+    await expect(clean.style.insetInlineStart).toBe('0%');
+    await expect(review.style.insetInlineStart).toBe('50%');
+
+    // Same divisor on both sides: a mismatch shows up as a gap or an overlap.
+    await expect(clean.style.width).toBe(review.style.width);
+
+    // Real geometry — the boxes must not intersect horizontally.
+    const taskBox = clean.getBoundingClientRect();
+    const chipBox = review.getBoundingClientRect();
+    await expect(taskBox.right).toBeLessThanOrEqual(Math.ceil(chipBox.left));
+
+    // An event nobody competes with still spans the full column.
+    const evening = await canvas.findByTestId('google-event-chip-c');
+    await expect(evening.style.width).toBe('100%');
+
+    // And a task nobody competes with keeps its full width too.
+    const habit = await canvas.findByTestId('calendar-block-wrapper-t3');
+    await expect(habit.style.width).toBe('100%');
   },
 };

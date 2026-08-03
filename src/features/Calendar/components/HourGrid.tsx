@@ -140,7 +140,14 @@ const HourGrid = ({
             const key = toDayKey(day);
             const dayTasks = tasksByDay.get(key) ?? [];
             const offset = nowOffset(now, day, timezone, hourHeight);
-            const layouts = layoutDay(dayTasks, hourHeight);
+            // Minute spans of the day's Google events. Tasks and chips are laid
+            // out against each other from BOTH sides — each reserves the other's
+            // columns — so neither layer ever paints over the other.
+            const eventSpans = eventChips(googleEvents, key, [], hourHeight).map((chip): [number, number] => [
+              (chip.top / hourHeight) * 60,
+              ((chip.top + chip.height) / hourHeight) * 60,
+            ]);
+            const layouts = layoutDay(dayTasks, hourHeight, eventSpans);
             // The drawn extent of each block, computed once: the conflict accent
             // and the event chips' width both key off it, and deriving it twice
             // would let the two drift apart.

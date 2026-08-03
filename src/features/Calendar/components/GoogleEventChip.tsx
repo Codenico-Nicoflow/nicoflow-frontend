@@ -60,7 +60,7 @@ interface ChipProps {
 
 const Chip = ({ chip, calendars, onSelect }: ChipProps) => {
   const { t } = useTranslation('task');
-  const { event, top, height, column, columns, isCompact } = chip;
+  const { event, top, height, column, columns, isCompact, showTitle } = chip;
 
   const color = calendarColor(event.calendarId, calendars);
   // Same divisor a task block uses, so the two layers line up on the same grid.
@@ -91,14 +91,18 @@ const Chip = ({ chip, calendars, onSelect }: ChipProps) => {
       data-testid={`google-event-chip-${event.id}`}
       data-declined={isDeclined || undefined}
     >
-      <span
-        className={cn(
-          'block truncate text-[11px] font-medium leading-tight text-foreground/80',
-          isDeclined && 'line-through'
-        )}
-      >
-        {event.title}
-      </span>
+      {/* aria-label above always carries the full text, so dropping a line is
+          presentation only. */}
+      {showTitle && (
+        <span
+          className={cn(
+            'block truncate text-[11px] font-medium leading-tight text-foreground/80',
+            isDeclined && 'line-through'
+          )}
+        >
+          {event.title}
+        </span>
+      )}
       {/* A short meeting drops the time line rather than clipping it — the start
           is already implied by where the chip sits on the hour grid. */}
       {!isCompact && (

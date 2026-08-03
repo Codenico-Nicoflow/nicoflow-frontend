@@ -87,7 +87,11 @@ const endMinutes = (task: ITask): number => {
  * column count, so the columns line up instead of each block picking its own
  * width.
  */
-export const layoutDay = (tasks: ITask[], hourHeight: number = HOUR_HEIGHT_PX): BlockLayout[] => {
+export const layoutDay = (
+  tasks: ITask[],
+  hourHeight: number = HOUR_HEIGHT_PX,
+  eventSpans: readonly [number, number][] = []
+): BlockLayout[] => {
   const timed = tasks
     .filter(task => parseMinutes(task.scheduledTime) !== null)
     .sort((a, b) => {
@@ -102,7 +106,16 @@ export const layoutDay = (tasks: ITask[], hourHeight: number = HOUR_HEIGHT_PX): 
   const flush = () => {
     // Every block in a cluster is drawn against the same divisor, so a 2-wide
     // overlap doesn't make an unrelated neighbour half-width.
-    const columns = cluster.reduce((max, block) => Math.max(max, block.column + 1), 1);
+    const taskColumns = cluster.reduce((max, block) => Math.max(max, block.column + 1), 1);
+    // Google events sharing these minutes widen the divisor so the task stops
+    // BEFORE the chip's lane instead of painting over it. Tasks keep the leading
+    // columns — the user's own work is never the thing that yields — and
+    // `eventChips` reserves exactly the same count from the other side, so the
+    // two layers agree on one grid without either laying the other out.
+    const from = Math.min(...cluster.map(block => (block.top / hourHeight) * 60));
+    const to = Math.max(...cluster.map(block => ((block.top + block.height) / hourHeight) * 60));
+    const columns = taskColumns + spanColumnsIn(eventSpans, from, to);
+
     cluster.forEach(block => out.push({ ...block, columns }));
     cluster = [];
     clusterEnd = -1;
@@ -126,6 +139,21 @@ export const layoutDay = (tasks: ITask[], hourHeight: number = HOUR_HEIGHT_PX): 
 
   if (cluster.length > 0) flush();
   return out;
+};
+
+/**
+ * Widest stack of spans anywhere inside [from, to) — the number of columns the
+ * tasks in that window must leave for the Google chips.
+ *
+ * The maximum over the window rather than a total count: three events spread
+ * across an hour occupy one column between them, and charging the tasks three
+ * would shrink them for a conflict that never existed.
+ */
+const spanColumnsIn = (spans: readonly [number, number][], from: number, to: number): number => {
+  const overlapping = spans.filter(([start, end]) => start < to && end > from);
+  if (overlapping.length === 0) return 0;
+
+  return Math.max(...overlapping.map(([at]) => overlapping.filter(([start, end]) => start <= at && end > at).length));
 };
 
 /**

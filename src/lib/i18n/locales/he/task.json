@@ -259,6 +259,10 @@
       "update": "השתמש באזור הזמן של המכשיר",
       "dismiss": "השאר את אזור הזמן של החשבון",
       "updated": "אזור הזמן עודכן ל-{{zone}}."
-    }
+    },
+    "googleEventCount_one": "אירוע {{count}}",
+    "googleEventCount_two": "{{count}} אירועים",
+    "googleEventCount_other": "{{count}} אירועים",
+    "openInGoogle": "פתח ביומן Google"
   }
 }

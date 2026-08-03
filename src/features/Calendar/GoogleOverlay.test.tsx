@@ -70,22 +70,22 @@ const blockBox = (id: string) => {
   return { top, height, insetInlineStart, width };
 };
 
-describe('Google event wash', () => {
-  it('renders a wash behind the grid for timed events', () => {
+describe('Google event overlay', () => {
+  it('renders a chip behind the grid for each timed event', () => {
     renderGrid([event('a', '09:00', '10:00')]);
 
-    expect(screen.getByTestId(`google-wash-${DAY}`)).toBeInTheDocument();
-    expect(screen.getAllByTestId(`google-wash-band-${DAY}`)).toHaveLength(1);
+    expect(screen.getByTestId(`google-chips-${DAY}`)).toBeInTheDocument();
+    expect(screen.getByTestId('google-event-chip-a')).toBeInTheDocument();
   });
 
-  it('renders no wash when there are no events', () => {
+  it('renders no overlay when there are no events', () => {
     renderGrid([]);
 
-    expect(screen.queryByTestId(`google-wash-${DAY}`)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(`google-chips-${DAY}`)).not.toBeInTheDocument();
   });
 
   /**
-   * The load-bearing guarantee of this feature: the wash participates in no
+   * The load-bearing guarantee of this feature: the overlay participates in no
    * layout, so events arriving late can never move the user's own work.
    */
   it('does not change task block position or width when events are present', () => {
@@ -102,40 +102,28 @@ describe('Google event wash', () => {
   });
 
   /**
-   * jsdom computes no real layout, so the assertion above cannot catch a wash
-   * that takes up space. This pins the mechanism instead: the wash and the chip
-   * layer must both be absolutely positioned and out of flow, which is what
-   * makes "no reflow" structural rather than incidental.
+   * jsdom computes no real layout, so the assertion above cannot catch a layer
+   * that takes up space. This pins the mechanism instead: the chip layer must be
+   * absolutely positioned and out of flow, which is what makes "no reflow"
+   * structural rather than incidental.
    */
-  it('keeps the wash and chip layers out of document flow', () => {
+  it('keeps the chip layer out of document flow', () => {
     renderGrid([event('a', '09:00', '10:00')], [task('t1', '09:00')]);
 
-    for (const testId of [`google-wash-${DAY}`, `google-chips-${DAY}`]) {
-      expect(screen.getByTestId(testId).className).toContain('absolute');
-    }
+    expect(screen.getByTestId(`google-chips-${DAY}`).className).toContain('absolute');
   });
 
-  // The chips are inset, so a task block always keeps visible column beside
-  // them rather than being wholly covered by context.
-  it('confines the chip layer to part of the column width', () => {
-    renderGrid([event('a', '09:00', '10:00')]);
-
-    const width = Number.parseFloat(screen.getByTestId(`google-chips-${DAY}`).style.width);
-    expect(width).toBeGreaterThan(0);
-    expect(width).toBeLessThan(100);
-  });
-
-  it('paints the wash beneath task blocks, never above them', () => {
+  it('paints chips beneath task blocks, never above them', () => {
     renderGrid([event('a', '09:00', '10:00')], [task('t1', '09:00')]);
 
-    const wash = screen.getByTestId(`google-wash-${DAY}`);
+    const chips = screen.getByTestId(`google-chips-${DAY}`);
     const block = screen.getByTestId('calendar-block-wrapper-t1');
 
-    // The wash sits at z-0; a task block must never be painted behind it.
-    expect(wash.className).toContain('z-0');
+    // The chip layer sits at z-0; a task block must never be painted behind it.
+    expect(chips.className).toContain('z-0');
     expect(block.className).not.toContain('-z-');
-    // DOM order is the tiebreaker at equal z-index — the wash comes first.
-    expect(wash.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // DOM order is the tiebreaker at equal z-index — the chips come first.
+    expect(chips.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('keeps full column width for tasks that overlap an event', () => {
@@ -145,11 +133,28 @@ describe('Google event wash', () => {
     expect(blockBox('t1').width).toBe('100%');
   });
 
-  it('deepens the tint where events overlap rather than splitting them', () => {
+  // Events size themselves the way task blocks do: full column alone, split
+  // only against each other.
+  it('gives a lone event the full column width', () => {
+    renderGrid([event('a', '09:00', '10:00')]);
+
+    expect(screen.getByTestId('google-event-chip-a').style.width).toBe('100%');
+  });
+
+  it('splits width between events that overlap', () => {
     renderGrid([event('a', '09:00', '11:00'), event('b', '10:00', '12:00')]);
 
-    const depths = screen.getAllByTestId(`google-wash-band-${DAY}`).map(band => Number(band.dataset.depth));
-    expect(Math.max(...depths)).toBe(2);
+    expect(screen.getByTestId('google-event-chip-a').style.width).toBe('50%');
+    expect(screen.getByTestId('google-event-chip-b').style.width).toBe('50%');
+  });
+
+  // The event gives up the width, never the task. Drawn at full width it would
+  // sit under the block and read as a stray sliver.
+  it('narrows an event beside the task it overlaps, leaving the task full width', () => {
+    renderGrid([event('a', '09:00', '10:00')], [task('t1', '09:00')]);
+
+    expect(screen.getByTestId('google-event-chip-a').style.width).toBe('50%');
+    expect(blockBox('t1').width).toBe('100%');
   });
 
   it('shows an event count in the day header', () => {
@@ -179,12 +184,10 @@ describe('Google event wash', () => {
     expect(onSelectGoogleEvent).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }));
   });
 
-  it('exposes each event as a labelled control rather than a decorative band', () => {
+  it('exposes each event as a labelled control', () => {
     renderGrid([event('a', '09:00', '10:00')]);
 
     expect(screen.getByRole('button', { name: /Meeting a/ })).toBeInTheDocument();
-    // The tinted band itself is decorative.
-    expect(screen.getByTestId(`google-wash-${DAY}`)).toHaveAttribute('aria-hidden');
   });
 
   // The whole point of the redesign: a band said an hour was busy but not with

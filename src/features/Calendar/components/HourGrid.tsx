@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, HOURS, MINUTES_PER_DAY } from '../data';
 import { layoutDay, nowOffset, parseMinutes } from '../geometry';
-import { eventCountOn, hasConflict } from '../googleWash';
+import type { TaskSpan } from '../googleOverlay';
+import { eventCountOn, hasConflict } from '../googleOverlay';
 import type { BlockDragCommit } from '../useBlockDrag';
 import { toDayKey } from '../utils';
 
 import AllDayRail from './AllDayRail';
 import GoogleEventChips from './GoogleEventChip';
-import GoogleWashLayer from './GoogleWashLayer';
 import TaskBlock from './TaskBlock';
 
 interface HourGridProps {
@@ -120,6 +120,14 @@ const HourGrid = ({
             const key = toDayKey(day);
             const dayTasks = tasksByDay.get(key) ?? [];
             const offset = nowOffset(now, day, timezone);
+            const layouts = layoutDay(dayTasks);
+            // The drawn extent of each block, computed once: the conflict accent
+            // and the event chips' width both key off it, and deriving it twice
+            // would let the two drift apart.
+            const spans = layouts.map(({ task }): TaskSpan => {
+              const start = parseMinutes(task.scheduledTime) ?? 0;
+              return [start, Math.min(start + (task.estimatedMinutes ?? DEFAULT_BLOCK_MINUTES), MINUTES_PER_DAY)];
+            });
 
             return (
               <div key={key} className="relative flex-1 border-s border-border/60" data-testid={`calendar-day-${key}`}>
@@ -128,36 +136,26 @@ const HourGrid = ({
                 ))}
 
                 {/* Behind the blocks, and absolutely positioned, so events can
-                    never move a task. The wash carries "this hour is booked"
-                    across the full width; the chips name what booked it. */}
+                    never move a task — they only narrow themselves around one. */}
                 {onSelectGoogleEvent && (
-                  <>
-                    <GoogleWashLayer events={googleEvents} dayKey={key} />
-                    <GoogleEventChips
-                      events={googleEvents}
-                      dayKey={key}
-                      calendars={googleCalendars}
-                      onSelect={onSelectGoogleEvent}
-                    />
-                  </>
+                  <GoogleEventChips
+                    events={googleEvents}
+                    dayKey={key}
+                    calendars={googleCalendars}
+                    taskSpans={spans}
+                    onSelect={onSelectGoogleEvent}
+                  />
                 )}
 
-                {layoutDay(dayTasks).map(layout => {
-                  const start = parseMinutes(layout.task.scheduledTime) ?? 0;
-                  const end = Math.min(
-                    start + (layout.task.estimatedMinutes ?? DEFAULT_BLOCK_MINUTES),
-                    MINUTES_PER_DAY
-                  );
-                  return (
-                    <TaskBlock
-                      key={layout.task.id}
-                      layout={layout}
-                      onSelect={onSelect}
-                      onDragCommit={onDragCommit}
-                      hasConflict={hasConflict(googleEvents, key, start, end)}
-                    />
-                  );
-                })}
+                {layouts.map((layout, index) => (
+                  <TaskBlock
+                    key={layout.task.id}
+                    layout={layout}
+                    onSelect={onSelect}
+                    onDragCommit={onDragCommit}
+                    hasConflict={hasConflict(googleEvents, key, spans[index]![0], spans[index]![1])}
+                  />
+                ))}
 
                 {offset !== null && (
                   <div

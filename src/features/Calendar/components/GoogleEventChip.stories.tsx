@@ -48,7 +48,7 @@ const calendars: IGoogleCalendar[] = [
 const tasks = [task('t1', 'Write the spec', '09:00', 90), task('t2', 'Review PRs', '13:00')];
 
 const meta: Meta<typeof HourGrid> = {
-  title: 'Features/Calendar/GoogleWash',
+  title: 'Features/Calendar/GoogleEventChip',
   component: HourGrid,
   decorators: [
     withStoryProviders,
@@ -78,9 +78,25 @@ export const WithoutGoogleEvents: Story = {
 };
 
 /**
- * The same tasks with events behind them. Compare against WithoutGoogleEvents:
- * no task block moves or narrows, which is the guarantee the wash geometry
- * exists to provide.
+ * Events with no tasks in the way — the ordinary case, and the one a fixed-width
+ * strip got wrong. Nothing competes for the minutes, so each chip takes the
+ * whole column exactly as a lone task block would.
+ */
+export const EventsOnly: Story = {
+  args: {
+    tasksByDay: new Map(),
+    googleEvents: [
+      event('a', 'Standup', '09:00', '09:30'),
+      event('b', 'School pickup', '11:00', '12:00', 'family'),
+      event('c', 'Design review', '13:30', '15:00', 'holidays'),
+    ],
+  },
+};
+
+/**
+ * The same tasks with events beside them. Compare against WithoutGoogleEvents:
+ * no task block moves or narrows — the events give up the width, never the
+ * user's own work.
  */
 export const WithGoogleEvents: Story = {
   args: {

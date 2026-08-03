@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { MAX_ALL_DAY_ROWS } from '../data';
 import { allDayTasks } from '../geometry';
 import { calendarColor, chipStyle } from '../googleColor';
-import { allDayEventsOn } from '../googleWash';
+import { allDayEventsOn } from '../googleOverlay';
 import { toDayKey } from '../utils';
 
 interface AllDayRailProps {

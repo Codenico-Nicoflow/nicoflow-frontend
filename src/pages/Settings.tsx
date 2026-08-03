@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AccountCard } from '@/features/Settings/AccountCard';
+import { GoogleConnectionCard } from '@/features/Settings/google/GoogleConnectionCard';
 import { NotificationsCard } from '@/features/Settings/notifications/NotificationsCard';
 import { PreferencesCard } from '@/features/Settings/PreferencesCard';
 import { RecurrenceCard } from '@/features/Settings/recurrence/RecurrenceCard';
@@ -36,6 +37,8 @@ const Settings = () => {
       <NotificationsCard />
 
       <RecurrenceCard />
+
+      <GoogleConnectionCard />
 
       {isFree && (
         <Card className="border-primary/20 bg-accent">

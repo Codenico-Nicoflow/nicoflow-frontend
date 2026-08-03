@@ -259,6 +259,10 @@
     },
     "googleEventCount_one": "{{count}} event",
     "googleEventCount_other": "{{count}} events",
-    "openInGoogle": "Open in Google Calendar"
+    "openInGoogle": "Open in Google Calendar",
+    "googleDisconnected": "Google Calendar is disconnected — your events aren't shown.",
+    "googleUnavailable": "Google Calendar is unavailable right now. Your tasks are unaffected.",
+    "googleReconnect": "Reconnect",
+    "googleDismiss": "Dismiss"
   }
 }

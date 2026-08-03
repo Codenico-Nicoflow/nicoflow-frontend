@@ -163,7 +163,15 @@
         "help": "עזרה ומידע"
       },
       "timezoneLabel": "אזור זמן",
-      "timezoneDescription": "קובע מתי היום שלך מתחיל עבור תזכורות ומשימות חוזרות."
+      "timezoneDescription": "קובע מתי היום שלך מתחיל עבור תזכורות ומשימות חוזרות.",
+      "google": {
+        "calendarsTitle": "יומנים",
+        "calendarsHelp": "בחר אילו יומני Google יופיעו מאחורי המשימות שלך.",
+        "calendarCapHint": "אפשר להציג עד {{max}} יומנים בו-זמנית.",
+        "calendarCapReached": "נבחרו {{max}} יומנים — המקסימום. בטל בחירה של אחד כדי לבחור אחר.",
+        "calendarsUnavailable": "לא הצלחנו לטעון את יומני Google שלך. נסה שוב בעוד רגע.",
+        "noCalendars": "לא נמצאו יומנים בחשבון Google הזה."
+      }
     },
     "profile": {
       "title": "פרופיל"

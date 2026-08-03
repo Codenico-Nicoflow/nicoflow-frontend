@@ -9,6 +9,7 @@ import {
   bucketApi,
   focusLiveReducer,
   focusSessionApi,
+  googleCalendarApi,
   notificationApi,
   projectApi,
   rateLimitReducer,
@@ -34,6 +35,7 @@ const storyRootReducer = combineReducers({
   [aiApi.reducerPath]: aiApi.reducer,
   [recurrenceApi.reducerPath]: recurrenceApi.reducer,
   [focusSessionApi.reducerPath]: focusSessionApi.reducer,
+  [googleCalendarApi.reducerPath]: googleCalendarApi.reducer,
 });
 
 export type StoryRootState = ReturnType<typeof storyRootReducer>;
@@ -55,6 +57,7 @@ export const createStoryStore = (preloadedState?: Partial<StoryRootState>) =>
         attachmentApi.middleware,
         aiApi.middleware,
         recurrenceApi.middleware,
-        focusSessionApi.middleware
+        focusSessionApi.middleware,
+        googleCalendarApi.middleware
       ),
   });

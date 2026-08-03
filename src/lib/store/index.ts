@@ -224,3 +224,24 @@ export type {
   GetAISessionsResponse,
   GetAIUsageResponse,
 } from './slices/ai/type';
+
+// Google Calendar overlay exports (E-052)
+export { googleCalendarApi } from './slices/googleCalendar/googleCalendarApi';
+export {
+  useDisconnectGoogleMutation,
+  useGetGoogleCalendarsQuery,
+  useGetGoogleConnectionQuery,
+  useGetGoogleEventsQuery,
+  useLazyGetGoogleAuthUrlQuery,
+  useUpdateGoogleCalendarSelectionMutation,
+} from './slices/googleCalendar/googleCalendarApi';
+export type {
+  GetGoogleEventsRequest,
+  GoogleConnectResponse,
+  GoogleEventsResponse,
+  GoogleStatus,
+  IGoogleCalendar,
+  IGoogleConnection,
+  IGoogleEvent,
+} from './slices/googleCalendar/type';
+export { MAX_SELECTED_CALENDARS } from './slices/googleCalendar/type';

@@ -4,6 +4,7 @@ export * from './attachment';
 export * from './auth';
 export * from './bucket';
 export * from './focusSession';
+export * from './googleCalendar';
 export * from './notification';
 export * from './project';
 export * from './rateLimit';

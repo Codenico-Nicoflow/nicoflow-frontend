@@ -105,3 +105,10 @@ export const AI_API = {
   USAGE: '/ai/usage', // GET quota state
   MESSAGES: (id: string) => `/ai/sessions/${id}/messages`, // POST send (SSE over POST)
 };
+
+export const GOOGLE_CALENDAR_API = {
+  CONNECT: '/calendar/google/connect', // GET → { authUrl }
+  CONNECTION: '/calendar/google/connection', // GET connection · DELETE disconnect
+  CALENDARS: '/calendar/google/calendars', // GET list · PUT selection
+  EVENTS: '/calendar/google-events', // GET ?from=&to=&refresh= → { events, googleStatus }
+};

@@ -5,29 +5,21 @@ import { cn } from '@/lib/utils';
 
 import { calendarColor, chipStyle } from '../googleColor';
 import { eventTime } from '../googleEventTime';
-import type { EventChip } from '../googleWash';
-import { eventChips } from '../googleWash';
+import type { EventChip, TaskSpan } from '../googleOverlay';
+import { eventChips } from '../googleOverlay';
 
 interface ChipLayerProps {
   events: IGoogleEvent[];
   dayKey: string;
   /** Resolves each event's colour. Empty until the picker query settles. */
   calendars: IGoogleCalendar[];
+  /**
+   * Minute spans of the day's task blocks. Read only to decide how much width
+   * the events may take — the task layer lays itself out independently.
+   */
+  taskSpans?: TaskSpan[];
   onSelect: (event: IGoogleEvent) => void;
 }
-
-/**
- * How much of the day column the overlay strip occupies (NIC-1881).
- *
- * The chips are inset instead of full-width so a task block always has visible
- * column to its right — the user's own work is never fully covered by context.
- * The strip is a share of the column rather than a fixed px so a 375px phone
- * and a wide desktop both keep the same proportion.
- */
-const STRIP_WIDTH_PERCENT = 46;
-
-/** Gap between lanes when two events run at once. */
-const LANE_GAP_PERCENT = 1.5;
 
 /**
  * Google events as readable chips behind the task layer.
@@ -37,20 +29,20 @@ const LANE_GAP_PERCENT = 1.5;
  * carries the title and start time inline, so the common case — "what is at
  * 11?" — is answered by looking.
  *
- * The layer participates in NO layout. It is absolutely positioned and its
- * lanes subdivide only its own strip, so an event arriving late can never move
- * a task block.
+ * Chips size themselves the way task blocks do: full column when nothing
+ * competes for the minutes, narrowing only where a task or another event does.
+ * A fixed strip made every event look half-width on an empty day; full width
+ * regardless of tasks hid the chip underneath the block.
+ *
+ * The layer participates in NO layout — it is absolutely positioned beneath the
+ * task blocks — so an event arriving late can never move a task.
  */
-const GoogleEventChips = ({ events, dayKey, calendars, onSelect }: ChipLayerProps) => {
-  const chips = eventChips(events, dayKey);
+const GoogleEventChips = ({ events, dayKey, calendars, taskSpans, onSelect }: ChipLayerProps) => {
+  const chips = eventChips(events, dayKey, taskSpans);
   if (chips.length === 0) return null;
 
   return (
-    <div
-      className="absolute inset-y-0 start-0 z-0"
-      style={{ width: `${STRIP_WIDTH_PERCENT}%` }}
-      data-testid={`google-chips-${dayKey}`}
-    >
+    <div className="absolute inset-0 z-0" data-testid={`google-chips-${dayKey}`}>
       {chips.map(chip => (
         <Chip key={`${dayKey}-${chip.event.id}`} chip={chip} calendars={calendars} onSelect={onSelect} />
       ))}
@@ -66,10 +58,11 @@ interface ChipProps {
 
 const Chip = ({ chip, calendars, onSelect }: ChipProps) => {
   const { t } = useTranslation('task');
-  const { event, top, height, lane, lanes, isCompact } = chip;
+  const { event, top, height, column, columns, isCompact } = chip;
 
   const color = calendarColor(event.calendarId, calendars);
-  const laneWidth = (100 - LANE_GAP_PERCENT * (lanes - 1)) / lanes;
+  // Same divisor a task block uses, so the two layers line up on the same grid.
+  const width = 100 / columns;
 
   // A declined meeting still occupies the grid — Google returns it and the time
   // is genuinely blocked in the user's calendar — but it must not read as
@@ -89,8 +82,8 @@ const Chip = ({ chip, calendars, onSelect }: ChipProps) => {
       style={{
         top: `${top}px`,
         height: `${height}px`,
-        insetInlineStart: `${lane * (laneWidth + LANE_GAP_PERCENT)}%`,
-        width: `${laneWidth}%`,
+        insetInlineStart: `${column * width}%`,
+        width: `${width}%`,
         ...chipStyle(color),
       }}
       data-testid={`google-event-chip-${event.id}`}

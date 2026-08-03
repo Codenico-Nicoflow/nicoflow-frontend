@@ -3,40 +3,24 @@ import type { IGoogleEvent } from '@/lib/store';
 import { HOUR_HEIGHT_PX, MINUTES_PER_DAY } from './data';
 
 /**
- * Geometry for the Google event wash (NIC-1863).
+ * Geometry for the Google event overlay (NIC-1863, reshaped NIC-1881).
  *
  * Nicoflow is a task app with calendar awareness, not a calendar client, so
- * Google events are context and never content. They render as full-width tinted
- * bands BEHIND task blocks.
+ * Google events are context and never content. They render as chips BEHIND task
+ * blocks, in their own absolutely-positioned layer.
  *
- * The standard overlay approach — splitting column width between events and
- * tasks — was rejected: it steals width from the user's own tasks, which is
- * backwards, and is fatal at 375px. Because the wash never negotiates width, a
- * late-arriving event cannot move a single task block. That is a geometric
- * guarantee, not a rendering convention.
+ * Events size themselves exactly as tasks do — full column when alone, split
+ * only among events that genuinely overlap — because two layers that measure
+ * width differently read as two grids stacked on each other rather than one
+ * calendar. Since the layer is out of flow, that width negotiation happens
+ * entirely among events: a late-arriving events response still cannot move a
+ * single task block, which stays a geometric guarantee rather than a convention.
  *
  * Pure and framework-free so it survives the E-033 shared-package extraction.
  */
 
-/** A tinted band on one day column, in pixels from the top. */
-export interface WashBand {
-  /** Stable key for React — id alone can repeat across a multi-day event. */
-  key: string;
-  top: number;
-  height: number;
-  /**
-   * How many events cover this band. Overlapping meetings deepen the tint
-   * rather than splitting width, so being double-booked reads as "more solidly
-   * busy" instead of "two narrower things".
-   */
-  depth: number;
-}
-
 /** Floor so a very short meeting stays visible rather than collapsing away. */
 const MIN_BAND_HEIGHT_PX = 6;
-
-/** Tint deepens up to this many overlapping events, then stops. */
-export const MAX_WASH_DEPTH = 3;
 
 const DAY_KEY_LENGTH = 10;
 
@@ -95,63 +79,21 @@ const spanWithinDay = (event: IGoogleEvent, dayKey: string): [number, number] | 
   return [clampedStart, clampedEnd];
 };
 
-/**
- * Bands for one day, split wherever the overlap depth changes.
- *
- * Built with a sweep over boundaries rather than one rectangle per event: two
- * meetings sharing an hour must render as one deeper band across the shared
- * region, not as two stacked translucent rectangles whose seams show through.
- */
-export const washBands = (events: IGoogleEvent[], dayKey: string): WashBand[] => {
-  const spans = timedEventsOn(events, dayKey)
-    .map(event => spanWithinDay(event, dayKey))
-    .filter((span): span is [number, number] => span !== null && span[1] > span[0]);
-
-  if (spans.length === 0) return [];
-
-  const boundaries = [...new Set(spans.flatMap(([start, end]) => [start, end]))].sort((a, b) => a - b);
-
-  const bands: WashBand[] = [];
-  for (let i = 0; i < boundaries.length - 1; i += 1) {
-    const from = boundaries[i]!;
-    const to = boundaries[i + 1]!;
-    const depth = spans.filter(([start, end]) => start <= from && end >= to).length;
-    if (depth === 0) continue;
-
-    const previous = bands.at(-1);
-    // Merge equal-depth neighbours so a run of identical tint is one element,
-    // not a stack of adjacent bands with visible seams.
-    if (previous && previous.depth === depth && previous.top + previous.height >= (from / 60) * HOUR_HEIGHT_PX - 0.01) {
-      previous.height = (to / 60) * HOUR_HEIGHT_PX - previous.top;
-      continue;
-    }
-
-    bands.push({
-      key: `${dayKey}-${from}-${to}`,
-      top: (from / 60) * HOUR_HEIGHT_PX,
-      height: Math.max(((to - from) / 60) * HOUR_HEIGHT_PX, MIN_BAND_HEIGHT_PX),
-      depth,
-    });
-  }
-
-  return bands;
-};
-
 /** Count of timed Google events on a day, for the day header. */
 export const eventCountOn = (events: IGoogleEvent[], dayKey: string): number => timedEventsOn(events, dayKey).length;
 
 /**
- * A drawn Google event chip: its extent, plus which lane it sits in when it
- * overlaps another event.
+ * A drawn Google event chip: its extent, plus the horizontal share it takes
+ * when it overlaps other events.
  */
 export interface EventChip {
   event: IGoogleEvent;
   top: number;
   height: number;
-  /** 0-based column among simultaneous events. */
-  lane: number;
-  /** How many lanes this chip's overlap group needs, so width can be derived. */
-  lanes: number;
+  /** 0-based slot among the overlapping events. */
+  column: number;
+  /** How many slots the widest overlap in this cluster needs. */
+  columns: number;
   /** True when the chip is too short to fit a title and a time on two lines. */
   isCompact: boolean;
 }
@@ -163,18 +105,29 @@ export interface EventChip {
  */
 const COMPACT_CHIP_PX = 34;
 
+/** A [start, end) minute span a task occupies, for sharing width with events. */
+export type TaskSpan = [number, number];
+
 /**
- * Chips for one day, laid out into lanes.
+ * Chips for one day, sharing column width with the task blocks above them.
  *
- * Deliberately separate from `washBands`: bands are depth segments and a single
- * band can cover two meetings, so mapping band→event would label the wrong one.
+ * A lone event takes the FULL column, exactly as a lone task does. Width is
+ * given up only where something genuinely competes for the same minutes — and
+ * that "something" includes the user's TASKS, not just other events. Two earlier
+ * shapes were both wrong for the same underlying reason:
  *
- * Lanes only ever subdivide the OVERLAY's own inset strip — never the day
- * column — so two simultaneous meetings narrow against each other and still
- * cannot take a pixel from a task block. That is what preserves the guarantee
- * that a late-arriving events response cannot reflow the user's own work.
+ * - a fixed-width strip made every event look permanently half-width, even on a
+ *   completely empty day where nothing was competing for the space;
+ * - full width regardless of tasks put the chip exactly beneath the task block,
+ *   where the task covers it and the event reads as a stray sliver.
+ *
+ * So tasks reserve the leading columns of any cluster they touch and events fill
+ * the ones after. The task layer is never consulted for its own layout — it is
+ * read here only to decide how much room the EVENTS may take. Chips remain in an
+ * absolutely-positioned layer beneath the blocks, so a late-arriving events
+ * response still cannot move a single task.
  */
-export const eventChips = (events: IGoogleEvent[], dayKey: string): EventChip[] => {
+export const eventChips = (events: IGoogleEvent[], dayKey: string, taskSpans: TaskSpan[] = []): EventChip[] => {
   const placed = timedEventsOn(events, dayKey)
     .map(event => {
       const span = spanWithinDay(event, dayKey);
@@ -183,37 +136,70 @@ export const eventChips = (events: IGoogleEvent[], dayKey: string): EventChip[] 
       return { event, start, end };
     })
     .filter((entry): entry is { event: IGoogleEvent; start: number; end: number } => entry !== null)
-    // Earliest first, longest as the tie-break, so lane 0 is the day's spine and
-    // lane assignment is stable rather than dependent on server ordering.
+    // Earliest first, longest as the tie-break, so column assignment is stable
+    // rather than dependent on server ordering.
     .sort((a, b) => a.start - b.start || b.end - a.end);
 
-  if (placed.length === 0) return [];
+  const out: EventChip[] = [];
+  let cluster: { chip: EventChip; end: number }[] = [];
+  let clusterEnd = -1;
 
-  // Lane per event: the first lane whose last event has already ended.
-  const laneEnds: number[] = [];
-  const lanes = placed.map(({ start, end }) => {
-    const free = laneEnds.findIndex(laneEnd => laneEnd <= start);
-    const lane = free === -1 ? laneEnds.length : free;
-    laneEnds[lane] = end;
-    return lane;
-  });
+  const flush = () => {
+    const eventColumns = cluster.reduce((max, entry) => Math.max(max, entry.chip.column + 1), 1);
+    // How many task columns this cluster's minutes have to yield to. Measured
+    // across the cluster's whole extent so every chip in it is drawn against the
+    // same divisor and their leading edges line up.
+    const from = Math.min(...cluster.map(entry => entry.chip.top));
+    const to = Math.max(...cluster.map(entry => entry.chip.top + entry.chip.height));
+    const reserved = taskColumnsIn(taskSpans, (from / HOUR_HEIGHT_PX) * 60, (to / HOUR_HEIGHT_PX) * 60);
 
-  // One lane count for the whole day rather than per overlap cluster: a chip
-  // that changed width partway down the column would read as a layout bug, and
-  // the overlay strip is too narrow for the distinction to buy anything.
-  const laneCount = laneEnds.length;
+    const columns = eventColumns + reserved;
+    cluster.forEach(({ chip }) => out.push({ ...chip, column: chip.column + reserved, columns }));
+    cluster = [];
+    clusterEnd = -1;
+  };
 
-  return placed.map(({ event, start, end }, index) => {
+  placed.forEach(({ event, start, end }) => {
+    if (start >= clusterEnd && cluster.length > 0) flush();
+
+    // First free slot: reuse a column whose occupant has already ended.
+    const taken = new Set(cluster.filter(entry => entry.end > start).map(entry => entry.chip.column));
+    let column = 0;
+    while (taken.has(column)) column += 1;
+
     const height = Math.max(((end - start) / 60) * HOUR_HEIGHT_PX, MIN_BAND_HEIGHT_PX);
-    return {
-      event,
-      top: (start / 60) * HOUR_HEIGHT_PX,
-      height,
-      lane: lanes[index]!,
-      lanes: laneCount,
-      isCompact: height < COMPACT_CHIP_PX,
-    };
+    cluster.push({
+      chip: {
+        event,
+        top: (start / 60) * HOUR_HEIGHT_PX,
+        height,
+        column,
+        columns: 1,
+        isCompact: height < COMPACT_CHIP_PX,
+      },
+      end,
+    });
+    clusterEnd = Math.max(clusterEnd, end);
   });
+
+  if (cluster.length > 0) flush();
+  return out;
+};
+
+/**
+ * Widest stack of tasks anywhere inside [from, to) — the number of columns the
+ * events in that window must leave alone.
+ *
+ * The maximum over the window rather than a total count: three tasks spread
+ * across an hour occupy one column, and charging the events three would shrink
+ * them to nothing for a conflict that never existed.
+ */
+const taskColumnsIn = (spans: TaskSpan[], from: number, to: number): number => {
+  const overlapping = spans.filter(([start, end]) => start < to && end > from);
+  if (overlapping.length === 0) return 0;
+
+  // Sweep the overlapping tasks' own boundaries; the deepest point is the stack.
+  return Math.max(...overlapping.map(([at]) => overlapping.filter(([start, end]) => start <= at && end > at).length));
 };
 
 /**

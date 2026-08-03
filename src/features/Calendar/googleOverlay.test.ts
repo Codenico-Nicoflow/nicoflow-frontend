@@ -11,8 +11,7 @@ import {
   eventMinutes,
   hasConflict,
   timedEventsOn,
-  washBands,
-} from './googleWash';
+} from './googleOverlay';
 
 const DAY = '2026-08-03';
 
@@ -92,59 +91,9 @@ describe('allDayEventsOn', () => {
   });
 });
 
-describe('washBands', () => {
-  it('places a band at the event position', () => {
-    const [band] = washBands([timed('a', '09:00', '10:00')], DAY);
-
-    expect(band!.top).toBe(9 * HOUR_HEIGHT_PX);
-    expect(band!.height).toBe(HOUR_HEIGHT_PX);
-    expect(band!.depth).toBe(1);
-  });
-
-  it('returns nothing for a day with no events', () => {
-    expect(washBands([], DAY)).toEqual([]);
-  });
-
-  // Overlapping meetings deepen the tint rather than splitting width.
-  it('deepens where events overlap', () => {
-    const bands = washBands([timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00')], DAY);
-
-    const depths = bands.map(band => band.depth);
-    expect(Math.max(...depths)).toBe(2);
-    // 9–10 and 11–12 are single-depth; 10–11 is the shared region.
-    expect(depths).toContain(1);
-  });
-
-  it('merges adjacent bands of equal depth into one', () => {
-    // Back-to-back meetings are one continuous run of tint, not two bands.
-    const bands = washBands([timed('a', '09:00', '10:00'), timed('b', '10:00', '11:00')], DAY);
-
-    expect(bands).toHaveLength(1);
-    expect(bands[0]!.height).toBe(2 * HOUR_HEIGHT_PX);
-  });
-
-  it('clips a multi-day event to the day being drawn', () => {
-    const long = event('long', `${DAY}T22:00:00+03:00`, `2026-08-05T02:00:00+03:00`);
-    const [band] = washBands([long], '2026-08-04');
-
-    // A full middle day: midnight to midnight.
-    expect(band!.top).toBe(0);
-    expect(band!.height).toBe(24 * HOUR_HEIGHT_PX);
-  });
-
-  it('gives a zero-length event a visible minimum height', () => {
-    const [band] = washBands([timed('a', '09:00', '09:01')], DAY);
-    expect(band!.height).toBeGreaterThan(0);
-  });
-});
-
 describe('eventChips', () => {
-  // Bands are depth segments and can cover two meetings, so a band→event
-  // mapping would label the wrong one.
-  it('returns one chip per event, not per band', () => {
-    const chips = eventChips([timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00')], DAY);
-
-    expect(chips.map(chip => chip.event.id).sort()).toEqual(['a', 'b']);
+  it('returns nothing for a day with no events', () => {
+    expect(eventChips([], DAY)).toEqual([]);
   });
 
   it('positions a chip at its own extent', () => {
@@ -154,38 +103,108 @@ describe('eventChips', () => {
     expect(chip!.height).toBe(HOUR_HEIGHT_PX);
   });
 
-  it('keeps sequential events in one lane', () => {
+  // The whole reason the layout mirrors layoutDay: a lone meeting has no reason
+  // to look narrower than a lone task.
+  it('gives a lone event the full column', () => {
+    const [chip] = eventChips([timed('a', '09:00', '10:00')], DAY);
+
+    expect(chip!.column).toBe(0);
+    expect(chip!.columns).toBe(1);
+  });
+
+  it('keeps sequential events at full width', () => {
     const chips = eventChips([timed('a', '09:00', '10:00'), timed('b', '10:00', '11:00')], DAY);
 
-    expect(chips.map(chip => chip.lane)).toEqual([0, 0]);
-    expect(chips.every(chip => chip.lanes === 1)).toBe(true);
+    expect(chips.every(chip => chip.columns === 1)).toBe(true);
   });
 
-  it('splits overlapping events into side-by-side lanes', () => {
+  it('splits width only between events that overlap', () => {
     const chips = eventChips([timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00')], DAY);
 
-    expect(chips.map(chip => chip.lane)).toEqual([0, 1]);
-    // One lane count for the whole day, so a chip never changes width partway
-    // down the column.
-    expect(chips.every(chip => chip.lanes === 2)).toBe(true);
+    expect(chips.map(chip => chip.column)).toEqual([0, 1]);
+    expect(chips.every(chip => chip.columns === 2)).toBe(true);
   });
 
-  it('assigns lanes by start time, not by server order', () => {
+  // An overlap early in the day must not narrow an unrelated meeting hours later.
+  it('scopes the divisor to the overlap cluster, not the whole day', () => {
+    const chips = eventChips(
+      [timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00'), timed('c', '15:00', '16:00')],
+      DAY
+    );
+
+    expect(chips.find(chip => chip.event.id === 'c')!.columns).toBe(1);
+  });
+
+  it('assigns columns by start time, not by server order', () => {
     const chips = eventChips([timed('late', '10:00', '12:00'), timed('early', '09:00', '11:00')], DAY);
 
     expect(chips.map(chip => chip.event.id)).toEqual(['early', 'late']);
-    expect(chips.map(chip => chip.lane)).toEqual([0, 1]);
+    expect(chips.map(chip => chip.column)).toEqual([0, 1]);
   });
 
-  it('reuses a freed lane once its event has ended', () => {
+  it('reuses a freed column once its event has ended', () => {
     const chips = eventChips(
       [timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00'), timed('c', '11:00', '12:00')],
       DAY
     );
 
-    // `c` starts as `a` ends, so it takes lane 0 back rather than opening a third.
-    expect(chips.find(chip => chip.event.id === 'c')!.lane).toBe(0);
-    expect(chips.every(chip => chip.lanes === 2)).toBe(true);
+    // `c` starts as `a` ends, so it takes column 0 back rather than opening a third.
+    expect(chips.find(chip => chip.event.id === 'c')!.column).toBe(0);
+    expect(chips.every(chip => chip.columns === 2)).toBe(true);
+  });
+
+  it('clips a multi-day event to the day being drawn', () => {
+    const long = event('long', `${DAY}T22:00:00+03:00`, `2026-08-05T02:00:00+03:00`);
+    const [chip] = eventChips([long], '2026-08-04');
+
+    // A full middle day: midnight to midnight.
+    expect(chip!.top).toBe(0);
+    expect(chip!.height).toBe(24 * HOUR_HEIGHT_PX);
+  });
+
+  // The events give up the width, never the task — a chip drawn at full width
+  // under a task block is hidden by it and reads as a stray sliver.
+  it('yields a column to a task that overlaps the event', () => {
+    const [chip] = eventChips([timed('a', '09:00', '10:00')], DAY, [[9 * 60, 10 * 60]]);
+
+    expect(chip!.column).toBe(1);
+    expect(chip!.columns).toBe(2);
+  });
+
+  it('keeps the full column when the task does not overlap', () => {
+    const [chip] = eventChips([timed('a', '09:00', '10:00')], DAY, [[14 * 60, 15 * 60]]);
+
+    expect(chip!.column).toBe(0);
+    expect(chip!.columns).toBe(1);
+  });
+
+  it('yields one column to a stack of two overlapping tasks', () => {
+    const [chip] = eventChips([timed('a', '09:00', '10:00')], DAY, [
+      [9 * 60, 10 * 60],
+      [9 * 30, 10 * 60],
+    ]);
+
+    expect(chip!.column).toBe(2);
+    expect(chip!.columns).toBe(3);
+  });
+
+  // Three tasks spread across the hour occupy one column between them, so
+  // charging the event three would shrink it for a conflict that never existed.
+  it('charges the deepest task stack, not the task count', () => {
+    const [chip] = eventChips([timed('a', '09:00', '12:00')], DAY, [
+      [9 * 60, 10 * 60],
+      [10 * 60, 11 * 60],
+      [11 * 60, 12 * 60],
+    ]);
+
+    expect(chip!.columns).toBe(2);
+  });
+
+  it('shares the remaining width between a task and two overlapping events', () => {
+    const chips = eventChips([timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00')], DAY, [[9 * 60, 12 * 60]]);
+
+    expect(chips.map(chip => chip.column)).toEqual([1, 2]);
+    expect(chips.every(chip => chip.columns === 3)).toBe(true);
   });
 
   it('marks a short event compact so its label does not clip', () => {

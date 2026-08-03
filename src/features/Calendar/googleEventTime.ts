@@ -1,6 +1,6 @@
 import type { IGoogleEvent } from '@/lib/store';
 
-import { eventMinutes } from './googleWash';
+import { eventMinutes } from './googleOverlay';
 
 /**
  * Time formatting for Google events (NIC-1881).

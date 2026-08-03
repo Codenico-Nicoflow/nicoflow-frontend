@@ -19,6 +19,12 @@ interface TaskBlockProps {
   onSelect: (taskId: string) => void;
   /** Absent on a read-only grid (month chips, a locked free plan). */
   onDragCommit?: (taskId: string, commit: BlockDragCommit) => void;
+  /**
+   * True when this task overlaps a Google event (NIC-1863). Rendered as a
+   * left-edge accent only — it must never change the block's box, or the
+   * arrival of Google events would reflow the grid.
+   */
+  hasConflict?: boolean;
 }
 
 /**
@@ -32,7 +38,7 @@ interface TaskBlockProps {
  * duration. Resize is the only gesture here that writes `estimatedMinutes` —
  * moving a block must never invent a duration for a task that has none.
  */
-const TaskBlock = ({ layout, onSelect, onDragCommit }: TaskBlockProps) => {
+const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict }: TaskBlockProps) => {
   const { t } = useTranslation('task');
   const reduce = useReducedMotion();
   const { task, top, height, isUnestimated, column, columns } = layout;
@@ -103,8 +109,12 @@ const TaskBlock = ({ layout, onSelect, onDragCommit }: TaskBlockProps) => {
             : 'border-primary/30 bg-primary/15 hover:bg-primary/25',
           // Done work stays on the grid — the day should show what happened —
           // but recedes so the eye lands on what is still open.
-          isDone && 'border-border/50 bg-muted/40 hover:bg-muted/60'
+          isDone && 'border-border/50 bg-muted/40 hover:bg-muted/60',
+          // Inset ring rather than a border-width change: a thicker border would
+          // alter the box and reflow the block when events arrive.
+          hasConflict && 'shadow-[inset_3px_0_0_0_hsl(var(--destructive))]'
         )}
+        data-conflict={hasConflict || undefined}
         data-testid={`calendar-block-${task.id}`}
         data-unestimated={isUnestimated || undefined}
         data-done={isDone || undefined}

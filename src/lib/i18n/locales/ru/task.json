@@ -262,6 +262,11 @@
       "update": "Использовать пояс устройства",
       "dismiss": "Оставить пояс аккаунта",
       "updated": "Часовой пояс изменён на {{zone}}."
-    }
+    },
+    "googleEventCount_one": "{{count}} событие",
+    "googleEventCount_few": "{{count}} события",
+    "googleEventCount_many": "{{count}} событий",
+    "googleEventCount_other": "{{count}} события",
+    "openInGoogle": "Открыть в Google Календаре"
   }
 }

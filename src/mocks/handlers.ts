@@ -192,4 +192,11 @@ export const handlers = [
   http.get('http://localhost:8080/v1/ai/usage', () =>
     HttpResponse.json(envelope({ used: 12, limit: 500, scope: 'month', month: '2026-07' }))
   ),
+  // Google Calendar overlay (E-052): a connected account with no events, so any
+  // surface that renders the calendar gets a well-formed empty overlay instead
+  // of an unhandled request. Suites that care override per-case.
+  http.get('http://localhost:8080/v1/calendar/google-events', () =>
+    HttpResponse.json(envelope({ events: [], googleStatus: 'ok' }))
+  ),
+  http.get('http://localhost:8080/v1/calendar/google/calendars', () => HttpResponse.json(envelope([]))),
 ];

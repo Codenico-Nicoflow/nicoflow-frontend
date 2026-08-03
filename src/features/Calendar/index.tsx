@@ -7,7 +7,15 @@ import { toast } from 'sonner';
 import { PlanLimitAlert } from '@/components';
 import { TaskDialog } from '@/features/Tasks';
 import { useIsMobile, useIsPro } from '@/hooks';
-import { useAppUser, useGetCalendarTasksQuery, useScheduleTaskMutation, useUpdateTaskMutation } from '@/lib/store';
+import type { IGoogleEvent } from '@/lib/store';
+import {
+  useAppUser,
+  useGetCalendarTasksQuery,
+  useGetGoogleCalendarsQuery,
+  useGetGoogleEventsQuery,
+  useScheduleTaskMutation,
+  useUpdateTaskMutation,
+} from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import { getApiErrorCode, resolveTimeZone, showErrorToast } from '@/lib/utils';
 
@@ -15,6 +23,7 @@ import AgendaList from './components/AgendaList';
 import { AgendaSkeleton, GridSkeleton, MonthSkeleton } from './components/CalendarSkeletons';
 import CalendarTeaser from './components/CalendarTeaser';
 import CalendarToolbar from './components/CalendarToolbar';
+import GoogleEventPopover from './components/GoogleEventPopover';
 import HourGrid from './components/HourGrid';
 import MonthDensity from './components/MonthDensity';
 import MonthGrid from './components/MonthGrid';
@@ -83,6 +92,21 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   const effectiveView = isLocked ? 'month' : view;
   const range = useMemo(() => rangeFor(effectiveView, anchor), [effectiveView, anchor]);
   const { data, isLoading } = useGetCalendarTasksQuery(range);
+
+  // The Google layer loads INDEPENDENTLY of the task layer and is never awaited
+  // alongside it: a slow or failing Google call must not delay the user's own
+  // work appearing. Skipped entirely while the calendar is plan-locked, since
+  // the teaser renders no grid to wash.
+  const { data: googleData } = useGetGoogleEventsQuery(
+    { from: range.scheduledFrom, to: range.scheduledTo },
+    { skip: isLocked }
+  );
+  // Only for resolving a calendar's display name in the popover, so a failure
+  // here degrades to showing the ID rather than blocking anything.
+  const { data: googleCalendars } = useGetGoogleCalendarsQuery(undefined, { skip: isLocked });
+  const googleEvents = googleData?.events ?? [];
+
+  const [selectedEvent, setSelectedEvent] = useState<IGoogleEvent | null>(null);
 
   const days = useMemo(() => visibleDays(effectiveView, anchor), [effectiveView, anchor]);
   // Below the breakpoint the hour grid is always a single column — week becomes
@@ -190,6 +214,8 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
       timezone={user?.timezone}
       onSelect={handleSelect}
       onDragCommit={handleDragCommit}
+      googleEvents={googleEvents}
+      onSelectGoogleEvent={setSelectedEvent}
     />
   );
 
@@ -228,6 +254,14 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
         onOpenChange={setIsDialogOpen}
         task={editTask}
         projectId={editTask?.projectId ?? ''}
+      />
+
+      {/* Read-only: Nicoflow holds calendar.readonly and writes nothing back,
+          so the only action offered is a link out to Google. */}
+      <GoogleEventPopover
+        event={selectedEvent}
+        calendars={googleCalendars ?? []}
+        onClose={() => setSelectedEvent(null)}
       />
     </div>
   );

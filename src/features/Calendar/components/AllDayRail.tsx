@@ -3,18 +3,23 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import type { IGoogleEvent } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { MAX_ALL_DAY_ROWS } from '../data';
 import { allDayTasks } from '../geometry';
+import { allDayEventsOn } from '../googleWash';
 import { toDayKey } from '../utils';
 
 interface AllDayRailProps {
   days: Date[];
   tasksByDay: Map<string, ITask[]>;
   onSelect: (taskId: string) => void;
+  /** All-day Google events join this rail, visually distinct (NIC-1863). */
+  googleEvents?: IGoogleEvent[];
+  onSelectGoogleEvent?: (event: IGoogleEvent) => void;
 }
 
 /**
@@ -26,18 +31,31 @@ interface AllDayRailProps {
  * whole row and leave every other day's items stranded at the top of a tall
  * band, which is what made the week read as "spread out and random".
  */
-const AllDayRail = ({ days, tasksByDay, onSelect }: AllDayRailProps) => {
+const AllDayRail = ({ days, tasksByDay, onSelect, googleEvents = [], onSelectGoogleEvent }: AllDayRailProps) => {
   const { t } = useTranslation('task');
   const [expanded, setExpanded] = useState(false);
 
-  const byDay = days.map(day => ({ day, key: toDayKey(day), tasks: allDayTasks(tasksByDay.get(toDayKey(day)) ?? []) }));
-  const deepest = byDay.reduce((max, entry) => Math.max(max, entry.tasks.length), 0);
+  const byDay = days.map(day => {
+    const key = toDayKey(day);
+    return {
+      day,
+      key,
+      tasks: allDayTasks(tasksByDay.get(key) ?? []),
+      events: onSelectGoogleEvent ? allDayEventsOn(googleEvents, key) : [],
+    };
+  });
+  // Google events share the rail's row budget, so a day full of holidays cannot
+  // push the user's own tasks out of view — both are counted together.
+  const deepest = byDay.reduce((max, entry) => Math.max(max, entry.tasks.length + entry.events.length), 0);
   if (deepest === 0) return null;
 
   // Every column shows the same number of rows, so items stay aligned across
   // days instead of each column setting its own height.
   const visibleRows = expanded ? deepest : Math.min(deepest, MAX_ALL_DAY_ROWS);
-  const hiddenTotal = byDay.reduce((sum, entry) => sum + Math.max(entry.tasks.length - visibleRows, 0), 0);
+  const hiddenTotal = byDay.reduce(
+    (sum, entry) => sum + Math.max(entry.tasks.length + entry.events.length - visibleRows, 0),
+    0
+  );
 
   return (
     <div className="flex border-b border-border/60 bg-muted/20" data-testid="calendar-all-day">
@@ -66,7 +84,7 @@ const AllDayRail = ({ days, tasksByDay, onSelect }: AllDayRailProps) => {
         )}
       </div>
 
-      {byDay.map(({ key, tasks }) => (
+      {byDay.map(({ key, tasks, events }) => (
         <div key={key} className="min-w-0 flex-1 space-y-1 p-1" data-testid={`calendar-all-day-${key}`}>
           {tasks.slice(0, visibleRows).map(task => {
             const isDone = task.status === TaskStatus.DONE;
@@ -92,6 +110,25 @@ const AllDayRail = ({ days, tasksByDay, onSelect }: AllDayRailProps) => {
               </button>
             );
           })}
+
+          {/* Google all-day events fill whatever rows the user's own tasks left
+              — tasks always take the rail first. Dashed and muted so they never
+              read as something the user can complete. */}
+          {events.slice(0, Math.max(visibleRows - tasks.length, 0)).map(event => (
+            <button
+              key={event.id}
+              type="button"
+              onClick={() => onSelectGoogleEvent?.(event)}
+              className={cn(
+                'block w-full truncate rounded border border-dashed px-2 py-1 text-start text-xs',
+                'border-primary/40 bg-primary/5 text-muted-foreground',
+                'hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+              )}
+              data-testid={`calendar-allday-google-${event.id}`}
+            >
+              {event.title}
+            </button>
+          ))}
         </div>
       ))}
     </div>

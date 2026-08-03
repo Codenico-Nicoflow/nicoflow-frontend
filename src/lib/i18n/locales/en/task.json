@@ -256,6 +256,9 @@
       "update": "Use this device's timezone",
       "dismiss": "Keep account timezone",
       "updated": "Timezone updated to {{zone}}."
-    }
+    },
+    "googleEventCount_one": "{{count}} event",
+    "googleEventCount_other": "{{count}} events",
+    "openInGoogle": "Open in Google Calendar"
   }
 }

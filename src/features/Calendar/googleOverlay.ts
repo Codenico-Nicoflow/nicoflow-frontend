@@ -9,12 +9,12 @@ import { HOUR_HEIGHT_PX, MINUTES_PER_DAY } from './data';
  * Google events are context and never content. They render as chips BEHIND task
  * blocks, in their own absolutely-positioned layer.
  *
- * Events size themselves exactly as tasks do — full column when alone, split
- * only among events that genuinely overlap — because two layers that measure
- * width differently read as two grids stacked on each other rather than one
- * calendar. Since the layer is out of flow, that width negotiation happens
- * entirely among events: a late-arriving events response still cannot move a
- * single task block, which stays a geometric guarantee rather than a convention.
+ * Events size themselves the way tasks do — full column when nothing shares
+ * their minutes — because two layers that measure width differently read as two
+ * grids stacked on each other rather than one calendar. Where a task does share
+ * those minutes, the EVENT is what narrows: the layer is out of flow, so a
+ * late-arriving events response still cannot move a single task block. That
+ * stays a geometric guarantee rather than a rendering convention.
  *
  * Pure and framework-free so it survives the E-033 shared-package extraction.
  */
@@ -84,15 +84,15 @@ export const eventCountOn = (events: IGoogleEvent[], dayKey: string): number => 
 
 /**
  * A drawn Google event chip: its extent, plus the horizontal share it takes
- * when it overlaps other events.
+ * when a task or another event shares its minutes.
  */
 export interface EventChip {
   event: IGoogleEvent;
   top: number;
   height: number;
-  /** 0-based slot among the overlapping events. */
+  /** 0-based slot, counted after any columns the overlapping tasks reserved. */
   column: number;
-  /** How many slots the widest overlap in this cluster needs. */
+  /** Slots this cluster needs in total, tasks included. */
   columns: number;
   /** True when the chip is too short to fit a title and a time on two lines. */
   isCompact: boolean;

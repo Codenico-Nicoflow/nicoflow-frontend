@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { getDateLocale } from '@/lib/i18n/dateLocale';
-import type { IGoogleEvent } from '@/lib/store';
+import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +13,8 @@ import type { BlockDragCommit } from '../useBlockDrag';
 import { toDayKey } from '../utils';
 
 import AllDayRail from './AllDayRail';
-import GoogleWashLayer, { GoogleEventHitTargets } from './GoogleWashLayer';
+import GoogleEventChips from './GoogleEventChip';
+import GoogleWashLayer from './GoogleWashLayer';
 import TaskBlock from './TaskBlock';
 
 interface HourGridProps {
@@ -33,6 +34,8 @@ interface HourGridProps {
    * a grid rendered without the overlay is byte-identical to before.
    */
   googleEvents?: IGoogleEvent[];
+  /** Resolves each event's colour; empty until the picker query settles. */
+  googleCalendars?: IGoogleCalendar[];
   onSelectGoogleEvent?: (event: IGoogleEvent) => void;
 }
 
@@ -45,6 +48,7 @@ const HourGrid = ({
   onSelect,
   onDragCommit,
   googleEvents = [],
+  googleCalendars = [],
   onSelectGoogleEvent,
 }: HourGridProps) => {
   const { t, i18n } = useTranslation('task');
@@ -92,6 +96,7 @@ const HourGrid = ({
           tasksByDay={tasksByDay}
           onSelect={onSelect}
           googleEvents={googleEvents}
+          googleCalendars={googleCalendars}
           onSelectGoogleEvent={onSelectGoogleEvent}
         />
 
@@ -123,11 +128,17 @@ const HourGrid = ({
                 ))}
 
                 {/* Behind the blocks, and absolutely positioned, so events can
-                    never move a task. */}
+                    never move a task. The wash carries "this hour is booked"
+                    across the full width; the chips name what booked it. */}
                 {onSelectGoogleEvent && (
                   <>
                     <GoogleWashLayer events={googleEvents} dayKey={key} />
-                    <GoogleEventHitTargets events={googleEvents} dayKey={key} onSelect={onSelectGoogleEvent} />
+                    <GoogleEventChips
+                      events={googleEvents}
+                      dayKey={key}
+                      calendars={googleCalendars}
+                      onSelect={onSelectGoogleEvent}
+                    />
                   </>
                 )}
 

@@ -227,6 +227,7 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
       onSelect={handleSelect}
       onDragCommit={handleDragCommit}
       googleEvents={googleEvents}
+      googleCalendars={googleCalendars ?? []}
       onSelectGoogleEvent={setSelectedEvent}
     />
   );

@@ -271,6 +271,23 @@
     "googleDisconnected": "Google Календарь отключён — ваши события не показаны.",
     "googleUnavailable": "Google Календарь сейчас недоступен. На ваши задачи это не влияет.",
     "googleReconnect": "Подключить снова",
-    "googleDismiss": "Скрыть"
+    "googleDismiss": "Скрыть",
+    "googleEventLabel": "{{title}} в {{time}}, событие Google Календаря",
+    "eventCalendar": "Календарь",
+    "eventLocation": "Место",
+    "eventOrganizer": "Организатор",
+    "eventAttendees": "Участники",
+    "eventAttendeeCount_one": "{{count}} участник",
+    "eventAttendeeCount_few": "{{count}} участника",
+    "eventAttendeeCount_many": "{{count}} участников",
+    "eventAttendeeCount_other": "{{count}} участника",
+    "durationHm": "{{hours}} ч {{minutes}} мин",
+    "durationHours": "{{hours}} ч",
+    "rsvp": {
+      "accepted": "Иду",
+      "declined": "Не иду",
+      "tentative": "Возможно",
+      "needsAction": "Нет ответа"
+    }
   }
 }

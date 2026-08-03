@@ -89,6 +89,65 @@ describe('GoogleEventPopover', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('states how long the event runs rather than leaving the reader to subtract', async () => {
+    renderComponent(<GoogleEventPopover event={event} calendars={calendars} onClose={vi.fn()} />);
+
+    expect(await screen.findByTestId('google-event-popover-time')).toHaveTextContent('1h 30m');
+  });
+
+  it('shows location, organizer and guest count when Google sent them', async () => {
+    const detailed: IGoogleEvent = {
+      ...event,
+      location: 'Room 4',
+      organizer: 'Lead',
+      attendeeCount: 3,
+      responseStatus: 'accepted',
+    };
+    renderComponent(<GoogleEventPopover event={detailed} calendars={calendars} onClose={vi.fn()} />);
+
+    expect(await screen.findByTestId('google-event-popover-location')).toHaveTextContent('Room 4');
+    expect(screen.getByTestId('google-event-popover-organizer')).toHaveTextContent('Lead');
+    expect(screen.getByTestId('google-event-popover-attendees')).toHaveTextContent('3 guests');
+  });
+
+  // Detail fields are omitempty on the wire, so absent must render nothing at
+  // all rather than an empty labelled row.
+  it('omits detail rows the event does not carry', async () => {
+    renderComponent(<GoogleEventPopover event={event} calendars={calendars} onClose={vi.fn()} />);
+
+    await screen.findByTestId('google-event-popover');
+    expect(screen.queryByTestId('google-event-popover-location')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('google-event-popover-organizer')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('google-event-popover-description')).not.toBeInTheDocument();
+  });
+
+  // One guest is the organizer alone, which tells the user nothing.
+  it('hides the guest row for a solo event', async () => {
+    renderComponent(
+      <GoogleEventPopover event={{ ...event, attendeeCount: 1 }} calendars={calendars} onClose={vi.fn()} />
+    );
+
+    await screen.findByTestId('google-event-popover');
+    expect(screen.queryByTestId('google-event-popover-attendees')).not.toBeInTheDocument();
+  });
+
+  // The server already flattened Google's HTML, so this must appear as text.
+  it('renders the description as text, never as markup', async () => {
+    const withNotes: IGoogleEvent = { ...event, description: 'Agenda: <b>ship it</b>' };
+    renderComponent(<GoogleEventPopover event={withNotes} calendars={calendars} onClose={vi.fn()} />);
+
+    const description = await screen.findByTestId('google-event-popover-description');
+    expect(description).toHaveTextContent('Agenda: <b>ship it</b>');
+    expect(description.querySelector('b')).toBeNull();
+  });
+
+  it('strikes through an event the user declined', async () => {
+    const declined: IGoogleEvent = { ...event, responseStatus: 'declined' };
+    renderComponent(<GoogleEventPopover event={declined} calendars={calendars} onClose={vi.fn()} />);
+
+    expect(await screen.findByText('Design review')).toHaveClass('line-through');
+  });
+
   it('renders no link when Google supplied none', async () => {
     renderComponent(<GoogleEventPopover event={{ ...event, htmlLink: '' }} calendars={calendars} onClose={vi.fn()} />);
 

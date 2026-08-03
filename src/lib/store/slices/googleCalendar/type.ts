@@ -29,7 +29,22 @@ export interface IGoogleEvent {
   allDay: boolean;
   calendarId: string;
   htmlLink: string;
+  /**
+   * Detail fields are `omitempty` on the wire — an event without them omits the
+   * key entirely, so every consumer must treat absent and empty as the same
+   * thing rather than rendering an empty row.
+   */
+  location?: string;
+  /** Already flattened from HTML and truncated server-side. Render as text. */
+  description?: string;
+  organizer?: string;
+  attendeeCount?: number;
+  /** The VIEWER's own RSVP — absent when the event has no attendee list. */
+  responseStatus?: GoogleResponseStatus;
 }
+
+/** The viewer's RSVP. Mirrors Google's own vocabulary. */
+export type GoogleResponseStatus = 'accepted' | 'declined' | 'tentative' | 'needsAction';
 
 export interface GoogleEventsResponse {
   events: IGoogleEvent[];

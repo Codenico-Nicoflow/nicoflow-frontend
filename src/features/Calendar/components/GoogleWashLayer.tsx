@@ -1,14 +1,10 @@
 import type { IGoogleEvent } from '@/lib/store';
 
-import { eventHitAreas, MAX_WASH_DEPTH, washBands } from '../googleWash';
+import { MAX_WASH_DEPTH, washBands } from '../googleWash';
 
 interface WashProps {
   events: IGoogleEvent[];
   dayKey: string;
-}
-
-interface HitTargetProps extends WashProps {
-  onSelect: (event: IGoogleEvent) => void;
 }
 
 /**
@@ -19,10 +15,11 @@ interface HitTargetProps extends WashProps {
  * this is what guarantees a late-arriving events response never reflows the
  * user's own work.
  *
- * The band itself is inert (`pointer-events-none`); a separate transparent hit
- * target per event handles clicks. Making the band clickable would put a
- * full-width control underneath every task block and swallow drags meant for
- * the grid.
+ * Kept alongside the labelled chips (NIC-1881) rather than replaced by them: the
+ * chips occupy an inset strip, so the band is what still carries "this hour is
+ * spoken for" across the full width a task block sits on. It stays inert
+ * (`pointer-events-none`) — clicking is the chip's job, and a full-width control
+ * under every task block would swallow drags meant for the grid.
  */
 const GoogleWashLayer = ({ events, dayKey }: WashProps) => {
   const bands = washBands(events, dayKey);
@@ -44,34 +41,6 @@ const GoogleWashLayer = ({ events, dayKey }: WashProps) => {
           }}
           data-testid={`google-wash-band-${dayKey}`}
           data-depth={band.depth}
-        />
-      ))}
-    </div>
-  );
-};
-
-/**
- * Transparent, keyboard-reachable hit targets for the wash.
- *
- * Rendered as a sibling of the wash rather than inside it so the visual band
- * can stay `aria-hidden` while the events remain operable — a screen reader
- * gets one button per meeting instead of a decorative rectangle.
- */
-export const GoogleEventHitTargets = ({ events, dayKey, onSelect }: HitTargetProps) => {
-  const placed = eventHitAreas(events, dayKey);
-  if (placed.length === 0) return null;
-
-  return (
-    <div className="absolute inset-0 z-0" data-testid={`google-hits-${dayKey}`}>
-      {placed.map(({ event, top, height }) => (
-        <button
-          key={`hit-${event.id}-${dayKey}`}
-          type="button"
-          onClick={() => onSelect(event)}
-          aria-label={event.title}
-          className="absolute inset-x-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          style={{ top: `${top}px`, height: `${height}px` }}
-          data-testid={`google-event-hit-${event.id}`}
         />
       ))}
     </div>

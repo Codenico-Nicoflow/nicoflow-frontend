@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { IGoogleEvent } from '@/lib/store';
+import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { MAX_ALL_DAY_ROWS } from '../data';
 import { allDayTasks } from '../geometry';
+import { calendarColor, chipStyle } from '../googleColor';
 import { allDayEventsOn } from '../googleWash';
 import { toDayKey } from '../utils';
 
@@ -19,6 +20,8 @@ interface AllDayRailProps {
   onSelect: (taskId: string) => void;
   /** All-day Google events join this rail, visually distinct (NIC-1863). */
   googleEvents?: IGoogleEvent[];
+  /** Resolves each event's colour; empty until the picker query settles. */
+  googleCalendars?: IGoogleCalendar[];
   onSelectGoogleEvent?: (event: IGoogleEvent) => void;
 }
 
@@ -31,7 +34,14 @@ interface AllDayRailProps {
  * whole row and leave every other day's items stranded at the top of a tall
  * band, which is what made the week read as "spread out and random".
  */
-const AllDayRail = ({ days, tasksByDay, onSelect, googleEvents = [], onSelectGoogleEvent }: AllDayRailProps) => {
+const AllDayRail = ({
+  days,
+  tasksByDay,
+  onSelect,
+  googleEvents = [],
+  googleCalendars = [],
+  onSelectGoogleEvent,
+}: AllDayRailProps) => {
   const { t } = useTranslation('task');
   const [expanded, setExpanded] = useState(false);
 
@@ -112,18 +122,21 @@ const AllDayRail = ({ days, tasksByDay, onSelect, googleEvents = [], onSelectGoo
           })}
 
           {/* Google all-day events fill whatever rows the user's own tasks left
-              — tasks always take the rail first. Dashed and muted so they never
-              read as something the user can complete. */}
+              — tasks always take the rail first. Carry their calendar's colour
+              on the leading edge, and no checkbox affordance, so they never read
+              as something the user can complete. */}
           {events.slice(0, Math.max(visibleRows - tasks.length, 0)).map(event => (
             <button
               key={event.id}
               type="button"
               onClick={() => onSelectGoogleEvent?.(event)}
               className={cn(
-                'block w-full truncate rounded border border-dashed px-2 py-1 text-start text-xs',
-                'border-primary/40 bg-primary/5 text-muted-foreground',
-                'hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                'block w-full truncate rounded-md border border-s-[3px] px-2 py-1 text-start text-xs',
+                'text-foreground/80 transition-colors hover:brightness-105',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                event.responseStatus === 'declined' && 'line-through opacity-55'
               )}
+              style={chipStyle(calendarColor(event.calendarId, googleCalendars))}
               data-testid={`calendar-allday-google-${event.id}`}
             >
               {event.title}

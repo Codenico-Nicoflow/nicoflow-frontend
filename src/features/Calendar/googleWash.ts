@@ -140,39 +140,81 @@ export const washBands = (events: IGoogleEvent[], dayKey: string): WashBand[] =>
 /** Count of timed Google events on a day, for the day header. */
 export const eventCountOn = (events: IGoogleEvent[], dayKey: string): number => timedEventsOn(events, dayKey).length;
 
-/** One clickable region per event — the band's own extent, not a depth segment. */
-export interface EventHitArea {
+/**
+ * A drawn Google event chip: its extent, plus which lane it sits in when it
+ * overlaps another event.
+ */
+export interface EventChip {
   event: IGoogleEvent;
   top: number;
   height: number;
+  /** 0-based column among simultaneous events. */
+  lane: number;
+  /** How many lanes this chip's overlap group needs, so width can be derived. */
+  lanes: number;
+  /** True when the chip is too short to fit a title and a time on two lines. */
+  isCompact: boolean;
 }
 
 /**
- * A hit target per event, so clicking opens the meeting that was clicked.
+ * Below this a chip renders as a single line (title only) — two lines of text
+ * in ~24px would clip mid-glyph, which reads as a rendering fault rather than a
+ * short meeting.
+ */
+const COMPACT_CHIP_PX = 34;
+
+/**
+ * Chips for one day, laid out into lanes.
  *
  * Deliberately separate from `washBands`: bands are depth segments and a single
- * band can cover two meetings, so mapping band→event would open the wrong one.
+ * band can cover two meetings, so mapping band→event would label the wrong one.
  *
- * Later events are returned last and therefore paint on top, which makes the
- * shorter meeting inside a longer one reachable — the containing block would
- * otherwise cover it entirely.
+ * Lanes only ever subdivide the OVERLAY's own inset strip — never the day
+ * column — so two simultaneous meetings narrow against each other and still
+ * cannot take a pixel from a task block. That is what preserves the guarantee
+ * that a late-arriving events response cannot reflow the user's own work.
  */
-export const eventHitAreas = (events: IGoogleEvent[], dayKey: string): EventHitArea[] =>
-  timedEventsOn(events, dayKey)
+export const eventChips = (events: IGoogleEvent[], dayKey: string): EventChip[] => {
+  const placed = timedEventsOn(events, dayKey)
     .map(event => {
       const span = spanWithinDay(event, dayKey);
       if (!span) return null;
       const [start, end] = span;
-      return {
-        event,
-        top: (start / 60) * HOUR_HEIGHT_PX,
-        height: Math.max(((end - start) / 60) * HOUR_HEIGHT_PX, MIN_BAND_HEIGHT_PX),
-      };
+      return { event, start, end };
     })
-    .filter((area): area is EventHitArea => area !== null)
-    // Longest first, so a meeting nested inside another is painted after it and
-    // stays clickable.
-    .sort((a, b) => b.height - a.height);
+    .filter((entry): entry is { event: IGoogleEvent; start: number; end: number } => entry !== null)
+    // Earliest first, longest as the tie-break, so lane 0 is the day's spine and
+    // lane assignment is stable rather than dependent on server ordering.
+    .sort((a, b) => a.start - b.start || b.end - a.end);
+
+  if (placed.length === 0) return [];
+
+  // Lane per event: the first lane whose last event has already ended.
+  const laneEnds: number[] = [];
+  const lanes = placed.map(({ start, end }) => {
+    const free = laneEnds.findIndex(laneEnd => laneEnd <= start);
+    const lane = free === -1 ? laneEnds.length : free;
+    laneEnds[lane] = end;
+    return lane;
+  });
+
+  // One lane count for the whole day rather than per overlap cluster: a chip
+  // that changed width partway down the column would read as a layout bug, and
+  // the overlay strip is too narrow for the distinction to buy anything.
+  const laneCount = laneEnds.length;
+
+  return placed.map(({ event, start, end }, index) => {
+    const height = Math.max(((end - start) / 60) * HOUR_HEIGHT_PX, MIN_BAND_HEIGHT_PX);
+    return {
+      event,
+      top: (start / 60) * HOUR_HEIGHT_PX,
+      height,
+      lane: lanes[index]!,
+      lanes: laneCount,
+      isCompact: height < COMPACT_CHIP_PX,
+    };
+  });
+};
 
 /**
  * Whether a task block overlaps any Google event, for the conflict accent.

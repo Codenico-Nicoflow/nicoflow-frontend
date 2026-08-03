@@ -267,6 +267,22 @@
     "googleDisconnected": "יומן Google מנותק — האירועים שלך אינם מוצגים.",
     "googleUnavailable": "יומן Google אינו זמין כרגע. המשימות שלך אינן מושפעות.",
     "googleReconnect": "התחבר מחדש",
-    "googleDismiss": "סגור"
+    "googleDismiss": "סגור",
+    "googleEventLabel": "{{title}} בשעה {{time}}, אירוע ביומן Google",
+    "eventCalendar": "יומן",
+    "eventLocation": "מיקום",
+    "eventOrganizer": "מארגן",
+    "eventAttendees": "משתתפים",
+    "eventAttendeeCount_one": "משתתף {{count}}",
+    "eventAttendeeCount_two": "{{count}} משתתפים",
+    "eventAttendeeCount_other": "{{count}} משתתפים",
+    "durationHm": "{{hours}} שע׳ {{minutes}} דק׳",
+    "durationHours": "{{hours}} שע׳",
+    "rsvp": {
+      "accepted": "מגיע",
+      "declined": "לא מגיע",
+      "tentative": "אולי",
+      "needsAction": "ללא מענה"
+    }
   }
 }

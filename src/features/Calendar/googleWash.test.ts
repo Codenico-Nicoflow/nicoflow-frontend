@@ -5,9 +5,9 @@ import type { IGoogleEvent } from '@/lib/store';
 import { HOUR_HEIGHT_PX } from './data';
 import {
   allDayEventsOn,
+  eventChips,
   eventCountOn,
   eventDayKey,
-  eventHitAreas,
   eventMinutes,
   hasConflict,
   timedEventsOn,
@@ -138,26 +138,67 @@ describe('washBands', () => {
   });
 });
 
-describe('eventHitAreas', () => {
+describe('eventChips', () => {
   // Bands are depth segments and can cover two meetings, so a band→event
-  // mapping would open the wrong one.
-  it('returns one area per event, not per band', () => {
-    const areas = eventHitAreas([timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00')], DAY);
+  // mapping would label the wrong one.
+  it('returns one chip per event, not per band', () => {
+    const chips = eventChips([timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00')], DAY);
 
-    expect(areas.map(area => area.event.id).sort()).toEqual(['a', 'b']);
+    expect(chips.map(chip => chip.event.id).sort()).toEqual(['a', 'b']);
   });
 
-  it('paints a nested event after its container so it stays clickable', () => {
-    const areas = eventHitAreas([timed('short', '10:00', '10:30'), timed('long', '09:00', '12:00')], DAY);
+  it('positions a chip at its own extent', () => {
+    const [chip] = eventChips([timed('a', '09:00', '10:00')], DAY);
 
-    expect(areas.at(-1)!.event.id).toBe('short');
+    expect(chip!.top).toBe(9 * HOUR_HEIGHT_PX);
+    expect(chip!.height).toBe(HOUR_HEIGHT_PX);
   });
 
-  it('positions an area at its own extent', () => {
-    const [area] = eventHitAreas([timed('a', '09:00', '10:00')], DAY);
+  it('keeps sequential events in one lane', () => {
+    const chips = eventChips([timed('a', '09:00', '10:00'), timed('b', '10:00', '11:00')], DAY);
 
-    expect(area!.top).toBe(9 * HOUR_HEIGHT_PX);
-    expect(area!.height).toBe(HOUR_HEIGHT_PX);
+    expect(chips.map(chip => chip.lane)).toEqual([0, 0]);
+    expect(chips.every(chip => chip.lanes === 1)).toBe(true);
+  });
+
+  it('splits overlapping events into side-by-side lanes', () => {
+    const chips = eventChips([timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00')], DAY);
+
+    expect(chips.map(chip => chip.lane)).toEqual([0, 1]);
+    // One lane count for the whole day, so a chip never changes width partway
+    // down the column.
+    expect(chips.every(chip => chip.lanes === 2)).toBe(true);
+  });
+
+  it('assigns lanes by start time, not by server order', () => {
+    const chips = eventChips([timed('late', '10:00', '12:00'), timed('early', '09:00', '11:00')], DAY);
+
+    expect(chips.map(chip => chip.event.id)).toEqual(['early', 'late']);
+    expect(chips.map(chip => chip.lane)).toEqual([0, 1]);
+  });
+
+  it('reuses a freed lane once its event has ended', () => {
+    const chips = eventChips(
+      [timed('a', '09:00', '11:00'), timed('b', '10:00', '12:00'), timed('c', '11:00', '12:00')],
+      DAY
+    );
+
+    // `c` starts as `a` ends, so it takes lane 0 back rather than opening a third.
+    expect(chips.find(chip => chip.event.id === 'c')!.lane).toBe(0);
+    expect(chips.every(chip => chip.lanes === 2)).toBe(true);
+  });
+
+  it('marks a short event compact so its label does not clip', () => {
+    const [short] = eventChips([timed('a', '09:00', '09:15')], DAY);
+    const [long] = eventChips([timed('b', '09:00', '10:00')], DAY);
+
+    expect(short!.isCompact).toBe(true);
+    expect(long!.isCompact).toBe(false);
+  });
+
+  it('gives a zero-length event a visible minimum height', () => {
+    const [chip] = eventChips([timed('a', '09:00', '09:01')], DAY);
+    expect(chip!.height).toBeGreaterThan(0);
   });
 });
 

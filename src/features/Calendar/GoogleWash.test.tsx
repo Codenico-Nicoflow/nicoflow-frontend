@@ -103,16 +103,26 @@ describe('Google event wash', () => {
 
   /**
    * jsdom computes no real layout, so the assertion above cannot catch a wash
-   * that takes up space. This pins the mechanism instead: the wash and the hit
+   * that takes up space. This pins the mechanism instead: the wash and the chip
    * layer must both be absolutely positioned and out of flow, which is what
    * makes "no reflow" structural rather than incidental.
    */
-  it('keeps the wash and hit layers out of document flow', () => {
+  it('keeps the wash and chip layers out of document flow', () => {
     renderGrid([event('a', '09:00', '10:00')], [task('t1', '09:00')]);
 
-    for (const testId of [`google-wash-${DAY}`, `google-hits-${DAY}`]) {
+    for (const testId of [`google-wash-${DAY}`, `google-chips-${DAY}`]) {
       expect(screen.getByTestId(testId).className).toContain('absolute');
     }
+  });
+
+  // The chips are inset, so a task block always keeps visible column beside
+  // them rather than being wholly covered by context.
+  it('confines the chip layer to part of the column width', () => {
+    renderGrid([event('a', '09:00', '10:00')]);
+
+    const width = Number.parseFloat(screen.getByTestId(`google-chips-${DAY}`).style.width);
+    expect(width).toBeGreaterThan(0);
+    expect(width).toBeLessThan(100);
   });
 
   it('paints the wash beneath task blocks, never above them', () => {
@@ -164,7 +174,7 @@ describe('Google event wash', () => {
     const onSelectGoogleEvent = vi.fn();
     renderGrid([event('a', '09:00', '10:00')], [], onSelectGoogleEvent);
 
-    await userEvent.click(screen.getByTestId('google-event-hit-a'));
+    await userEvent.click(screen.getByTestId('google-event-chip-a'));
 
     expect(onSelectGoogleEvent).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }));
   });
@@ -172,9 +182,25 @@ describe('Google event wash', () => {
   it('exposes each event as a labelled control rather than a decorative band', () => {
     renderGrid([event('a', '09:00', '10:00')]);
 
-    expect(screen.getByRole('button', { name: 'Meeting a' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Meeting a/ })).toBeInTheDocument();
     // The tinted band itself is decorative.
     expect(screen.getByTestId(`google-wash-${DAY}`)).toHaveAttribute('aria-hidden');
+  });
+
+  // The whole point of the redesign: a band said an hour was busy but not with
+  // what, so identifying any meeting cost a click.
+  it('names the event on the grid without needing a click', () => {
+    renderGrid([event('a', '09:00', '10:00')]);
+
+    const chip = screen.getByTestId('google-event-chip-a');
+    expect(chip).toHaveTextContent('Meeting a');
+    expect(chip).toHaveTextContent('09:00');
+  });
+
+  it('de-emphasises an event the user declined', () => {
+    renderGrid([{ ...event('a', '09:00', '10:00'), responseStatus: 'declined' as const }]);
+
+    expect(screen.getByTestId('google-event-chip-a')).toHaveAttribute('data-declined', 'true');
   });
 
   describe('all-day rail', () => {

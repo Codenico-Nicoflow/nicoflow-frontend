@@ -263,6 +263,21 @@
     "googleDisconnected": "Google Calendar is disconnected — your events aren't shown.",
     "googleUnavailable": "Google Calendar is unavailable right now. Your tasks are unaffected.",
     "googleReconnect": "Reconnect",
-    "googleDismiss": "Dismiss"
+    "googleDismiss": "Dismiss",
+    "googleEventLabel": "{{title}} at {{time}}, Google Calendar event",
+    "eventCalendar": "Calendar",
+    "eventLocation": "Location",
+    "eventOrganizer": "Organizer",
+    "eventAttendees": "Guests",
+    "eventAttendeeCount_one": "{{count}} guest",
+    "eventAttendeeCount_other": "{{count}} guests",
+    "durationHm": "{{hours}}h {{minutes}}m",
+    "durationHours": "{{hours}}h",
+    "rsvp": {
+      "accepted": "Going",
+      "declined": "Not going",
+      "tentative": "Maybe",
+      "needsAction": "No reply"
+    }
   }
 }

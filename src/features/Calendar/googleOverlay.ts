@@ -1,5 +1,6 @@
 import type { IGoogleEvent } from '@/lib/store';
 
+import { blockDensity } from './blockDensity';
 import { HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES, MINUTES_PER_DAY } from './data';
 
 /**
@@ -93,14 +94,9 @@ export interface EventChip {
   columns: number;
   /** True when the chip is too short to fit a title and a time on two lines. */
   isCompact: boolean;
+  /** False when the chip has no room for any text at all. */
+  showTitle: boolean;
 }
-
-/**
- * Below this a chip renders as a single line (title only) — two lines of text
- * in ~24px would clip mid-glyph, which reads as a rendering fault rather than a
- * short meeting.
- */
-const COMPACT_CHIP_PX = 34;
 
 /** A [start, end) minute span a task occupies, for sharing width with events. */
 export type TaskSpan = [number, number];
@@ -179,9 +175,11 @@ export const eventChips = (
         height,
         column,
         columns: 1,
-        // Scaled with the row height: at a taller row a 15-minute chip has the
-        // space for two lines that it did not have at 48px.
-        isCompact: height < (COMPACT_CHIP_PX / HOUR_HEIGHT_PX) * hourHeight,
+        // An ABSOLUTE pixel test, not a share of the row: whether two lines of
+        // type fit is a question about the text, and scaling the threshold with
+        // hourHeight made a chip claim room it did not have.
+        isCompact: !blockDensity(height).showMeta,
+        showTitle: blockDensity(height).showTitle,
       },
       end,
     });

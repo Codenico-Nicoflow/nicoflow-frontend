@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
+import { blockDensity } from '../blockDensity';
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES, MINUTES_PER_DAY, RESIZE_HANDLE_PX } from '../data';
 import { toTimeString } from '../dragMath';
 import type { BlockLayout } from '../geometry';
@@ -79,6 +80,10 @@ const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict, hourHeight = H
       )
     : height;
 
+  // Keyed off the height the block is actually DRAWN at, so a resize drag
+  // reveals or hides the meta line live rather than clipping it until release.
+  const { showMeta, showTitle } = blockDensity(previewHeight);
+
   const width = 100 / columns;
 
   return (
@@ -141,15 +146,19 @@ const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict, hourHeight = H
               })
         }
       >
-        <span
-          className={cn(
-            'block truncate text-xs font-medium',
-            isDone ? 'text-muted-foreground line-through' : 'text-foreground'
-          )}
-        >
-          {task.title}
-        </span>
-        {(!isUnestimated || drag?.mode === 'resize') && (
+        {/* The full text always reaches assistive tech via aria-label above, so
+            dropping a line here costs presentation only, never information. */}
+        {showTitle && (
+          <span
+            className={cn(
+              'block truncate text-xs font-medium',
+              isDone ? 'text-muted-foreground line-through' : 'text-foreground'
+            )}
+          >
+            {task.title}
+          </span>
+        )}
+        {showMeta && (!isUnestimated || drag?.mode === 'resize') && (
           <span className="block truncate text-[11px] text-muted-foreground">
             {drag ? toTimeString(drag.startMinutes) : task.scheduledTime} ·{' '}
             {t('calendar.minutesShort', { minutes: drag ? drag.minutes : task.estimatedMinutes })}

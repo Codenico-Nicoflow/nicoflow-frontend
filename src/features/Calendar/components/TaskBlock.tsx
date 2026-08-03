@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX, MINUTES_PER_DAY, RESIZE_HANDLE_PX } from '../data';
+import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES, MINUTES_PER_DAY, RESIZE_HANDLE_PX } from '../data';
 import { toTimeString } from '../dragMath';
 import type { BlockLayout } from '../geometry';
 import { parseMinutes } from '../geometry';
@@ -25,6 +25,12 @@ interface TaskBlockProps {
    * arrival of Google events would reflow the grid.
    */
   hasConflict?: boolean;
+  /**
+   * Row height actually drawn — varies with the visible-hours window (NIC-1890).
+   * The drag maths must use the SAME value the grid rendered, or a gesture
+   * converts screen pixels at the wrong scale and lands at the wrong time.
+   */
+  hourHeight?: number;
 }
 
 /**
@@ -38,7 +44,7 @@ interface TaskBlockProps {
  * duration. Resize is the only gesture here that writes `estimatedMinutes` —
  * moving a block must never invent a duration for a task that has none.
  */
-const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict }: TaskBlockProps) => {
+const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict, hourHeight = HOUR_HEIGHT_PX }: TaskBlockProps) => {
   const { t } = useTranslation('task');
   const reduce = useReducedMotion();
   const { task, top, height, isUnestimated, column, columns } = layout;
@@ -54,6 +60,7 @@ const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict }: TaskBlockPro
     startMinutes,
     minutes: drawnMinutes,
     disabled: !onDragCommit,
+    hourHeight,
     onCommit: commit => onDragCommit?.(task.id, commit),
     onDragEnd: () => {
       suppressClick.current = true;
@@ -62,9 +69,14 @@ const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict }: TaskBlockPro
 
   // While dragging the block follows the pointer directly rather than waiting
   // for the server; the committed value re-renders from cache on release.
-  const previewTop = drag ? (drag.startMinutes / 60) * HOUR_HEIGHT_PX : top;
+  const previewTop = drag ? (drag.startMinutes / 60) * hourHeight : top;
   const previewHeight = drag
-    ? Math.max((Math.min(drag.minutes, MINUTES_PER_DAY - drag.startMinutes) / 60) * HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX)
+    ? Math.max(
+        (Math.min(drag.minutes, MINUTES_PER_DAY - drag.startMinutes) / 60) * hourHeight,
+        // Same minute-based floor `blockGeometry` uses, so the block does not
+        // change size the instant a drag ends.
+        (MIN_BLOCK_MINUTES / 60) * hourHeight
+      )
     : height;
 
   const width = 100 / columns;

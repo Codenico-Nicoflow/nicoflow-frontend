@@ -1,6 +1,6 @@
 import type { IGoogleEvent } from '@/lib/store';
 
-import { HOUR_HEIGHT_PX, MINUTES_PER_DAY } from './data';
+import { HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES, MINUTES_PER_DAY } from './data';
 
 /**
  * Geometry for the Google event overlay (NIC-1863, reshaped NIC-1881).
@@ -18,9 +18,6 @@ import { HOUR_HEIGHT_PX, MINUTES_PER_DAY } from './data';
  *
  * Pure and framework-free so it survives the E-033 shared-package extraction.
  */
-
-/** Floor so a very short meeting stays visible rather than collapsing away. */
-const MIN_BAND_HEIGHT_PX = 6;
 
 const DAY_KEY_LENGTH = 10;
 
@@ -127,7 +124,12 @@ export type TaskSpan = [number, number];
  * absolutely-positioned layer beneath the blocks, so a late-arriving events
  * response still cannot move a single task.
  */
-export const eventChips = (events: IGoogleEvent[], dayKey: string, taskSpans: TaskSpan[] = []): EventChip[] => {
+export const eventChips = (
+  events: IGoogleEvent[],
+  dayKey: string,
+  taskSpans: TaskSpan[] = [],
+  hourHeight: number = HOUR_HEIGHT_PX
+): EventChip[] => {
   const placed = timedEventsOn(events, dayKey)
     .map(event => {
       const span = spanWithinDay(event, dayKey);
@@ -151,7 +153,7 @@ export const eventChips = (events: IGoogleEvent[], dayKey: string, taskSpans: Ta
     // same divisor and their leading edges line up.
     const from = Math.min(...cluster.map(entry => entry.chip.top));
     const to = Math.max(...cluster.map(entry => entry.chip.top + entry.chip.height));
-    const reserved = taskColumnsIn(taskSpans, (from / HOUR_HEIGHT_PX) * 60, (to / HOUR_HEIGHT_PX) * 60);
+    const reserved = taskColumnsIn(taskSpans, (from / hourHeight) * 60, (to / hourHeight) * 60);
 
     const columns = eventColumns + reserved;
     cluster.forEach(({ chip }) => out.push({ ...chip, column: chip.column + reserved, columns }));
@@ -167,15 +169,19 @@ export const eventChips = (events: IGoogleEvent[], dayKey: string, taskSpans: Ta
     let column = 0;
     while (taken.has(column)) column += 1;
 
-    const height = Math.max(((end - start) / 60) * HOUR_HEIGHT_PX, MIN_BAND_HEIGHT_PX);
+    // The same 30-minute floor the task blocks use: a 15-minute meeting and a
+    // 15-minute task must not be drawn at two different sizes on one grid.
+    const height = Math.max(((end - start) / 60) * hourHeight, (MIN_BLOCK_MINUTES / 60) * hourHeight);
     cluster.push({
       chip: {
         event,
-        top: (start / 60) * HOUR_HEIGHT_PX,
+        top: (start / 60) * hourHeight,
         height,
         column,
         columns: 1,
-        isCompact: height < COMPACT_CHIP_PX,
+        // Scaled with the row height: at a taller row a 15-minute chip has the
+        // space for two lines that it did not have at 48px.
+        isCompact: height < (COMPACT_CHIP_PX / HOUR_HEIGHT_PX) * hourHeight,
       },
       end,
     });

@@ -30,6 +30,7 @@ import MonthDensity from './components/MonthDensity';
 import MonthGrid from './components/MonthGrid';
 import TimezoneDriftBanner from './components/TimezoneDriftBanner';
 import type { CalendarView } from './data';
+import { resolveCalendarPrefs } from './displayPrefs';
 import { toTimeString } from './dragMath';
 import { clearDismissedStatus, dismissStatus, isStatusDismissed } from './googleStatusDismissal';
 import { isDriftDismissed } from './timezoneDismissal';
@@ -92,7 +93,10 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   // teaser is a month, and honouring ?view=day would fetch a range its chrome
   // never draws.
   const effectiveView = isLocked ? 'month' : view;
-  const range = useMemo(() => rangeFor(effectiveView, anchor), [effectiveView, anchor]);
+  // Normalised rather than trusted: the grid has no way to report a bad stored
+  // preference, so an unusable value silently falls back to the default.
+  const prefs = useMemo(() => resolveCalendarPrefs(user?.calendar), [user?.calendar]);
+  const range = useMemo(() => rangeFor(effectiveView, anchor, prefs), [effectiveView, anchor, prefs]);
   const { data, isLoading } = useGetCalendarTasksQuery(range);
 
   // The Google layer loads INDEPENDENTLY of the task layer and is never awaited
@@ -120,7 +124,7 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
   const showGoogleStatus =
     !isLocked && googleStatus !== 'ok' && !isGoogleStatusResolved && !isStatusDismissed(googleStatus);
 
-  const days = useMemo(() => visibleDays(effectiveView, anchor), [effectiveView, anchor]);
+  const days = useMemo(() => visibleDays(effectiveView, anchor, prefs), [effectiveView, anchor, prefs]);
   // Below the breakpoint the hour grid is always a single column — week becomes
   // the agenda instead, so only `day` ever reaches the grid on mobile.
   const gridDays = isMobile ? days.slice(0, 1) : days;
@@ -229,6 +233,7 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
       googleEvents={googleEvents}
       googleCalendars={googleCalendars ?? []}
       onSelectGoogleEvent={setSelectedEvent}
+      prefs={prefs}
     />
   );
 

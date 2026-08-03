@@ -6,10 +6,12 @@ import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, HOURS, MINUTES_PER_DAY } from '../data';
+import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MINUTES_PER_DAY } from '../data';
+import type { CalendarPrefs } from '../displayPrefs';
+import { DEFAULT_CALENDAR_PREFS, hourHeightFor, hoursIn, visibleHourRange } from '../displayPrefs';
 import { layoutDay, nowOffset, parseMinutes } from '../geometry';
 import type { TaskSpan } from '../googleOverlay';
-import { eventCountOn, hasConflict } from '../googleOverlay';
+import { eventChips, eventCountOn, hasConflict } from '../googleOverlay';
 import type { BlockDragCommit } from '../useBlockDrag';
 import { toDayKey } from '../utils';
 
@@ -37,6 +39,8 @@ interface HourGridProps {
   /** Resolves each event's colour; empty until the picker query settles. */
   googleCalendars?: IGoogleCalendar[];
   onSelectGoogleEvent?: (event: IGoogleEvent) => void;
+  /** Which hours to draw (NIC-1890). Defaults to the full day. */
+  prefs?: CalendarPrefs;
 }
 
 const HourGrid = ({
@@ -50,9 +54,25 @@ const HourGrid = ({
   googleEvents = [],
   googleCalendars = [],
   onSelectGoogleEvent,
+  prefs = DEFAULT_CALENDAR_PREFS,
 }: HourGridProps) => {
   const { t, i18n } = useTranslation('task');
   const locale = getDateLocale(i18n.language);
+
+  // Everything drawn across every visible day, so the window widens once for
+  // the whole grid rather than per column — columns of different heights would
+  // not line up against a shared hour gutter.
+  const occupied = days.flatMap(day => occupiedSpans(tasksByDay.get(toDayKey(day)) ?? [], googleEvents, toDayKey(day)));
+  const window = visibleHourRange(prefs, occupied);
+  const hours = hoursIn(window);
+  // Narrowing the day frees vertical space; spending it on taller rows is what
+  // makes 15- and 30-minute blocks distinguishable. Every px↔minute conversion
+  // below — geometry, chips and drag alike — takes THIS value, never the base
+  // constant, or the grid and the gestures would disagree about what a pixel is.
+  const hourHeight = hourHeightFor(window, HOUR_HEIGHT_PX);
+  // Everything is positioned from midnight, so drawing a window means shifting
+  // the whole layer up by the hours that are no longer rendered.
+  const offsetPx = window[0] * hourHeight;
 
   return (
     // The grid scrolls inside its own box, never the page body: a horizontally
@@ -103,10 +123,10 @@ const HourGrid = ({
         {/* Hour rows + positioned blocks */}
         <div className="flex">
           <div className="w-14 shrink-0" data-testid="calendar-gutter">
-            {HOURS.map(hour => (
+            {hours.map(hour => (
               <div
                 key={hour}
-                style={{ height: `${HOUR_HEIGHT_PX}px` }}
+                style={{ height: `${hourHeight}px` }}
                 className="relative pe-2 text-end text-[11px] text-muted-foreground"
               >
                 <span className="absolute end-2 -top-1.5">
@@ -119,8 +139,8 @@ const HourGrid = ({
           {days.map(day => {
             const key = toDayKey(day);
             const dayTasks = tasksByDay.get(key) ?? [];
-            const offset = nowOffset(now, day, timezone);
-            const layouts = layoutDay(dayTasks);
+            const offset = nowOffset(now, day, timezone, hourHeight);
+            const layouts = layoutDay(dayTasks, hourHeight);
             // The drawn extent of each block, computed once: the conflict accent
             // and the event chips' width both key off it, and deriving it twice
             // would let the two drift apart.
@@ -130,41 +150,68 @@ const HourGrid = ({
             });
 
             return (
-              <div key={key} className="relative flex-1 border-s border-border/60" data-testid={`calendar-day-${key}`}>
-                {HOURS.map(hour => (
-                  <div key={hour} style={{ height: `${HOUR_HEIGHT_PX}px` }} className="border-b border-border/40" />
+              <div
+                key={key}
+                className="relative flex-1 overflow-hidden border-s border-border/60"
+                data-testid={`calendar-day-${key}`}
+              >
+                {hours.map(hour => (
+                  <div key={hour} style={{ height: `${hourHeight}px` }} className="border-b border-border/40" />
                 ))}
 
-                {/* Behind the blocks, and absolutely positioned, so events can
-                    never move a task — they only narrow themselves around one. */}
-                {onSelectGoogleEvent && (
-                  <GoogleEventChips
-                    events={googleEvents}
-                    dayKey={key}
-                    calendars={googleCalendars}
-                    taskSpans={spans}
-                    onSelect={onSelectGoogleEvent}
-                  />
-                )}
+                {/* One shifted layer for everything positioned from midnight.
+                    Translating the container rather than each child keeps every
+                    block, chip and drag calculation measured from 00:00 — the
+                    same origin the stored `scheduledTime` uses — so a narrowed
+                    window changes what is VISIBLE and never what a value means. */}
+                <div
+                  className="pointer-events-none absolute inset-x-0 top-0"
+                  // A full day tall regardless of the window: children are
+                  // positioned from midnight and would have nothing to sit in
+                  // otherwise. The day column clips whatever falls outside.
+                  style={{
+                    height: `${(MINUTES_PER_DAY / 60) * hourHeight}px`,
+                    transform: `translateY(-${offsetPx}px)`,
+                  }}
+                  data-testid={`calendar-day-layer-${key}`}
+                >
+                  {/* Behind the blocks, and absolutely positioned, so events can
+                      never move a task — they only narrow themselves around one. */}
+                  {onSelectGoogleEvent && (
+                    <div className="pointer-events-auto absolute inset-0">
+                      <GoogleEventChips
+                        events={googleEvents}
+                        dayKey={key}
+                        calendars={googleCalendars}
+                        taskSpans={spans}
+                        hourHeight={hourHeight}
+                        onSelect={onSelectGoogleEvent}
+                      />
+                    </div>
+                  )}
 
-                {layouts.map((layout, index) => (
-                  <TaskBlock
-                    key={layout.task.id}
-                    layout={layout}
-                    onSelect={onSelect}
-                    onDragCommit={onDragCommit}
-                    hasConflict={hasConflict(googleEvents, key, spans[index]![0], spans[index]![1])}
-                  />
-                ))}
+                  <div className="pointer-events-auto absolute inset-0">
+                    {layouts.map((layout, index) => (
+                      <TaskBlock
+                        key={layout.task.id}
+                        layout={layout}
+                        onSelect={onSelect}
+                        onDragCommit={onDragCommit}
+                        hourHeight={hourHeight}
+                        hasConflict={hasConflict(googleEvents, key, spans[index]![0], spans[index]![1])}
+                      />
+                    ))}
+                  </div>
 
-                {offset !== null && (
-                  <div
-                    className="pointer-events-none absolute inset-x-0 border-t-2 border-destructive"
-                    style={{ top: `${offset}px` }}
-                    data-testid="calendar-now-line"
-                    aria-hidden
-                  />
-                )}
+                  {offset !== null && (
+                    <div
+                      className="pointer-events-none absolute inset-x-0 border-t-2 border-destructive"
+                      style={{ top: `${offset}px` }}
+                      data-testid="calendar-now-line"
+                      aria-hidden
+                    />
+                  )}
+                </div>
               </div>
             );
           })}
@@ -172,6 +219,31 @@ const HourGrid = ({
       </div>
     </div>
   );
+};
+
+/**
+ * Minute bounds of everything drawn on one day — tasks AND Google events.
+ *
+ * Feeds the auto-expand: the chosen hour window is a default view, never a
+ * filter, so anything scheduled outside it widens the grid rather than
+ * vanishing. Events count for the same reason tasks do — a meeting the user
+ * does not control disappearing is exactly as bad.
+ */
+const occupiedSpans = (tasks: ITask[], events: IGoogleEvent[], dayKey: string): [number, number][] => {
+  const spans = tasks
+    .map((task): [number, number] | null => {
+      const start = parseMinutes(task.scheduledTime);
+      if (start === null) return null;
+      return [start, Math.min(start + (task.estimatedMinutes ?? DEFAULT_BLOCK_MINUTES), MINUTES_PER_DAY)];
+    })
+    .filter((span): span is [number, number] => span !== null);
+
+  eventChips(events, dayKey).forEach(chip => {
+    const start = (chip.top / HOUR_HEIGHT_PX) * 60;
+    spans.push([start, start + (chip.height / HOUR_HEIGHT_PX) * 60]);
+  });
+
+  return spans;
 };
 
 export default HourGrid;

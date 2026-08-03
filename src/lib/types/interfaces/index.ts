@@ -98,6 +98,22 @@ export interface IUser {
   imageUrl: string;
   username: string;
   status: 'premium' | 'regular';
+  /**
+   * Calendar display preferences (NIC-1890). Optional so a response from an API
+   * that predates them still types — the client normalises what it gets rather
+   * than assuming the object is present and well-formed.
+   */
+  calendar?: ICalendarPrefs;
+}
+
+/** How the user wants the calendar grid drawn. Weekdays are 0=Sunday … 6=Saturday. */
+export interface ICalendarPrefs {
+  weekStart: number;
+  workdays: number[];
+  /** First hour drawn, 0–23. */
+  dayStartHour: number;
+  /** Last hour drawn, EXCLUSIVE, 1–24. */
+  dayEndHour: number;
 }
 
 export interface IBucket {

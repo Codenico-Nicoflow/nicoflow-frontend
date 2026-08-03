@@ -181,6 +181,37 @@
         "disconnectDescription": "This revokes Nicoflow's access with Google, and your events will stop appearing on the calendar. You can reconnect at any time.",
         "connectionUnavailable": "Couldn't check your Google connection. Try again shortly.",
         "lastErrorHint": "The last sync with Google failed. Your events may be out of date."
+      },
+      "calendar": {
+        "title": "Calendar",
+        "weekStartLabel": "Week starts on",
+        "workdaysLabel": "Days shown",
+        "workdaysHint": "Hide the days you never plan on. The week view only.",
+        "workdaysAtLeastOne": "Keep at least one day visible.",
+        "hoursLabel": "Hours shown",
+        "hoursHint": "The part of the day the grid opens on.",
+        "hoursSeparator": "to",
+        "dayStartLabel": "First hour shown",
+        "dayEndLabel": "Last hour shown",
+        "autoExpandHint": "Anything scheduled outside these hours still shows — the grid widens to fit it.",
+        "weekdays": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday"
+        },
+        "weekdaysShort": {
+          "0": "Sun",
+          "1": "Mon",
+          "2": "Tue",
+          "3": "Wed",
+          "4": "Thu",
+          "5": "Fri",
+          "6": "Sat"
+        }
       }
     },
     "profile": {

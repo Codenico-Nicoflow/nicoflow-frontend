@@ -3,6 +3,8 @@ import { addDays, addMonths, endOfWeek, format, parseISO, startOfMonth, startOfW
 import type { ITask } from '@/lib/types';
 
 import { CALENDAR_VIEWS, type CalendarView, DAYS_PER_WEEK, DEFAULT_VIEW, MONTH_GRID_DAYS } from './data';
+import type { CalendarPrefs } from './displayPrefs';
+import { DEFAULT_CALENDAR_PREFS, isWorkday } from './displayPrefs';
 
 /** The wire/URL date format, shared with `scheduledFor`. */
 export const DAY_KEY = 'yyyy-MM-dd';
@@ -80,23 +82,46 @@ export const parseViewParam = (value: string | null): CalendarView =>
   CALENDAR_VIEWS.includes(value as CalendarView) ? (value as CalendarView) : DEFAULT_VIEW;
 
 /**
- * Inclusive day span the given view covers. Week starts Monday to match the
- * product's week semantics.
+ * Inclusive day span the given view covers.
+ *
+ * The week start comes from the user (NIC-1890): Sunday across Israel and North
+ * America, Monday across most of Europe. Hidden non-workdays are filtered out
+ * of the WEEK view only — a month grid with gaps in it stops being a grid, and
+ * the day view is showing the day the user explicitly navigated to.
  */
-export const visibleDays = (view: CalendarView, anchor: Date): Date[] => {
+export const visibleDays = (
+  view: CalendarView,
+  anchor: Date,
+  prefs: CalendarPrefs = DEFAULT_CALENDAR_PREFS
+): Date[] => {
   if (view === 'day') return [anchor];
   if (view === 'month') {
     // Pad to whole weeks so the grid is always rectangular — a ragged first row
     // would misalign every weekday column beneath it.
-    const start = startOfWeek(startOfMonth(anchor), { weekStartsOn: 1 });
+    const start = startOfWeek(startOfMonth(anchor), { weekStartsOn: prefs.weekStart });
     return Array.from({ length: MONTH_GRID_DAYS }, (_, offset) => addDays(start, offset));
   }
-  const start = startOfWeek(anchor, { weekStartsOn: 1 });
-  return Array.from({ length: 7 }, (_, offset) => addDays(start, offset));
+
+  const start = startOfWeek(anchor, { weekStartsOn: prefs.weekStart });
+  const week = Array.from({ length: DAYS_PER_WEEK }, (_, offset) => addDays(start, offset));
+  const shown = week.filter(day => isWorkday(day, prefs));
+  // A preference that emptied the week would leave nothing to render and no way
+  // back; the full week is the honest fallback.
+  return shown.length > 0 ? shown : week;
 };
 
-/** Inclusive range to request for a view — exactly what the grid will draw. */
-export const rangeFor = (view: CalendarView, anchor: Date): { scheduledFrom: string; scheduledTo: string } => {
+/**
+ * Inclusive range to request for a view.
+ *
+ * Deliberately the full week even when non-workdays are hidden: the range is
+ * one request either way, and asking for the drawn subset would refetch the
+ * moment the user re-enables a day.
+ */
+export const rangeFor = (
+  view: CalendarView,
+  anchor: Date,
+  prefs: CalendarPrefs = DEFAULT_CALENDAR_PREFS
+): { scheduledFrom: string; scheduledTo: string } => {
   if (view === 'day') {
     const key = toDayKey(anchor);
     return { scheduledFrom: key, scheduledTo: key };
@@ -104,12 +129,12 @@ export const rangeFor = (view: CalendarView, anchor: Date): { scheduledFrom: str
   if (view === 'month') {
     // The padded grid is 42 days — comfortably inside the server's 62-day cap,
     // so a month is always exactly one request.
-    const days = visibleDays('month', anchor);
+    const days = visibleDays('month', anchor, prefs);
     return { scheduledFrom: toDayKey(days[0]!), scheduledTo: toDayKey(days[days.length - 1]!) };
   }
   return {
-    scheduledFrom: toDayKey(startOfWeek(anchor, { weekStartsOn: 1 })),
-    scheduledTo: toDayKey(endOfWeek(anchor, { weekStartsOn: 1 })),
+    scheduledFrom: toDayKey(startOfWeek(anchor, { weekStartsOn: prefs.weekStart })),
+    scheduledTo: toDayKey(endOfWeek(anchor, { weekStartsOn: prefs.weekStart })),
   };
 };
 

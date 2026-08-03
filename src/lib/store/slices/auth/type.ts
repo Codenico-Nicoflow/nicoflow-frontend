@@ -58,6 +58,12 @@ export type UpdateProfileRequest = {
   timezone?: string;
   theme?: IUser['theme'];
   language?: IUser['language'];
+  // Calendar preferences are individually optional, so changing only the day
+  // window never has to echo back a week start the client did not read.
+  weekStart?: number;
+  workdays?: number[];
+  dayStartHour?: number;
+  dayEndHour?: number;
 };
 
 export type ChangePasswordRequest = {

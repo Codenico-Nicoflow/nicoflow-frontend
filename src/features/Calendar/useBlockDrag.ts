@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { DRAG_THRESHOLD_PX, LONG_PRESS_MS } from './data';
+import { DRAG_THRESHOLD_PX, HOUR_HEIGHT_PX, LONG_PRESS_MS } from './data';
 import { movedStartMinutes, resizedMinutes } from './dragMath';
 
 export type DragMode = 'move' | 'resize';
@@ -21,6 +21,12 @@ export interface BlockDragCommit {
 }
 
 interface UseBlockDragOptions {
+  /**
+   * Row height the grid actually drew. Screen pixels are converted to minutes
+   * against this, so a gesture on a taller row lands where the user dropped it
+   * rather than at the base 48px/hour scale.
+   */
+  hourHeight?: number;
   /** Stored start minute of the block being dragged. */
   startMinutes: number;
   /** Drawn duration — the resize baseline, including the rendered default. */
@@ -51,7 +57,14 @@ interface Gesture {
  * without it, dragging faster than React re-renders would drop the drag
  * mid-flight and strand the block at a half-moved position.
  */
-export const useBlockDrag = ({ startMinutes, minutes, onCommit, onDragEnd, disabled }: UseBlockDragOptions) => {
+export const useBlockDrag = ({
+  startMinutes,
+  minutes,
+  onCommit,
+  onDragEnd,
+  disabled,
+  hourHeight = HOUR_HEIGHT_PX,
+}: UseBlockDragOptions) => {
   const [drag, setDrag] = useState<DragState | null>(null);
   const gesture = useRef<Gesture | null>(null);
   const longPress = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -81,12 +94,15 @@ export const useBlockDrag = ({ startMinutes, minutes, onCommit, onDragEnd, disab
     (mode: DragMode, deltaY: number) => {
       const next: DragState =
         mode === 'move'
-          ? { mode, startMinutes: movedStartMinutes(startMinutes, deltaY), minutes }
-          : { mode, startMinutes, minutes: resizedMinutes(startMinutes, minutes, deltaY) };
+          ? { mode, startMinutes: movedStartMinutes(startMinutes, deltaY, hourHeight), minutes }
+          : { mode, startMinutes, minutes: resizedMinutes(startMinutes, minutes, deltaY, hourHeight) };
       latest.current = next;
       setDrag(next);
     },
-    [minutes, startMinutes]
+    // hourHeight belongs here: it changes when the visible-hours window does,
+    // and a stale value would convert pointer pixels at the previous scale —
+    // landing the gesture at a time the user did not drop it on.
+    [minutes, startMinutes, hourHeight]
   );
 
   const onPointerDown = useCallback(

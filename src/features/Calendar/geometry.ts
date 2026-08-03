@@ -1,7 +1,7 @@
 import type { ITask } from '@/lib/types';
 import { TaskStatus } from '@/lib/types';
 
-import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX, MINUTES_PER_DAY } from './data';
+import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES, MINUTES_PER_DAY } from './data';
 import { toDayKey, wallClockIn } from './utils';
 
 /** A timed task placed on the grid, in pixels from the top of the day column. */
@@ -47,17 +47,25 @@ export const parseMinutes = (time?: string | null): number | null => {
  * Height is clamped twice: up to a tappable minimum, and down so a block can
  * never run past midnight (the backend clamps the stored value the same way).
  */
-export const blockGeometry = (task: ITask): BlockGeometry | null => {
+export const blockGeometry = (task: ITask, hourHeight: number = HOUR_HEIGHT_PX): BlockGeometry | null => {
   const start = parseMinutes(task.scheduledTime);
   if (start === null) return null;
 
   const isUnestimated = task.estimatedMinutes == null;
+  // A task with no estimate is drawn as half an hour. RENDERED, never stored —
+  // the grid must not write `estimatedMinutes` just to draw a box — and the
+  // caller gets `isUnestimated` so it can style it as an open-ended intention
+  // rather than implying a duration the user never set.
   const minutes = isUnestimated ? DEFAULT_BLOCK_MINUTES : task.estimatedMinutes!;
   const clamped = Math.min(minutes, MINUTES_PER_DAY - start);
 
   return {
-    top: (start / 60) * HOUR_HEIGHT_PX,
-    height: Math.max((clamped / 60) * HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX),
+    top: (start / 60) * hourHeight,
+    // The floor is expressed in MINUTES, not pixels, so it means the same thing
+    // at every row height. A fixed px floor made a 15-minute block and a
+    // 30-minute block render identically at 48px/hour — the grid stating a
+    // duration it was not drawing.
+    height: Math.max((clamped / 60) * hourHeight, (MIN_BLOCK_MINUTES / 60) * hourHeight),
     isUnestimated,
   };
 };
@@ -79,7 +87,7 @@ const endMinutes = (task: ITask): number => {
  * column count, so the columns line up instead of each block picking its own
  * width.
  */
-export const layoutDay = (tasks: ITask[]): BlockLayout[] => {
+export const layoutDay = (tasks: ITask[], hourHeight: number = HOUR_HEIGHT_PX): BlockLayout[] => {
   const timed = tasks
     .filter(task => parseMinutes(task.scheduledTime) !== null)
     .sort((a, b) => {
@@ -101,7 +109,7 @@ export const layoutDay = (tasks: ITask[]): BlockLayout[] => {
   };
 
   timed.forEach(task => {
-    const geometry = blockGeometry(task);
+    const geometry = blockGeometry(task, hourHeight);
     if (!geometry) return;
     const start = parseMinutes(task.scheduledTime)!;
 
@@ -144,8 +152,13 @@ export const allDayTasks = (tasks: ITask[]): ITask[] =>
  * traveller reading browser-local time would get the line drawn hours away from
  * the blocks it is supposed to sit among.
  */
-export const nowOffset = (now: Date, day: Date, timezone?: string): number | null => {
+export const nowOffset = (
+  now: Date,
+  day: Date,
+  timezone?: string,
+  hourHeight: number = HOUR_HEIGHT_PX
+): number | null => {
   const wall = wallClockIn(timezone, now);
   if (wall.dayKey !== toDayKey(day)) return null;
-  return ((wall.hours * 60 + wall.minutes) / 60) * HOUR_HEIGHT_PX;
+  return ((wall.hours * 60 + wall.minutes) / 60) * hourHeight;
 };

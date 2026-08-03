@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { makeTask } from '@/mocks/handlers';
 
 import { DAYS_PER_WEEK, MAX_RANGE_DAYS, MONTH_GRID_DAYS } from './data';
+import { resolveCalendarPrefs } from './displayPrefs';
 import {
   groupByDayKey,
   monthGridWeeks,
@@ -186,5 +187,67 @@ describe('groupByDayKey', () => {
 
   it('drops unscheduled tasks', () => {
     expect(groupByDayKey([makeTask({ id: 'a', scheduledFor: null })]).size).toBe(0);
+  });
+});
+
+describe('visibleDays with calendar preferences', () => {
+  // 2026-08-03 is a Monday.
+  const anchor = new Date('2026-08-03T12:00:00');
+
+  it('starts the week on Sunday when the user chose Sunday', () => {
+    const days = visibleDays('week', anchor, resolveCalendarPrefs({ weekStart: 0 }));
+
+    expect(toDayKey(days[0]!)).toBe('2026-08-02');
+    expect(days).toHaveLength(7);
+  });
+
+  it('starts the week on Monday when the user chose Monday', () => {
+    const days = visibleDays('week', anchor, resolveCalendarPrefs({ weekStart: 1 }));
+
+    expect(toDayKey(days[0]!)).toBe('2026-08-03');
+  });
+
+  it('hides the days the user does not plan on', () => {
+    const days = visibleDays('week', anchor, resolveCalendarPrefs({ weekStart: 1, workdays: [1, 2, 3, 4, 5] }));
+
+    expect(days).toHaveLength(5);
+    expect(toDayKey(days[0]!)).toBe('2026-08-03');
+    expect(toDayKey(days[4]!)).toBe('2026-08-07');
+  });
+
+  // The Israeli work week — a first-class case, given the app ships Hebrew.
+  it('supports a Sunday-to-Thursday week', () => {
+    const days = visibleDays('week', anchor, resolveCalendarPrefs({ weekStart: 0, workdays: [0, 1, 2, 3, 4] }));
+
+    expect(days.map(day => day.getDay())).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  // A gapped month grid stops being a grid, and the day view is showing the day
+  // the user explicitly navigated to.
+  it('never hides days in the month or day views', () => {
+    const prefs = resolveCalendarPrefs({ workdays: [1] });
+
+    expect(visibleDays('month', anchor, prefs)).toHaveLength(42);
+    expect(visibleDays('day', anchor, prefs)).toHaveLength(1);
+  });
+});
+
+describe('rangeFor with calendar preferences', () => {
+  const anchor = new Date('2026-08-03T12:00:00');
+
+  it('follows the chosen week start', () => {
+    expect(rangeFor('week', anchor, resolveCalendarPrefs({ weekStart: 0 }))).toEqual({
+      scheduledFrom: '2026-08-02',
+      scheduledTo: '2026-08-08',
+    });
+  });
+
+  // Requesting the drawn subset would refetch the moment a day is re-enabled,
+  // and it is one request either way.
+  it('requests the whole week even when days are hidden', () => {
+    expect(rangeFor('week', anchor, resolveCalendarPrefs({ weekStart: 1, workdays: [1, 2] }))).toEqual({
+      scheduledFrom: '2026-08-03',
+      scheduledTo: '2026-08-09',
+    });
   });
 });

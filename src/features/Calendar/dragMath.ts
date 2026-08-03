@@ -1,7 +1,17 @@
 import { HOUR_HEIGHT_PX, MINUTES_PER_DAY, SNAP_MINUTES } from './data';
 
-/** Pixels one snap step occupies — the smallest movement that changes anything. */
+/** Pixels one snap step occupies at the base row height. */
 export const SNAP_HEIGHT_PX = (SNAP_MINUTES / 60) * HOUR_HEIGHT_PX;
+
+/**
+ * Pixels one snap step occupies at a given row height.
+ *
+ * The row height varies with the visible-hours window (NIC-1890), and a drag
+ * that converted screen pixels using the BASE height while the grid drew a
+ * taller row would land every gesture at the wrong time. Every px↔minute
+ * conversion therefore takes the height actually rendered.
+ */
+export const snapHeightAt = (hourHeight: number): number => (SNAP_MINUTES / 60) * hourHeight;
 
 /**
  * Round minutes to the nearest 15-minute boundary.
@@ -13,8 +23,9 @@ export const SNAP_HEIGHT_PX = (SNAP_MINUTES / 60) * HOUR_HEIGHT_PX;
  */
 export const snapMinutes = (minutes: number): number => Math.round(minutes / SNAP_MINUTES) * SNAP_MINUTES;
 
-/** Vertical pixel delta as snapped minutes. */
-export const deltaToMinutes = (deltaY: number): number => snapMinutes((deltaY / HOUR_HEIGHT_PX) * 60);
+/** Vertical pixel delta as snapped minutes, at the row height being drawn. */
+export const deltaToMinutes = (deltaY: number, hourHeight: number = HOUR_HEIGHT_PX): number =>
+  snapMinutes((deltaY / hourHeight) * 60);
 
 /** "HH:MM" for minutes from midnight. Inverse of `parseMinutes`. */
 export const toTimeString = (minutes: number): string => {
@@ -31,8 +42,12 @@ export const toTimeString = (minutes: number): string => {
  * backend rejects it and every day-keyed path (sweeps, recurrence dedupe,
  * grouping) assumes a block belongs to exactly one date.
  */
-export const movedStartMinutes = (startMinutes: number, deltaY: number): number => {
-  const moved = startMinutes + deltaToMinutes(deltaY);
+export const movedStartMinutes = (
+  startMinutes: number,
+  deltaY: number,
+  hourHeight: number = HOUR_HEIGHT_PX
+): number => {
+  const moved = startMinutes + deltaToMinutes(deltaY, hourHeight);
   return Math.min(Math.max(moved, 0), MINUTES_PER_DAY - SNAP_MINUTES);
 };
 
@@ -43,7 +58,12 @@ export const movedStartMinutes = (startMinutes: number, deltaY: number): number 
  * invisible, unclickable block), and capped at the remainder of the day for the
  * same cross-midnight reason as the move.
  */
-export const resizedMinutes = (startMinutes: number, currentMinutes: number, deltaY: number): number => {
-  const resized = snapMinutes(currentMinutes + deltaToMinutes(deltaY));
+export const resizedMinutes = (
+  startMinutes: number,
+  currentMinutes: number,
+  deltaY: number,
+  hourHeight: number = HOUR_HEIGHT_PX
+): number => {
+  const resized = snapMinutes(currentMinutes + deltaToMinutes(deltaY, hourHeight));
   return Math.min(Math.max(resized, SNAP_MINUTES), MINUTES_PER_DAY - startMinutes);
 };

@@ -18,6 +18,8 @@ interface ChipLayerProps {
    * the events may take — the task layer lays itself out independently.
    */
   taskSpans?: TaskSpan[];
+  /** Row height actually drawn — varies with the visible-hours window. */
+  hourHeight?: number;
   onSelect: (event: IGoogleEvent) => void;
 }
 
@@ -37,8 +39,8 @@ interface ChipLayerProps {
  * The layer participates in NO layout — it is absolutely positioned beneath the
  * task blocks — so an event arriving late can never move a task.
  */
-const GoogleEventChips = ({ events, dayKey, calendars, taskSpans, onSelect }: ChipLayerProps) => {
-  const chips = eventChips(events, dayKey, taskSpans);
+const GoogleEventChips = ({ events, dayKey, calendars, taskSpans, hourHeight, onSelect }: ChipLayerProps) => {
+  const chips = eventChips(events, dayKey, taskSpans, hourHeight);
   if (chips.length === 0) return null;
 
   return (

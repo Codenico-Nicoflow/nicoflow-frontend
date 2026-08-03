@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { TaskStatus } from '@/lib/types';
 import { makeTask } from '@/mocks/handlers';
 
-import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_HEIGHT_PX } from './data';
+import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES } from './data';
 import { allDayTasks, blockGeometry, layoutDay, nowOffset, parseMinutes } from './geometry';
 
 describe('parseMinutes', () => {
@@ -43,7 +43,7 @@ describe('blockGeometry', () => {
 
   it('keeps a very short block tappable', () => {
     const geometry = blockGeometry(makeTask({ scheduledTime: '09:00', estimatedMinutes: 1 }));
-    expect(geometry?.height).toBe(MIN_BLOCK_HEIGHT_PX);
+    expect(geometry?.height).toBe((MIN_BLOCK_MINUTES / 60) * HOUR_HEIGHT_PX);
   });
 
   it('returns null without a time', () => {

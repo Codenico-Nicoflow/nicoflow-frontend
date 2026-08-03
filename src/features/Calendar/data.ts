@@ -7,12 +7,27 @@ export const HOUR_HEIGHT_PX = 48;
  */
 export const DEFAULT_BLOCK_MINUTES = 30;
 
-/** Floor so a short task stays tappable rather than collapsing to a hairline. */
-export const MIN_BLOCK_HEIGHT_PX = 24;
+/**
+ * Smallest duration any block is DRAWN at — tasks and Google events alike.
+ *
+ * Expressed in minutes rather than pixels so it means the same thing at every
+ * row height: a px floor made a 15-minute block and a 30-minute block render
+ * identically at 48px/hour, which had the grid stating a duration it was not
+ * actually drawing. Anything shorter is still shown at this height so it stays
+ * readable and tappable — the stored value is never touched.
+ */
+export const MIN_BLOCK_MINUTES = 30;
 
-export const MINUTES_PER_DAY = 24 * 60;
+export const HOURS_PER_DAY = 24;
 
-export const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
+export const MINUTES_PER_DAY = HOURS_PER_DAY * 60;
+
+/**
+ * Every hour of the day. The grid renders a user-chosen slice of this rather
+ * than the whole thing — see `visibleHourRange` — so this stays the full span
+ * that geometry is measured against, not the span that is drawn.
+ */
+export const HOURS = Array.from({ length: HOURS_PER_DAY }, (_, hour) => hour);
 
 export const CALENDAR_VIEWS = ['day', 'week', 'month'] as const;
 export type CalendarView = (typeof CALENDAR_VIEWS)[number];

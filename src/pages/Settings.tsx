@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AccountCard } from '@/features/Settings/AccountCard';
+import { CalendarCard } from '@/features/Settings/CalendarCard';
 import { GoogleConnectionCard } from '@/features/Settings/google/GoogleConnectionCard';
 import { NotificationsCard } from '@/features/Settings/notifications/NotificationsCard';
 import { PreferencesCard } from '@/features/Settings/PreferencesCard';
@@ -35,6 +36,8 @@ const Settings = () => {
       <PreferencesCard />
 
       <NotificationsCard />
+
+      <CalendarCard />
 
       <RecurrenceCard />
 

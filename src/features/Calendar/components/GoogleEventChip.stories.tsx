@@ -5,6 +5,8 @@ import type { ITask } from '@/lib/types';
 import { TaskPriority, TaskStatus } from '@/lib/types';
 import { withStoryProviders } from '@/stories/decorators/withStoryProviders';
 
+import { resolveCalendarPrefs } from '../displayPrefs';
+
 import HourGrid from './HourGrid';
 
 const DAY = '2026-08-03';
@@ -176,5 +178,41 @@ export const AllDayEvents: Story = {
       { ...event('h2', 'Team offsite', '00:00', '00:00'), allDay: true, start: DAY, end: '2026-08-04' },
       { ...event('h3', "Ada's birthday", '00:00', '00:00'), allDay: true, start: DAY, end: '2026-08-04' },
     ],
+  },
+};
+
+/**
+ * A working-hours window (08:00–18:00). The night hours are gone and the rows
+ * are taller for it, which is what makes the 15-minute blocks below legible.
+ */
+export const WorkingHoursWindow: Story = {
+  args: {
+    prefs: resolveCalendarPrefs({ dayStartHour: 8, dayEndHour: 18 }),
+    googleEvents: [event('a', 'Standup', '09:00', '09:15'), event('b', 'Design review', '13:30', '15:00', 'family')],
+  },
+};
+
+/**
+ * Short blocks at the base 48px/hour vs the same blocks in a narrowed window.
+ * A 15-minute block is drawn at the 30-minute floor either way, so it never
+ * collapses to a hairline — but the taller rows are what make it readable.
+ */
+export const ShortBlocksInWindow: Story = {
+  args: {
+    prefs: resolveCalendarPrefs({ dayStartHour: 8, dayEndHour: 14 }),
+    tasksByDay: new Map([[DAY, [task('t1', 'Quick call', '09:00', 15), task('t2', 'Review', '10:00', 30)]]]),
+    googleEvents: [event('a', 'Sync', '11:00', '11:15')],
+  },
+};
+
+/**
+ * Work scheduled outside the chosen window still appears — the grid widens to
+ * fit it. A display preference that hid scheduled work would read as data loss.
+ */
+export const AutoExpandsForEarlyWork: Story = {
+  args: {
+    prefs: resolveCalendarPrefs({ dayStartHour: 9, dayEndHour: 17 }),
+    tasksByDay: new Map([[DAY, [task('t1', 'Early flight', '06:00', 60)]]]),
+    googleEvents: [event('a', 'Standup', '09:00', '09:30')],
   },
 };

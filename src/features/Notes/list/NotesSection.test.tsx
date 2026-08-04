@@ -174,6 +174,31 @@ describe('NotesSection create', () => {
     expect(body).toEqual({ projectId: 'p1', title: 'Untitled note', content: { type: 'doc', content: [] } });
   });
 
+  // The server rejects a blank title with 422, so sending one made the create
+  // button do nothing at all. The placeholder title is what makes it work.
+  it('never sends a blank title, which the server rejects', async () => {
+    let body: { title?: string } | null = null;
+    listReturns([]);
+    server.use(
+      http.post(`${API}/notes`, async ({ request }) => {
+        body = (await request.json()) as { title?: string };
+        return HttpResponse.json(
+          { data: null, error: { code: 'INVALID_INPUT', message: 'title is required' } },
+          { status: 422 }
+        );
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<NotesSection projectId="p1" />);
+
+    await waitFor(() => expect(screen.getByTestId('notes-empty')).toBeInTheDocument());
+    await user.click(screen.getByTestId('notes-create'));
+
+    await waitFor(() => expect(body).not.toBeNull());
+    expect(body!.title?.trim()).not.toBe('');
+  });
+
   // AC6: notes are free and unlimited — creating the 50th must behave like the
   // first, with no plan gate anywhere in this path.
   it('creates without any plan gate when the project already has many notes', async () => {

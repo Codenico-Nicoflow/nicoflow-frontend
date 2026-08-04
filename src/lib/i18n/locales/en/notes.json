@@ -4,6 +4,15 @@
     "placeholder": "Start writing…",
     "contentError": "This note couldn't be opened — its content is in an unexpected format. Editing is disabled so the stored version isn't overwritten."
   },
+  "save": {
+    "unsaved": "Unsaved changes",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "error": "Couldn't save — your changes are still here. Keep editing to retry.",
+    "conflictTitle": "This note changed somewhere else",
+    "conflictBody": "Someone (or another tab) saved this note while you were editing. To avoid overwriting that version, saving is paused. Copy anything you want to keep, then reload to get the latest.",
+    "reload": "Reload the latest version"
+  },
   "toolbar": {
     "label": "Formatting",
     "bold": "Bold",

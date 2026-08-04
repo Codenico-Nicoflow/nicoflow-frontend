@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-import type { IArea, IBucket, IFocusSession, IProject, ISubtask, ITask, IUser } from '@/lib/types';
+import type { IArea, IBucket, IFocusSession, INote, INoteDetail, IProject, ISubtask, ITask, IUser } from '@/lib/types';
 import { TaskEnergy, TaskPriority, TaskStatus } from '@/lib/types/constants';
 
 export const mockUser: IUser = {
@@ -129,6 +129,35 @@ export const makeFocusSession = (overrides?: Partial<IFocusSession>): IFocusSess
   ...overrides,
 });
 
+// Two builders, because the two note shapes are genuinely different documents:
+// the list row carries `excerpt` and no body at all, the scalar carries the body
+// and no excerpt. A single builder with an optional `content` would let a test
+// read a body off a list row — exactly the bug the split shape exists to prevent.
+export const makeNote = (overrides?: Partial<INote>): INote => ({
+  id: 'note-1',
+  projectId: 'project-1',
+  title: 'Sample Note',
+  excerpt: 'Sample note body flattened to plain text.',
+  version: 1,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  ...overrides,
+});
+
+export const makeNoteDetail = (overrides?: Partial<INoteDetail>): INoteDetail => ({
+  id: 'note-1',
+  projectId: 'project-1',
+  title: 'Sample Note',
+  content: {
+    type: 'doc',
+    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Sample note body flattened to plain text.' }] }],
+  },
+  version: 1,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  ...overrides,
+});
+
 const envelope = <T>(data: T) => ({ data, error: null });
 
 export const handlers = [
@@ -140,6 +169,12 @@ export const handlers = [
   // TaskDialog lists attachments for whatever task it opens; without a default
   // any suite that opens the dialog logs an unhandled-request warning.
   http.get('http://localhost:8080/v1/attachments', () => HttpResponse.json(envelope({ items: [] }))),
+  // Project notes (E-053). Empty by default so any surface that mounts the notes
+  // list gets a well-formed empty response; suites override per-case.
+  http.get('http://localhost:8080/v1/notes/:id', ({ params }) =>
+    HttpResponse.json(envelope(makeNoteDetail({ id: String(params.id) })))
+  ),
+  http.get('http://localhost:8080/v1/notes', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),

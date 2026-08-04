@@ -4,6 +4,7 @@
 
 import type { ProcessingResult, RecurrenceFreq, TaskEnergy, TaskPriority, TaskStatus } from '../constants';
 import type { IconId } from '../icons';
+import type { TiptapDoc } from '../tiptap';
 
 // ============================================
 // INTERFACES
@@ -219,6 +220,30 @@ export interface IRecurrenceStats {
   missed: number;
   cancelled: number;
   streak: number;
+}
+
+// A project note, LIST shape (E-053). There is deliberately **no `content`
+// field** — the list carries `excerpt` (content_text truncated to 200 chars,
+// server-derived) so a project with 30 large documents doesn't ship them all.
+// Never render a note body from a list response; refetch the scalar.
+//
+// `projectId` is nullable because deleting a project ORPHANS its notes
+// (ON DELETE SET NULL) rather than destroying reference material. Create still
+// requires a project — nullability only exists to survive the delete.
+export interface INote {
+  id: string;
+  projectId: string | null;
+  title: string;
+  excerpt: string;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// The SCALAR shape — GET /v1/notes/:id only. Swaps `excerpt` for the full body.
+// `version` drives optimistic concurrency: send back the one you last read.
+export interface INoteDetail extends Omit<INote, 'excerpt'> {
+  content: TiptapDoc;
 }
 
 export const ActiveTab = {

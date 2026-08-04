@@ -184,6 +184,17 @@ export {
 } from './slices/focusSession/focusSessionApi';
 export type { FocusLiveEvent, OpenFocusSessionRequest } from './slices/focusSession/type';
 
+// Note exports (E-053)
+export { noteApi } from './slices/note/noteApi';
+export {
+  useCreateNoteMutation,
+  useDeleteNoteMutation,
+  useGetNoteQuery,
+  useGetNotesQuery,
+  useUpdateNoteMutation,
+} from './slices/note/noteApi';
+export type { CreateNoteRequest, ListNotesRequest, UpdateNoteRequest } from './slices/note/type';
+
 // Notification exports
 export { notificationApi } from './slices/notification/notificationApi';
 export {

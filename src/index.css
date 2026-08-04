@@ -6,6 +6,11 @@
 @import '@fontsource/geist/700.css';
 @import '@fontsource/geist-mono/400.css';
 
+/* Supplies the `prose` classes the note editor renders through. Without it
+   preflight strips headings, lists and tables back to plain text, so a
+   formatting command applies to the document but shows no visible change. */
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 /* Sonner disables its slide/fade under prefers-reduced-motion. We deliberately

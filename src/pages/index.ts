@@ -4,6 +4,7 @@ export * from './auth';
 export { default as Calendar } from './Calendar';
 export { default as ErrorPage } from './ErrorPage';
 export { default as HelpAndInformation } from './HelpAndInformation';
+export * from './note';
 export { default as PrivacyPolicy } from './PrivacyPolicy';
 export * from './project';
 export * from './quick-access';

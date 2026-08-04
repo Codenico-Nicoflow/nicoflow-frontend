@@ -40,8 +40,12 @@
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Add task details...",
     "trashAlert": "This item will be marked as trash for analytics purposes.",
-    "noteAlert": "This feature is coming soon! Stay tuned.",
-    "soon": "Soon"
+    "soon": "Soon",
+    "noteTitleLabel": "Note Title",
+    "noteTitlePlaceholder": "Enter note title",
+    "noteTitleHint": "Titles are limited to {{max}} characters.",
+    "noteBodyLabel": "Note Content",
+    "noteBodyPlaceholder": "Add note details..."
   },
   "projectSelector": {
     "label": "Project *",
@@ -72,6 +76,7 @@
       "note": "Note",
       "trash": "Trash"
     },
-    "processedTimestamp": "Processed"
+    "processedTimestamp": "Processed",
+    "viewCreated": "View what this became"
   }
 }

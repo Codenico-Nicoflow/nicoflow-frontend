@@ -1,4 +1,4 @@
-import { type IBucket, type ProcessingResult, type TaskEnergy, type TaskPriority } from '@/lib/types';
+import { type IBucket, type ProcessingResult, type TaskEnergy, type TaskPriority, type TiptapDoc } from '@/lib/types';
 
 export interface CreateBucketDto {
   content: string;
@@ -20,10 +20,18 @@ export interface TaskDetails {
   url?: string;
 }
 
+// Only title is required; an omitted `content` means "use the note service
+// default" (the empty doc), which is why it is optional rather than nullable.
+export interface NoteDetails {
+  title: string;
+  content?: TiptapDoc;
+}
+
 export interface ProcessBucketDto {
   processingResult: ProcessingResult;
   projectId?: string;
   taskDetails?: TaskDetails;
+  noteDetails?: NoteDetails;
 }
 
 export type BucketResponse = IBucket;

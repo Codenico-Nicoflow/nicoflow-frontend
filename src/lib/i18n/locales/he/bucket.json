@@ -40,8 +40,12 @@
     "descriptionLabel": "תיאור",
     "descriptionPlaceholder": "הוסיפו פרטי משימה...",
     "trashAlert": "פריט זה יסומן כאשפה למטרות ניתוח נתונים.",
-    "noteAlert": "תכונה זו תגיע בקרוב! הישארו מעודכנים.",
-    "soon": "בקרוב"
+    "soon": "בקרוב",
+    "noteTitleLabel": "כותרת הפתק",
+    "noteTitlePlaceholder": "הזינו כותרת לפתק",
+    "noteTitleHint": "כותרות מוגבלות ל-{{max}} תווים.",
+    "noteBodyLabel": "תוכן הפתק",
+    "noteBodyPlaceholder": "הוסיפו פרטים לפתק..."
   },
   "projectSelector": {
     "label": "פרויקט *",
@@ -73,6 +77,7 @@
       "note": "הערה",
       "trash": "אשפה"
     },
-    "processedTimestamp": "עובד"
+    "processedTimestamp": "עובד",
+    "viewCreated": "צפייה במה שנוצר"
   }
 }

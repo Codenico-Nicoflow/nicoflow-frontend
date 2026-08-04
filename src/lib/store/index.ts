@@ -119,6 +119,7 @@ export type {
   BucketResponse,
   BucketsResponse,
   CreateBucketDto,
+  NoteDetails,
   ProcessBucketDto,
   TaskDetails,
   UpdateBucketDto,

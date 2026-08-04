@@ -1,0 +1,22 @@
+{
+  "editor": {
+    "label": "תוכן הפתק",
+    "placeholder": "התחילו לכתוב…",
+    "contentError": "לא ניתן לפתוח את הפתק — התוכן שלו בפורמט לא צפוי. העריכה מושבתת כדי שהגרסה השמורה לא תידרס."
+  },
+  "toolbar": {
+    "label": "עיצוב",
+    "bold": "מודגש",
+    "italic": "נטוי",
+    "heading2": "כותרת",
+    "heading3": "כותרת משנה",
+    "bulletList": "רשימת תבליטים",
+    "orderedList": "רשימה ממוספרת",
+    "codeBlock": "בלוק קוד",
+    "table": "הוספת טבלה",
+    "link": "הוספת קישור",
+    "unlink": "הסרת קישור",
+    "linkPrompt": "הזינו כתובת URL‏ (http,‏ https או mailto)",
+    "linkInvalid": "הקישור הזה אינו מורשה. השתמשו בכתובת http,‏ https או mailto."
+  }
+}

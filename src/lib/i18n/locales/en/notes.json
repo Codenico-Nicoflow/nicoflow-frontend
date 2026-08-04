@@ -1,0 +1,22 @@
+{
+  "editor": {
+    "label": "Note content",
+    "placeholder": "Start writing…",
+    "contentError": "This note couldn't be opened — its content is in an unexpected format. Editing is disabled so the stored version isn't overwritten."
+  },
+  "toolbar": {
+    "label": "Formatting",
+    "bold": "Bold",
+    "italic": "Italic",
+    "heading2": "Heading",
+    "heading3": "Subheading",
+    "bulletList": "Bulleted list",
+    "orderedList": "Numbered list",
+    "codeBlock": "Code block",
+    "table": "Insert table",
+    "link": "Add link",
+    "unlink": "Remove link",
+    "linkPrompt": "Enter a URL (http, https, or mailto)",
+    "linkInvalid": "That link isn't allowed. Use an http, https, or mailto address."
+  }
+}

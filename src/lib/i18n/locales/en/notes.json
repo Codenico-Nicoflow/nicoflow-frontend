@@ -4,6 +4,18 @@
     "placeholder": "Start writing…",
     "contentError": "This note couldn't be opened — its content is in an unexpected format. Editing is disabled so the stored version isn't overwritten."
   },
+  "page": {
+    "titlePlaceholder": "Note title",
+    "titleLabel": "Note title",
+    "back": "Back to project",
+    "delete": "Delete note",
+    "deleteConfirmTitle": "Delete this note?",
+    "deleteConfirmBody": "The note and any files attached to it will be deleted. This can't be undone.",
+    "deleteConfirmAction": "Delete",
+    "deleteError": "Couldn't delete the note. Try again.",
+    "notFoundTitle": "Note not found",
+    "notFoundDescription": "This note may have been deleted, or the link is wrong."
+  },
   "list": {
     "heading": "Notes",
     "new": "New note",

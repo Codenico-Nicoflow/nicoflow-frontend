@@ -162,9 +162,13 @@ export interface ProcessingOption {
 }
 
 // A stored file attachment. The owner is a polymorphic {type, id} pair so tasks
-// (now) and notes (later) share one shape. All IDs are strings (backend uses
+// and notes share one shape. All IDs are strings (backend uses
 // application-generated string PKs); s3Key never crosses the wire.
-export type AttachmentOwnerType = 'task';
+//
+// The 20-per-owner count is per owner, but the 100 MB byte budget is ONE pool
+// spanning tasks and notes — which is why STORAGE_LIMIT_EXCEEDED is a distinct
+// code from PLAN_LIMIT_EXCEEDED and gets its own message.
+export type AttachmentOwnerType = 'task' | 'note';
 
 export interface IAttachment {
   id: string;

@@ -43,7 +43,7 @@
     "delete": "Delete {{name}}",
     "hint": "Up to 20 MB each. Images, PDF, documents, CSV, ZIP.",
     "proHint": "Attachments are a Pro feature. Upgrade to Pro to add files.",
-    "countCap": "You can attach up to 20 files per task.",
+    "countCap": "You can attach up to 20 files here.",
     "invalidType": "{{name}}: this file type isn't allowed.",
     "tooLarge": "{{name}}: files must be 20 MB or smaller.",
     "emptyFile": "{{name}}: the file is empty.",

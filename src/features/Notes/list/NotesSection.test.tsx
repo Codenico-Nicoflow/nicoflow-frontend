@@ -171,7 +171,7 @@ describe('NotesSection create', () => {
     await user.click(screen.getByTestId('notes-create'));
 
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/notes/new-note'));
-    expect(body).toEqual({ projectId: 'p1', title: '', content: { type: 'doc', content: [] } });
+    expect(body).toEqual({ projectId: 'p1', title: 'Untitled note', content: { type: 'doc', content: [] } });
   });
 
   // AC6: notes are free and unlimited — creating the 50th must behave like the

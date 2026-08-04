@@ -28,3 +28,11 @@ export interface TiptapDoc {
 // The server's default for a note created without content. NOT_NULL in the DB,
 // so the client never branches on null-vs-empty — it branches on nothing.
 export const EMPTY_TIPTAP_DOC: TiptapDoc = { type: 'doc', content: [] };
+
+// A doc with no children renders as a literally empty ProseMirror: no paragraph
+// to place a cursor in, so the placeholder never attaches and every toolbar
+// command is a no-op on an empty selection. Every new note starts at exactly
+// that value, so seed one empty paragraph for the editor to work against. The
+// wire shape is untouched — this normalizes on the way IN only.
+export const withEditableBody = (doc: TiptapDoc): TiptapDoc =>
+  doc.content && doc.content.length > 0 ? doc : { ...doc, content: [{ type: 'paragraph' }] };

@@ -4,9 +4,12 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import { useTranslation } from 'react-i18next';
 
 import type { TiptapDoc } from '@/lib/types';
+import { withEditableBody } from '@/lib/types';
 
-import { createNoteExtensions } from './extensions';
+import { createNoteExtensions, openLinkFromEvent } from './extensions';
 import { NoteToolbar } from './NoteToolbar';
+
+import './editor.css';
 
 export interface NoteEditorProps {
   content: TiptapDoc;
@@ -27,7 +30,7 @@ export const NoteEditor = ({ content, onChange, editable = true, onContentError 
   const editor = useEditor(
     {
       extensions: createNoteExtensions({ placeholder: t('editor.placeholder') }),
-      content,
+      content: withEditableBody(content),
       editable,
       // ProseMirror rejects a document ATOMICALLY: one unrecognized node or mark
       // throws and the whole note comes back empty, not just the bad node. Left
@@ -44,6 +47,9 @@ export const NoteEditor = ({ content, onChange, editable = true, onContentError 
           'aria-multiline': 'true',
           'aria-labelledby': labelId,
         },
+        // Returning true tells ProseMirror the click was handled, so the caret
+        // doesn't also move into the link we just opened.
+        handleDOMEvents: { click: (_view, event) => openLinkFromEvent(event) },
       },
     },
     [editable]

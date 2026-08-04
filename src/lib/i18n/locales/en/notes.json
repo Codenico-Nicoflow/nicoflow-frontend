@@ -52,6 +52,25 @@
     "link": "Add link",
     "unlink": "Remove link",
     "linkPrompt": "Enter a URL (http, https, or mailto)",
-    "linkInvalid": "That link isn't allowed. Use an http, https, or mailto address."
+    "linkInvalid": "That link isn't allowed. Use an http, https, or mailto address.",
+    "tableGroup": "Table",
+    "addColumnBefore": "Add column before",
+    "addColumnAfter": "Add column after",
+    "deleteColumn": "Delete column",
+    "addRowBefore": "Add row before",
+    "addRowAfter": "Add row after",
+    "deleteRow": "Delete row",
+    "toggleHeaderRow": "Toggle header row",
+    "mergeOrSplit": "Merge or split cells",
+    "deleteTable": "Delete table",
+    "linkTitle": "Add link",
+    "linkDescription": "Links open in a new tab. Only http, https and mailto addresses are allowed.",
+    "linkLabel": "URL",
+    "linkSave": "Save link",
+    "linkCancel": "Cancel",
+    "linkRemove": "Remove link",
+    "linkOpen": "Open link",
+    "tableInsert": "Insert",
+    "heading1": "Title"
   }
 }

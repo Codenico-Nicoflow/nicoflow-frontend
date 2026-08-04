@@ -29,9 +29,14 @@ export const NotesSection = ({ projectId }: NotesSectionProps) => {
 
   const handleCreate = async () => {
     try {
+      // Title must be non-blank — the server rejects an empty one with 422.
       // Content is optional on create, but sending the empty doc keeps the
       // client's idea of "new note" identical to the server's default.
-      const note = await createNote({ projectId, title: '', content: EMPTY_TIPTAP_DOC }).unwrap();
+      const note = await createNote({
+        projectId,
+        title: t('list.untitled'),
+        content: EMPTY_TIPTAP_DOC,
+      }).unwrap();
       navigate(`/notes/${note.id}`);
     } catch {
       toast.error(t('list.createError'));

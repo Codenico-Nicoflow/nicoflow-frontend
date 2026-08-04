@@ -24,6 +24,20 @@ export const ALLOWED_LINK_PROTOCOLS = ['http', 'https', 'mailto'] as const;
 export const isAllowedLinkProtocol = (url: string): boolean =>
   ALLOWED_LINK_PROTOCOLS.some(protocol => url.toLowerCase().startsWith(`${protocol}:`));
 
+// Ctrl/Cmd-click on a link opens it. Re-checked here rather than trusted from
+// the DOM: the href is attacker-controlled content, and this is the one place
+// the app turns a stored value into a navigation.
+export const openLinkFromEvent = (event: MouseEvent): boolean => {
+  if (!event.ctrlKey && !event.metaKey) return false;
+
+  const anchor = (event.target as HTMLElement | null)?.closest('a');
+  const href = anchor?.getAttribute('href');
+  if (!href || !isAllowedLinkProtocol(href)) return false;
+
+  window.open(href, '_blank', 'noopener,noreferrer');
+  return true;
+};
+
 export type NoteEditorExtensionOptions = {
   placeholder: string;
 };
@@ -42,7 +56,11 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
       // rel="noopener noreferrer nofollow" + target="_blank" are Tiptap's
       // defaults. Not overriding them is what keeps them — passing rel: null
       // would strip them.
-      openOnClick: false,
+      //
+      // Ctrl/Cmd-click follows the link; a plain click places the caret so the
+      // text stays editable. Opening on a plain click would make it impossible
+      // to put the cursor inside a link to fix a typo.
+      openOnClick: 'whenNotEditable',
     },
   }),
   TableKit,

@@ -1,0 +1,61 @@
+/* Editing affordances the typography plugin doesn't cover. `prose` styles a
+   table for *reading*, where borders are optional; while editing, a 3x3 table
+   with no cell borders is invisible and reads as "the button did nothing". */
+
+.ProseMirror table {
+  border-collapse: collapse;
+  margin: 1em 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.ProseMirror table td,
+.ProseMirror table th {
+  border: 1px solid var(--border);
+  padding: 0.375rem 0.5rem;
+  position: relative;
+  vertical-align: top;
+}
+
+.ProseMirror table th {
+  background-color: var(--muted);
+  font-weight: 600;
+  text-align: start;
+}
+
+/* Cell paragraphs inherit prose's block margins, which stack a one-line cell
+   to double height. */
+.ProseMirror table td > p,
+.ProseMirror table th > p {
+  margin: 0;
+}
+
+/* A link is only followable with a modifier held, so only then does it get the
+   pointer — a permanent pointer cursor would promise a plain click works. */
+.ProseMirror a {
+  cursor: text;
+}
+
+.ProseMirror a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.ProseMirror .selectedCell::after {
+  background: var(--accent);
+  content: '';
+  inset: 0;
+  opacity: 0.3;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Placeholder text for an empty document — Tiptap renders it via this
+   decoration, which has no styling of its own. */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: inline-start;
+  height: 0;
+  pointer-events: none;
+}

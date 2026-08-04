@@ -29,7 +29,7 @@ describe('WS_EVENT_TAGS', () => {
 
   it('maps every bucket event to Bucket', () => {
     for (const event of ['bucket.created', 'bucket.processed', 'bucket.deleted']) {
-      expect(WS_EVENT_TAGS[event]).toEqual(['Bucket']);
+      expect(WS_EVENT_TAGS[event]).toContain('Bucket');
     }
   });
 
@@ -102,5 +102,16 @@ describe('focusSessionEvent', () => {
   it('session_ended also invalidates Focus (cumulative totals moved); started has no tag entry', () => {
     expect(WS_EVENT_TAGS['focus.session_ended']).toEqual(['Focus']);
     expect(WS_EVENT_TAGS['focus.session_started']).toBeUndefined();
+  });
+});
+
+describe('WS_EVENT_TAGS note events', () => {
+  it.each(['note.created', 'note.updated', 'note.deleted'])('maps %s to Note + Search', event => {
+    expect(WS_EVENT_TAGS[event]).toEqual(['Note', 'Search']);
+  });
+
+  // Processing an inbox item into a note creates one, so the notes list moves.
+  it('invalidates Note on bucket.processed too', () => {
+    expect(WS_EVENT_TAGS['bucket.processed']).toEqual(['Bucket', 'Note']);
   });
 });

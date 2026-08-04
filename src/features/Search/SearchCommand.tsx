@@ -8,6 +8,7 @@ import {
   Layers3Icon,
   ListTodoIcon,
   Loader2Icon,
+  NotebookPenIcon,
   SparklesIcon,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +22,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { useDebouncedValue } from '@/hooks';
-import type { IAreaResult, IProjectResult, ITaskResult } from '@/lib/store';
+import type { IAreaResult, INoteResult, IProjectResult, ITaskResult } from '@/lib/store';
 import { useSearchQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
@@ -30,7 +31,8 @@ import { highlightMatch } from './highlightMatch';
 type SearchResultUnion =
   | { kind: 'task'; item: ITaskResult }
   | { kind: 'project'; item: IProjectResult }
-  | { kind: 'area'; item: IAreaResult };
+  | { kind: 'area'; item: IAreaResult }
+  | { kind: 'note'; item: INoteResult };
 
 export type SearchSelectPayload = SearchResultUnion;
 
@@ -49,6 +51,7 @@ const TILE = {
   task: 'bg-sky-500/12 text-sky-600 dark:text-sky-400',
   project: 'bg-violet-500/12 text-violet-600 dark:text-violet-400',
   area: 'bg-amber-500/12 text-amber-600 dark:text-amber-400',
+  note: 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400',
   recent: 'bg-muted text-muted-foreground',
 } as const;
 
@@ -88,7 +91,10 @@ export const SearchCommand = ({ open, onOpenChange, onSelect, recent = [], onRec
   const tasks = data?.tasks ?? [];
   const projects = data?.projects ?? [];
   const areas = data?.areas ?? [];
-  const hasAnyResult = tasks.length + projects.length + areas.length > 0;
+  // Notes are a new group in the response (E-054). A UI that doesn't read it
+  // drops results silently — nothing errors, they just never appear.
+  const notes = data?.notes ?? [];
+  const hasAnyResult = tasks.length + projects.length + areas.length + notes.length > 0;
 
   const close = () => {
     onOpenChange(false);
@@ -242,6 +248,34 @@ export const SearchCommand = ({ open, onOpenChange, onSelect, recent = [], onRec
                 value={`area-${area.id}`}
                 onSelect={() => handleSelect({ kind: 'area', item: area })}
                 testId={`result-area-${area.id}`}
+                query={debouncedQ.trim()}
+              />
+            ))}
+          </CommandGroup>
+        )}
+
+        {notes.length > 0 && !isFetching && (
+          <CommandGroup
+            heading={
+              <>
+                {t('search.groupNotes')}
+                {count(notes.length)}
+              </>
+            }
+            data-testid="group-notes"
+          >
+            {notes.map(note => (
+              <ResultRow
+                key={note.id}
+                tile="note"
+                icon={<NotebookPenIcon className="h-4 w-4" />}
+                title={note.title}
+                // Server-derived plain text; an orphaned note's projectName is
+                // an empty string, so prefer it only when it's actually set.
+                meta={note.projectName || note.excerpt}
+                value={`note-${note.id}`}
+                onSelect={() => handleSelect({ kind: 'note', item: note })}
+                testId={`result-note-${note.id}`}
                 query={debouncedQ.trim()}
               />
             ))}

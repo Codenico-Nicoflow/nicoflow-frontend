@@ -223,7 +223,7 @@ export const handlers = [
   http.post('http://localhost:8080/v1/auth/verify-email', () => HttpResponse.json(envelope(null))),
   http.post('http://localhost:8080/v1/auth/resend-verification', () => HttpResponse.json(envelope(null))),
   http.get('http://localhost:8080/v1/search', () =>
-    HttpResponse.json(envelope({ tasks: [], projects: [], areas: [] }))
+    HttpResponse.json(envelope({ tasks: [], projects: [], areas: [], notes: [] }))
   ),
   // Default AI quota: a Pro user well under the monthly cap, so surfaces that
   // merely mount the chat aren't walled. Suites override per-case.

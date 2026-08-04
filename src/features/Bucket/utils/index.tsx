@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 
-import type { ProcessBucketDto, TaskDetails } from '@/lib/store';
+import type { NoteDetails, ProcessBucketDto, TaskDetails } from '@/lib/store';
 import { ProcessingResult } from '@/lib/types';
 import { showErrorToast, showSuccessToast, type TaskFormData, ToastMessages } from '@/lib/utils';
 
@@ -32,8 +32,10 @@ export const canProcessBucket = (
       return hasProjects && !!selectedProjectId;
     case ProcessingResult.TRASH:
       return true;
+    // A note needs a project for the same reason a task does — the backend
+    // 422s without one, and an orphaned note isn't what the user asked for.
     case ProcessingResult.NOTE:
-      return false;
+      return hasProjects && !!selectedProjectId;
     default:
       return false;
   }
@@ -48,12 +50,14 @@ export interface ProcessBucketParams {
   selectedType: ProcessingResult;
   selectedProjectId?: string;
   taskData?: TaskFormData;
+  noteData?: NoteDetails;
 }
 
 export const buildProcessBucketDto = ({
   selectedType,
   selectedProjectId,
   taskData,
+  noteData,
 }: ProcessBucketParams): ProcessBucketDto => {
   const baseDto: ProcessBucketDto = {
     processingResult: selectedType,
@@ -83,8 +87,17 @@ export const buildProcessBucketDto = ({
       };
     }
 
-    case ProcessingResult.NOTE:
-      throw new Error('NOTE processing is not yet implemented');
+    case ProcessingResult.NOTE: {
+      if (!noteData || !selectedProjectId) {
+        throw new Error('Note data and Project ID are required for note processing');
+      }
+
+      return {
+        ...baseDto,
+        projectId: selectedProjectId,
+        noteDetails: noteData,
+      };
+    }
 
     case ProcessingResult.TRASH:
       return baseDto;
@@ -102,6 +115,7 @@ export const handleBucketProcess = async ({
   selectedType,
   selectedProjectId,
   taskData,
+  noteData,
   processBucketMutation,
   onSuccess,
 }: ProcessBucketParams & {
@@ -114,6 +128,7 @@ export const handleBucketProcess = async ({
       selectedType,
       selectedProjectId,
       taskData,
+      noteData,
     });
 
     await processBucketMutation({

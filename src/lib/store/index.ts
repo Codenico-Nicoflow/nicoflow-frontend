@@ -132,7 +132,7 @@ export { clearRateLimit, selectRateLimitRetryAt, setRateLimited } from './slices
 // Search exports
 export { searchApi } from './slices/search/searchApi';
 export { useSearchQuery } from './slices/search/searchApi';
-export type { IAreaResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';
+export type { IAreaResult, INoteResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';
 
 // Attachment exports
 export { attachmentApi } from './slices/attachment/attachmentApi';

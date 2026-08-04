@@ -9,10 +9,11 @@ import { ConfirmDialog, EmptyState } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AttachmentSection } from '@/features/Tasks/components/AttachmentSection/AttachmentSection';
+import { clearOpenNote, setOpenNote } from '@/lib/realtime/openNoteRegistry';
 import { useDeleteNoteMutation, useGetNoteQuery } from '@/lib/store';
 import type { TiptapDoc } from '@/lib/types';
 
-import { ConflictNotice, SaveStatusIndicator, useNoteAutosave } from '../autosave';
+import { ConflictNotice, SaveStatus, SaveStatusIndicator, useNoteAutosave } from '../autosave';
 import { NoteEditor } from '../editor';
 
 import { NoteEditorSkeleton } from './NoteEditorSkeleton';
@@ -47,6 +48,17 @@ export const NoteEditorPage = () => {
     if (loadedId !== undefined) setTitle(loadedTitle ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadedId]);
+
+  // Tell the socket this note is open and whether it's dirty, so an incoming
+  // note.updated for it doesn't refetch the scalar over unsaved edits. Anything
+  // not yet persisted counts as dirty — including a save in flight, whose
+  // response would otherwise race the refetch.
+  const isDirty = status === SaveStatus.UNSAVED || status === SaveStatus.SAVING || status === SaveStatus.ERROR;
+  useEffect(() => {
+    if (!noteId) return;
+    setOpenNote(noteId, isDirty);
+    return () => clearOpenNote(noteId);
+  }, [noteId, isDirty]);
 
   if (isLoading) return <NoteEditorSkeleton />;
 

@@ -10,6 +10,7 @@ import {
   bucketApi,
   focusWsEvent,
   invalidateApiTags,
+  noteApi,
   notificationApi,
   projectApi,
   recurrenceApi,
@@ -22,7 +23,8 @@ import {
   useAppUser,
 } from '@/lib/store';
 
-import { attachmentOwnerId, focusSessionEvent, WS_EVENT_TAGS, type WsEvent } from './events';
+import { attachmentOwnerId, focusSessionEvent, shouldSkipNoteRefetch, WS_EVENT_TAGS, type WsEvent } from './events';
+import { hasUnsavedEditsFor } from './openNoteRegistry';
 import { buildWsUrl } from './wsUrl';
 
 // Reconnect backoff: 1 → 2 → 4 → 8 → 16 → 30s (capped). Reset to the first step on
@@ -109,6 +111,15 @@ export const useWebSocket = (): { paused: boolean } => {
 
       const recurrenceTags = (['RecurrenceRule', 'RecurrenceStats'] as const).filter(has);
       if (recurrenceTags.length > 0) invalidateApiTags(dispatch, recurrenceApi, recurrenceTags);
+
+      // 'Note' is the one tag that can destroy user work: invalidating it
+      // refetches the open note's scalar, and doing that mid-edit replaces the
+      // document under the user. Skipped only for the note they're editing —
+      // every other note, and the Search results above, still refresh.
+      const noteTags = (['Note'] as const).filter(has);
+      if (noteTags.length > 0 && !shouldSkipNoteRefetch(event, payload, hasUnsavedEditsFor)) {
+        invalidateApiTags(dispatch, noteApi, noteTags);
+      }
     },
     [dispatch]
   );

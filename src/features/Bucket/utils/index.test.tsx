@@ -49,9 +49,11 @@ describe('canProcessBucket', () => {
     expect(canProcessBucket(ProcessingResult.TASK, 'p1', false)).toBe(false);
   });
 
-  it('always allows TRASH and never allows NOTE (not implemented)', () => {
+  it('always allows TRASH, and allows NOTE only with a project', () => {
     expect(canProcessBucket(ProcessingResult.TRASH, undefined, false)).toBe(true);
-    expect(canProcessBucket(ProcessingResult.NOTE, 'p1', true)).toBe(false);
+    expect(canProcessBucket(ProcessingResult.NOTE, 'p1', true)).toBe(true);
+    expect(canProcessBucket(ProcessingResult.NOTE, undefined, true)).toBe(false);
+    expect(canProcessBucket(ProcessingResult.NOTE, 'p1', false)).toBe(false);
   });
 });
 
@@ -116,10 +118,27 @@ describe('buildProcessBucketDto', () => {
     });
   });
 
-  it('throws for TASK without project/taskData and for the unimplemented NOTE', () => {
+  it('builds a NOTE dto with projectId + noteDetails', () => {
+    const dto = buildProcessBucketDto({
+      bucketId: 'b1',
+      selectedType: ProcessingResult.NOTE,
+      selectedProjectId: 'p1',
+      noteData: { title: 'Captured thought', content: { type: 'doc', content: [] } },
+    });
+
+    expect(dto).toEqual({
+      processingResult: ProcessingResult.NOTE,
+      projectId: 'p1',
+      noteDetails: { title: 'Captured thought', content: { type: 'doc', content: [] } },
+    });
+    // The task branch must not leak into the note payload.
+    expect(dto.taskDetails).toBeUndefined();
+  });
+
+  it('throws when TASK or NOTE is missing its required data', () => {
     expect(() => buildProcessBucketDto({ bucketId: 'b1', selectedType: ProcessingResult.TASK })).toThrow();
     expect(() => buildProcessBucketDto({ bucketId: 'b1', selectedType: ProcessingResult.NOTE })).toThrow(
-      'NOTE processing is not yet implemented'
+      'Note data and Project ID are required for note processing'
     );
   });
 });

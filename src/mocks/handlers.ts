@@ -168,7 +168,10 @@ export const handlers = [
   ),
   // TaskDialog lists attachments for whatever task it opens; without a default
   // any suite that opens the dialog logs an unhandled-request warning.
-  http.get('http://localhost:8080/v1/attachments', () => HttpResponse.json(envelope({ items: [] }))),
+  // A bare array, matching the API — GET /attachments returns AttachmentView[],
+  // not a wrapped { items }. The old { items: [] } default only looked correct
+  // because an empty list and a malformed one render identically.
+  http.get('http://localhost:8080/v1/attachments', () => HttpResponse.json(envelope([]))),
   // Project notes (E-053). Empty by default so any surface that mounts the notes
   // list gets a well-formed empty response; suites override per-case.
   http.get('http://localhost:8080/v1/notes/:id', ({ params }) =>
@@ -220,7 +223,7 @@ export const handlers = [
   http.post('http://localhost:8080/v1/auth/verify-email', () => HttpResponse.json(envelope(null))),
   http.post('http://localhost:8080/v1/auth/resend-verification', () => HttpResponse.json(envelope(null))),
   http.get('http://localhost:8080/v1/search', () =>
-    HttpResponse.json(envelope({ tasks: [], projects: [], areas: [] }))
+    HttpResponse.json(envelope({ tasks: [], projects: [], areas: [], notes: [] }))
   ),
   // Default AI quota: a Pro user well under the monthly cap, so surfaces that
   // merely mount the chat aren't walled. Suites override per-case.

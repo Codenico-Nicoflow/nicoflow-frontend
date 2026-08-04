@@ -40,8 +40,12 @@
     "descriptionLabel": "Описание",
     "descriptionPlaceholder": "Добавьте детали задачи...",
     "trashAlert": "Эта запись будет помечена как удалённая в аналитических целях.",
-    "noteAlert": "Эта функция скоро появится! Следите за обновлениями.",
-    "soon": "Скоро"
+    "soon": "Скоро",
+    "noteTitleLabel": "Название заметки",
+    "noteTitlePlaceholder": "Введите название заметки",
+    "noteTitleHint": "Название ограничено {{max}} символами.",
+    "noteBodyLabel": "Содержимое заметки",
+    "noteBodyPlaceholder": "Добавьте детали заметки..."
   },
   "projectSelector": {
     "label": "Проект *",
@@ -74,6 +78,7 @@
       "note": "Заметка",
       "trash": "Корзина"
     },
-    "processedTimestamp": "Обработано"
+    "processedTimestamp": "Обработано",
+    "viewCreated": "Посмотреть, что получилось"
   }
 }

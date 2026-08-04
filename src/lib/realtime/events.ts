@@ -42,8 +42,16 @@ export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   'area.updated': ['Area', 'Search'],
   'area.deleted': ['Area', 'Search'],
   'bucket.created': ['Bucket'],
-  'bucket.processed': ['Bucket'],
+  // An item processed into a note creates one, so the notes list moves too.
+  'bucket.processed': ['Bucket', 'Note'],
   'bucket.deleted': ['Bucket'],
+  // Note events (E-054) also invalidate Search — results embed notes. The
+  // payload is the LIST shape (NoteView, no content) on created/updated and
+  // { id } on deleted, so nothing here ever reads a document body from an
+  // event; a view that needs the body refetches the scalar.
+  'note.created': ['Note', 'Search'],
+  'note.updated': ['Note', 'Search'],
+  'note.deleted': ['Note', 'Search'],
   // Fires when a session gains its server-derived title after the first message
   // (NIC-1684). Payload is { id } but we invalidate the whole 'AISession' family
   // rather than per-id: the title change reorders the updatedAt-DESC list, so the
@@ -98,4 +106,25 @@ export const focusSessionEvent = (
   if (typeof session.id !== 'string' || session.id.length === 0) return null;
   if (typeof session.taskId !== 'string' || session.taskId.length === 0) return null;
   return { kind, session };
+};
+
+// A note.updated naming the note the user has open, WITH unsaved edits, is the
+// one event the client must not act on: invalidating 'Note' refetches the scalar
+// and replaces the document mid-edit, destroying work with no undo. The
+// version/409 path is the backstop for that case.
+//
+// Clean open note, or an event about any other note, falls through and
+// invalidates normally — that quiet refetch is what usually avoids the 409.
+// Only the SCALAR is at risk, so 'Search' still invalidates either way (see the
+// caller); this predicate is about the note body alone.
+export const shouldSkipNoteRefetch = (
+  event: string,
+  payload: unknown,
+  hasUnsavedEdits: (noteId: string) => boolean
+): boolean => {
+  if (event !== 'note.updated') return false;
+  if (typeof payload !== 'object' || payload === null) return false;
+  const id = (payload as { id?: unknown }).id;
+  if (typeof id !== 'string' || id.length === 0) return false;
+  return hasUnsavedEdits(id);
 };

@@ -20,11 +20,15 @@ import {
 } from '@/components';
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
 import { Form } from '@/components/ui/form.tsx';
-import { invalidateApiTags, taskApi, useGetProjectsQuery, useProcessBucketMutation } from '@/lib/store';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { invalidateApiTags, noteApi, taskApi, useGetProjectsQuery, useProcessBucketMutation } from '@/lib/store';
 import { BUCKET_PROCESSING_OPTIONS, type IBucket, ProcessingResult } from '@/lib/types';
 import { type TaskFormData, taskSchema } from '@/lib/utils';
 
 import { canProcessBucket, getDefaultTaskFormValues, handleBucketProcess } from '../../utils';
+import { captureToDoc, NOTE_TITLE_MAX, truncateNoteTitle } from '../../utils/noteDraft';
 import { BucketProcessList } from '../BucketProcessList';
 import { BucketProjectSelector } from '../BucketProjectSelector';
 
@@ -42,6 +46,8 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
   const dispatch = useDispatch();
   const [selectedType, setSelectedType] = useState<ProcessingResult>(ProcessingResult.TASK);
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined);
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteBody, setNoteBody] = useState('');
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -52,6 +58,11 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
     if (bucket && open) {
       const defaultValues = getDefaultTaskFormValues(bucket.content);
       form.reset(defaultValues);
+
+      // Title is truncated here, not at submit, so the field shows exactly what
+      // will be saved: capture allows 500 chars, a note title caps at 255.
+      setNoteTitle(truncateNoteTitle(bucket.content));
+      setNoteBody(bucket.content);
 
       if (projects.length > 0 && !selectedProjectId) {
         setSelectedProjectId(projects[0]?.id);
@@ -69,11 +80,20 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
         selectedType,
         selectedProjectId,
         taskData: data,
+        noteData:
+          selectedType === ProcessingResult.NOTE
+            ? { title: truncateNoteTitle(noteTitle), content: captureToDoc(noteBody) }
+            : undefined,
         processBucketMutation: args => processBucket(args).unwrap(),
         onSuccess: () => {
           onOpenChange(false);
           form.reset();
+          // The processed item leaves the inbox and, for a note, the project's
+          // notes list gains a row — both caches have to move.
           invalidateApiTags(dispatch, taskApi, ['Task']);
+          if (selectedType === ProcessingResult.NOTE) {
+            invalidateApiTags(dispatch, noteApi, ['Note']);
+          }
         },
       });
     } catch {
@@ -82,9 +102,11 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
   };
 
   const handleSubmit = () => {
+    // Only the task path runs the task schema; note and trash carry their own
+    // (or no) fields, so validating the task form would block them.
     if (selectedType === ProcessingResult.TASK) {
       form.handleSubmit(onSubmit)();
-    } else if (selectedType === ProcessingResult.TRASH) {
+    } else {
       onSubmit(form.getValues());
     }
   };
@@ -188,12 +210,49 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
         </Alert>
       )}
 
-      {selectedType === ProcessingResult.NOTE && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{t('bucket:processDialog.noteAlert')}</AlertDescription>
-        </Alert>
-      )}
+      {selectedType === ProcessingResult.NOTE &&
+        (!projects.length ? (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{t('bucket:processDialog.noProjects')}</AlertDescription>
+          </Alert>
+        ) : (
+          <div className="space-y-4">
+            <BucketProjectSelector
+              selectedProjectId={selectedProjectId}
+              setSelectedProjectId={setSelectedProjectId}
+              projects={projects}
+              isLoading={isLoadingProjects}
+            />
+
+            <div className="space-y-1.5">
+              <Label htmlFor="process-note-title">{t('bucket:processDialog.noteTitleLabel')}</Label>
+              <Input
+                id="process-note-title"
+                value={noteTitle}
+                maxLength={NOTE_TITLE_MAX}
+                placeholder={t('bucket:processDialog.noteTitlePlaceholder')}
+                onChange={event => setNoteTitle(event.target.value)}
+                data-testid="process-note-title"
+              />
+              <p className="text-muted-foreground text-xs">
+                {t('bucket:processDialog.noteTitleHint', { max: NOTE_TITLE_MAX })}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="process-note-body">{t('bucket:processDialog.noteBodyLabel')}</Label>
+              <Textarea
+                id="process-note-body"
+                value={noteBody}
+                rows={5}
+                placeholder={t('bucket:processDialog.noteBodyPlaceholder')}
+                onChange={event => setNoteBody(event.target.value)}
+                data-testid="process-note-body"
+              />
+            </div>
+          </div>
+        ))}
     </FormDialog>
   );
 };

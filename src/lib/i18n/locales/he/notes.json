@@ -4,6 +4,18 @@
     "placeholder": "התחילו לכתוב…",
     "contentError": "לא ניתן לפתוח את הפתק — התוכן שלו בפורמט לא צפוי. העריכה מושבתת כדי שהגרסה השמורה לא תידרס."
   },
+  "page": {
+    "titlePlaceholder": "כותרת הפתק",
+    "titleLabel": "כותרת הפתק",
+    "back": "חזרה לפרויקט",
+    "delete": "מחיקת הפתק",
+    "deleteConfirmTitle": "למחוק את הפתק הזה?",
+    "deleteConfirmBody": "הפתק וכל הקבצים המצורפים אליו יימחקו. לא ניתן לבטל פעולה זו.",
+    "deleteConfirmAction": "מחיקה",
+    "deleteError": "לא ניתן למחוק את הפתק. נסו שוב.",
+    "notFoundTitle": "הפתק לא נמצא",
+    "notFoundDescription": "ייתכן שהפתק נמחק, או שהקישור שגוי."
+  },
   "list": {
     "heading": "פתקים",
     "new": "פתק חדש",

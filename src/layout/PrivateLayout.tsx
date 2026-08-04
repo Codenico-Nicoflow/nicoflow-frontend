@@ -47,12 +47,8 @@ const PrivateLayout = () => {
         onOpenChange={setSearchOpen}
         recent={recent}
         onSelect={payload => {
-          const term =
-            payload.kind === 'task'
-              ? payload.item.title
-              : payload.kind === 'project'
-                ? payload.item.name
-                : payload.item.name;
+          // Tasks and notes are titled; projects and areas are named.
+          const term = payload.kind === 'task' || payload.kind === 'note' ? payload.item.title : payload.item.name;
           record(term);
           navigate(payload);
         }}

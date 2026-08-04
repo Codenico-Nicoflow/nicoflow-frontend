@@ -4,6 +4,20 @@
     "placeholder": "Start writing…",
     "contentError": "This note couldn't be opened — its content is in an unexpected format. Editing is disabled so the stored version isn't overwritten."
   },
+  "list": {
+    "heading": "Notes",
+    "new": "New note",
+    "untitled": "Untitled note",
+    "noExcerpt": "Empty note",
+    "emptyTitle": "No notes yet",
+    "emptyDescription": "Notes are for reference material that outlives a task — meeting minutes, research, decisions.",
+    "loadErrorTitle": "Couldn't load notes",
+    "loadErrorDescription": "Something went wrong fetching this project's notes.",
+    "retry": "Try again",
+    "createError": "Couldn't create the note. Try again.",
+    "count_one": "{{count}} note",
+    "count_other": "{{count}} notes"
+  },
   "save": {
     "unsaved": "Unsaved changes",
     "saving": "Saving…",

@@ -110,7 +110,8 @@
     "hintTitle": "חיפוש בכל מקום",
     "hintBody": "מצא כל משימה, פרויקט או תחום. התחל להקליד כדי לראות תוצאות.",
     "hintOpen": "לפתיחה",
-    "hintClose": "לסגירה"
+    "hintClose": "לסגירה",
+    "groupNotes": "פתקים"
   },
   "loading": "טוען…",
   "comingSoon": "בקרוב",

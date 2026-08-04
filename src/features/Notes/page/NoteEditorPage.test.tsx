@@ -6,6 +6,7 @@ import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { hasUnsavedEditsFor, resetOpenNote } from '@/lib/realtime/openNoteRegistry';
 import { mockUser } from '@/mocks/handlers';
 
 import { NoteEditorPage } from './NoteEditorPage';
@@ -278,5 +279,50 @@ describe('NoteEditorPage attachments', () => {
     renderComponent(<NoteEditorPage />, { store: freeStore() });
 
     await waitFor(() => expect(screen.getByText('existing.pdf')).toBeInTheDocument());
+  });
+});
+
+describe('NoteEditorPage open-note registry', () => {
+  beforeEach(() => {
+    resetOpenNote();
+  });
+
+  it('registers the open note as clean before any edit', async () => {
+    scalarReturns();
+
+    renderComponent(<NoteEditorPage />);
+
+    await waitFor(() => expect(screen.getByTestId('note-title')).toHaveValue('Meeting minutes'));
+    // Clean → a note.updated may refetch quietly; that is the cheap path that
+    // usually avoids a 409 altogether.
+    expect(hasUnsavedEditsFor('n1')).toBe(false);
+  });
+
+  // AC5: the refetch a note.updated would trigger must not land on unsaved work.
+  it('marks the note dirty as soon as the user edits it', async () => {
+    scalarReturns();
+    const user = userEvent.setup();
+
+    renderComponent(<NoteEditorPage />);
+
+    await waitFor(() => expect(screen.getByTestId('note-title')).toHaveValue('Meeting minutes'));
+    await user.type(screen.getByTestId('note-title'), '!');
+
+    await waitFor(() => expect(hasUnsavedEditsFor('n1')).toBe(true));
+  });
+
+  it('stops claiming the note once the page unmounts', async () => {
+    scalarReturns();
+    const user = userEvent.setup();
+
+    const { unmount } = renderComponent(<NoteEditorPage />);
+
+    await waitFor(() => expect(screen.getByTestId('note-title')).toHaveValue('Meeting minutes'));
+    await user.type(screen.getByTestId('note-title'), '!');
+    await waitFor(() => expect(hasUnsavedEditsFor('n1')).toBe(true));
+
+    unmount();
+
+    expect(hasUnsavedEditsFor('n1')).toBe(false);
   });
 });

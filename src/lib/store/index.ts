@@ -119,6 +119,7 @@ export type {
   BucketResponse,
   BucketsResponse,
   CreateBucketDto,
+  NoteDetails,
   ProcessBucketDto,
   TaskDetails,
   UpdateBucketDto,
@@ -131,7 +132,7 @@ export { clearRateLimit, selectRateLimitRetryAt, setRateLimited } from './slices
 // Search exports
 export { searchApi } from './slices/search/searchApi';
 export { useSearchQuery } from './slices/search/searchApi';
-export type { IAreaResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';
+export type { IAreaResult, INoteResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';
 
 // Attachment exports
 export { attachmentApi } from './slices/attachment/attachmentApi';
@@ -183,6 +184,17 @@ export {
   useOpenFocusSessionMutation,
 } from './slices/focusSession/focusSessionApi';
 export type { FocusLiveEvent, OpenFocusSessionRequest } from './slices/focusSession/type';
+
+// Note exports (E-053)
+export { noteApi } from './slices/note/noteApi';
+export {
+  useCreateNoteMutation,
+  useDeleteNoteMutation,
+  useGetNoteQuery,
+  useGetNotesQuery,
+  useUpdateNoteMutation,
+} from './slices/note/noteApi';
+export type { CreateNoteRequest, ListNotesRequest, UpdateNoteRequest } from './slices/note/type';
 
 // Notification exports
 export { notificationApi } from './slices/notification/notificationApi';

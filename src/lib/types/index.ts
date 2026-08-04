@@ -41,6 +41,7 @@ export {
   BUCKET_API,
   FOCUS_SESSION_API,
   GOOGLE_CALENDAR_API,
+  NOTE_API,
   NOTIFICATION_API,
   PROJECT_API,
   RECURRENCE_API,
@@ -56,6 +57,8 @@ export type {
   IAttachment,
   IBucket,
   IFocusSession,
+  INote,
+  INoteDetail,
   INotification,
   INotificationPref,
   IProject,
@@ -66,4 +69,6 @@ export type {
   IUser,
   ProcessingOption,
 } from './interfaces';
-export type { ApiEnvelope } from './interfaces';
+export type { ApiEnvelope, ApiErrorBody } from './interfaces';
+export type { JsonValue, TiptapDoc, TiptapMark } from './tiptap';
+export { EMPTY_TIPTAP_DOC } from './tiptap';

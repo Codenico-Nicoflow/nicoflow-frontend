@@ -110,7 +110,8 @@
     "hintTitle": "Search everything",
     "hintBody": "Find any task, project, or area. Start typing to see matches.",
     "hintOpen": "to open",
-    "hintClose": "to close"
+    "hintClose": "to close",
+    "groupNotes": "Notes"
   },
   "loading": "Loading…",
   "comingSoon": "Coming soon",

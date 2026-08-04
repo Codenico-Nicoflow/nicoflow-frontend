@@ -30,6 +30,7 @@ export const NAMESPACES = [
   'notification',
   'ai',
   'recurrence',
+  'notes',
 ] as const;
 
 // Keep <html lang>/<html dir> in sync with the active language. i18next.dir()

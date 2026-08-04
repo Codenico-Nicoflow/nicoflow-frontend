@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components';
 import { Button } from '@/components/ui/button';
 import { ExpandableText } from '@/components/ui/expandable-text';
+import { NotesSection } from '@/features/Notes';
 import { ProjectDeleteDialog, ProjectDialog, ProjectHeader, ProjectLoadingState } from '@/features/Project';
 import { TasksSection } from '@/features/Tasks';
 import { useGetProjectQuery } from '@/lib/store';
@@ -71,6 +72,8 @@ const ProjectView = () => {
         <section>
           <TasksSection projectId={project.id} />
         </section>
+
+        <NotesSection projectId={project.id} />
       </motion.div>
 
       <ProjectDialog open={editOpen} onOpenChange={setEditOpen} project={project} />

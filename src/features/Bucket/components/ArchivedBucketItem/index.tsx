@@ -1,5 +1,6 @@
-import { CheckSquare, FileText, Trash2 } from 'lucide-react';
+import { ArrowUpRight, CheckSquare, FileText, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 import { AnimatedListItem, ListItemCard, Timestamp } from '@/components';
 import { Badge } from '@/components/ui/badge.tsx';
@@ -37,6 +38,13 @@ export const ArchivedBucketItem = ({ bucket, index }: ArchivedBucketItemProps) =
   const { t } = useTranslation('bucket');
   const meta = RESULT_META[bucket.processingResult ?? ProcessingResult.TRASH];
   const Icon = meta.icon;
+  // "View what this became". Trash has no destination, and either id can still
+  // be null for items processed before the backend started populating them.
+  const destination = bucket.createdNoteId
+    ? `/notes/${bucket.createdNoteId}`
+    : bucket.createdTaskId && bucket.projectId
+      ? `/projects/${bucket.projectId}`
+      : null;
 
   return (
     <AnimatedListItem index={index}>
@@ -44,9 +52,19 @@ export const ArchivedBucketItem = ({ bucket, index }: ArchivedBucketItemProps) =
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1 space-y-2">
             <ExpandableText maxLength={150}>{bucket.content}</ExpandableText>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>{t('page.processedTimestamp')}</span>
               <Timestamp date={bucket.processedAt ?? bucket.updatedAt} />
+              {destination && (
+                <Link
+                  to={destination}
+                  className="text-primary inline-flex items-center gap-1 hover:underline focus-visible:ring-ring rounded focus-visible:ring-2 focus-visible:outline-none"
+                  data-testid="bucket-view-created"
+                >
+                  {t('page.viewCreated')}
+                  <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                </Link>
+              )}
             </div>
           </div>
           <Badge variant="outline" className={cn('flex-shrink-0 gap-1', meta.badge)}>

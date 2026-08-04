@@ -4,6 +4,7 @@
 
 import type { ProcessingResult, RecurrenceFreq, TaskEnergy, TaskPriority, TaskStatus } from '../constants';
 import type { IconId } from '../icons';
+import type { TiptapDoc } from '../tiptap';
 
 // ============================================
 // INTERFACES
@@ -161,9 +162,13 @@ export interface ProcessingOption {
 }
 
 // A stored file attachment. The owner is a polymorphic {type, id} pair so tasks
-// (now) and notes (later) share one shape. All IDs are strings (backend uses
+// and notes share one shape. All IDs are strings (backend uses
 // application-generated string PKs); s3Key never crosses the wire.
-export type AttachmentOwnerType = 'task';
+//
+// The 20-per-owner count is per owner, but the 100 MB byte budget is ONE pool
+// spanning tasks and notes — which is why STORAGE_LIMIT_EXCEEDED is a distinct
+// code from PLAN_LIMIT_EXCEEDED and gets its own message.
+export type AttachmentOwnerType = 'task' | 'note';
 
 export interface IAttachment {
   id: string;
@@ -219,6 +224,30 @@ export interface IRecurrenceStats {
   missed: number;
   cancelled: number;
   streak: number;
+}
+
+// A project note, LIST shape (E-053). There is deliberately **no `content`
+// field** — the list carries `excerpt` (content_text truncated to 200 chars,
+// server-derived) so a project with 30 large documents doesn't ship them all.
+// Never render a note body from a list response; refetch the scalar.
+//
+// `projectId` is nullable because deleting a project ORPHANS its notes
+// (ON DELETE SET NULL) rather than destroying reference material. Create still
+// requires a project — nullability only exists to survive the delete.
+export interface INote {
+  id: string;
+  projectId: string | null;
+  title: string;
+  excerpt: string;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// The SCALAR shape — GET /v1/notes/:id only. Swaps `excerpt` for the full body.
+// `version` drives optimistic concurrency: send back the one you last read.
+export interface INoteDetail extends Omit<INote, 'excerpt'> {
+  content: TiptapDoc;
 }
 
 export const ActiveTab = {

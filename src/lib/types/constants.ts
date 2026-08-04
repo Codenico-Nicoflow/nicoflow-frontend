@@ -119,7 +119,7 @@ export const ProcessingResult = {
 
 export const BUCKET_PROCESSING_OPTIONS: ProcessingOption[] = [
   { value: ProcessingResult.TASK, label: 'Task', enabled: true },
-  { value: ProcessingResult.NOTE, label: 'Note', enabled: false },
+  { value: ProcessingResult.NOTE, label: 'Note', enabled: true },
   { value: ProcessingResult.TRASH, label: 'Trash', enabled: true },
 ] as const;
 

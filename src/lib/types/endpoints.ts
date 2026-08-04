@@ -88,6 +88,14 @@ export const RECURRENCE_API = {
   STATS: '/recurrence-rules/', // + `${id}/stats` (GET) → IRecurrenceStats
 };
 
+// Project notes (E-053). Routes are flat and top-level, like /attachments — the
+// project is a query param on list, never a path segment.
+export const NOTE_API = {
+  LIST: '/notes', // GET ?projectId= → NoteView[]
+  CREATE: '/notes', // POST → NoteDetailView (201)
+  DETAIL: '/notes/', // + id (GET → NoteDetailView | PATCH → 200/409 | DELETE → 204)
+};
+
 export const NOTIFICATION_API = {
   GET_NOTIFICATIONS: '/notifications',
   GET_UNREAD_COUNT: '/notifications/unread-count',

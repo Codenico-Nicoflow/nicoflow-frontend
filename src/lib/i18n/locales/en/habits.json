@@ -103,5 +103,9 @@
       "saveFailed": "Habit didn't save. Try again.",
       "planLimit": "The free plan covers 3 active habits. Archive one, or upgrade for unlimited."
     }
+  },
+  "strip": {
+    "label": "Habits due today",
+    "allDone": "All habits done for today"
   }
 }

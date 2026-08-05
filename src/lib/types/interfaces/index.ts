@@ -305,6 +305,13 @@ export interface IHabit {
 
   dueToday: boolean;
   completedToday: boolean;
+
+  // Whether an entry EXISTS for today — not whether the period is satisfied.
+  // The two diverge on a quota habit: at 1 of 3 the week is unmet
+  // (completedToday false) but today is logged, and a control keyed off
+  // completedToday would check in again rather than undo.
+  loggedToday: boolean;
+
   todayValue: number;
   periodProgress: IPeriodProgress | null;
 

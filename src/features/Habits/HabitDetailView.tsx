@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Archive, ArrowLeft, Pencil } from 'lucide-react';
+import { Archive, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -8,7 +8,13 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useArchiveHabitMutation, useCheckInMutation, useGetHabitQuery, useUndoCheckInMutation } from '@/lib/store';
+import {
+  useArchiveHabitMutation,
+  useCheckInMutation,
+  useDeleteHabitMutation,
+  useGetHabitQuery,
+  useUndoCheckInMutation,
+} from '@/lib/store';
 
 import { HabitFormDialog } from './components/HabitFormDialog';
 import { HabitRibbonInteractive } from './components/HabitRibbonInteractive';
@@ -29,9 +35,11 @@ export const HabitDetailView = () => {
   const [checkIn, { isLoading: isCheckingIn }] = useCheckInMutation();
   const [undoCheckIn, { isLoading: isUndoing }] = useUndoCheckInMutation();
   const [archiveHabit] = useArchiveHabitMutation();
+  const [deleteHabit] = useDeleteHabitMutation();
 
   const [editOpen, setEditOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -81,6 +89,16 @@ export const HabitDetailView = () => {
     }
   };
 
+  const onDelete = async () => {
+    try {
+      await deleteHabit(habit.id).unwrap();
+      toast.success(t('toast.deleted'));
+      void navigate('/habits');
+    } catch {
+      toast.error(t('toast.deleteFailed'));
+    }
+  };
+
   const scheduleLabel = summary.key === 'schedule.quota' ? t(summary.key, { count: summary.count }) : t(summary.key);
 
   return (
@@ -111,6 +129,16 @@ export const HabitDetailView = () => {
           <Button variant="outline" size="sm" onClick={() => setArchiveOpen(true)} data-testid="habit-detail-archive">
             <Archive className="h-4 w-4" aria-hidden="true" />
             {t('detail.archive')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDeleteOpen(true)}
+            data-testid="habit-detail-delete"
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            {t('detail.delete')}
           </Button>
         </div>
       </div>
@@ -162,6 +190,19 @@ export const HabitDetailView = () => {
         description={t('detail.archiveConfirmBody')}
         confirmLabel={t('detail.archive')}
         onConfirm={() => void onArchive()}
+      />
+
+      {/* Destructive, and worded to say so: this is the one action in the
+          feature that destroys a streak the user built. */}
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        variant="danger"
+        destructive
+        title={t('detail.deleteConfirmTitle')}
+        description={t('detail.deleteConfirmBody')}
+        confirmLabel={t('detail.delete')}
+        onConfirm={() => void onDelete()}
       />
     </section>
   );

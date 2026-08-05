@@ -52,7 +52,7 @@ describe('Habits accessibility', () => {
     server.use(
       http.post(`${API}/habits/habit-1/check-in`, () => {
         checkedIn = true;
-        return HttpResponse.json({ data: makeHabit({ completedToday: true }), error: null });
+        return HttpResponse.json({ data: makeHabit({ completedToday: true, loggedToday: true }), error: null });
       })
     );
 

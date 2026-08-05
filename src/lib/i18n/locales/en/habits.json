@@ -54,7 +54,9 @@
     "archived": "Habit archived",
     "archiveFailed": "Couldn't archive that habit. Try again.",
     "restored": "Habit restored",
-    "restoreFailed": "Couldn't restore that habit. Try again."
+    "restoreFailed": "Couldn't restore that habit. Try again.",
+    "deleted": "Habit deleted",
+    "deleteFailed": "Couldn't delete that habit. Try again."
   },
   "subject": {
     "reading": "Reading",
@@ -133,6 +135,9 @@
     "backfillHint": "Tap a day in the last week to correct it.",
     "readOnlyHint": "History is read-only for this habit.",
     "archiveConfirmTitle": "Archive this habit?",
-    "archiveConfirmBody": "It leaves your board and frees a plan slot. Its history is kept, and you can restore it from the Archived tab."
+    "archiveConfirmBody": "It leaves your board and frees a plan slot. Its history is kept, and you can restore it from the Archived tab.",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete this habit for good?",
+    "deleteConfirmBody": "The habit and its entire history are removed permanently. Your streak record goes with it and this cannot be undone. To keep the record instead, archive it."
   }
 }

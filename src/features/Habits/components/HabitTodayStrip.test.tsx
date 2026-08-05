@@ -30,7 +30,7 @@ describe('HabitTodayStrip', () => {
 
   // A strip that disappears on completion reads as a bug, not an achievement.
   it('collapses to one line when everything is done', async () => {
-    withHabits([], [makeHabit({ completedToday: true })]);
+    withHabits([], [makeHabit({ completedToday: true, loggedToday: true })]);
 
     renderComponent(<HabitTodayStrip />);
 
@@ -74,7 +74,10 @@ describe('HabitTodayStrip', () => {
     server.use(
       http.post(`${API}/habits/h1/check-in`, () => {
         checkedIn = true;
-        return HttpResponse.json({ data: makeHabit({ id: 'h1', completedToday: true }), error: null });
+        return HttpResponse.json({
+          data: makeHabit({ id: 'h1', completedToday: true, loggedToday: true }),
+          error: null,
+        });
       })
     );
 
@@ -91,7 +94,7 @@ describe('HabitTodayStrip', () => {
   it('keeps a habit in the strip after it leaves the due feed', async () => {
     const user = userEvent.setup();
     const gym = makeHabit({ id: 'gym', name: 'Gym', scheduleKind: 'weekly_quota', timesPerWeek: 3 });
-    const completed = { ...gym, completedToday: true, dueToday: false };
+    const completed = { ...gym, completedToday: true, loggedToday: true, dueToday: false };
 
     let checkedIn = false;
     server.use(
@@ -116,7 +119,7 @@ describe('HabitTodayStrip', () => {
   it('undoes a lingering habit without leaving Today', async () => {
     const user = userEvent.setup();
     const gym = makeHabit({ id: 'gym', name: 'Gym', scheduleKind: 'weekly_quota', timesPerWeek: 3 });
-    const completed = { ...gym, completedToday: true, dueToday: false };
+    const completed = { ...gym, completedToday: true, loggedToday: true, dueToday: false };
 
     let checkedIn = false;
     let undone = false;

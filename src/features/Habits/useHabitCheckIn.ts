@@ -31,7 +31,10 @@ export const useHabitCheckIn = (habit: IHabit) => {
   const [pending, setPending] = useState<boolean | null>(null);
 
   const toggle = useCallback(async () => {
-    const wasDone = habit.completedToday;
+    // Keyed off loggedToday, not completedToday: for a quota habit at 1 of 3
+    // the week is unmet but today IS logged, and asking "is the period done?"
+    // would check in a second time instead of undoing.
+    const wasDone = habit.loggedToday;
     setPending(!wasDone);
 
     try {
@@ -49,13 +52,13 @@ export const useHabitCheckIn = (habit: IHabit) => {
       // now authoritative, on failure the ring returns to the stored truth.
       setPending(null);
     }
-  }, [checkIn, undoCheckIn, habit.id, habit.completedToday, t]);
+  }, [checkIn, undoCheckIn, habit.id, habit.loggedToday, t]);
 
   return {
     toggle,
-    // `pending` is null when idle, so `?? completedToday` falls through to the
+    // `pending` is null when idle, so `?? loggedToday` falls through to the
     // server's answer rather than to `false`.
-    isChecked: pending ?? habit.completedToday,
+    isChecked: pending ?? habit.loggedToday,
     isPending: isCheckingIn || isUndoing,
   };
 };

@@ -62,3 +62,5 @@ export const HabitsView = () => {
     </section>
   );
 };
+
+export { HabitTodayStrip } from './components/HabitTodayStrip';

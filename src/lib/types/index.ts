@@ -41,6 +41,7 @@ export {
   BUCKET_API,
   FOCUS_SESSION_API,
   GOOGLE_CALENDAR_API,
+  HABIT_API,
   NOTE_API,
   NOTIFICATION_API,
   PROJECT_API,
@@ -57,10 +58,15 @@ export type {
   IAttachment,
   IBucket,
   IFocusSession,
+  IHabit,
+  IHabitCell,
+  IHabitDetail,
+  IHabitSubject,
   INote,
   INoteDetail,
   INotification,
   INotificationPref,
+  IPeriodProgress,
   IProject,
   IRecurrenceRule,
   IRecurrenceStats,
@@ -70,5 +76,6 @@ export type {
   ProcessingOption,
 } from './interfaces';
 export type { ApiEnvelope, ApiErrorBody } from './interfaces';
+export { HabitPolarity, HabitScheduleKind, HabitStreakUnit } from './interfaces';
 export type { JsonValue, TiptapDoc, TiptapMark } from './tiptap';
 export { EMPTY_TIPTAP_DOC, withEditableBody } from './tiptap';

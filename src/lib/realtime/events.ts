@@ -52,6 +52,14 @@ export const WS_EVENT_TAGS: Record<string, readonly string[]> = {
   'note.created': ['Note', 'Search'],
   'note.updated': ['Note', 'Search'],
   'note.deleted': ['Note', 'Search'],
+  // Habit events (E-055). checked_in is here for the same reason it carries a
+  // full payload server-side: the write recomputes the streak AND can drop the
+  // habit out of the Today feed once a weekly quota is met, so a second tab has
+  // to refetch both views rather than just the row it touched.
+  'habit.created': ['Habit'],
+  'habit.updated': ['Habit'],
+  'habit.deleted': ['Habit'],
+  'habit.checked_in': ['Habit'],
   // Fires when a session gains its server-derived title after the first message
   // (NIC-1684). Payload is { id } but we invalidate the whole 'AISession' family
   // rather than per-id: the title change reorders the updatedAt-DESC list, so the

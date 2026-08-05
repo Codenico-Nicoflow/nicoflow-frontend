@@ -5,6 +5,7 @@ import { CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
+import { HabitTodayStrip } from '@/features/Habits';
 import { TaskDialog, TasksLoadingState } from '@/features/Tasks';
 import { useGetTimeSpreadQuery } from '@/lib/store';
 import type { ITask } from '@/lib/types';
@@ -77,6 +78,12 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
           </div>
           <TimeSpreadTabs active={activeTab} />
         </div>
+
+        {/* Above the task list, and only on Today: the habit ritual is three
+            taps and five seconds, so below a twenty-task list it is never seen.
+            The other tabs are about future work, where a habit has nothing to
+            say yet. */}
+        {activeTab === ActiveTab.TODAY ? <HabitTodayStrip /> : null}
 
         {content}
       </div>

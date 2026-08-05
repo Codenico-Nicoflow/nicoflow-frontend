@@ -196,6 +196,21 @@ export {
 } from './slices/note/noteApi';
 export type { CreateNoteRequest, ListNotesRequest, UpdateNoteRequest } from './slices/note/type';
 
+// Habit exports (E-055)
+export { habitApi } from './slices/habit/habitApi';
+export {
+  useCheckInMutation,
+  useCreateHabitMutation,
+  useDeleteHabitMutation,
+  useGetHabitQuery,
+  useGetHabitsQuery,
+  useGetHabitsTodayQuery,
+  useGetHabitSubjectsQuery,
+  useUndoCheckInMutation,
+  useUpdateHabitMutation,
+} from './slices/habit/habitApi';
+export type { CheckInRequest, CreateHabitRequest, UndoCheckInRequest, UpdateHabitRequest } from './slices/habit/type';
+
 // Notification exports
 export { notificationApi } from './slices/notification/notificationApi';
 export {

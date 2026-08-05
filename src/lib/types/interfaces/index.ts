@@ -250,6 +250,92 @@ export interface INoteDetail extends Omit<INote, 'excerpt'> {
   content: TiptapDoc;
 }
 
+// ── Habits (E-055) ──────────────────────────────────────────────────────────
+//
+// A habit is a recurring personal commitment tracked by check-in, not a task.
+// Every derived number below is computed server-side: the client performs NO
+// streak math, which is what stops web and mobile disagreeing about a figure
+// the user is emotionally invested in.
+
+export const HabitPolarity = {
+  BUILD: 'build', // do the thing — satisfied at value >= target
+  QUIT: 'quit', // don't — satisfied at value <= target (target usually 0)
+} as const;
+export type HabitPolarity = (typeof HabitPolarity)[keyof typeof HabitPolarity];
+
+export const HabitScheduleKind = {
+  DAILY: 'daily',
+  WEEKDAYS: 'weekdays', // named days, via byWeekday
+  WEEKLY_QUOTA: 'weekly_quota', // N times a week, any days
+} as const;
+export type HabitScheduleKind = (typeof HabitScheduleKind)[keyof typeof HabitScheduleKind];
+
+// Which noun a streak counts in. Day habits count days, quota habits count
+// weeks — the server decides, the client only prints it.
+export const HabitStreakUnit = {
+  DAY: 'day',
+  WEEK: 'week',
+} as const;
+export type HabitStreakUnit = (typeof HabitStreakUnit)[keyof typeof HabitStreakUnit];
+
+// Progress through the current period. Quota habits only; a day habit is simply
+// done or not, so this is null there — never read a missing value as 0/0.
+export interface IPeriodProgress {
+  current: number;
+  target: number;
+}
+
+export interface IHabit {
+  id: string;
+  name: string;
+  subject: string; // cosmetic slug; unknown values render a fallback icon
+  color: string;
+
+  polarity: HabitPolarity;
+  targetValue: number;
+  unit: string | null;
+
+  scheduleKind: HabitScheduleKind;
+  byWeekday: number[] | null; // 0=Sunday…6=Saturday; only for `weekdays`
+  timesPerWeek: number | null; // only for `weekly_quota`
+
+  streakUnit: HabitStreakUnit;
+  currentStreak: number;
+  longestStreak: number;
+
+  dueToday: boolean;
+  completedToday: boolean;
+  todayValue: number;
+  periodProgress: IPeriodProgress | null;
+
+  archivedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// One square in the history ribbon. `scheduled` is what lets an off-schedule day
+// render as a baseline rather than a gap — a Mon/Wed/Fri habit must not look
+// like it failed four days a week.
+export interface IHabitCell {
+  date: string; // YYYY-MM-DD; a week cell carries its Monday
+  scheduled: boolean;
+  value: number;
+  satisfied: boolean;
+  progress: IPeriodProgress | null; // week cells only
+}
+
+// The SCALAR shape — GET /v1/habits/:id only. Adds the heatmap window.
+export interface IHabitDetail extends IHabit {
+  cells: IHabitCell[];
+}
+
+// One entry in the served subject catalog. `labelKey` is an i18n key, not a
+// display string: the server does not know the caller's language.
+export interface IHabitSubject {
+  slug: string;
+  labelKey: string;
+}
+
 export const ActiveTab = {
   TODAY: 'today',
   TOMORROW: 'tomorrow',

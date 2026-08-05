@@ -6,6 +6,7 @@ import auth from './auth.json';
 import bucket from './bucket.json';
 import common from './common.json';
 import errors from './errors.json';
+import habits from './habits.json';
 import nav from './nav.json';
 import notes from './notes.json';
 import notification from './notification.json';
@@ -29,5 +30,6 @@ export const ru = {
   notification,
   ai,
   recurrence,
+  habits,
   notes,
 } satisfies Record<keyof Resources, unknown>;

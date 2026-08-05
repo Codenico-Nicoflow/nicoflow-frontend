@@ -66,6 +66,8 @@
     "tasksDescription": "ניהול משימות יגיע בשלב מאוחר יותר.",
     "notFound": "הפרויקט לא נמצא",
     "notFoundDescription": "ייתכן שהפרויקט נמחק או שאין לכם גישה אליו.",
-    "backToAreas": "חזרה לתחומים"
+    "backToAreas": "חזרה לתחומים",
+    "tabTasks": "משימות",
+    "tabNotes": "הערות"
   }
 }

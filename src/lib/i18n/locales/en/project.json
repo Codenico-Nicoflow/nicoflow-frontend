@@ -66,6 +66,8 @@
     "tasksDescription": "Task management lands in a later phase.",
     "notFound": "Project not found",
     "notFoundDescription": "This project may have been deleted or you don't have access to it.",
-    "backToAreas": "Back to Areas"
+    "backToAreas": "Back to Areas",
+    "tabTasks": "Tasks",
+    "tabNotes": "Notes"
   }
 }

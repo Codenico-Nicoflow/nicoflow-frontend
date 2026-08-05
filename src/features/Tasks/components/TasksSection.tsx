@@ -34,9 +34,11 @@ import TasksHeader from './TasksHeader';
 interface TasksSectionProps {
   projectId: string;
   onAddTask?: () => void;
+  /** False when a surrounding tab already names this section. */
+  showHeading?: boolean;
 }
 
-const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
+const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSectionProps) => {
   const { t } = useTranslation('task');
   // One project-scoped fetch is the source of truth; status/energy/search are
   // applied client-side over the (capped, ≤50) project list so counts stay exact.
@@ -149,7 +151,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
         transition={{ duration: 0.4, delay: 0.2 }}
         className="w-full"
       >
-        <TasksHeader taskCount={tasks.length} onAddTask={handleAddTask} />
+        <TasksHeader taskCount={tasks.length} onAddTask={handleAddTask} showTitle={showHeading} />
 
         {isLoadingTasks ? (
           <TasksLoadingState />

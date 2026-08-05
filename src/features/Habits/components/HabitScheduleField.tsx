@@ -125,7 +125,10 @@ export const HabitScheduleField = ({ control }: HabitScheduleFieldProps) => {
         {kind.field.value === 'weekdays'
           ? selectedDays.map(d => t(WEEKDAY_KEYS[d] ?? WEEKDAY_KEYS[0])).join(', ') || t('form.noDays')
           : kind.field.value === 'weekly_quota'
-            ? t('schedule.quota', { count: Number(timesPerWeek.field.value) || 0 })
+            ? // Spelled out rather than left to inference: "3× a week" alone
+              // doesn't say whether the days are yours to choose, and that is
+              // the entire difference between this option and Specific days.
+              `${t('schedule.quota', { count: Number(timesPerWeek.field.value) || 0 })} — ${t('form.anyDays')}`
             : t('schedule.daily')}
       </p>
     </div>

@@ -85,6 +85,66 @@ describe('HabitTodayStrip', () => {
     await waitFor(() => expect(checkedIn).toBe(true));
   });
 
+  // The mis-tap and its correction happen seconds apart. Making the user
+  // navigate to the habits page to undo a slip they just made is the friction
+  // that gets a feature abandoned, so a completed habit lingers for the session.
+  it('keeps a habit in the strip after it leaves the due feed', async () => {
+    const user = userEvent.setup();
+    const gym = makeHabit({ id: 'gym', name: 'Gym', scheduleKind: 'weekly_quota', timesPerWeek: 3 });
+    const completed = { ...gym, completedToday: true, dueToday: false };
+
+    let checkedIn = false;
+    server.use(
+      // Once checked in, the server drops it from the due feed entirely.
+      http.get(`${API}/habits/today`, () => HttpResponse.json({ data: checkedIn ? [] : [gym], error: null })),
+      http.get(`${API}/habits`, () => HttpResponse.json({ data: [checkedIn ? completed : gym], error: null })),
+      http.post(`${API}/habits/gym/check-in`, () => {
+        checkedIn = true;
+        return HttpResponse.json({ data: completed, error: null });
+      })
+    );
+
+    renderComponent(<HabitTodayStrip />);
+
+    await user.click(await screen.findByTestId('habit-strip-ring-gym'));
+
+    // Still on screen, now reading as done, so the undo is where the tap was.
+    await waitFor(() => expect(screen.getByTestId('habit-strip-ring-gym')).toHaveAttribute('aria-pressed', 'true'));
+    expect(screen.getByTestId('habit-strip-item-gym')).toBeInTheDocument();
+  });
+
+  it('undoes a lingering habit without leaving Today', async () => {
+    const user = userEvent.setup();
+    const gym = makeHabit({ id: 'gym', name: 'Gym', scheduleKind: 'weekly_quota', timesPerWeek: 3 });
+    const completed = { ...gym, completedToday: true, dueToday: false };
+
+    let checkedIn = false;
+    let undone = false;
+    server.use(
+      http.get(`${API}/habits/today`, () => HttpResponse.json({ data: checkedIn ? [] : [gym], error: null })),
+      http.get(`${API}/habits`, () => HttpResponse.json({ data: [checkedIn ? completed : gym], error: null })),
+      http.post(`${API}/habits/gym/check-in`, () => {
+        checkedIn = true;
+        return HttpResponse.json({ data: completed, error: null });
+      }),
+      http.delete(`${API}/habits/gym/check-in`, () => {
+        undone = true;
+        checkedIn = false;
+        return HttpResponse.json({ data: gym, error: null });
+      })
+    );
+
+    renderComponent(<HabitTodayStrip />);
+
+    // Check in — the habit leaves the due feed but lingers in the strip.
+    await user.click(await screen.findByTestId('habit-strip-ring-gym'));
+    await waitFor(() => expect(screen.getByTestId('habit-strip-ring-gym')).toHaveAttribute('aria-pressed', 'true'));
+
+    // Undo it from the same ring, on the same page.
+    await user.click(screen.getByTestId('habit-strip-ring-gym'));
+    await waitFor(() => expect(undone).toBe(true));
+  });
+
   // The strip is a five-second ritual; history belongs on the habits page where
   // there is room to read it.
   it('omits the ribbon', async () => {

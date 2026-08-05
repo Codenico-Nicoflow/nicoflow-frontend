@@ -5,8 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { ConfirmDialog } from '@/components';
 import { Button } from '@/components/ui/button';
-import { useGetHabitsQuery, useRestoreHabitMutation } from '@/lib/store';
+import {
+  useArchiveHabitMutation,
+  useDeleteHabitMutation,
+  useGetHabitsQuery,
+  useRestoreHabitMutation,
+} from '@/lib/store';
 import type { IHabit } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +42,12 @@ export const HabitsView = () => {
   );
 
   const [restoreHabit] = useRestoreHabitMutation();
+  const [archiveHabit] = useArchiveHabitMutation();
+  const [deleteHabit] = useDeleteHabitMutation();
+
+  // One habit at a time is pending confirmation; which dialog is open says
+  // which action it is.
+  const [confirming, setConfirming] = useState<{ habit: IHabit; action: 'archive' | 'delete' } | null>(null);
   const [editing, setEditing] = useState<IHabit | undefined>(undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -63,6 +75,25 @@ export const HabitsView = () => {
     }
   };
 
+  const onConfirm = async () => {
+    if (!confirming) return;
+    const { habit, action } = confirming;
+
+    try {
+      if (action === 'delete') {
+        await deleteHabit(habit.id).unwrap();
+        toast.success(t('toast.deleted'));
+      } else {
+        await archiveHabit(habit.id).unwrap();
+        toast.success(t('toast.archived'));
+      }
+    } catch {
+      toast.error(t(action === 'delete' ? 'toast.deleteFailed' : 'toast.archiveFailed'));
+    } finally {
+      setConfirming(null);
+    }
+  };
+
   return (
     <section className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6" data-testid="habits-view">
       {/* h2, not h1: the shared EmptyState renders an h3, and the page shell
@@ -84,7 +115,7 @@ export const HabitsView = () => {
             onClick={() => setSegment(value)}
             data-testid={`habits-segment-${value}`}
             className={cn(
-              'flex-1 rounded px-3 py-1.5 text-sm transition-colors',
+              'flex-1 cursor-pointer rounded px-3 py-1.5 text-sm transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               segment === value ? 'bg-background shadow-sm' : 'hover:bg-background/50'
             )}
@@ -99,7 +130,17 @@ export const HabitsView = () => {
       ) : isError ? (
         <HabitsErrorState onRetry={() => void refetch()} />
       ) : habits.length > 0 ? (
-        <HabitGrid habits={habits} onOpen={id => void navigate(`/habits/${id}`)} onRestore={id => void onRestore(id)} />
+        <HabitGrid
+          habits={habits}
+          onOpen={id => void navigate(`/habits/${id}`)}
+          onRestore={id => void onRestore(id)}
+          onEdit={habit => {
+            setEditing(habit);
+            setDialogOpen(true);
+          }}
+          onArchive={habit => setConfirming({ habit, action: 'archive' })}
+          onDelete={habit => setConfirming({ habit, action: 'delete' })}
+        />
       ) : segment === 'archived' ? (
         <p className="py-12 text-center text-sm text-muted-foreground" data-testid="habits-archived-empty">
           {t('segments.archivedEmpty')}
@@ -109,6 +150,20 @@ export const HabitsView = () => {
       )}
 
       <HabitFormDialog open={dialogOpen} onOpenChange={setDialogOpen} habit={editing} />
+
+      {/* Delete is the only action here that destroys anything, so it gets the
+          destructive treatment and its own wording; archive says plainly that
+          the history survives. */}
+      <ConfirmDialog
+        open={confirming !== null}
+        onOpenChange={open => !open && setConfirming(null)}
+        variant={confirming?.action === 'delete' ? 'danger' : 'warning'}
+        destructive={confirming?.action === 'delete'}
+        title={t(confirming?.action === 'delete' ? 'detail.deleteConfirmTitle' : 'detail.archiveConfirmTitle')}
+        description={t(confirming?.action === 'delete' ? 'detail.deleteConfirmBody' : 'detail.archiveConfirmBody')}
+        confirmLabel={t(confirming?.action === 'delete' ? 'detail.delete' : 'detail.archive')}
+        onConfirm={() => void onConfirm()}
+      />
     </section>
   );
 };

@@ -1,0 +1,85 @@
+{
+  "title": "הרגלים",
+  "create": "יצירת הרגל",
+  "streak_one": "יום {{count}}",
+  "streak_two": "{{count}} ימים",
+  "streak_other": "{{count}} ימים",
+  "streak_day_one": "יום {{count}}",
+  "streak_day_two": "{{count}} ימים",
+  "streak_day_other": "{{count}} ימים",
+  "streak_week_one": "שבוע {{count}}",
+  "streak_week_two": "{{count}} שבועות",
+  "streak_week_other": "{{count}} שבועות",
+  "schedule": {
+    "daily": "כל יום",
+    "weekdays": "{{days}}",
+    "quota_one": "פעם בשבוע",
+    "quota_two": "פעמיים בשבוע",
+    "quota_other": "{{count}} פעמים בשבוע"
+  },
+  "weekday": {
+    "short": {
+      "0": "א׳",
+      "1": "ב׳",
+      "2": "ג׳",
+      "3": "ד׳",
+      "4": "ה׳",
+      "5": "ו׳",
+      "6": "ש׳"
+    }
+  },
+  "ring": {
+    "label": "{{name}} — סימון ביצוע",
+    "periodLabel": "{{name}} — {{current}} מתוך {{target}} השבוע, סימון ביצוע"
+  },
+  "ribbon": {
+    "summary_day_one": "{{satisfied}} מתוך {{total}} ימים הושלמו, רצף נוכחי יום {{count}}",
+    "summary_day_two": "{{satisfied}} מתוך {{total}} ימים הושלמו, רצף נוכחי {{count}} ימים",
+    "summary_day_other": "{{satisfied}} מתוך {{total}} ימים הושלמו, רצף נוכחי {{count}} ימים",
+    "summary_week_one": "{{satisfied}} מתוך {{total}} שבועות הושלמו, רצף נוכחי שבוע {{count}}",
+    "summary_week_two": "{{satisfied}} מתוך {{total}} שבועות הושלמו, רצף נוכחי {{count}} שבועות",
+    "summary_week_other": "{{satisfied}} מתוך {{total}} שבועות הושלמו, רצף נוכחי {{count}} שבועות"
+  },
+  "empty": {
+    "title": "עקוב אחרי משהו שאתה עושה לעיתים קרובות",
+    "description": "התחל עם אחד — קריאה, הליכה, שתיית מים."
+  },
+  "error": {
+    "retry": "נסה שוב",
+    "title": "ההרגלים לא נטענו",
+    "description": "משהו השתבש אצלנו. נסה שוב."
+  },
+  "toast": {
+    "checkInFailed": "הסימון לא נשמר. נסה שוב.",
+    "milestone_day_one": "רצף של יום {{count}}!",
+    "milestone_day_two": "רצף של {{count}} ימים!",
+    "milestone_day_other": "רצף של {{count}} ימים!",
+    "milestone_week_one": "רצף של שבוע {{count}}!",
+    "milestone_week_two": "רצף של {{count}} שבועות!",
+    "milestone_week_other": "רצף של {{count}} שבועות!"
+  },
+  "subject": {
+    "reading": "קריאה",
+    "exercise": "אימון",
+    "running": "ריצה",
+    "walking": "הליכה",
+    "stretching": "מתיחות",
+    "meditation": "מדיטציה",
+    "hydration": "שתיית מים",
+    "nutrition": "תזונה",
+    "sleep": "שינה",
+    "journaling": "כתיבת יומן",
+    "gratitude": "הכרת תודה",
+    "study": "לימודים",
+    "language": "שפה",
+    "coding": "תכנות",
+    "music": "מוזיקה",
+    "savings": "חיסכון",
+    "tidying": "סידור",
+    "screenTime": "זמן מסך",
+    "quitSmoking": "גמילה מעישון",
+    "quitDrinking": "גמילה מאלכוהול",
+    "quitSugar": "גמילה מסוכר",
+    "custom": "מותאם אישית"
+  }
+}

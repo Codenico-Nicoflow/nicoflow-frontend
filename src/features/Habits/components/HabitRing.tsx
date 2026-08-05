@@ -1,0 +1,104 @@
+import { Check, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+import type { IHabit } from '@/lib/types';
+import { cn } from '@/lib/utils';
+
+import { todayProgress } from '../habitUtils';
+
+// Geometry for the progress ring. A stroke-dasharray sweep rather than a
+// conic-gradient so the fill animates smoothly and inherits currentColor in
+// both themes without a second set of tokens.
+const SIZE = 44;
+const STROKE = 4;
+const RADIUS = (SIZE - STROKE) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+export interface HabitRingProps {
+  habit: IHabit;
+  disabled?: boolean;
+  /**
+   * Whether the ring reads as checked. The caller owns this rather than the ring
+   * deriving it from `habit.completedToday`, because it is the *optimistic*
+   * answer during a tap — and it has to be able to show UNchecked while an undo
+   * is still in flight, which an `|| completedToday` fallback could never do.
+   */
+  checked: boolean;
+  onToggle: () => void;
+  'data-testid'?: string;
+}
+
+// The check-in control.
+//
+// A binary habit (target 1) renders as a checkbox; a counted one renders as a
+// ring filled to today's fraction. Same component, same tap target — the target
+// value decides the skin, so counts never needed a second control.
+export const HabitRing = ({ habit, disabled = false, checked, onToggle, ...rest }: HabitRingProps) => {
+  const { t } = useTranslation('habits');
+
+  const done = checked;
+  // A checked ring is always full, even mid-request: the sweep is the echo of
+  // the user's own tap, so it must not wait for the server to agree.
+  const progress = checked ? 1 : todayProgress(habit);
+  const isBinary = habit.targetValue <= 1 && habit.periodProgress === null;
+
+  // The label names the habit and its state, because an icon-only control tells
+  // a screen reader nothing about which habit it belongs to.
+  const label = habit.periodProgress
+    ? t('ring.periodLabel', {
+        name: habit.name,
+        current: habit.periodProgress.current,
+        target: habit.periodProgress.target,
+      })
+    : t('ring.label', { name: habit.name });
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      disabled={disabled}
+      aria-pressed={done}
+      aria-label={label}
+      data-testid={rest['data-testid'] ?? 'habit-ring'}
+      className={cn(
+        'relative grid shrink-0 place-items-center rounded-full transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-accent'
+      )}
+      style={{ width: SIZE, height: SIZE }}
+    >
+      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true" className="-rotate-90">
+        <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" strokeWidth={STROKE} className="stroke-muted" />
+        <circle
+          cx={SIZE / 2}
+          cy={SIZE / 2}
+          r={RADIUS}
+          fill="none"
+          strokeWidth={STROKE}
+          strokeLinecap="round"
+          strokeDasharray={CIRCUMFERENCE}
+          strokeDashoffset={CIRCUMFERENCE * (1 - progress)}
+          className={cn(
+            'stroke-primary',
+            // Motion is confined to the moment of completion, and it is the one
+            // thing the user's own tap produced — safe to show optimistically.
+            'transition-[stroke-dashoffset] duration-200 ease-out',
+            'motion-reduce:transition-none'
+          )}
+          data-testid="habit-ring-progress"
+        />
+      </svg>
+
+      <span className="absolute grid place-items-center">
+        {done ? (
+          <Check className="h-5 w-5 text-primary" aria-hidden="true" data-testid="habit-ring-check" />
+        ) : isBinary ? null : (
+          <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
+            {habit.periodProgress ? habit.periodProgress.current : habit.todayValue}
+          </span>
+        )}
+        {disabled && !done ? <Minus className="h-4 w-4 text-muted-foreground" aria-hidden="true" /> : null}
+      </span>
+    </button>
+  );
+};

@@ -67,10 +67,48 @@ export const ribbonWindowSize = (width: number): number => {
 export const takeRecentCells = (cells: IHabitCell[], size: number): IHabitCell[] =>
   size >= cells.length ? cells : cells.slice(cells.length - size);
 
-// Whether the ring should accept a tap. An off-schedule or archived habit is
-// visible but not actionable — dimmed rather than hidden, since hiding it reads
-// as data loss.
-export const isCheckable = (habit: IHabit): boolean => habit.archivedAt === null && habit.dueToday;
+// Whether the ring should accept a tap.
+//
+// "Is this habit due" and "may the user touch this ring" are different
+// questions, and conflating them locks the user out of their own undo: the
+// server drops a habit from `dueToday` the moment it is satisfied — immediately
+// for a quota habit that reaches its target — so gating the control on
+// `dueToday` disables it at exactly the moment the user might want to take the
+// check-in back.
+//
+// A completed habit is therefore always interactive. What genuinely cannot be
+// checked in is an archived habit (read-only history) or one that is neither due
+// nor already done today — an off-schedule day with nothing to undo.
+export const isCheckable = (habit: IHabit): boolean =>
+  habit.archivedAt === null && (habit.dueToday || habit.completedToday);
+
+// Whether the card should read as "not today". Distinct from isCheckable: a
+// completed habit is still dimmed once its work is done, but stays tappable.
+export const isOffSchedule = (habit: IHabit): boolean => !habit.dueToday && !habit.completedToday;
+
+// The Today strip's render list: what the server still considers due, plus any
+// habit this session has already checked in.
+//
+// The server drops a habit from the due feed the instant it is satisfied, which
+// is right for the feed and wrong for the strip: the mis-tap and its correction
+// happen seconds apart, and making the user navigate to another page to undo a
+// slip they just made is the friction that gets a feature abandoned. A completed
+// habit therefore lingers for the session and is gone on the next visit.
+//
+// Order is preserved and completed habits sink to the end, so finished work
+// never pushes outstanding work off the edge of a narrow strip.
+//
+// `current` is the full habits list, and it — not the seen snapshot — decides
+// whether a departure was a completion. The snapshot was captured while the
+// habit was still due, so its own `completedToday` is false by definition;
+// filtering on it would drop the very habit this function exists to keep.
+export const withLingering = (due: IHabit[], seen: IHabit[], current: IHabit[] = []): IHabit[] => {
+  const dueIds = new Set(due.map(h => h.id));
+  const completedIds = new Set(current.filter(h => h.completedToday).map(h => h.id));
+
+  const lingering = seen.filter(h => !dueIds.has(h.id) && completedIds.has(h.id));
+  return [...due, ...lingering];
+};
 
 // Fraction of today's target already logged, clamped to 0…1 for the ring.
 //

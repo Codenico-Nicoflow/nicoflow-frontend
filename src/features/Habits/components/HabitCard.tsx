@@ -4,7 +4,7 @@ import type { IHabit, IHabitCell } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { HABIT_FALLBACK_ICON, HABIT_SUBJECT_ICONS } from '../data';
-import { isCheckable, scheduleSummary } from '../habitUtils';
+import { isCheckable, isOffSchedule, scheduleSummary } from '../habitUtils';
 import { useHabitCheckIn } from '../useHabitCheckIn';
 
 import { HabitRibbon } from './HabitRibbon';
@@ -26,6 +26,7 @@ export const HabitCard = ({ habit, cells = [], onOpen }: HabitCardProps) => {
   const { toggle, isChecked, isPending } = useHabitCheckIn(habit);
 
   const checkable = isCheckable(habit);
+  const offSchedule = isOffSchedule(habit);
   const summary = scheduleSummary(habit);
   // An unknown subject renders the fallback rather than a blank: the catalog is
   // served and can gain entries this build has never seen.
@@ -59,8 +60,10 @@ export const HabitCard = ({ habit, cells = [], onOpen }: HabitCardProps) => {
       className={cn(
         'flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm transition-opacity',
         // Dimmed, never hidden. A habit that vanishes on its off day reads as
-        // data loss rather than as "not today".
-        !checkable && 'opacity-60'
+        // data loss rather than as "not today". Dimming keys off the schedule,
+        // not off interactivity — a completed habit stays fully lit and fully
+        // tappable so its check-in can be undone.
+        offSchedule && 'opacity-60'
       )}
     >
       <div className="flex items-center gap-3">

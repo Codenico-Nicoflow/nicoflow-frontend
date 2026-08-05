@@ -90,9 +90,9 @@
     "polarityQuit": "Quit",
     "polarityImmutable": "Build or quit can't be changed. To switch, archive this habit and create a new one.",
     "kind": {
-      "daily": "Daily",
-      "weekdays": "Days",
-      "quota": "Weekly"
+      "daily": "Every day",
+      "weekdays": "Specific days",
+      "quota": "Times a week"
     },
     "errors": {
       "nameRequired": "Name your habit",
@@ -102,7 +102,8 @@
       "weekdaysRequired": "Pick at least one day",
       "saveFailed": "Habit didn't save. Try again.",
       "planLimit": "The free plan covers 3 active habits. Archive one, or upgrade for unlimited."
-    }
+    },
+    "anyDays": "any days you like"
   },
   "strip": {
     "label": "Habits due today",

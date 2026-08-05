@@ -81,5 +81,39 @@
     "quitDrinking": "גמילה מאלכוהול",
     "quitSugar": "גמילה מסוכר",
     "custom": "מותאם אישית"
+  },
+  "form": {
+    "createTitle": "יצירת הרגל",
+    "editTitle": "עריכת הרגל",
+    "name": "שם",
+    "subject": "נושא",
+    "target": "יעד",
+    "unit": "יחידה",
+    "unitPlaceholder": "דקות, עמודים…",
+    "schedule": "לוח זמנים",
+    "timesPerWeek": "פעמים בשבוע",
+    "noDays": "בחר לפחות יום אחד",
+    "polarity": "סוג",
+    "polarityBuild": "בנייה",
+    "polarityQuit": "גמילה",
+    "polarityImmutable": "לא ניתן לשנות בנייה או גמילה. כדי להחליף, העבר הרגל זה לארכיון וצור חדש.",
+    "kind": {
+      "daily": "יומי",
+      "weekdays": "ימים",
+      "quota": "שבועי"
+    },
+    "errors": {
+      "nameRequired": "תן שם להרגל",
+      "nameTooLong": "השם חייב להיות עד 255 תווים",
+      "targetNegative": "היעד לא יכול להיות שלילי",
+      "targetZeroOnBuild": "קבע יעד של לפחות 1",
+      "weekdaysRequired": "בחר לפחות יום אחד",
+      "saveFailed": "ההרגל לא נשמר. נסה שוב.",
+      "planLimit": "התוכנית החינמית כוללת 3 הרגלים פעילים. העבר אחד לארכיון או שדרג ללא הגבלה."
+    }
+  },
+  "strip": {
+    "label": "הרגלים להיום",
+    "allDone": "כל ההרגלים להיום הושלמו"
   }
 }

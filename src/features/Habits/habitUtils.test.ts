@@ -5,12 +5,14 @@ import { makeHabit, makeHabitCell } from '@/mocks/handlers';
 import {
   isCheckable,
   isMilestone,
+  isOffSchedule,
   ribbonWindowSize,
   runLength,
   scheduleSummary,
   takeRecentCells,
   todayProgress,
   toRibbonRuns,
+  withLingering,
 } from './habitUtils';
 
 const cell = (satisfied: boolean, scheduled = true) => makeHabitCell({ satisfied, scheduled });
@@ -102,12 +104,96 @@ describe('isCheckable', () => {
     expect(isCheckable(makeHabit({ dueToday: true }))).toBe(true);
   });
 
-  it('refuses an off-schedule habit', () => {
-    expect(isCheckable(makeHabit({ dueToday: false }))).toBe(false);
+  // The server drops a habit from dueToday the moment it is satisfied —
+  // immediately for a quota habit that reaches its target — so gating on
+  // dueToday alone would disable the ring at exactly the moment the user might
+  // want to take the check-in back.
+  it('allows a completed habit so its check-in can be undone', () => {
+    expect(isCheckable(makeHabit({ dueToday: false, completedToday: true }))).toBe(true);
   });
 
-  it('refuses an archived habit', () => {
-    expect(isCheckable(makeHabit({ archivedAt: '2026-08-01T00:00:00Z' }))).toBe(false);
+  it('allows a completed quota habit that has left the due feed', () => {
+    const habit = makeHabit({
+      scheduleKind: 'weekly_quota',
+      timesPerWeek: 3,
+      periodProgress: { current: 3, target: 3 },
+      dueToday: false,
+      completedToday: true,
+    });
+
+    expect(isCheckable(habit)).toBe(true);
+  });
+
+  it('refuses an off-schedule habit with nothing to undo', () => {
+    expect(isCheckable(makeHabit({ dueToday: false, completedToday: false }))).toBe(false);
+  });
+
+  it('refuses an archived habit even when it was completed', () => {
+    expect(isCheckable(makeHabit({ archivedAt: '2026-08-01T00:00:00Z', completedToday: true }))).toBe(false);
+  });
+});
+
+describe('isOffSchedule', () => {
+  it('is true only when the habit is neither due nor done', () => {
+    expect(isOffSchedule(makeHabit({ dueToday: false, completedToday: false }))).toBe(true);
+  });
+
+  // A completed habit is finished, not off-schedule: it stays fully lit so the
+  // ring does not read as unavailable.
+  it('is false for a completed habit', () => {
+    expect(isOffSchedule(makeHabit({ dueToday: false, completedToday: true }))).toBe(false);
+  });
+
+  it('is false while the habit is still due', () => {
+    expect(isOffSchedule(makeHabit({ dueToday: true }))).toBe(false);
+  });
+});
+
+describe('withLingering', () => {
+  it('keeps a habit that left the feed after being completed', () => {
+    // The seen snapshot was captured while the habit was still due, so its own
+    // completedToday is false — the CURRENT list is what proves it was finished.
+    const seen = makeHabit({ id: 'gym', completedToday: false });
+    const current = makeHabit({ id: 'gym', completedToday: true, dueToday: false });
+
+    expect(withLingering([], [seen], [current]).map(h => h.id)).toEqual(['gym']);
+  });
+
+  // Only completions linger. A habit that vanished for any other reason —
+  // archived, deleted, or no longer scheduled — is genuinely gone.
+  it('drops a habit that left the feed without being completed', () => {
+    const seen = makeHabit({ id: 'gym' });
+    const current = makeHabit({ id: 'gym', completedToday: false });
+
+    expect(withLingering([], [seen], [current])).toEqual([]);
+  });
+
+  it('drops a habit the current list no longer knows about', () => {
+    const seen = makeHabit({ id: 'gym', completedToday: true });
+
+    expect(withLingering([], [seen], [])).toEqual([]);
+  });
+
+  it('does not duplicate a habit that is still due', () => {
+    const read = makeHabit({ id: 'read' });
+
+    expect(withLingering([read], [read], [read]).map(h => h.id)).toEqual(['read']);
+  });
+
+  // Finished work must never push outstanding work off the edge of a narrow
+  // strip, so completions sink to the end.
+  it('sorts completed habits after the ones still owed', () => {
+    const gym = makeHabit({ id: 'gym' });
+    const read = makeHabit({ id: 'read' });
+    const gymDone = makeHabit({ id: 'gym', completedToday: true, dueToday: false });
+
+    expect(withLingering([read], [gym, read], [gymDone, read]).map(h => h.id)).toEqual(['read', 'gym']);
+  });
+
+  it('handles an empty session', () => {
+    const read = makeHabit({ id: 'read' });
+
+    expect(withLingering([read], [], [read]).map(h => h.id)).toEqual(['read']);
   });
 });
 

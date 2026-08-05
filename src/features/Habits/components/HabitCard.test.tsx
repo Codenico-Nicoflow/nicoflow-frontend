@@ -120,6 +120,58 @@ describe('HabitCard', () => {
     expect(screen.getByTestId('habit-ring-habit-1')).toBeDisabled();
   });
 
+  // Regression: the ring used to be gated on `dueToday`, which the server clears
+  // the moment a habit is satisfied. Checking a habit in disabled its own undo.
+  it('keeps the ring enabled on a completed habit so it can be undone', () => {
+    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, dueToday: false })} />);
+
+    expect(screen.getByTestId('habit-ring-habit-1')).toBeEnabled();
+  });
+
+  // The sharpest form of the same bug: a quota habit leaves the due feed as soon
+  // as it reaches its target, so the card locked itself for the rest of the week.
+  it('keeps the ring enabled on a quota habit that has met its target', () => {
+    renderComponent(
+      <HabitCard
+        habit={makeHabit({
+          scheduleKind: 'weekly_quota',
+          timesPerWeek: 3,
+          streakUnit: 'week',
+          periodProgress: { current: 3, target: 3 },
+          completedToday: true,
+          dueToday: false,
+        })}
+      />
+    );
+
+    expect(screen.getByTestId('habit-ring-habit-1')).toBeEnabled();
+  });
+
+  it('undoes a completed off-schedule habit end to end', async () => {
+    const user = userEvent.setup();
+    let undoCalled = false;
+    server.use(
+      http.delete(`${API}/habits/habit-1/check-in`, () => {
+        undoCalled = true;
+        return HttpResponse.json({ data: makeHabit({ completedToday: false }), error: null });
+      })
+    );
+
+    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, dueToday: false })} />);
+
+    await user.click(screen.getByTestId('habit-ring-habit-1'));
+
+    await waitFor(() => expect(undoCalled).toBe(true));
+  });
+
+  // Dimming answers "is there work here today", which a finished habit no longer
+  // has — but it is finished, not unavailable, so it stays fully lit.
+  it('does not dim a completed habit', () => {
+    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, dueToday: false })} />);
+
+    expect(screen.getByTestId('habit-card-habit-1')).not.toHaveClass('opacity-60');
+  });
+
   it('disables the ring on an archived habit', () => {
     renderComponent(<HabitCard habit={makeHabit({ archivedAt: '2026-08-01T00:00:00Z' })} />);
 

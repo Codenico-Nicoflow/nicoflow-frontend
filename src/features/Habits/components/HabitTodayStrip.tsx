@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -6,6 +8,7 @@ import { useGetHabitsQuery, useGetHabitsTodayQuery } from '@/lib/store';
 import type { IHabit } from '@/lib/types';
 
 import { HABIT_FALLBACK_ICON, HABIT_SUBJECT_ICONS } from '../data';
+import { withLingering } from '../habitUtils';
 import { useHabitCheckIn } from '../useHabitCheckIn';
 
 import { HabitRing } from './HabitRing';
@@ -62,6 +65,13 @@ export const HabitTodayStrip = () => {
   // costs nothing on a warm cache.
   const { data: all } = useGetHabitsQuery();
 
+  // Habits this session has rendered, so a check-in that removes one from the
+  // feed can still be undone here rather than only on the habits page.
+  const [shown, setShown] = useState<IHabit[]>([]);
+  useEffect(() => {
+    if (due) setShown(prev => withLingering(due, prev, all ?? []));
+  }, [due, all]);
+
   // A failed strip is silent. It is a secondary surface on someone else's page,
   // and an error banner above the task list would be louder than the feature.
   if (isError) return null;
@@ -80,11 +90,11 @@ export const HabitTodayStrip = () => {
 
   // No habits at all ⇒ no strip and no empty frame: the user has not opted into
   // this feature, and Today is not the place to advertise it.
-  if (due.length === 0 && (all?.length ?? 0) === 0) return null;
+  if (shown.length === 0 && (all?.length ?? 0) === 0) return null;
 
   // Everything done ⇒ collapse to one quiet line rather than vanishing. A strip
   // that disappears on completion reads as a bug, not as an achievement.
-  if (due.length === 0) {
+  if (shown.length === 0) {
     return (
       <p className="flex items-center gap-1.5 text-sm text-muted-foreground" data-testid="habit-strip-done">
         <Check className="h-4 w-4 text-primary" aria-hidden="true" />
@@ -96,8 +106,12 @@ export const HabitTodayStrip = () => {
   return (
     <section aria-label={t('strip.label')} data-testid="habit-strip">
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {due.map(habit => (
-          <StripItem key={habit.id} habit={habit} />
+        {shown.map(habit => (
+          // A lingering habit's snapshot is the one taken before it left the
+          // feed, so its completedToday would be stale and the ring would try to
+          // check in again instead of undoing. The full list carries the current
+          // record; prefer it whenever it has one.
+          <StripItem key={habit.id} habit={all?.find(h => h.id === habit.id) ?? habit} />
         ))}
       </div>
     </section>

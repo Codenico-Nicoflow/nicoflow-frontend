@@ -139,5 +139,8 @@
     "delete": "Delete",
     "deleteConfirmTitle": "Delete this habit for good?",
     "deleteConfirmBody": "The habit and its entire history are removed permanently. Your streak record goes with it and this cannot be undone. To keep the record instead, archive it."
+  },
+  "actions": {
+    "menuLabel": "Actions for {{name}}"
   }
 }

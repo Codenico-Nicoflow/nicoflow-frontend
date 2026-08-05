@@ -176,7 +176,7 @@ export const HabitFormDialog = ({ open, onOpenChange, habit }: HabitFormDialogPr
                   aria-pressed={form.watch('polarity') === p}
                   onClick={() => form.setValue('polarity', p)}
                   data-testid={`habit-polarity-${p}`}
-                  className={`flex-1 rounded px-2 py-1.5 text-sm transition-colors ${
+                  className={`flex-1 cursor-pointer rounded px-2 py-1.5 text-sm transition-colors ${
                     form.watch('polarity') === p ? 'bg-background shadow-sm' : 'hover:bg-background/50'
                   }`}
                 >

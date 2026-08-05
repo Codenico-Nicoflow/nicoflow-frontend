@@ -95,6 +95,80 @@ describe('HabitsView segments', () => {
     expect(await screen.findByTestId('habits-archived-empty')).toBeInTheDocument();
   });
 
+  it('deletes permanently from the card menu after confirming', async () => {
+    const user = userEvent.setup();
+    withBoard();
+
+    let permanent: string | null = null;
+    server.use(
+      http.delete(`${API}/habits/act`, ({ request }) => {
+        permanent = new URL(request.url).searchParams.get('permanent');
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    renderComponent(<HabitsView />);
+    await screen.findByText('Read');
+
+    await user.click(screen.getByTestId('habit-actions-act-trigger'));
+    await user.click(await screen.findByTestId('habit-actions-act-action-delete'));
+    await user.click(await screen.findByRole('button', { name: /^delete$/i }));
+
+    await waitFor(() => expect(permanent).toBe('true'));
+  });
+
+  // Same menu, same endpoint, and the flag is the only difference — so the
+  // archive path has to prove it does NOT send it.
+  it('archives from the card menu without the permanent flag', async () => {
+    const user = userEvent.setup();
+    withBoard();
+
+    let permanent: string | null = 'unset';
+    server.use(
+      http.delete(`${API}/habits/act`, ({ request }) => {
+        permanent = new URL(request.url).searchParams.get('permanent');
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    renderComponent(<HabitsView />);
+    await screen.findByText('Read');
+
+    await user.click(screen.getByTestId('habit-actions-act-trigger'));
+    await user.click(await screen.findByTestId('habit-actions-act-action-archive'));
+    await user.click(await screen.findByRole('button', { name: /^archive$/i }));
+
+    await waitFor(() => expect(permanent).toBeNull());
+  });
+
+  it('opens the edit dialog from the card menu', async () => {
+    const user = userEvent.setup();
+    withBoard();
+
+    renderComponent(<HabitsView />);
+    await screen.findByText('Read');
+
+    await user.click(screen.getByTestId('habit-actions-act-trigger'));
+    await user.click(await screen.findByTestId('habit-actions-act-action-edit'));
+
+    expect(await screen.findByTestId('habit-name-input')).toHaveValue('Read');
+  });
+
+  // An archived habit's only action is Restore; offering Archive on something
+  // already archived would be a no-op the user can see.
+  it('offers no actions menu on an archived habit', async () => {
+    const user = userEvent.setup();
+    withBoard();
+
+    renderComponent(<HabitsView />);
+    await screen.findByText('Read');
+    await user.click(screen.getByTestId('habits-segment-archived'));
+
+    await screen.findByText('Old habit');
+    expect(screen.queryByTestId('habit-actions-arc-trigger')).not.toBeInTheDocument();
+    expect(screen.getByTestId('habit-restore-arc')).toBeInTheDocument();
+  });
+
   // The list read carries its own window, so a card draws a ribbon without
   // anyone fetching per-habit history.
   it('draws a ribbon from the cells the list already returned', async () => {

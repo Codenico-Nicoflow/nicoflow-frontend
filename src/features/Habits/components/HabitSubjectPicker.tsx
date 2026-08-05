@@ -51,7 +51,7 @@ export const HabitSubjectPicker = ({ control }: HabitSubjectPickerProps) => {
                 title={t(subject.labelKey as 'subject.custom')}
                 data-testid={`habit-subject-${subject.slug}`}
                 className={cn(
-                  'grid h-10 place-items-center rounded-md border transition-colors',
+                  'grid h-10 cursor-pointer place-items-center rounded-md border transition-colors',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   selected ? 'border-primary bg-accent' : 'border-border hover:bg-accent'
                 )}

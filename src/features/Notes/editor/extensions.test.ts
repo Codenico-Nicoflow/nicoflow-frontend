@@ -1,9 +1,9 @@
 import { Editor } from '@tiptap/core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { TiptapDoc } from '@/lib/types';
 
-import { createNoteExtensions, isAllowedLinkProtocol } from './extensions';
+import { createNoteExtensions, isAllowedLinkProtocol, openLinkFromEvent } from './extensions';
 
 const makeEditor = (content?: TiptapDoc) =>
   new Editor({
@@ -191,6 +191,50 @@ describe('note editor link allowlist', () => {
     expect(collectMarks(editor.getJSON() as TiptapDoc, 'link')).toHaveLength(0);
 
     editor.destroy();
+  });
+});
+
+describe('openLinkFromEvent', () => {
+  const clickOn = (html: string, init: MouseEventInit = {}) => {
+    const host = document.createElement('div');
+    host.innerHTML = html;
+    document.body.append(host);
+    const anchor = host.querySelector('a') as HTMLAnchorElement;
+    const event = new MouseEvent('click', { bubbles: true, ...init });
+    Object.defineProperty(event, 'target', { value: anchor });
+    const handled = openLinkFromEvent(event);
+    host.remove();
+    return handled;
+  };
+
+  // A plain click must place the caret instead, or link text can never be edited.
+  it('ignores a click without a modifier', () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+    expect(clickOn('<a href="https://example.com">x</a>')).toBe(false);
+    expect(open).not.toHaveBeenCalled();
+
+    open.mockRestore();
+  });
+
+  it('opens an allowed link in a new tab on ctrl-click', () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+    expect(clickOn('<a href="https://example.com">x</a>', { ctrlKey: true })).toBe(true);
+    expect(open).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer');
+
+    open.mockRestore();
+  });
+
+  // The href is stored content, so the allowlist is re-checked at the moment of
+  // navigation rather than trusted from the DOM.
+  it('refuses to navigate to a javascript: href even on ctrl-click', () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+    expect(clickOn('<a href="javascript:alert(1)">x</a>', { ctrlKey: true })).toBe(false);
+    expect(open).not.toHaveBeenCalled();
+
+    open.mockRestore();
   });
 });
 

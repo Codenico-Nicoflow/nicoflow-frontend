@@ -52,7 +52,7 @@ test.describe('@core Project Notes (live)', () => {
       await page.waitForResponse(
         response => response.url().includes(`/v1/notes/${noteId}`) && response.request().method() === 'PATCH'
       );
-      await expect(page.getByRole('status')).toHaveText('Saved');
+      await expect(page.getByTestId('note-save-status')).toHaveText('Saved');
 
       await page.reload();
 

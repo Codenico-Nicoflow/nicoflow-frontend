@@ -55,6 +55,18 @@ export const useNoteAutosave = ({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightRef = useRef(false);
 
+  // The unmount flush deliberately starts a request on the way out, so its
+  // response lands after this component is gone. Writing status/version then is
+  // a state update on an unmounted tree — in tests it resolves after the
+  // environment is torn down and fails the run outright.
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   // A different note means a different document and version line; carrying the
   // old one over would PATCH the new note with the previous note's version.
   useEffect(() => {
@@ -82,12 +94,14 @@ export const useNoteAutosave = ({
     // the same edit twice and burn a version.
     pendingRef.current = null;
     inFlightRef.current = true;
-    setStatus(SaveStatus.SAVING);
+    if (isMountedRef.current) setStatus(SaveStatus.SAVING);
 
     try {
       const saved = await updateNote({ id: noteId, version: versionRef.current, ...draft }).unwrap();
 
       versionRef.current = saved.version;
+      if (!isMountedRef.current) return;
+
       setVersion(saved.version);
       // Only report success from a resolved response — never optimistically.
       // If more edits arrived while this was in flight, we're already dirty again.
@@ -101,12 +115,12 @@ export const useNoteAutosave = ({
         conflictedRef.current = true;
         pendingRef.current = null;
         clearTimer();
-        setStatus(SaveStatus.CONFLICT);
+        if (isMountedRef.current) setStatus(SaveStatus.CONFLICT);
       } else {
         // Retryable: 422 oversize, network. Put the edit back so the next
         // keystroke's debounce picks it up rather than losing it.
         pendingRef.current = draft;
-        setStatus(SaveStatus.ERROR);
+        if (isMountedRef.current) setStatus(SaveStatus.ERROR);
       }
     } finally {
       inFlightRef.current = false;

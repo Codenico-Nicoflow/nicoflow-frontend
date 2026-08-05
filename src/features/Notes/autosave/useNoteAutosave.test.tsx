@@ -264,6 +264,44 @@ describe('useNoteAutosave flush', () => {
     await waitFor(() => expect(calls).toBe(1));
   });
 
+  // The unmount flush starts a request on the way out, so its response resolves
+  // against a component that is already gone. Writing status there is a state
+  // update on an unmounted tree — under test it lands after the environment is
+  // torn down and fails the run as an unhandled rejection.
+  it('does not update state once the response lands after unmount', async () => {
+    let calls = 0;
+    // Held open so the response is guaranteed to land after unmount, which is
+    // the only ordering that reproduces the leak.
+    let releaseRequest = () => {};
+    const inFlight = new Promise<void>(resolve => {
+      releaseRequest = resolve;
+    });
+
+    server.use(
+      http.patch(`${API}/notes/n1`, async () => {
+        calls += 1;
+        await inFlight;
+        return HttpResponse.json({ data: detail(2), error: null });
+      })
+    );
+
+    const errors: unknown[] = [];
+    const onError = (event: PromiseRejectionEvent | ErrorEvent) => errors.push(event);
+    window.addEventListener('unhandledrejection', onError);
+    window.addEventListener('error', onError);
+
+    const { result, unmount } = renderAutosave();
+    result.current.save({ content: doc('unsaved work') });
+    unmount();
+
+    await waitFor(() => expect(calls).toBe(1));
+    releaseRequest();
+    await waitFor(() => expect(errors).toHaveLength(0));
+
+    window.removeEventListener('unhandledrejection', onError);
+    window.removeEventListener('error', onError);
+  });
+
   it('does not flush on unmount when conflicted', async () => {
     let calls = 0;
     server.use(

@@ -120,6 +120,30 @@ describe('NoteEditorPage saving', () => {
     expect(body).toMatchObject({ version: 3, title: 'Renamed' });
   });
 
+  // Emptying the field used to autosave a blank title, which the server rejects
+  // with 422, leaving the editor stuck reporting a save error the user could not
+  // clear. The empty value stays local until it is savable again.
+  it('does not autosave an emptied title', async () => {
+    scalarReturns();
+    let body: unknown = null;
+    server.use(
+      http.patch(`${API}/notes/n1`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ data: detail({ version: 4 }), error: null });
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<NoteEditorPage />);
+
+    await waitFor(() => expect(screen.getByTestId('note-title')).toHaveValue('Meeting minutes'));
+    await user.clear(screen.getByTestId('note-title'));
+
+    expect(screen.getByTestId('note-title')).toHaveValue('');
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    expect(body).toBeNull();
+  });
+
   it('surfaces a conflict and stops offering an editable surface', async () => {
     scalarReturns();
     server.use(

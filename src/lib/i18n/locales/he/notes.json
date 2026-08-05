@@ -53,6 +53,25 @@
     "link": "הוספת קישור",
     "unlink": "הסרת קישור",
     "linkPrompt": "הזינו כתובת URL‏ (http,‏ https או mailto)",
-    "linkInvalid": "הקישור הזה אינו מורשה. השתמשו בכתובת http,‏ https או mailto."
+    "linkInvalid": "הקישור הזה אינו מורשה. השתמשו בכתובת http,‏ https או mailto.",
+    "tableGroup": "טבלה",
+    "addColumnBefore": "הוספת עמודה לפני",
+    "addColumnAfter": "הוספת עמודה אחרי",
+    "deleteColumn": "מחיקת עמודה",
+    "addRowBefore": "הוספת שורה לפני",
+    "addRowAfter": "הוספת שורה אחרי",
+    "deleteRow": "מחיקת שורה",
+    "toggleHeaderRow": "החלפת שורת כותרת",
+    "mergeOrSplit": "מיזוג או פיצול תאים",
+    "deleteTable": "מחיקת טבלה",
+    "linkTitle": "הוספת קישור",
+    "linkDescription": "קישורים נפתחים בלשונית חדשה. מותרות רק כתובות http,‏ https ו‑mailto.",
+    "linkLabel": "כתובת URL",
+    "linkSave": "שמירת קישור",
+    "linkCancel": "ביטול",
+    "linkRemove": "הסרת קישור",
+    "linkOpen": "פתיחת קישור",
+    "tableInsert": "הוספה",
+    "heading1": "כותרת ראשית"
   }
 }

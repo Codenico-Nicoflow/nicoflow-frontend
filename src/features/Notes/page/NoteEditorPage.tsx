@@ -130,8 +130,11 @@ export const NoteEditorPage = () => {
         maxLength={255}
         disabled={isConflicted || contentError}
         onChange={event => {
-          setTitle(event.target.value);
-          save({ title: event.target.value });
+          const next = event.target.value;
+          setTitle(next);
+          // The server rejects a blank title (422), so an emptied field is kept
+          // local until the user types something savable.
+          if (next.trim() !== '') save({ title: next });
         }}
         className="h-auto border-0 px-0 text-2xl font-semibold shadow-none focus-visible:ring-0"
         data-testid="note-title"

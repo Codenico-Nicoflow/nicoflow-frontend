@@ -72,6 +72,49 @@ describe('NoteEditor', () => {
     expect(JSON.stringify(latest)).toContain('bold');
   });
 
+  // Tiptap v3 does not re-render on transactions, so a toolbar reading
+  // isActive() during render froze at its first-render value: applying bold left
+  // the button reporting unpressed, and the table group never appeared.
+  it('keeps the pressed state in step with the document', async () => {
+    const user = userEvent.setup();
+    renderComponent(<NoteEditor content={docWith('hello')} />);
+
+    await screen.findByRole('textbox');
+    expect(screen.getByRole('button', { name: 'Bold' })).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(screen.getByRole('textbox'));
+    await user.keyboard('{Control>}a{/Control}');
+    await user.click(screen.getByRole('button', { name: 'Bold' }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Bold' })).toHaveAttribute('aria-pressed', 'true'));
+  });
+
+  // The table operations are only meaningful inside a table, so the group is
+  // absent until the caret is in one.
+  it('reveals the table menu only once the document has a table', async () => {
+    const user = userEvent.setup();
+    renderComponent(<NoteEditor content={docWith('hello')} />);
+
+    await screen.findByRole('textbox');
+    expect(screen.queryByTestId('note-table-menu')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('textbox'));
+    await user.click(screen.getByRole('button', { name: 'Insert table' }));
+
+    await waitFor(() => expect(screen.getByTestId('note-table-menu')).toBeInTheDocument());
+  });
+
+  // The server stores {type:'doc',content:[]} for every new note. Rendered
+  // as-is that is an empty ProseMirror with no paragraph — no caret target, and
+  // no node for the placeholder to attach to, so a new note opened dead.
+  it('gives the server default empty document something to type into', async () => {
+    renderComponent(<NoteEditor content={{ type: 'doc', content: [] }} />);
+
+    const textbox = await screen.findByRole('textbox');
+    await waitFor(() => expect(textbox.querySelector('p')).not.toBeNull());
+    expect(textbox.querySelector('p')).toHaveAttribute('data-placeholder', 'Start writing…');
+  });
+
   it('hides the toolbar when the editor is read-only', async () => {
     renderComponent(<NoteEditor content={docWith('hello')} editable={false} />);
 

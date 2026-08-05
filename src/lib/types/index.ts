@@ -71,4 +71,4 @@ export type {
 } from './interfaces';
 export type { ApiEnvelope, ApiErrorBody } from './interfaces';
 export type { JsonValue, TiptapDoc, TiptapMark } from './tiptap';
-export { EMPTY_TIPTAP_DOC } from './tiptap';
+export { EMPTY_TIPTAP_DOC, withEditableBody } from './tiptap';

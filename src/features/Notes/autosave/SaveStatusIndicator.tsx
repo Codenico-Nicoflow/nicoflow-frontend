@@ -21,7 +21,12 @@ export const SaveStatusIndicator = ({ status, className }: SaveStatusIndicatorPr
   const { Icon, label, tone, spin } = presentation(status);
 
   return (
-    <p role="status" aria-live="polite" className={cn('flex items-center gap-1.5 text-xs', tone, className)}>
+    <p
+      role="status"
+      aria-live="polite"
+      data-testid="note-save-status"
+      className={cn('flex items-center gap-1.5 text-xs', tone, className)}
+    >
       <Icon className={cn('h-3.5 w-3.5', spin && 'animate-spin')} aria-hidden="true" />
       {t(label)}
     </p>

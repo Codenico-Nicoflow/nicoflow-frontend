@@ -127,7 +127,7 @@ export const HabitRibbonInteractive = ({
               className={cn(
                 // A real touch target: 24px minimum, which is what forces this
                 // ribbon to be taller than the card's 10px decorative one.
-                'min-h-6 flex-1 rounded-sm transition-colors',
+                'min-h-6 flex-1 cursor-pointer rounded-sm transition-colors',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
                 cell.satisfied ? 'bg-primary hover:bg-primary/80' : 'bg-muted hover:bg-muted-foreground/30',
                 isBusy && 'cursor-not-allowed opacity-60'

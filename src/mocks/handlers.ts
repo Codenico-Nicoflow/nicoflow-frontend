@@ -192,6 +192,7 @@ export const makeHabit = (overrides?: Partial<IHabit>): IHabit => ({
   longestStreak: 0,
   dueToday: true,
   completedToday: false,
+  loggedToday: false,
   todayValue: 0,
   periodProgress: null,
   archivedAt: null,

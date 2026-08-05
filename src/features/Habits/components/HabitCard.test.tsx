@@ -51,7 +51,7 @@ describe('HabitCard', () => {
       http.post(`${API}/habits/habit-1/check-in`, async () => {
         await gate;
         return HttpResponse.json({
-          data: makeHabit({ completedToday: true, currentStreak: 1 }),
+          data: makeHabit({ completedToday: true, loggedToday: true, currentStreak: 1 }),
           error: null,
         });
       })
@@ -101,7 +101,7 @@ describe('HabitCard', () => {
       })
     );
 
-    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, currentStreak: 3 })} />);
+    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, loggedToday: true, currentStreak: 3 })} />);
 
     await user.click(screen.getByTestId('habit-ring-habit-1'));
 
@@ -123,7 +123,7 @@ describe('HabitCard', () => {
   // Regression: the ring used to be gated on `dueToday`, which the server clears
   // the moment a habit is satisfied. Checking a habit in disabled its own undo.
   it('keeps the ring enabled on a completed habit so it can be undone', () => {
-    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, dueToday: false })} />);
+    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, loggedToday: true, dueToday: false })} />);
 
     expect(screen.getByTestId('habit-ring-habit-1')).toBeEnabled();
   });
@@ -139,6 +139,7 @@ describe('HabitCard', () => {
           streakUnit: 'week',
           periodProgress: { current: 3, target: 3 },
           completedToday: true,
+          loggedToday: true,
           dueToday: false,
         })}
       />
@@ -157,17 +158,67 @@ describe('HabitCard', () => {
       })
     );
 
-    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, dueToday: false })} />);
+    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, loggedToday: true, dueToday: false })} />);
 
     await user.click(screen.getByTestId('habit-ring-habit-1'));
 
     await waitFor(() => expect(undoCalled).toBe(true));
   });
 
+  // Regression: the toggle used to ask `completedToday`, which for a quota
+  // habit means "is the WEEK met" — so at 1 of 3 a second press checked in
+  // again instead of undoing, and the count just climbed.
+  it('undoes a quota habit that is logged today but short of its weekly target', async () => {
+    const user = userEvent.setup();
+    let undoCalled = false;
+    server.use(
+      http.delete(`${API}/habits/habit-1/check-in`, () => {
+        undoCalled = true;
+        return HttpResponse.json({ data: makeHabit(), error: null });
+      }),
+      http.post(`${API}/habits/habit-1/check-in`, () => {
+        throw new Error('checked in again instead of undoing');
+      })
+    );
+
+    renderComponent(
+      <HabitCard
+        habit={makeHabit({
+          scheduleKind: 'weekly_quota',
+          timesPerWeek: 3,
+          streakUnit: 'week',
+          periodProgress: { current: 1, target: 3 },
+          loggedToday: true,
+          completedToday: false, // the week is NOT met
+        })}
+      />
+    );
+
+    await user.click(screen.getByTestId('habit-ring-habit-1'));
+
+    await waitFor(() => expect(undoCalled).toBe(true));
+  });
+
+  it('shows a quota habit logged today as checked', () => {
+    renderComponent(
+      <HabitCard
+        habit={makeHabit({
+          scheduleKind: 'weekly_quota',
+          timesPerWeek: 3,
+          periodProgress: { current: 1, target: 3 },
+          loggedToday: true,
+          completedToday: false,
+        })}
+      />
+    );
+
+    expect(screen.getByTestId('habit-ring-habit-1')).toHaveAttribute('aria-pressed', 'true');
+  });
+
   // Dimming answers "is there work here today", which a finished habit no longer
   // has — but it is finished, not unavailable, so it stays fully lit.
   it('does not dim a completed habit', () => {
-    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, dueToday: false })} />);
+    renderComponent(<HabitCard habit={makeHabit({ completedToday: true, loggedToday: true, dueToday: false })} />);
 
     expect(screen.getByTestId('habit-card-habit-1')).not.toHaveClass('opacity-60');
   });

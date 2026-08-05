@@ -1,5 +1,8 @@
+import { Archive, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { ItemActionsMenu } from '@/components';
+import type { ItemAction } from '@/components/ItemActionsMenu';
 import { Button } from '@/components/ui/button';
 import type { IHabit, IHabitCell } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -17,6 +20,9 @@ export interface HabitCardProps {
   cells?: IHabitCell[];
   onOpen?: (id: string) => void;
   onRestore?: (id: string) => void;
+  onEdit?: (habit: IHabit) => void;
+  onArchive?: (habit: IHabit) => void;
+  onDelete?: (habit: IHabit) => void;
 }
 
 // One habit: ring, identity, streak, ribbon.
@@ -24,7 +30,7 @@ export interface HabitCardProps {
 // Everything except the ribbon is deliberately quiet. The ribbon is where this
 // feature spends its one budget of visual boldness, and a card that also shouted
 // its streak in a gradient numeral would compete with it.
-export const HabitCard = ({ habit, cells, onOpen, onRestore }: HabitCardProps) => {
+export const HabitCard = ({ habit, cells, onOpen, onRestore, onEdit, onArchive, onDelete }: HabitCardProps) => {
   const { t } = useTranslation('habits');
   const { toggle, isChecked, isPending } = useHabitCheckIn(habit);
 
@@ -51,6 +57,19 @@ export const HabitCard = ({ habit, cells, onOpen, onRestore }: HabitCardProps) =
     'weekday.short.5',
     'weekday.short.6',
   ] as const;
+
+  // Built from whichever handlers the parent supplied, so the board can offer
+  // the full set while a read-only surface (the Today strip) offers none.
+  const actions: ItemAction[] =
+    habit.archivedAt !== null
+      ? []
+      : [
+          ...(onEdit ? [{ label: t('detail.edit'), icon: Pencil, onClick: () => onEdit(habit) }] : []),
+          ...(onArchive ? [{ label: t('detail.archive'), icon: Archive, onClick: () => onArchive(habit) }] : []),
+          ...(onDelete
+            ? [{ label: t('detail.delete'), icon: Trash2, onClick: () => onDelete(habit), destructive: true }]
+            : []),
+        ];
 
   const scheduleLabel =
     summary.key === 'schedule.weekdays'
@@ -85,7 +104,7 @@ export const HabitCard = ({ habit, cells, onOpen, onRestore }: HabitCardProps) =
         <button
           type="button"
           onClick={() => onOpen?.(habit.id)}
-          className="min-w-0 flex-1 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          className="min-w-0 flex-1 cursor-pointer rounded-sm text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           data-testid={`habit-open-${habit.id}`}
         >
           <span className="flex items-center gap-1.5">
@@ -105,6 +124,16 @@ export const HabitCard = ({ habit, cells, onOpen, onRestore }: HabitCardProps) =
         >
           {t('streak', { count: habit.currentStreak, context: habit.streakUnit })}
         </span>
+
+        {/* Archived cards get a Restore button below instead — offering Archive
+            on something already archived would be a no-op the user can see. */}
+        {actions.length > 0 ? (
+          <ItemActionsMenu
+            actions={actions}
+            triggerLabel={t('actions.menuLabel', { name: habit.name })}
+            data-testid={`habit-actions-${habit.id}`}
+          />
+        ) : null}
       </div>
 
       {ribbonCells.length > 0 ? (

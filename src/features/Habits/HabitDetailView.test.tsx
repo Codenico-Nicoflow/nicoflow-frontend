@@ -159,6 +159,56 @@ describe('HabitDetailView', () => {
     expect(await screen.findByText(/history is kept/i)).toBeInTheDocument();
   });
 
+  // The one action in the feature that destroys a streak the user built, so it
+  // asks separately from Archive and sends the flag that makes it permanent.
+  it('deletes permanently and returns to the board', async () => {
+    const user = userEvent.setup();
+    let permanent: string | null = null;
+    server.use(
+      http.delete(`${API}/habits/h1`, ({ request }) => {
+        permanent = new URL(request.url).searchParams.get('permanent');
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    renderDetail();
+
+    await user.click(await screen.findByTestId('habit-detail-delete'));
+    await user.click(await screen.findByRole('button', { name: /^delete$/i }));
+
+    await waitFor(() => expect(permanent).toBe('true'));
+    await waitFor(() => expect(window.location.pathname).toBe('/habits'));
+  });
+
+  // Archive must stay the reversible default: forgetting the flag would destroy
+  // history the user expected to keep.
+  it('archives without the permanent flag', async () => {
+    const user = userEvent.setup();
+    let permanent: string | null = 'unset';
+    server.use(
+      http.delete(`${API}/habits/h1`, ({ request }) => {
+        permanent = new URL(request.url).searchParams.get('permanent');
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    renderDetail();
+
+    await user.click(await screen.findByTestId('habit-detail-archive'));
+    await user.click(await screen.findByRole('button', { name: /^archive$/i }));
+
+    await waitFor(() => expect(permanent).toBeNull());
+  });
+
+  it('warns that deleting destroys the streak record', async () => {
+    const user = userEvent.setup();
+    renderDetail();
+
+    await user.click(await screen.findByTestId('habit-detail-delete'));
+
+    expect(await screen.findByText(/cannot be undone/i)).toBeInTheDocument();
+  });
+
   it('shows a skeleton while loading', () => {
     renderDetail();
 

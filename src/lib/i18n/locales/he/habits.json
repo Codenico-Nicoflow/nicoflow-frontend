@@ -38,7 +38,9 @@
     "summary_day_other": "{{satisfied}} מתוך {{total}} ימים הושלמו, רצף נוכחי {{count}} ימים",
     "summary_week_one": "{{satisfied}} מתוך {{total}} שבועות הושלמו, רצף נוכחי שבוע {{count}}",
     "summary_week_two": "{{satisfied}} מתוך {{total}} שבועות הושלמו, רצף נוכחי {{count}} שבועות",
-    "summary_week_other": "{{satisfied}} מתוך {{total}} שבועות הושלמו, רצף נוכחי {{count}} שבועות"
+    "summary_week_other": "{{satisfied}} מתוך {{total}} שבועות הושלמו, רצף נוכחי {{count}} שבועות",
+    "cellDone": "{{date}} — בוצע, הקש לביטול",
+    "cellNotDone": "{{date}} — לא בוצע, הקש לסימון"
   },
   "empty": {
     "title": "עקוב אחרי משהו שאתה עושה לעיתים קרובות",
@@ -56,7 +58,11 @@
     "milestone_day_other": "רצף של {{count}} ימים!",
     "milestone_week_one": "רצף של שבוע {{count}}!",
     "milestone_week_two": "רצף של {{count}} שבועות!",
-    "milestone_week_other": "רצף של {{count}} שבועות!"
+    "milestone_week_other": "רצף של {{count}} שבועות!",
+    "archived": "ההרגל הועבר לארכיון",
+    "archiveFailed": "לא הצלחנו להעביר לארכיון. נסה שוב.",
+    "restored": "ההרגל שוחזר",
+    "restoreFailed": "לא הצלחנו לשחזר. נסה שוב."
   },
   "subject": {
     "reading": "קריאה",
@@ -116,5 +122,25 @@
   "strip": {
     "label": "הרגלים להיום",
     "allDone": "כל ההרגלים להיום הושלמו"
+  },
+  "segments": {
+    "label": "מצב הרגל",
+    "active": "פעילים",
+    "archived": "בארכיון",
+    "restore": "שחזור",
+    "archivedEmpty": "אין עדיין הרגלים בארכיון."
+  },
+  "detail": {
+    "back": "כל ההרגלים",
+    "edit": "עריכה",
+    "archive": "העברה לארכיון",
+    "history": "היסטוריה",
+    "currentStreak": "רצף נוכחי",
+    "longestStreak": "הרצף הארוך ביותר",
+    "completion": "השלמה",
+    "backfillHint": "הקש על יום מהשבוע האחרון כדי לתקן אותו.",
+    "readOnlyHint": "ההיסטוריה של הרגל זה לקריאה בלבד.",
+    "archiveConfirmTitle": "להעביר הרגל זה לארכיון?",
+    "archiveConfirmBody": "הוא ייצא מהלוח ויפנה מקום בתוכנית. ההיסטוריה נשמרת, וניתן לשחזר אותו מלשונית הארכיון."
   }
 }

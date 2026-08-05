@@ -59,7 +59,7 @@ describe('habitApi slice', () => {
     const result = await store.dispatch(habitApi.endpoints.getHabit.initiate('habit-1'));
 
     expect(result.data?.cells).toHaveLength(1);
-    expect(result.data?.cells[0]?.satisfied).toBe(true);
+    expect(result.data?.cells?.[0]?.satisfied).toBe(true);
   });
 
   it('getHabitsToday reads the dedicated feed, not the full list', async () => {
@@ -173,12 +173,13 @@ describe('habitApi slice', () => {
   });
 
   // DELETE returns 204 with no body, so the endpoint declares void rather than
-  // trying to unwrap an envelope that isn't there.
-  it('deleteHabit archives without expecting a body back', async () => {
+  // trying to unwrap an envelope that isn't there. It ARCHIVES — the API has no
+  // hard delete — which is why the endpoint is named for the effect.
+  it('archiveHabit soft-deletes without expecting a body back', async () => {
     server.use(http.delete(`${API}/habits/habit-1`, () => new HttpResponse(null, { status: 204 })));
 
     const store = makeStore();
-    const result = await store.dispatch(habitApi.endpoints.deleteHabit.initiate('habit-1'));
+    const result = await store.dispatch(habitApi.endpoints.archiveHabit.initiate('habit-1'));
 
     expect('error' in result).toBe(false);
   });

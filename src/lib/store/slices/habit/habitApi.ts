@@ -31,6 +31,20 @@ export const habitApi = createApi({
           : [{ type: 'Habit' as const, id: 'LIST' }],
     }),
 
+    // Archiving and restoring both go through the same PATCH the edit dialog
+    // uses; they are separate endpoints only so a caller reads as its intent.
+    // Restoring can fail the plan limit exactly like a create, which is why it
+    // returns the habit rather than void — the caller needs the error body.
+    restoreHabit: builder.mutation<IHabit, string>({
+      query: id => ({ url: `${HABIT_API.DETAIL}${id}`, method: 'PATCH', body: { archived: false } }),
+      transformResponse: (raw: ApiEnvelope<IHabit>) => raw.data,
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'Habit', id },
+        { type: 'Habit', id: 'LIST' },
+        { type: 'Habit', id: 'TODAY' },
+      ],
+    }),
+
     // The Today strip. Its own endpoint rather than a slice of getHabits: the
     // server decides what is still owed, including the quota rule, so the client
     // never reimplements "due".
@@ -73,7 +87,11 @@ export const habitApi = createApi({
       ],
     }),
 
-    deleteHabit: builder.mutation<void, string>({
+    // Named for what the endpoint does, not for its HTTP verb: DELETE
+    // /habits/:id sets archived_at and keeps every check-in. There is no
+    // hard-delete in the API at all, and calling this `delete` would have the
+    // UI promise something the backend never does.
+    archiveHabit: builder.mutation<void, string>({
       query: id => ({ url: `${HABIT_API.DETAIL}${id}`, method: 'DELETE' }),
       invalidatesTags: (_result, _error, id) => [
         { type: 'Habit', id },
@@ -119,7 +137,8 @@ export const {
   useGetHabitSubjectsQuery,
   useCreateHabitMutation,
   useUpdateHabitMutation,
-  useDeleteHabitMutation,
+  useArchiveHabitMutation,
+  useRestoreHabitMutation,
   useCheckInMutation,
   useUndoCheckInMutation,
 } = habitApi;

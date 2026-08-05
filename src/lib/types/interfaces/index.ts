@@ -308,6 +308,14 @@ export interface IHabit {
   todayValue: number;
   periodProgress: IPeriodProgress | null;
 
+  // The heatmap window. A list read carries ~14 entries and a scalar read ~84 —
+  // same field, different width, so a board card and a detail page render the
+  // same component from the same shape.
+  //
+  // Optional because a server that predates it simply omits it: the ribbon then
+  // does not render, rather than the card breaking.
+  cells?: IHabitCell[];
+
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -324,10 +332,10 @@ export interface IHabitCell {
   progress: IPeriodProgress | null; // week cells only
 }
 
-// The SCALAR shape — GET /v1/habits/:id only. Adds the heatmap window.
-export interface IHabitDetail extends IHabit {
-  cells: IHabitCell[];
-}
+// The SCALAR shape — GET /v1/habits/:id. Same fields as IHabit; the difference
+// is how much of `cells` it carries (84 entries vs the list's 14), not the
+// shape, so this is an alias rather than an extension.
+export type IHabitDetail = IHabit;
 
 // One entry in the served subject catalog. `labelKey` is an i18n key, not a
 // display string: the server does not know the caller's language.

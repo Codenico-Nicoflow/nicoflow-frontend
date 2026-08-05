@@ -32,7 +32,9 @@
     "summary_day_one": "{{satisfied}} of {{total}} days completed, current streak {{count}} day",
     "summary_day_other": "{{satisfied}} of {{total}} days completed, current streak {{count}} days",
     "summary_week_one": "{{satisfied}} of {{total}} weeks completed, current streak {{count}} week",
-    "summary_week_other": "{{satisfied}} of {{total}} weeks completed, current streak {{count}} weeks"
+    "summary_week_other": "{{satisfied}} of {{total}} weeks completed, current streak {{count}} weeks",
+    "cellDone": "{{date}} — done, tap to undo",
+    "cellNotDone": "{{date}} — not done, tap to mark it"
   },
   "empty": {
     "title": "Track something you do often",
@@ -48,7 +50,11 @@
     "milestone_day_one": "{{count}} day streak!",
     "milestone_day_other": "{{count}} day streak!",
     "milestone_week_one": "{{count}} week streak!",
-    "milestone_week_other": "{{count}} week streak!"
+    "milestone_week_other": "{{count}} week streak!",
+    "archived": "Habit archived",
+    "archiveFailed": "Couldn't archive that habit. Try again.",
+    "restored": "Habit restored",
+    "restoreFailed": "Couldn't restore that habit. Try again."
   },
   "subject": {
     "reading": "Reading",
@@ -108,5 +114,25 @@
   "strip": {
     "label": "Habits due today",
     "allDone": "All habits done for today"
+  },
+  "segments": {
+    "label": "Habit status",
+    "active": "Active",
+    "archived": "Archived",
+    "restore": "Restore",
+    "archivedEmpty": "Nothing archived yet."
+  },
+  "detail": {
+    "back": "All habits",
+    "edit": "Edit",
+    "archive": "Archive",
+    "history": "History",
+    "currentStreak": "Current streak",
+    "longestStreak": "Longest streak",
+    "completion": "Completion",
+    "backfillHint": "Tap a day in the last week to correct it.",
+    "readOnlyHint": "History is read-only for this habit.",
+    "archiveConfirmTitle": "Archive this habit?",
+    "archiveConfirmBody": "It leaves your board and frees a plan slot. Its history is kept, and you can restore it from the Archived tab."
   }
 }

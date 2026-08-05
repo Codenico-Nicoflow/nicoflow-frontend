@@ -17,9 +17,10 @@ import { toast } from 'sonner';
 
 import { useDebouncedValue } from '@/hooks';
 import { useGetTasksQuery, useReorderTaskMutation } from '@/lib/store';
-import { type ITask, type TaskEnergy, TaskStatus } from '@/lib/types';
+import type { ITask, TaskEnergy } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
+import { countTasks, defaultTaskFilter, matchesFilter, TASK_FILTER, type TaskFilter } from '../filters';
 import TasksEmptyState from '../states/TasksEmptyState';
 import TasksLoadingState from '../states/TasksLoadingState';
 
@@ -34,9 +35,11 @@ import TasksHeader from './TasksHeader';
 interface TasksSectionProps {
   projectId: string;
   onAddTask?: () => void;
+  /** False when a surrounding tab already names this section. */
+  showHeading?: boolean;
 }
 
-const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
+const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSectionProps) => {
   const { t } = useTranslation('task');
   // One project-scoped fetch is the source of truth; status/energy/search are
   // applied client-side over the (capped, ≤50) project list so counts stay exact.
@@ -54,7 +57,9 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
   const [selectedTask, setSelectedTask] = useState<ITask | undefined>(undefined);
   const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
 
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  // null = untouched, so the filter follows the landing default below until the
+  // user picks one.
+  const [pickedFilter, setPickedFilter] = useState<TaskFilter | null>(null);
   const [activeEnergy, setActiveEnergy] = useState<TaskEnergy | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
@@ -79,24 +84,31 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
     }
   }, [editTaskIdFromNav, location.key, tasks, isLoadingTasks]);
 
-  const taskCounts = useMemo(
-    () => ({
-      all: tasks.length,
-      inbox: tasks.filter(task => task.status === TaskStatus.INBOX).length,
-      active: tasks.filter(task => task.status === TaskStatus.ACTIVE).length,
-      someday: tasks.filter(task => task.status === TaskStatus.SOMEDAY).length,
-      done: tasks.filter(task => task.status === TaskStatus.DONE).length,
-      cancelled: tasks.filter(task => task.status === TaskStatus.CANCELLED).length,
-    }),
-    [tasks]
-  );
+  const taskCounts = useMemo(() => countTasks(tasks), [tasks]);
+  // Latched on the first loaded list: the default is a landing choice, and
+  // re-deriving it every render would move the filter under the user as counts
+  // change — completing the last inbox task would silently switch them to All.
+  const landingFilter = useRef<TaskFilter | null>(null);
+  if (landingFilter.current === null && !isLoadingTasks) {
+    landingFilter.current = defaultTaskFilter(taskCounts);
+  }
+  const activeFilter = pickedFilter ?? landingFilter.current ?? TASK_FILTER.ALL;
+
+  // Checking a task off changes its status, which under every status filter but
+  // All would drop the row mid-interaction — the completed state it just entered
+  // would never be visible. Tasks toggled here are pinned until the filter
+  // changes, so the strike-through is something the user actually sees.
+  const [pinned, setPinned] = useState<ReadonlySet<string>>(new Set());
+  const pinTask = (taskId: string) => setPinned(current => new Set(current).add(taskId));
+
+  const changeFilter = (next: TaskFilter) => {
+    setPickedFilter(next);
+    setPinned(new Set());
+  };
 
   const filteredTasks = useMemo(() => {
-    let filtered = tasks;
+    let filtered = tasks.filter(task => matchesFilter(task, activeFilter) || pinned.has(task.id));
 
-    if (activeFilter !== 'all') {
-      filtered = filtered.filter(task => task.status === activeFilter);
-    }
     if (activeEnergy !== 'all') {
       filtered = filtered.filter(task => task.energy === activeEnergy);
     }
@@ -108,7 +120,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
     }
 
     return [...filtered].sort((a, b) => a.displayOrder - b.displayOrder);
-  }, [tasks, activeFilter, activeEnergy, debouncedSearch]);
+  }, [tasks, activeFilter, activeEnergy, debouncedSearch, pinned]);
 
   const handleAddTask = () => {
     setSelectedTask(undefined);
@@ -149,7 +161,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
         transition={{ duration: 0.4, delay: 0.2 }}
         className="w-full"
       >
-        <TasksHeader taskCount={tasks.length} onAddTask={handleAddTask} />
+        <TasksHeader taskCount={tasks.length} onAddTask={handleAddTask} showTitle={showHeading} />
 
         {isLoadingTasks ? (
           <TasksLoadingState />
@@ -162,7 +174,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
               </div>
               <TaskFilters
                 activeFilter={activeFilter}
-                onFilterChange={setActiveFilter}
+                onFilterChange={changeFilter}
                 activeEnergy={activeEnergy}
                 onEnergyChange={setActiveEnergy}
                 taskCounts={taskCounts}
@@ -180,6 +192,7 @@ const TasksSection = ({ projectId, onAddTask }: TasksSectionProps) => {
                         index={index}
                         onEdit={handleEditTask}
                         onDelete={handleDeleteTask}
+                        onStatusToggle={pinTask}
                       />
                     ))}
                   </div>

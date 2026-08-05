@@ -3,21 +3,40 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, FolderX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { EmptyState } from '@/components';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExpandableText } from '@/components/ui/expandable-text';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NotesSection } from '@/features/Notes';
 import { ProjectDeleteDialog, ProjectDialog, ProjectHeader, ProjectLoadingState } from '@/features/Project';
 import { TasksSection } from '@/features/Tasks';
-import { useGetProjectQuery } from '@/lib/store';
+import { useGetNotesQuery, useGetProjectQuery, useGetTasksQuery } from '@/lib/store';
+
+import { parseProjectTab, PROJECT_TAB, PROJECT_TAB_PARAM } from './tabs';
 
 const ProjectView = () => {
   const { t } = useTranslation('project');
   const { projectId = '' } = useParams();
   const navigate = useNavigate();
   const { data: project, isLoading, isError } = useGetProjectQuery(projectId, { skip: !projectId });
+
+  // Counts only, for the tab badges — both lists are already cached by the
+  // sections themselves, so these resolve from the store rather than refetching.
+  const { data: tasks = [] } = useGetTasksQuery({ projectId }, { skip: !projectId });
+  const { data: notes = [] } = useGetNotesQuery({ projectId }, { skip: !projectId });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = parseProjectTab(searchParams.get(PROJECT_TAB_PARAM));
+  // replace, not push: switching tabs shouldn't bury the previous page under a
+  // history entry per click.
+  const setTab = (next: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set(PROJECT_TAB_PARAM, next);
+    setSearchParams(params, { replace: true });
+  };
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -69,11 +88,44 @@ const ProjectView = () => {
           </section>
         )}
 
-        <section>
-          <TasksSection projectId={project.id} />
-        </section>
+        <Tabs value={tab} onValueChange={setTab} className="w-full">
+          <TabsList className="w-full sm:w-auto" data-testid="project-tabs">
+            <TabsTrigger
+              value={PROJECT_TAB.TASKS}
+              className="flex-1 gap-2 sm:flex-none"
+              data-testid="project-tab-tasks"
+            >
+              {t('view.tabTasks')}
+              {tasks.length > 0 && (
+                <Badge variant="secondary" className="px-1.5 py-0 text-[11px]">
+                  {tasks.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value={PROJECT_TAB.NOTES}
+              className="flex-1 gap-2 sm:flex-none"
+              data-testid="project-tab-notes"
+            >
+              {t('view.tabNotes')}
+              {notes.length > 0 && (
+                <Badge variant="outline" className="px-1.5 py-0 text-[11px]">
+                  {notes.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-        <NotesSection projectId={project.id} />
+          {/* Both panels stay mounted: switching tabs shouldn't refetch a list
+              the client already holds, or drop an in-progress task filter. */}
+          <TabsContent value={PROJECT_TAB.TASKS} className="mt-6" forceMount hidden={tab !== PROJECT_TAB.TASKS}>
+            <TasksSection projectId={project.id} showHeading={false} />
+          </TabsContent>
+
+          <TabsContent value={PROJECT_TAB.NOTES} className="mt-6" forceMount hidden={tab !== PROJECT_TAB.NOTES}>
+            <NotesSection projectId={project.id} showHeading={false} />
+          </TabsContent>
+        </Tabs>
       </motion.div>
 
       <ProjectDialog open={editOpen} onOpenChange={setEditOpen} project={project} />

@@ -6,9 +6,11 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { TaskEnergy } from '@/lib/types';
 
-import TaskFilters, { type TaskCounts } from './TaskFilters';
+import { type TaskCounts } from '../filters';
 
-const counts: TaskCounts = { all: 8, inbox: 3, active: 4, someday: 0, done: 1, cancelled: 0 };
+import TaskFilters from './TaskFilters';
+
+const counts: TaskCounts = { all: 8, inbox: 3, unscheduled: 2, active: 4, someday: 0, done: 1, cancelled: 0 };
 
 const setup = (overrides: Partial<ComponentProps<typeof TaskFilters>> = {}) => {
   const onFilterChange = vi.fn();

@@ -4,9 +4,11 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import type { TaskEnergy } from '@/lib/types';
 
+import { TASK_FILTER, type TaskFilter } from '../filters';
+
 import TaskFilters from './TaskFilters';
 
-const counts = { all: 12, inbox: 3, active: 5, someday: 2, done: 1, cancelled: 1 };
+const counts = { all: 12, inbox: 3, unscheduled: 4, active: 5, someday: 2, done: 1, cancelled: 1 };
 
 const meta: Meta<typeof TaskFilters> = {
   title: 'Tasks/TaskFilters',
@@ -15,7 +17,7 @@ const meta: Meta<typeof TaskFilters> = {
   parameters: { layout: 'padded' },
   render: () => {
     const Demo = () => {
-      const [status, setStatus] = useState('all');
+      const [status, setStatus] = useState<TaskFilter>(TASK_FILTER.ALL);
       const [energy, setEnergy] = useState<TaskEnergy | 'all'>('all');
       return (
         <TaskFilters

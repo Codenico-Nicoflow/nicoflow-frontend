@@ -17,11 +17,13 @@ interface TaskItemProps {
   index: number;
   onEdit: (task: ITask) => void;
   onDelete: (taskId: string) => void;
+  /** Fired when the checkbox flips the status, so a filtered list can keep the row. */
+  onStatusToggle?: (taskId: string) => void;
   /** Optional drag-handle slot rendered at the row start (see SortableTaskItem). */
   dragHandle?: React.ReactNode;
 }
 
-const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) => {
+const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }: TaskItemProps) => {
   const { t } = useTranslation('task');
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const { guardComplete, confirmDialog } = useConfirmComplete();
@@ -32,6 +34,10 @@ const TaskItem = ({ task, index, onEdit, onDelete, dragHandle }: TaskItemProps) 
   const handleToggle = () => {
     const next = isCompleted ? TaskStatus.ACTIVE : TaskStatus.DONE;
     guardComplete(task, next, async () => {
+      // Announced before awaiting, to match the optimistic flip: a filtered list
+      // has to keep the row on the same tick the status changes, or it unmounts
+      // before the new state is on screen.
+      onStatusToggle?.(task.id);
       try {
         await updateTaskStatus({ id: task.id, status: next }).unwrap();
       } catch (error) {

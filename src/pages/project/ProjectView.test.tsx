@@ -1,9 +1,10 @@
 import { renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { Route, Routes } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { mockProject } from '@/mocks/handlers';
 
@@ -12,12 +13,12 @@ import ProjectView from './ProjectView';
 const PROJECT_URL = 'http://localhost:8080/v1/projects/project-1';
 const envelope = <T,>(data: T) => ({ data, error: null });
 
-const renderAt = () =>
+const renderAt = (search = '') =>
   renderComponent(
     <Routes>
       <Route path="/projects/:projectId" element={<ProjectView />} />
     </Routes>,
-    { initialRoute: '/projects/project-1' }
+    { initialRoute: `/projects/project-1${search}` }
   );
 
 describe('ProjectView', () => {
@@ -41,5 +42,51 @@ describe('ProjectView', () => {
     renderAt();
 
     expect(await screen.findByTestId('project-not-found')).toBeInTheDocument();
+  });
+});
+
+describe('ProjectView tabs', () => {
+  beforeEach(() => {
+    server.use(http.get(PROJECT_URL, () => HttpResponse.json(envelope(mockProject))));
+  });
+
+  it('opens on tasks and keeps notes out of view', async () => {
+    renderAt();
+
+    expect(await screen.findByTestId('project-tab-tasks')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId('project-tab-notes')).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('opens on notes when the url asks for them', async () => {
+    renderAt('?tab=notes');
+
+    expect(await screen.findByTestId('project-tab-notes')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId('project-tab-tasks')).toHaveAttribute('aria-selected', 'false');
+  });
+
+  // A hand-edited or stale param must not leave the page with no panel showing.
+  it('falls back to tasks for an unknown tab', async () => {
+    renderAt('?tab=nonsense');
+
+    expect(await screen.findByTestId('project-tab-tasks')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('records the tab in the url when switched', async () => {
+    const user = userEvent.setup();
+    renderAt();
+
+    await user.click(await screen.findByTestId('project-tab-notes'));
+
+    expect(await screen.findByTestId('project-tab-notes')).toHaveAttribute('aria-selected', 'true');
+    expect(window.location.search).toContain('tab=notes');
+  });
+
+  // The tab label is the section's title now, so the sections must not print it
+  // a second time inside the panel.
+  it('does not repeat the tab label as a heading inside the panel', async () => {
+    renderAt('?tab=notes');
+
+    await screen.findByTestId('project-tab-notes');
+    expect(screen.queryByRole('heading', { name: 'Notes' })).not.toBeInTheDocument();
   });
 });

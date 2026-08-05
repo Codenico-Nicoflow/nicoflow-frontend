@@ -87,6 +87,7 @@
   "filters": {
     "all": "הכל",
     "inbox": "תיבת נכנס",
+    "unscheduled": "ללא תאריך",
     "active": "פעיל",
     "someday": "מתישהו",
     "done": "הושלם",

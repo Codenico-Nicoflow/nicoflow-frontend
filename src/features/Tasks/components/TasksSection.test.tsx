@@ -46,6 +46,87 @@ describe('TasksSection', () => {
     expect(screen.queryByText('Active deep task')).not.toBeInTheDocument();
   });
 
+  it('opens on Inbox when the project has inbox tasks', async () => {
+    mountList([...seed, makeTask({ id: 'i', title: 'Unprocessed thought', status: 'inbox', displayOrder: 3 })]);
+    renderComponent(<TasksSection projectId="p1" />);
+
+    await waitFor(() => expect(screen.getByText('Unprocessed thought')).toBeInTheDocument());
+    expect(screen.getByTestId('task-filter-inbox')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.queryByText('Active deep task')).not.toBeInTheDocument();
+  });
+
+  it('opens on All when the inbox is empty', async () => {
+    mountList();
+    renderComponent(<TasksSection projectId="p1" />);
+
+    await waitFor(() => expect(screen.getByText('Active deep task')).toBeInTheDocument());
+    expect(screen.getByTestId('task-filter-all')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('filters to open tasks with no scheduled date', async () => {
+    mountList([
+      makeTask({ id: 'u', title: 'Needs a date', status: 'active', scheduledFor: null, displayOrder: 0 }),
+      makeTask({ id: 'd', title: 'Already dated', status: 'active', scheduledFor: '2026-08-05', displayOrder: 1 }),
+      makeTask({ id: 'f', title: 'Finished undated', status: 'done', scheduledFor: null, displayOrder: 2 }),
+    ]);
+    const user = userEvent.setup();
+    renderComponent(<TasksSection projectId="p1" />);
+
+    await waitFor(() => expect(screen.getByText('Needs a date')).toBeInTheDocument());
+    await user.click(screen.getByTestId('task-filter-unscheduled'));
+
+    expect(screen.getByText('Needs a date')).toBeInTheDocument();
+    expect(screen.queryByText('Already dated')).not.toBeInTheDocument();
+    expect(screen.queryByText('Finished undated')).not.toBeInTheDocument();
+  });
+
+  // Completing a task changes its status, which would drop it straight out of
+  // the status filter it was listed under — the strike-through it just earned
+  // would never be on screen.
+  it('keeps a completed task visible under the filter it was completed in', async () => {
+    // The list is served from mutable state: completing invalidates the Task tag
+    // and refetches, so a fixed response would serve the pre-completion status
+    // back and undo the optimistic flip.
+    let task = makeTask({ id: 'i', title: 'Unprocessed thought', status: 'inbox', displayOrder: 0 });
+    server.use(
+      http.get(`${API}/projects/p1/tasks`, () => HttpResponse.json(items([task]))),
+      http.patch(`${API}/tasks/i/status`, async ({ request }) => {
+        const { status } = (await request.json()) as { status: string };
+        task = { ...task, status: status as typeof task.status };
+        return HttpResponse.json({ data: task, error: null });
+      })
+    );
+    const user = userEvent.setup();
+    renderComponent(<TasksSection projectId="p1" />);
+
+    await waitFor(() => expect(screen.getByTestId('task-filter-inbox')).toHaveAttribute('aria-selected', 'true'));
+    await user.click(screen.getByTestId('task-checkbox-i'));
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Unprocessed thought' })).toHaveClass('line-through')
+    );
+  });
+
+  it('drops the pinned task once the filter changes', async () => {
+    let task = makeTask({ id: 'i', title: 'Unprocessed thought', status: 'inbox', displayOrder: 0 });
+    server.use(
+      http.get(`${API}/projects/p1/tasks`, () => HttpResponse.json(items([task, ...seed]))),
+      http.patch(`${API}/tasks/i/status`, async ({ request }) => {
+        const { status } = (await request.json()) as { status: string };
+        task = { ...task, status: status as typeof task.status };
+        return HttpResponse.json({ data: task, error: null });
+      })
+    );
+    const user = userEvent.setup();
+    renderComponent(<TasksSection projectId="p1" />);
+
+    await waitFor(() => expect(screen.getByText('Unprocessed thought')).toBeInTheDocument());
+    await user.click(screen.getByTestId('task-checkbox-i'));
+    await user.click(screen.getByTestId('task-filter-active'));
+
+    expect(screen.queryByText('Unprocessed thought')).not.toBeInTheDocument();
+  });
+
   it('filters by Energy', async () => {
     mountList();
     const user = userEvent.setup();

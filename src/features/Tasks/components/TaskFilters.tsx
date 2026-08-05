@@ -2,21 +2,14 @@ import { useTranslation } from 'react-i18next';
 
 import { ENERGY_OPTIONS } from '@/components';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { TaskEnergy, TaskStatus } from '@/lib/types';
+import { TaskEnergy } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-export interface TaskCounts {
-  all: number;
-  inbox: number;
-  active: number;
-  someday: number;
-  done: number;
-  cancelled: number;
-}
+import { TASK_FILTER_ORDER, type TaskCounts, type TaskFilter } from '../filters';
 
 interface TaskFiltersProps {
-  activeFilter: string;
-  onFilterChange: (filter: string) => void;
+  activeFilter: TaskFilter;
+  onFilterChange: (filter: TaskFilter) => void;
   activeEnergy: TaskEnergy | 'all';
   onEnergyChange: (energy: TaskEnergy | 'all') => void;
   taskCounts: TaskCounts;
@@ -24,15 +17,6 @@ interface TaskFiltersProps {
 
 const TaskFilters = ({ activeFilter, onFilterChange, activeEnergy, onEnergyChange, taskCounts }: TaskFiltersProps) => {
   const { t } = useTranslation(['task', 'common']);
-
-  const statusFilters = [
-    { value: 'all', labelKey: 'filters.all', countKey: 'all' },
-    { value: TaskStatus.INBOX, labelKey: 'filters.inbox', countKey: 'inbox' },
-    { value: TaskStatus.ACTIVE, labelKey: 'filters.active', countKey: 'active' },
-    { value: TaskStatus.SOMEDAY, labelKey: 'filters.someday', countKey: 'someday' },
-    { value: TaskStatus.DONE, labelKey: 'filters.done', countKey: 'done' },
-    { value: TaskStatus.CANCELLED, labelKey: 'filters.cancelled', countKey: 'cancelled' },
-  ] as const;
 
   const activeEnergyOption = ENERGY_OPTIONS.find(option => option.value === activeEnergy);
   const ActiveEnergyIcon = activeEnergyOption?.icon;
@@ -46,7 +30,7 @@ const TaskFilters = ({ activeFilter, onFilterChange, activeEnergy, onEnergyChang
           role="tablist"
           aria-label={t('filters.all')}
         >
-          {statusFilters.map(filter => {
+          {TASK_FILTER_ORDER.map(filter => {
             const isActive = activeFilter === filter.value;
             const count = taskCounts[filter.countKey];
             // Empty status filters are dimmed and unclickable so they don't lead to a dead view.
@@ -66,7 +50,7 @@ const TaskFilters = ({ activeFilter, onFilterChange, activeEnergy, onEnergyChang
                   isEmpty && 'cursor-not-allowed opacity-40 hover:text-muted-foreground'
                 )}
               >
-                {t(filter.labelKey)}
+                {t(`filters.${filter.countKey}`)}
                 <span
                   className={cn('text-xs tabular-nums', isActive ? 'text-foreground/60' : 'text-muted-foreground/60')}
                 >

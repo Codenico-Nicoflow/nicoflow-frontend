@@ -73,5 +73,35 @@
     "quitDrinking": "Quit drinking",
     "quitSugar": "Quit sugar",
     "custom": "Custom"
+  },
+  "form": {
+    "createTitle": "Create habit",
+    "editTitle": "Edit habit",
+    "name": "Name",
+    "subject": "Subject",
+    "target": "Target",
+    "unit": "Unit",
+    "unitPlaceholder": "minutes, pages…",
+    "schedule": "Schedule",
+    "timesPerWeek": "times a week",
+    "noDays": "Pick at least one day",
+    "polarity": "Type",
+    "polarityBuild": "Build",
+    "polarityQuit": "Quit",
+    "polarityImmutable": "Build or quit can't be changed. To switch, archive this habit and create a new one.",
+    "kind": {
+      "daily": "Daily",
+      "weekdays": "Days",
+      "quota": "Weekly"
+    },
+    "errors": {
+      "nameRequired": "Name your habit",
+      "nameTooLong": "Name must be 255 characters or fewer",
+      "targetNegative": "Target can't be negative",
+      "targetZeroOnBuild": "Set a target of at least 1",
+      "weekdaysRequired": "Pick at least one day",
+      "saveFailed": "Habit didn't save. Try again.",
+      "planLimit": "The free plan covers 3 active habits. Archive one, or upgrade for unlimited."
+    }
   }
 }

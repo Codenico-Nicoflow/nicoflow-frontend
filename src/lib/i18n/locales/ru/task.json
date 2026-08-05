@@ -88,6 +88,7 @@
   "filters": {
     "all": "Все",
     "inbox": "Входящие",
+    "unscheduled": "Без даты",
     "active": "Активные",
     "someday": "Когда-нибудь",
     "done": "Готово",

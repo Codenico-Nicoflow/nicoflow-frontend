@@ -86,6 +86,7 @@
   "filters": {
     "all": "All",
     "inbox": "Inbox",
+    "unscheduled": "Unscheduled",
     "active": "Active",
     "someday": "Someday",
     "done": "Done",

@@ -17,9 +17,10 @@ import { toast } from 'sonner';
 
 import { useDebouncedValue } from '@/hooks';
 import { useGetTasksQuery, useReorderTaskMutation } from '@/lib/store';
-import { type ITask, type TaskEnergy, TaskStatus } from '@/lib/types';
+import type { ITask, TaskEnergy } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
+import { countTasks, defaultTaskFilter, matchesFilter, type TaskFilter } from '../filters';
 import TasksEmptyState from '../states/TasksEmptyState';
 import TasksLoadingState from '../states/TasksLoadingState';
 
@@ -56,7 +57,10 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
   const [selectedTask, setSelectedTask] = useState<ITask | undefined>(undefined);
   const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
 
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  // null = untouched, so the filter follows the default until the user picks one.
+  // Derived rather than set from an effect: the list arrives async, and seeding
+  // state on arrival would flash All before snapping to Inbox.
+  const [pickedFilter, setPickedFilter] = useState<TaskFilter | null>(null);
   const [activeEnergy, setActiveEnergy] = useState<TaskEnergy | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
@@ -81,24 +85,12 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
     }
   }, [editTaskIdFromNav, location.key, tasks, isLoadingTasks]);
 
-  const taskCounts = useMemo(
-    () => ({
-      all: tasks.length,
-      inbox: tasks.filter(task => task.status === TaskStatus.INBOX).length,
-      active: tasks.filter(task => task.status === TaskStatus.ACTIVE).length,
-      someday: tasks.filter(task => task.status === TaskStatus.SOMEDAY).length,
-      done: tasks.filter(task => task.status === TaskStatus.DONE).length,
-      cancelled: tasks.filter(task => task.status === TaskStatus.CANCELLED).length,
-    }),
-    [tasks]
-  );
+  const taskCounts = useMemo(() => countTasks(tasks), [tasks]);
+  const activeFilter = pickedFilter ?? defaultTaskFilter(taskCounts);
 
   const filteredTasks = useMemo(() => {
-    let filtered = tasks;
+    let filtered = tasks.filter(task => matchesFilter(task, activeFilter));
 
-    if (activeFilter !== 'all') {
-      filtered = filtered.filter(task => task.status === activeFilter);
-    }
     if (activeEnergy !== 'all') {
       filtered = filtered.filter(task => task.energy === activeEnergy);
     }
@@ -164,7 +156,7 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
               </div>
               <TaskFilters
                 activeFilter={activeFilter}
-                onFilterChange={setActiveFilter}
+                onFilterChange={setPickedFilter}
                 activeEnergy={activeEnergy}
                 onEnergyChange={setActiveEnergy}
                 taskCounts={taskCounts}

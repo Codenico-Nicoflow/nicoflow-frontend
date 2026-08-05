@@ -1,7 +1,21 @@
 import { http, HttpResponse } from 'msw';
 
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-import type { IArea, IBucket, IFocusSession, INote, INoteDetail, IProject, ISubtask, ITask, IUser } from '@/lib/types';
+import type {
+  IArea,
+  IBucket,
+  IFocusSession,
+  IHabit,
+  IHabitCell,
+  IHabitDetail,
+  IHabitSubject,
+  INote,
+  INoteDetail,
+  IProject,
+  ISubtask,
+  ITask,
+  IUser,
+} from '@/lib/types';
 import { TaskEnergy, TaskPriority, TaskStatus } from '@/lib/types/constants';
 
 export const mockUser: IUser = {
@@ -158,6 +172,56 @@ export const makeNoteDetail = (overrides?: Partial<INoteDetail>): INoteDetail =>
   ...overrides,
 });
 
+// Habits (E-055). The derived counters are all server-computed, so a fixture
+// sets them explicitly rather than letting a test infer them from `cells` — the
+// client never does that arithmetic and a fixture that did would be testing a
+// rule the app does not implement.
+export const makeHabit = (overrides?: Partial<IHabit>): IHabit => ({
+  id: 'habit-1',
+  name: 'Read',
+  subject: 'reading',
+  color: 'indigo',
+  polarity: 'build',
+  targetValue: 1,
+  unit: null,
+  scheduleKind: 'daily',
+  byWeekday: null,
+  timesPerWeek: null,
+  streakUnit: 'day',
+  currentStreak: 0,
+  longestStreak: 0,
+  dueToday: true,
+  completedToday: false,
+  todayValue: 0,
+  periodProgress: null,
+  archivedAt: null,
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  ...overrides,
+});
+
+export const makeHabitCell = (overrides?: Partial<IHabitCell>): IHabitCell => ({
+  date: '2026-08-05',
+  scheduled: true,
+  value: 0,
+  satisfied: false,
+  progress: null,
+  ...overrides,
+});
+
+export const makeHabitDetail = (overrides?: Partial<IHabitDetail>): IHabitDetail => ({
+  ...makeHabit(),
+  cells: [],
+  ...overrides,
+});
+
+export const mockHabitSubjects: IHabitSubject[] = [
+  { slug: 'reading', labelKey: 'habits.subject.reading' },
+  { slug: 'exercise', labelKey: 'habits.subject.exercise' },
+  { slug: 'quit_drinking', labelKey: 'habits.subject.quitDrinking' },
+  { slug: 'custom', labelKey: 'habits.subject.custom' },
+];
+
 const envelope = <T>(data: T) => ({ data, error: null });
 
 export const handlers = [
@@ -178,6 +242,14 @@ export const handlers = [
     HttpResponse.json(envelope(makeNoteDetail({ id: String(params.id) })))
   ),
   http.get('http://localhost:8080/v1/notes', () => HttpResponse.json(envelope([]))),
+  // Habits (E-055). Literal paths before the :id wildcard, or /habits/today
+  // resolves as a habit whose id is "today".
+  http.get('http://localhost:8080/v1/habits/today', () => HttpResponse.json(envelope([]))),
+  http.get('http://localhost:8080/v1/habits/subjects', () => HttpResponse.json(envelope(mockHabitSubjects))),
+  http.get('http://localhost:8080/v1/habits/:id', ({ params }) =>
+    HttpResponse.json(envelope(makeHabitDetail({ id: String(params.id) })))
+  ),
+  http.get('http://localhost:8080/v1/habits', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),

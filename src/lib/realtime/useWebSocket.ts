@@ -9,6 +9,7 @@ import {
   attachmentApi,
   bucketApi,
   focusWsEvent,
+  habitApi,
   invalidateApiTags,
   noteApi,
   notificationApi,
@@ -120,6 +121,9 @@ export const useWebSocket = (): { paused: boolean } => {
       if (noteTags.length > 0 && !shouldSkipNoteRefetch(event, payload, hasUnsavedEditsFor)) {
         invalidateApiTags(dispatch, noteApi, noteTags);
       }
+
+      const habitTags = (['Habit'] as const).filter(has);
+      if (habitTags.length > 0) invalidateApiTags(dispatch, habitApi, habitTags);
     },
     [dispatch]
   );

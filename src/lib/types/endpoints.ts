@@ -96,6 +96,15 @@ export const NOTE_API = {
   DETAIL: '/notes/', // + id (GET → NoteDetailView | PATCH → 200/409 | DELETE → 204)
 };
 
+export const HABIT_API = {
+  LIST: '/habits', // GET ?includeArchived= → HabitView[]
+  CREATE: '/habits', // POST → HabitView (201)
+  DETAIL: '/habits/', // + id (GET → HabitDetailView | PATCH → 200 | DELETE → 204)
+  CHECK_IN: '/check-in', // appended to DETAIL + id (POST checks in, DELETE undoes)
+  TODAY: '/habits/today', // GET → HabitView[] still owed right now
+  SUBJECTS: '/habits/subjects', // GET → SubjectView[] (static catalog)
+};
+
 export const NOTIFICATION_API = {
   GET_NOTIFICATIONS: '/notifications',
   GET_UNREAD_COUNT: '/notifications/unread-count',

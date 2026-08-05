@@ -115,3 +115,16 @@ describe('WS_EVENT_TAGS note events', () => {
     expect(WS_EVENT_TAGS['bucket.processed']).toEqual(['Bucket', 'Note']);
   });
 });
+
+describe('WS_EVENT_TAGS habit events', () => {
+  it.each(['habit.created', 'habit.updated', 'habit.deleted', 'habit.checked_in'])('maps %s to Habit', event => {
+    expect(WS_EVENT_TAGS[event]).toEqual(['Habit']);
+  });
+
+  // checked_in has to invalidate like any other mutation: the write recomputes
+  // the streak and can drop the habit out of the Today feed once a weekly quota
+  // is met, so a second tab refetches both views.
+  it('treats a check-in as a mutation, not a silent event', () => {
+    expect(WS_EVENT_TAGS['habit.checked_in']).toBeDefined();
+  });
+});

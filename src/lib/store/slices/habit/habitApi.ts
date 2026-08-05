@@ -100,6 +100,17 @@ export const habitApi = createApi({
       ],
     }),
 
+    // The irreversible one. Same endpoint as archive with permanent=true, so
+    // the flag — not the verb — is what decides whether history survives.
+    deleteHabit: builder.mutation<void, string>({
+      query: id => ({ url: `${HABIT_API.DETAIL}${id}?permanent=true`, method: 'DELETE' }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'Habit', id },
+        { type: 'Habit', id: 'LIST' },
+        { type: 'Habit', id: 'TODAY' },
+      ],
+    }),
+
     checkIn: builder.mutation<IHabit, CheckInRequest>({
       query: ({ id, ...body }) => ({
         url: `${HABIT_API.DETAIL}${id}${HABIT_API.CHECK_IN}`,
@@ -138,6 +149,7 @@ export const {
   useCreateHabitMutation,
   useUpdateHabitMutation,
   useArchiveHabitMutation,
+  useDeleteHabitMutation,
   useRestoreHabitMutation,
   useCheckInMutation,
   useUndoCheckInMutation,

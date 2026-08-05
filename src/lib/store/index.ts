@@ -202,6 +202,7 @@ export {
   useArchiveHabitMutation,
   useCheckInMutation,
   useCreateHabitMutation,
+  useDeleteHabitMutation,
   useGetHabitQuery,
   useGetHabitsQuery,
   useGetHabitsTodayQuery,

@@ -1,4 +1,4 @@
-import { Bot, CalendarDays, Inbox, LayoutGrid, type LucideIcon, Settings, Sun, Target } from 'lucide-react';
+import { Bot, CalendarDays, Inbox, LayoutGrid, type LucideIcon, Repeat, Settings, Sun, Target } from 'lucide-react';
 
 import type { Resources } from '@/lib/i18n/locales/en';
 
@@ -61,6 +61,12 @@ export const NAV_DESTINATIONS: NavDestination[] = [
     primary: false,
   },
   { id: 'ai', labelKey: 'ai', icon: Bot, to: '/ai', match: ['/ai'], primary: false },
+  // Non-primary deliberately: the daily habit action lives in the Today strip,
+  // one tap from where the user already is, so the tab only carries the
+  // low-frequency work — creating habits and reading history. Promoting it
+  // would mean demoting Calendar, and taking a primary cell from a paid feature
+  // to give it to a new one is the wrong trade.
+  { id: 'habits', labelKey: 'habits', icon: Repeat, to: '/habits', match: ['/habits'], primary: false },
 ];
 
 export const PRIMARY_DESTINATIONS = NAV_DESTINATIONS.filter(d => d.primary);

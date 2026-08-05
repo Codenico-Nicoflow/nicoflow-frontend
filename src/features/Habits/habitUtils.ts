@@ -91,18 +91,18 @@ export const todayProgress = (habit: IHabit): number => {
 // "Mon, Wed, Fri", "3× a week"). Returns a key rather than a string so the
 // module stays free of an i18n instance.
 export type ScheduleSummary =
-  | { key: 'habits.schedule.daily' }
-  | { key: 'habits.schedule.weekdays'; days: number[] }
-  | { key: 'habits.schedule.quota'; count: number };
+  | { key: 'schedule.daily' }
+  | { key: 'schedule.weekdays'; days: number[] }
+  | { key: 'schedule.quota'; count: number };
 
 export const scheduleSummary = (habit: IHabit): ScheduleSummary => {
   if (habit.scheduleKind === HabitScheduleKind.WEEKDAYS) {
-    return { key: 'habits.schedule.weekdays', days: habit.byWeekday ?? [] };
+    return { key: 'schedule.weekdays', days: habit.byWeekday ?? [] };
   }
   if (habit.scheduleKind === HabitScheduleKind.WEEKLY_QUOTA) {
-    return { key: 'habits.schedule.quota', count: habit.timesPerWeek ?? 0 };
+    return { key: 'schedule.quota', count: habit.timesPerWeek ?? 0 };
   }
-  return { key: 'habits.schedule.daily' };
+  return { key: 'schedule.daily' };
 };
 
 // Streak milestones worth celebrating. Deliberately sparse: a celebration that

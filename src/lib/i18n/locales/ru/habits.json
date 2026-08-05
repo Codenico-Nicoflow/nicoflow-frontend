@@ -1,0 +1,127 @@
+{
+  "title": "Привычки",
+  "create": "Создать привычку",
+  "streak_one": "{{count}} день",
+  "streak_few": "{{count}} дня",
+  "streak_many": "{{count}} дней",
+  "streak_other": "{{count}} дней",
+  "streak_day_one": "{{count}} день",
+  "streak_day_few": "{{count}} дня",
+  "streak_day_many": "{{count}} дней",
+  "streak_day_other": "{{count}} дней",
+  "streak_week_one": "{{count}} неделя",
+  "streak_week_few": "{{count}} недели",
+  "streak_week_many": "{{count}} недель",
+  "streak_week_other": "{{count}} недель",
+  "schedule": {
+    "daily": "Каждый день",
+    "weekdays": "{{days}}",
+    "quota_one": "{{count}} раз в неделю",
+    "quota_few": "{{count}} раза в неделю",
+    "quota_many": "{{count}} раз в неделю",
+    "quota_other": "{{count}} раз в неделю"
+  },
+  "weekday": {
+    "short": {
+      "0": "Вс",
+      "1": "Пн",
+      "2": "Вт",
+      "3": "Ср",
+      "4": "Чт",
+      "5": "Пт",
+      "6": "Сб"
+    }
+  },
+  "ring": {
+    "label": "{{name}} — отметить",
+    "periodLabel": "{{name}} — {{current}} из {{target}} на этой неделе, отметить"
+  },
+  "ribbon": {
+    "summary_day_one": "{{satisfied}} из {{total}} дней выполнено, текущая серия {{count}} день",
+    "summary_day_few": "{{satisfied}} из {{total}} дней выполнено, текущая серия {{count}} дня",
+    "summary_day_many": "{{satisfied}} из {{total}} дней выполнено, текущая серия {{count}} дней",
+    "summary_day_other": "{{satisfied}} из {{total}} дней выполнено, текущая серия {{count}} дней",
+    "summary_week_one": "{{satisfied}} из {{total}} недель выполнено, текущая серия {{count}} неделя",
+    "summary_week_few": "{{satisfied}} из {{total}} недель выполнено, текущая серия {{count}} недели",
+    "summary_week_many": "{{satisfied}} из {{total}} недель выполнено, текущая серия {{count}} недель",
+    "summary_week_other": "{{satisfied}} из {{total}} недель выполнено, текущая серия {{count}} недель"
+  },
+  "empty": {
+    "title": "Отслеживайте то, что делаете часто",
+    "description": "Начните с одной — чтение, прогулки, вода."
+  },
+  "error": {
+    "retry": "Попробовать снова",
+    "title": "Привычки не загрузились",
+    "description": "Что-то пошло не так на нашей стороне. Попробуйте снова."
+  },
+  "toast": {
+    "checkInFailed": "Отметка не сохранилась. Попробуйте снова.",
+    "milestone_day_one": "Серия {{count}} день!",
+    "milestone_day_few": "Серия {{count}} дня!",
+    "milestone_day_many": "Серия {{count}} дней!",
+    "milestone_day_other": "Серия {{count}} дней!",
+    "milestone_week_one": "Серия {{count}} неделя!",
+    "milestone_week_few": "Серия {{count}} недели!",
+    "milestone_week_many": "Серия {{count}} недель!",
+    "milestone_week_other": "Серия {{count}} недель!"
+  },
+  "subject": {
+    "reading": "Чтение",
+    "exercise": "Тренировка",
+    "running": "Бег",
+    "walking": "Ходьба",
+    "stretching": "Растяжка",
+    "meditation": "Медитация",
+    "hydration": "Вода",
+    "nutrition": "Питание",
+    "sleep": "Сон",
+    "journaling": "Дневник",
+    "gratitude": "Благодарность",
+    "study": "Учёба",
+    "language": "Язык",
+    "coding": "Программирование",
+    "music": "Музыка",
+    "savings": "Сбережения",
+    "tidying": "Уборка",
+    "screenTime": "Экранное время",
+    "quitSmoking": "Бросить курить",
+    "quitDrinking": "Бросить алкоголь",
+    "quitSugar": "Бросить сахар",
+    "custom": "Своё"
+  },
+  "form": {
+    "createTitle": "Создать привычку",
+    "editTitle": "Изменить привычку",
+    "name": "Название",
+    "subject": "Тема",
+    "target": "Цель",
+    "unit": "Единица",
+    "unitPlaceholder": "минуты, страницы…",
+    "schedule": "Расписание",
+    "timesPerWeek": "раз в неделю",
+    "noDays": "Выберите хотя бы один день",
+    "polarity": "Тип",
+    "polarityBuild": "Развивать",
+    "polarityQuit": "Бросить",
+    "polarityImmutable": "Тип нельзя изменить. Чтобы сменить, отправьте привычку в архив и создайте новую.",
+    "kind": {
+      "daily": "Ежедневно",
+      "weekdays": "Дни",
+      "quota": "Еженедельно"
+    },
+    "errors": {
+      "nameRequired": "Назовите привычку",
+      "nameTooLong": "Название не более 255 символов",
+      "targetNegative": "Цель не может быть отрицательной",
+      "targetZeroOnBuild": "Укажите цель не меньше 1",
+      "weekdaysRequired": "Выберите хотя бы один день",
+      "saveFailed": "Привычка не сохранилась. Попробуйте снова.",
+      "planLimit": "Бесплатный план включает 3 активные привычки. Архивируйте одну или перейдите на Pro."
+    }
+  },
+  "strip": {
+    "label": "Привычки на сегодня",
+    "allDone": "Все привычки на сегодня выполнены"
+  }
+}

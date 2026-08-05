@@ -144,19 +144,19 @@ describe('todayProgress', () => {
 
 describe('scheduleSummary', () => {
   it('describes a daily habit', () => {
-    expect(scheduleSummary(makeHabit({ scheduleKind: 'daily' }))).toEqual({ key: 'habits.schedule.daily' });
+    expect(scheduleSummary(makeHabit({ scheduleKind: 'daily' }))).toEqual({ key: 'schedule.daily' });
   });
 
   it('describes named weekdays', () => {
     const habit = makeHabit({ scheduleKind: 'weekdays', byWeekday: [1, 3, 5] });
 
-    expect(scheduleSummary(habit)).toEqual({ key: 'habits.schedule.weekdays', days: [1, 3, 5] });
+    expect(scheduleSummary(habit)).toEqual({ key: 'schedule.weekdays', days: [1, 3, 5] });
   });
 
   it('describes a weekly quota', () => {
     const habit = makeHabit({ scheduleKind: 'weekly_quota', timesPerWeek: 3 });
 
-    expect(scheduleSummary(habit)).toEqual({ key: 'habits.schedule.quota', count: 3 });
+    expect(scheduleSummary(habit)).toEqual({ key: 'schedule.quota', count: 3 });
   });
 });
 

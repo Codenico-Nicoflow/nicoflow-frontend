@@ -20,7 +20,7 @@ describe('BottomNav', () => {
   it('splits the destinations into four primary cells and an overflow group', () => {
     expect(PRIMARY_DESTINATIONS).toHaveLength(4);
     expect(PRIMARY_DESTINATIONS.map(d => d.id)).toEqual(['inbox', 'today', 'areas', 'calendar']);
-    expect(OVERFLOW_DESTINATIONS.map(d => d.id)).toEqual(['focus', 'ai']);
+    expect(OVERFLOW_DESTINATIONS.map(d => d.id)).toEqual(['focus', 'ai', 'habits']);
     expect(PRIMARY_DESTINATIONS.length + OVERFLOW_DESTINATIONS.length).toBe(NAV_DESTINATIONS.length);
   });
 

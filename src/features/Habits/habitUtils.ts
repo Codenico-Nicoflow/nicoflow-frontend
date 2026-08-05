@@ -143,6 +143,26 @@ export const scheduleSummary = (habit: IHabit): ScheduleSummary => {
   return { key: 'schedule.daily' };
 };
 
+// How far back a day habit may be corrected. Mirrors the server's window
+// (NIC-1924); the server remains authoritative and will reject anything older,
+// this only decides which cells are drawn as controls rather than as history.
+export const BACKFILL_DAYS = 7;
+
+// The dates a habit's ribbon will accept a toggle on.
+//
+// Quota habits get an EMPTY set: their cells are weeks, and "2 of 3" has no one
+// day a tap could mean. They keep a read-only ribbon rather than an ambiguous
+// interactive one.
+export const editableCellDates = (habit: IHabit, cells: IHabitCell[]): Set<string> => {
+  if (habit.scheduleKind === HabitScheduleKind.WEEKLY_QUOTA) return new Set();
+
+  // Cells arrive oldest-first, so the window is the tail. Working from the
+  // rendered cells rather than from today's date keeps this in step with
+  // whatever window the server actually sent.
+  const recent = cells.slice(-(BACKFILL_DAYS + 1));
+  return new Set(recent.filter(c => c.scheduled).map(c => c.date));
+};
+
 // Streak milestones worth celebrating. Deliberately sparse: a celebration that
 // fires every day stops being one within a week, and it delays the next tap.
 export const STREAK_MILESTONES = [7, 30, 100, 365] as const;

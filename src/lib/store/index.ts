@@ -199,13 +199,14 @@ export type { CreateNoteRequest, ListNotesRequest, UpdateNoteRequest } from './s
 // Habit exports (E-055)
 export { habitApi } from './slices/habit/habitApi';
 export {
+  useArchiveHabitMutation,
   useCheckInMutation,
   useCreateHabitMutation,
-  useDeleteHabitMutation,
   useGetHabitQuery,
   useGetHabitsQuery,
   useGetHabitsTodayQuery,
   useGetHabitSubjectsQuery,
+  useRestoreHabitMutation,
   useUndoCheckInMutation,
   useUpdateHabitMutation,
 } from './slices/habit/habitApi';

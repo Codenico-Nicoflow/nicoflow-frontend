@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '@/components/ui/button';
 import type { IHabit, IHabitCell } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -12,8 +13,10 @@ import { HabitRing } from './HabitRing';
 
 export interface HabitCardProps {
   habit: IHabit;
+  /** Overrides the habit's own window; the list read already carries one. */
   cells?: IHabitCell[];
   onOpen?: (id: string) => void;
+  onRestore?: (id: string) => void;
 }
 
 // One habit: ring, identity, streak, ribbon.
@@ -21,9 +24,13 @@ export interface HabitCardProps {
 // Everything except the ribbon is deliberately quiet. The ribbon is where this
 // feature spends its one budget of visual boldness, and a card that also shouted
 // its streak in a gradient numeral would compete with it.
-export const HabitCard = ({ habit, cells = [], onOpen }: HabitCardProps) => {
+export const HabitCard = ({ habit, cells, onOpen, onRestore }: HabitCardProps) => {
   const { t } = useTranslation('habits');
   const { toggle, isChecked, isPending } = useHabitCheckIn(habit);
+
+  // The list read carries its own short window, so a card draws a ribbon
+  // without anyone threading cells down to it.
+  const ribbonCells = cells ?? habit.cells ?? [];
 
   const checkable = isCheckable(habit);
   const offSchedule = isOffSchedule(habit);
@@ -100,13 +107,24 @@ export const HabitCard = ({ habit, cells = [], onOpen }: HabitCardProps) => {
         </span>
       </div>
 
-      {cells.length > 0 ? (
+      {ribbonCells.length > 0 ? (
         <HabitRibbon
-          cells={cells}
+          cells={ribbonCells}
           streakUnit={habit.streakUnit}
           currentStreak={habit.currentStreak}
           data-testid={`habit-ribbon-${habit.id}`}
         />
+      ) : null}
+
+      {habit.archivedAt ? (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void onRestore?.(habit.id)}
+          data-testid={`habit-restore-${habit.id}`}
+        >
+          {t('segments.restore')}
+        </Button>
       ) : null}
     </article>
   );

@@ -13,11 +13,13 @@ interface SortableTaskItemProps {
   index: number;
   onEdit: (task: ITask) => void;
   onDelete: (taskId: string) => void;
+  /** Fired when the checkbox flips the status, so a filtered list can keep the row. */
+  onStatusToggle?: (taskId: string) => void;
 }
 
 // Sortable wrapper around TaskItem: dnd-kit transform lives on this outer div,
 // drag starts only from the grip handle so the checkbox/menu stay clickable.
-const SortableTaskItem = ({ task, index, onEdit, onDelete }: SortableTaskItemProps) => {
+const SortableTaskItem = ({ task, index, onEdit, onDelete, onStatusToggle }: SortableTaskItemProps) => {
   const { t } = useTranslation('task');
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
 
@@ -32,6 +34,7 @@ const SortableTaskItem = ({ task, index, onEdit, onDelete }: SortableTaskItemPro
         index={index}
         onEdit={onEdit}
         onDelete={onDelete}
+        onStatusToggle={onStatusToggle}
         dragHandle={
           <button
             type="button"

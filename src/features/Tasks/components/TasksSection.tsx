@@ -20,7 +20,7 @@ import { useGetTasksQuery, useReorderTaskMutation } from '@/lib/store';
 import type { ITask, TaskEnergy } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
-import { countTasks, defaultTaskFilter, matchesFilter, type TaskFilter } from '../filters';
+import { countTasks, defaultTaskFilter, matchesFilter, TASK_FILTER, type TaskFilter } from '../filters';
 import TasksEmptyState from '../states/TasksEmptyState';
 import TasksLoadingState from '../states/TasksLoadingState';
 
@@ -57,9 +57,8 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
   const [selectedTask, setSelectedTask] = useState<ITask | undefined>(undefined);
   const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
 
-  // null = untouched, so the filter follows the default until the user picks one.
-  // Derived rather than set from an effect: the list arrives async, and seeding
-  // state on arrival would flash All before snapping to Inbox.
+  // null = untouched, so the filter follows the landing default below until the
+  // user picks one.
   const [pickedFilter, setPickedFilter] = useState<TaskFilter | null>(null);
   const [activeEnergy, setActiveEnergy] = useState<TaskEnergy | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -86,10 +85,29 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
   }, [editTaskIdFromNav, location.key, tasks, isLoadingTasks]);
 
   const taskCounts = useMemo(() => countTasks(tasks), [tasks]);
-  const activeFilter = pickedFilter ?? defaultTaskFilter(taskCounts);
+  // Latched on the first loaded list: the default is a landing choice, and
+  // re-deriving it every render would move the filter under the user as counts
+  // change — completing the last inbox task would silently switch them to All.
+  const landingFilter = useRef<TaskFilter | null>(null);
+  if (landingFilter.current === null && !isLoadingTasks) {
+    landingFilter.current = defaultTaskFilter(taskCounts);
+  }
+  const activeFilter = pickedFilter ?? landingFilter.current ?? TASK_FILTER.ALL;
+
+  // Checking a task off changes its status, which under every status filter but
+  // All would drop the row mid-interaction — the completed state it just entered
+  // would never be visible. Tasks toggled here are pinned until the filter
+  // changes, so the strike-through is something the user actually sees.
+  const [pinned, setPinned] = useState<ReadonlySet<string>>(new Set());
+  const pinTask = (taskId: string) => setPinned(current => new Set(current).add(taskId));
+
+  const changeFilter = (next: TaskFilter) => {
+    setPickedFilter(next);
+    setPinned(new Set());
+  };
 
   const filteredTasks = useMemo(() => {
-    let filtered = tasks.filter(task => matchesFilter(task, activeFilter));
+    let filtered = tasks.filter(task => matchesFilter(task, activeFilter) || pinned.has(task.id));
 
     if (activeEnergy !== 'all') {
       filtered = filtered.filter(task => task.energy === activeEnergy);
@@ -102,7 +120,7 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
     }
 
     return [...filtered].sort((a, b) => a.displayOrder - b.displayOrder);
-  }, [tasks, activeFilter, activeEnergy, debouncedSearch]);
+  }, [tasks, activeFilter, activeEnergy, debouncedSearch, pinned]);
 
   const handleAddTask = () => {
     setSelectedTask(undefined);
@@ -156,7 +174,7 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
               </div>
               <TaskFilters
                 activeFilter={activeFilter}
-                onFilterChange={setPickedFilter}
+                onFilterChange={changeFilter}
                 activeEnergy={activeEnergy}
                 onEnergyChange={setActiveEnergy}
                 taskCounts={taskCounts}
@@ -174,6 +192,7 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
                         index={index}
                         onEdit={handleEditTask}
                         onDelete={handleDeleteTask}
+                        onStatusToggle={pinTask}
                       />
                     ))}
                   </div>

@@ -1,7 +1,15 @@
 /// <reference types="node" />
-import { expect, request as playwrightRequest, test } from '@playwright/test';
+import { expect, type Page, request as playwrightRequest, test } from '@playwright/test';
 
 import { bestEffortDelete, getToken, LIVE, PROJECT_SENTINEL, resolveProjectId, uniqueSuffix } from './helpers/e2e-live';
+
+// The project page opens on Tasks. Both panels stay mounted, so the notes
+// controls are in the DOM but hidden until the tab is selected — reach them the
+// way a user does rather than by querying past the tab.
+const openNotesTab = async (page: Page) => {
+  await page.getByTestId('project-tab-notes').click();
+  await expect(page.getByTestId('notes-create')).toBeVisible();
+};
 
 // @core Project Notes — the loop that proves the feature end to end: create a
 // note from the project page, type a title and formatted body, then reload and
@@ -26,6 +34,7 @@ test.describe('@core Project Notes (live)', () => {
       );
       await page.goto(`/projects/${projectId}`);
       await listed;
+      await openNotesTab(page);
 
       const created = page.waitForResponse(
         response => response.url().endsWith('/v1/notes') && response.request().method() === 'POST'
@@ -81,6 +90,7 @@ test.describe('@core Project Notes (live)', () => {
       );
       await page.goto(`/projects/${projectId}`);
       await listed;
+      await openNotesTab(page);
 
       const created = page.waitForResponse(
         response => response.url().endsWith('/v1/notes') && response.request().method() === 'POST'
@@ -102,6 +112,9 @@ test.describe('@core Project Notes (live)', () => {
       await deleted;
 
       await expect(page).toHaveURL(new RegExp(`/projects/${projectId}$`));
+      // Back on the project page, which opens on Tasks — assert the absence on
+      // the Notes tab, or it holds whether or not the delete worked.
+      await openNotesTab(page);
       await expect(page.getByText(title)).toHaveCount(0);
       noteId = undefined;
     } finally {

@@ -9,10 +9,12 @@ import { todayProgress } from '../habitUtils';
 // Geometry for the progress ring. A stroke-dasharray sweep rather than a
 // conic-gradient so the fill animates smoothly and inherits currentColor in
 // both themes without a second set of tokens.
+// The board's ring is a primary control and sized like one. The Today strip
+// runs several across a narrow row above the task list, where that weight reads
+// as clutter, so it takes the compact size instead.
 const SIZE = 44;
+const COMPACT_SIZE = 32;
 const STROKE = 4;
-const RADIUS = (SIZE - STROKE) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export interface HabitRingProps {
   habit: IHabit;
@@ -25,6 +27,8 @@ export interface HabitRingProps {
    */
   checked: boolean;
   onToggle: () => void;
+  /** Smaller ring for dense rows like the Today strip. */
+  compact?: boolean;
   'data-testid'?: string;
 }
 
@@ -33,7 +37,11 @@ export interface HabitRingProps {
 // A binary habit (target 1) renders as a checkbox; a counted one renders as a
 // ring filled to today's fraction. Same component, same tap target — the target
 // value decides the skin, so counts never needed a second control.
-export const HabitRing = ({ habit, disabled = false, checked, onToggle, ...rest }: HabitRingProps) => {
+export const HabitRing = ({ habit, disabled = false, checked, onToggle, compact = false, ...rest }: HabitRingProps) => {
+  const size = compact ? COMPACT_SIZE : SIZE;
+  const radius = (size - STROKE) / 2;
+  const circumference = 2 * Math.PI * radius;
+
   const { t } = useTranslation('habits');
 
   // A period habit counts toward a target across the week, so "logged today" and
@@ -81,19 +89,19 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, ...rest 
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-accent'
       )}
-      style={{ width: SIZE, height: SIZE }}
+      style={{ width: size, height: size }}
     >
-      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true" className="-rotate-90">
-        <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" strokeWidth={STROKE} className="stroke-muted" />
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={STROKE} className="stroke-muted" />
         <circle
-          cx={SIZE / 2}
-          cy={SIZE / 2}
-          r={RADIUS}
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
           fill="none"
           strokeWidth={STROKE}
           strokeLinecap="round"
-          strokeDasharray={CIRCUMFERENCE}
-          strokeDashoffset={CIRCUMFERENCE * (1 - progress)}
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference * (1 - progress)}
           className={cn(
             'stroke-primary',
             // Motion is confined to the moment of completion, and it is the one
@@ -107,13 +115,19 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, ...rest 
 
       <span className="absolute grid place-items-center">
         {done ? (
-          <Check className="h-5 w-5 text-primary" aria-hidden="true" data-testid="habit-ring-check" />
+          <Check
+            className={cn(compact ? 'h-4 w-4' : 'h-5 w-5', 'text-primary')}
+            aria-hidden="true"
+            data-testid="habit-ring-check"
+          />
         ) : isBinary ? null : (
           <span className="text-[11px] font-medium tabular-nums text-muted-foreground" data-testid="habit-ring-count">
             {countLabel}
           </span>
         )}
-        {disabled && !done ? <Minus className="h-4 w-4 text-muted-foreground" aria-hidden="true" /> : null}
+        {disabled && !done ? (
+          <Minus className={cn(compact ? 'h-3 w-3' : 'h-4 w-4', 'text-muted-foreground')} aria-hidden="true" />
+        ) : null}
       </span>
     </button>
   );

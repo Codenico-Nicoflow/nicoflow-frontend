@@ -123,7 +123,9 @@
   },
   "strip": {
     "label": "הרגלים להיום",
-    "allDone": "כל ההרגלים להיום הושלמו"
+    "allDone": "כל ההרגלים להיום הושלמו",
+    "notYet": "טרם התחיל",
+    "periodProgress": "{{current}} מתוך {{target}} השבוע"
   },
   "segments": {
     "label": "מצב הרגל",

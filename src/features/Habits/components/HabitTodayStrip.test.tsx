@@ -148,6 +148,59 @@ describe('HabitTodayStrip', () => {
     await waitFor(() => expect(undone).toBe(true));
   });
 
+  // Without a heading the cards read as debris floating above the task list
+  // rather than as a labelled zone of their own.
+  it('labels the row', async () => {
+    withHabits([makeHabit({ id: 'h1', name: 'Read' })]);
+
+    renderComponent(<HabitTodayStrip />);
+
+    expect(await screen.findByRole('heading', { name: /habits due today/i })).toBeInTheDocument();
+  });
+
+  // Cards sized by their own text turned the row into mismatched fragments, and
+  // a subtitle that appeared only above zero made some cards taller than
+  // others. Both are layout bugs a snapshot would not catch.
+  it('keeps every card the same width and height', async () => {
+    withHabits([
+      makeHabit({ id: 'h1', name: 'Run', currentStreak: 0 }),
+      makeHabit({ id: 'h2', name: 'A much longer habit name', currentStreak: 9 }),
+    ]);
+
+    renderComponent(<HabitTodayStrip />);
+
+    const first = await screen.findByTestId('habit-strip-item-h1');
+    const second = screen.getByTestId('habit-strip-item-h2');
+
+    expect(first.className).toContain('w-44');
+    expect(second.className).toContain('w-44');
+    // Both carry the subtitle slot, so neither is shorter than the other.
+    expect(first.querySelector('.h-4')).not.toBeNull();
+    expect(second.querySelector('.h-4')).not.toBeNull();
+  });
+
+  // A quota habit at 2 of 3 has a streak of 0 because the WEEK is unmet, so
+  // falling back to "not started" would tell the user something false about
+  // work they have already done.
+  it('shows weekly progress rather than a streak for a quota habit', async () => {
+    withHabits([
+      makeHabit({
+        id: 'h1',
+        name: 'Gym',
+        scheduleKind: 'weekly_quota',
+        timesPerWeek: 3,
+        streakUnit: 'week',
+        currentStreak: 0,
+        periodProgress: { current: 2, target: 3 },
+      }),
+    ]);
+
+    renderComponent(<HabitTodayStrip />);
+
+    expect(await screen.findByText('2 of 3 this week')).toBeInTheDocument();
+    expect(screen.queryByText(/not started/i)).not.toBeInTheDocument();
+  });
+
   // The strip is a five-second ritual; history belongs on the habits page where
   // there is room to read it.
   it('omits the ribbon', async () => {
@@ -159,9 +212,16 @@ describe('HabitTodayStrip', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
-  it('shows a skeleton while loading rather than an empty gap', () => {
+  // A skeleton narrower or shorter than the real row makes the layout jump when
+  // the data lands — invisible against a local API answering in milliseconds,
+  // obvious against a real one.
+  it('shows a skeleton matching the real row rather than an empty gap', () => {
     renderComponent(<HabitTodayStrip />);
 
-    expect(screen.getByTestId('habit-strip-loading')).toBeInTheDocument();
+    const loading = screen.getByTestId('habit-strip-loading');
+    expect(loading).toBeInTheDocument();
+    expect(loading).toHaveAttribute('aria-busy', 'true');
+    // Same card width as StripItem, so nothing shifts sideways on arrival.
+    expect(loading.querySelector('.w-44')).not.toBeNull();
   });
 });

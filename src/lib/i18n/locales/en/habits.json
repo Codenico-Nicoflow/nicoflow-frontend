@@ -115,7 +115,9 @@
   },
   "strip": {
     "label": "Habits due today",
-    "allDone": "All habits done for today"
+    "allDone": "All habits done for today",
+    "notYet": "Not started",
+    "periodProgress": "{{current}} of {{target}} this week"
   },
   "segments": {
     "label": "Habit status",

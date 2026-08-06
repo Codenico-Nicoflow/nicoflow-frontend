@@ -79,6 +79,11 @@ export const CalendarCard = () => {
               ))}
             </SelectContent>
           </Select>
+          {/* This setting is filed under Calendar but no longer only affects it:
+              weekly habit goals are scored against the same boundary, so moving
+              it moves when a "3x a week" habit resets. Said here rather than
+              left for the user to infer from a shifted streak. */}
+          <p className="text-xs text-muted-foreground">{t('pages.settings.calendar.weekStartHint')}</p>
         </div>
 
         <div className="flex flex-col gap-2">

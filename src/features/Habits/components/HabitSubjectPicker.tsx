@@ -18,6 +18,15 @@ export interface HabitSubjectPickerProps {
 // Subjects are cosmetic — picking one changes the card's icon and nothing else.
 // It must never alter the schedule, target or unit, or the picker stops being a
 // decoration and becomes a hidden second form.
+// The server sends a namespace-qualified key ("habits.subject.reading") while
+// t() is already bound to that namespace, so the prefix has to come off or the
+// lookup becomes habits.habits.subject.* and renders the raw key.
+//
+// Stripping rather than un-binding keeps the typed-key checking: an unbound
+// t() would take any string and lose the compile-time guarantee that the key
+// exists at all.
+const subjectKey = (labelKey: string) => labelKey.replace(/^habits\./, '') as 'subject.custom';
+
 export const HabitSubjectPicker = ({ control }: HabitSubjectPickerProps) => {
   const { t } = useTranslation('habits');
   const { data: subjects, isLoading } = useGetHabitSubjectsQuery();
@@ -47,8 +56,8 @@ export const HabitSubjectPicker = ({ control }: HabitSubjectPickerProps) => {
                 type="button"
                 onClick={() => field.onChange(subject.slug)}
                 aria-pressed={selected}
-                aria-label={t(subject.labelKey as 'subject.custom')}
-                title={t(subject.labelKey as 'subject.custom')}
+                aria-label={t(subjectKey(subject.labelKey))}
+                title={t(subjectKey(subject.labelKey))}
                 data-testid={`habit-subject-${subject.slug}`}
                 className={cn(
                   'grid h-10 cursor-pointer place-items-center rounded-md border transition-colors',

@@ -176,6 +176,26 @@ describe('HabitFormDialog', () => {
     await waitFor(() => expect(patched).toBe(true));
   });
 
+  // The server sends a namespace-qualified key ("habits.subject.reading") while
+  // t() is bound to that namespace, so the prefix has to come off — otherwise
+  // every tile renders the raw key instead of a word. Caught in a browser, not
+  // by a test, which is why there is one now.
+  it('translates subject labels rather than printing the raw key', async () => {
+    server.use(
+      http.get(`${API}/habits/subjects`, () =>
+        HttpResponse.json({
+          data: [{ slug: 'reading', labelKey: 'habits.subject.reading' }],
+          error: null,
+        })
+      )
+    );
+
+    renderComponent(<HabitFormDialog open onOpenChange={vi.fn()} />);
+
+    expect(await screen.findByRole('button', { name: 'Reading' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^habits\./ })).not.toBeInTheDocument();
+  });
+
   // The catalog is served, so a build can meet a slug it has never seen. It must
   // render a fallback icon rather than a blank cell.
   it('renders an unknown subject slug with a fallback icon', async () => {

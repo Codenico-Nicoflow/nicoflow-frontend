@@ -36,11 +36,27 @@ export interface HabitRingProps {
 export const HabitRing = ({ habit, disabled = false, checked, onToggle, ...rest }: HabitRingProps) => {
   const { t } = useTranslation('habits');
 
-  const done = checked;
-  // A checked ring is always full, even mid-request: the sweep is the echo of
-  // the user's own tap, so it must not wait for the server to agree.
-  const progress = checked ? 1 : todayProgress(habit);
-  const isBinary = habit.targetValue <= 1 && habit.periodProgress === null;
+  // A period habit counts toward a target across the week, so "logged today" and
+  // "finished" are different states and only the second earns a checkmark.
+  // Conflating them made a 3x-a-week habit flash 1 -> tick -> 0 on every tap:
+  // the tick replaced the count, then the refetch put the count back.
+  const period = habit.periodProgress;
+  const done = period ? period.current >= period.target : checked;
+
+  // Optimistic, but only by one step. Filling the whole ring on tap would show a
+  // 1-of-3 habit as complete; advancing one unit is what the tap actually did.
+  const optimisticProgress = period
+    ? Math.min(1, (period.current + (checked && !habit.loggedToday ? 1 : 0)) / Math.max(1, period.target))
+    : 1;
+  const progress = checked ? optimisticProgress : todayProgress(habit);
+
+  // Only a habit with no period and a target of one is a pure checkbox; anything
+  // that accumulates shows its number.
+  const isBinary = habit.targetValue <= 1 && period === null;
+
+  // What the slot shows when the habit is not finished: a period's running
+  // count, or a counted day habit's value.
+  const countLabel = period ? period.current + (checked && !habit.loggedToday ? 1 : 0) : habit.todayValue;
 
   // The label names the habit and its state, because an icon-only control tells
   // a screen reader nothing about which habit it belongs to.
@@ -93,8 +109,8 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, ...rest 
         {done ? (
           <Check className="h-5 w-5 text-primary" aria-hidden="true" data-testid="habit-ring-check" />
         ) : isBinary ? null : (
-          <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
-            {habit.periodProgress ? habit.periodProgress.current : habit.todayValue}
+          <span className="text-[11px] font-medium tabular-nums text-muted-foreground" data-testid="habit-ring-count">
+            {countLabel}
           </span>
         )}
         {disabled && !done ? <Minus className="h-4 w-4 text-muted-foreground" aria-hidden="true" /> : null}

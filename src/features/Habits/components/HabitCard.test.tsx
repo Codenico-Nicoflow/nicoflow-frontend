@@ -199,7 +199,10 @@ describe('HabitCard', () => {
     await waitFor(() => expect(undoCalled).toBe(true));
   });
 
-  it('shows a quota habit logged today as checked', () => {
+  // A quota habit at 1 of 3 is logged but NOT finished, so the ring shows the
+  // running count rather than a checkmark. Asserting "pressed" here was the
+  // conflation that made the count flash 1 -> tick -> 0 on every tap.
+  it('shows a quota habit logged today as a running count, not a checkmark', () => {
     renderComponent(
       <HabitCard
         habit={makeHabit({
@@ -212,7 +215,26 @@ describe('HabitCard', () => {
       />
     );
 
+    expect(screen.getByTestId('habit-ring-habit-1')).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByTestId('habit-ring-count')).toHaveTextContent('1');
+    expect(screen.queryByTestId('habit-ring-check')).not.toBeInTheDocument();
+  });
+
+  it('shows a checkmark once the quota week is met', () => {
+    renderComponent(
+      <HabitCard
+        habit={makeHabit({
+          scheduleKind: 'weekly_quota',
+          timesPerWeek: 3,
+          periodProgress: { current: 3, target: 3 },
+          loggedToday: true,
+          completedToday: true,
+        })}
+      />
+    );
+
     expect(screen.getByTestId('habit-ring-habit-1')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('habit-ring-check')).toBeInTheDocument();
   });
 
   // Dimming answers "is there work here today", which a finished habit no longer

@@ -61,7 +61,8 @@
   "actions": {
     "edit": "עריכת משימה",
     "delete": "מחיקת משימה",
-    "moveToSomeday": "העברה ל'מתישהו'"
+    "moveToSomeday": "העברה ל'מתישהו'",
+    "complete": "סימון {{title}} כהושלמה"
   },
   "status": {
     "todo": "לביצוע",

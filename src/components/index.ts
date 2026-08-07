@@ -31,6 +31,8 @@ export { defaultRecurrence, todayISO } from './RecurrenceField/types';
 export { ScheduledForField } from './ScheduledForField';
 export { ScheduledTimeField } from './ScheduledTimeField';
 export { StatusField } from './StatusField';
+export type { TaskCompleteCheckboxHandle, TaskCompleteCheckboxProps } from './TaskCompleteCheckbox';
+export { TaskCompleteCheckbox } from './TaskCompleteCheckbox';
 export { ThemeProvider, useTheme } from './ThemeProvider';
 export { Timestamp } from './Timestamp';
 export { Toaster } from './Toaster';

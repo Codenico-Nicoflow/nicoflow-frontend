@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useMemo } from 'react';
 
 import { format } from 'date-fns';
@@ -5,8 +6,9 @@ import { CalendarClock, CalendarX, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import { ItemActionsMenu, ListItemCard } from '@/components';
-import { Checkbox } from '@/components/ui/checkbox';
+import type { TaskCompleteCheckboxHandle } from '@/components';
+import { ItemActionsMenu, ListItemCard, TaskCompleteCheckbox } from '@/components';
+import { needsCompletionConfirm } from '@/features/Tasks/completionGuard';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
 import { useConfirmComplete } from '@/features/Tasks/useConfirmComplete';
 import { useScheduleTaskMutation, useUpdateTaskStatusMutation } from '@/lib/store';
@@ -25,6 +27,7 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
   const [updateStatus] = useUpdateTaskStatusMutation();
   const [scheduleTask] = useScheduleTaskMutation();
   const { guardComplete, confirmDialog } = useConfirmComplete();
+  const checkboxRef = React.useRef<TaskCompleteCheckboxHandle>(null);
   const isCompleted = task.status === TaskStatus.DONE;
 
   const shownActions = useMemo(() => {
@@ -62,7 +65,10 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
 
   const toggle = () => {
     const next = isCompleted ? TaskStatus.ACTIVE : TaskStatus.DONE;
-    guardComplete(task, next, () => run(updateStatus({ id: task.id, status: next }).unwrap()));
+    guardComplete(task, next, () => {
+      checkboxRef.current?.playCompleteAnimation();
+      return run(updateStatus({ id: task.id, status: next }).unwrap());
+    });
   };
 
   // The whole card edits the task; the actions menu and checkbox stopPropagation
@@ -73,6 +79,9 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
       onEdit(task);
     }
   };
+
+  // Gate fires only on completing with open subtasks — never on uncompleting.
+  const willDefer = needsCompletionConfirm(task, TaskStatus.DONE) && !isCompleted;
 
   return (
     <>
@@ -111,14 +120,14 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
               <Pencil className="h-4 w-4" aria-hidden />
             </button>
             <ItemActionsMenu actions={shownActions} />
-            <Checkbox
-              className="scale-100 sm:scale-125 cursor-pointer transition-all"
-              data-testid={`timespread-checkbox-${task.id}`}
+            <TaskCompleteCheckbox
+              ref={checkboxRef}
               checked={isCompleted}
-              onClick={e => {
-                e.stopPropagation();
-                void toggle();
-              }}
+              onToggle={toggle}
+              deferAnimation={willDefer}
+              size="sm"
+              aria-label={t('actions.complete', { title: task.title })}
+              data-testid={`timespread-checkbox-${task.id}`}
             />
           </div>
         </div>

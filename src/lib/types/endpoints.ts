@@ -121,6 +121,7 @@ export const AI_API = {
   SESSION: '/ai/sessions/', // + id (GET detail · DELETE)
   USAGE: '/ai/usage', // GET quota state
   MESSAGES: (id: string) => `/ai/sessions/${id}/messages`, // POST send (SSE over POST)
+  TOOL_CALLS: (sessionId: string) => `/ai/sessions/${sessionId}/tool-calls`, // GET ?status=pending
 };
 
 export const GOOGLE_CALENDAR_API = {

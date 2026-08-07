@@ -52,5 +52,13 @@
   "disabled": {
     "title": "The AI assistant is unavailable",
     "description": "This feature is currently switched off. Please check back later."
+  },
+  "toolProposal": {
+    "confirm": "Confirm",
+    "reject": "Reject",
+    "applied": "Applied",
+    "rejected": "Rejected",
+    "executing": "Applying…",
+    "alreadyResolved": "Already resolved"
   }
 }

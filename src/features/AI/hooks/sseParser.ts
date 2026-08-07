@@ -13,7 +13,7 @@ const FRAME_DELIMITER = '\n\n';
 const isStreamEvent = (value: unknown): value is AIStreamEvent => {
   if (!value || typeof value !== 'object') return false;
   const type = (value as { type?: unknown }).type;
-  return type === 'delta' || type === 'done' || type === 'error';
+  return type === 'delta' || type === 'done' || type === 'error' || type === 'tool_proposal';
 };
 
 // parseFrame extracts the event from one complete frame's text (the chars between

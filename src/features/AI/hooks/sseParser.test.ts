@@ -35,4 +35,23 @@ describe('SSEParser', () => {
     const parser = new SSEParser();
     expect(parser.feed(frame({ type: 'mystery' }))).toEqual([]);
   });
+
+  it('parses a tool_proposal frame into the typed event', () => {
+    const parser = new SSEParser();
+    const proposal = {
+      type: 'tool_proposal',
+      toolUseId: 'toolu_abc',
+      toolName: 'complete_task',
+      input: { taskId: 'task-1' },
+      assistantMessageId: 'msg-1',
+    };
+    const events = parser.feed(frame(proposal));
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject(proposal);
+  });
+
+  it('swallows a malformed tool_proposal frame (missing type field) the same as any unknown frame', () => {
+    const parser = new SSEParser();
+    expect(parser.feed(frame({ toolUseId: 'toolu_x', toolName: 'complete_task' }))).toEqual([]);
+  });
 });

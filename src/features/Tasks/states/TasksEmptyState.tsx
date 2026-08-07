@@ -19,7 +19,7 @@ const TasksEmptyState = ({ onAddTask }: TasksEmptyStateProps) => {
       transition={{ duration: 0.5, delay: 0.3 }}
     >
       <Card className="border-dashed border-2 border-muted-foreground/25 bg-gradient-to-br from-muted/20 to-muted/10">
-        <CardContent className="p-12 text-center">
+        <CardContent className="p-6 sm:p-12 text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -50,7 +50,7 @@ const TasksEmptyState = ({ onAddTask }: TasksEmptyStateProps) => {
             <Button
               onClick={onAddTask}
               size="lg"
-              className="bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
             >
               <Plus className="h-5 w-5 me-2" />
               {t('empty.createFirstTask')}

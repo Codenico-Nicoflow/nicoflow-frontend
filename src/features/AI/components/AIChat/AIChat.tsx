@@ -185,7 +185,12 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
             status={m.status}
             errorCode={m.errorCode}
             streaming={m.role === 'assistant' && m.status === 'streaming'}
-            onRetry={m.role === 'user' && m.status === 'error' ? () => void retry() : undefined}
+            // A failed turn on EITHER side offers retry — the user's own turn
+            // can fail before the request even goes out, and the assistant's
+            // turn can fail mid-stream (e.g. a provider drop) after the user's
+            // half already succeeded. retry() always resends the last user
+            // message regardless of which side actually errored.
+            onRetry={m.status === 'error' ? () => void retry() : undefined}
           />
         );
       })}

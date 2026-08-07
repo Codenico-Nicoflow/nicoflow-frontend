@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import type { TaskCompleteCheckboxHandle } from '@/components';
 import { ItemActionsMenu, ListItemCard, TaskCompleteCheckbox } from '@/components';
 import { needsCompletionConfirm } from '@/features/Tasks/completionGuard';
+import LongPressComplete from '@/features/Tasks/components/LongPressComplete';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
 import { useConfirmComplete } from '@/features/Tasks/useConfirmComplete';
 import { useScheduleTaskMutation, useUpdateTaskStatusMutation } from '@/lib/store';
@@ -85,53 +86,61 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
 
   return (
     <>
-      <ListItemCard
-        variant="default"
-        borderColor="primary"
-        role="button"
-        tabIndex={0}
-        aria-label={t('actions.edit')}
-        data-testid={`timespread-card-${task.id}`}
-        onClick={() => onEdit(task)}
-        onKeyDown={handleKeyDown}
-        className="group cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+      <LongPressComplete
+        onComplete={toggle}
+        disabled={isCompleted}
+        className="relative"
+        data-testid={`timespread-long-press-${task.id}`}
       >
-        <div className={cn('flex items-center gap-2 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
-          <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
-            <h3
-              className={cn(
-                'font-medium text-sm sm:text-base text-foreground leading-snug',
-                isCompleted && 'line-through text-muted-foreground'
-              )}
-            >
-              {task.title}
-            </h3>
-            <TaskBadges task={task} />
-          </div>
+        <ListItemCard
+          variant="default"
+          borderColor="primary"
+          role="button"
+          tabIndex={0}
+          aria-label={t('actions.edit')}
+          data-testid={`timespread-card-${task.id}`}
+          onClick={() => onEdit(task)}
+          onKeyDown={handleKeyDown}
+          className="group cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+        >
+          <div className={cn('flex items-center gap-2 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
+            <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
+              <h3
+                className={cn(
+                  'font-medium text-sm sm:text-base text-foreground leading-snug',
+                  isCompleted && 'line-through text-muted-foreground'
+                )}
+              >
+                {task.title}
+              </h3>
+              <TaskBadges task={task} />
+            </div>
 
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
-            <button
-              type="button"
-              aria-label={t('actions.edit')}
-              data-testid={`timespread-edit-${task.id}`}
-              onClick={() => onEdit(task)}
-              className="hidden rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground cursor-pointer group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
-            >
-              <Pencil className="h-4 w-4" aria-hidden />
-            </button>
-            <ItemActionsMenu actions={shownActions} />
-            <TaskCompleteCheckbox
-              ref={checkboxRef}
-              checked={isCompleted}
-              onToggle={toggle}
-              deferAnimation={willDefer}
-              size="sm"
-              aria-label={t('actions.complete', { title: task.title })}
-              data-testid={`timespread-checkbox-${task.id}`}
-            />
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+              <button
+                type="button"
+                aria-label={t('actions.edit')}
+                data-testid={`timespread-edit-${task.id}`}
+                onClick={() => onEdit(task)}
+                className="hidden rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground cursor-pointer group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
+              >
+                <Pencil className="h-4 w-4" aria-hidden />
+              </button>
+              <ItemActionsMenu actions={shownActions} />
+              <TaskCompleteCheckbox
+                ref={checkboxRef}
+                checked={isCompleted}
+                onToggle={toggle}
+                deferAnimation={willDefer}
+                expandHitArea
+                size="sm"
+                aria-label={t('actions.complete', { title: task.title })}
+                data-testid={`timespread-checkbox-${task.id}`}
+              />
+            </div>
           </div>
-        </div>
-      </ListItemCard>
+        </ListItemCard>
+      </LongPressComplete>
       {confirmDialog}
     </>
   );

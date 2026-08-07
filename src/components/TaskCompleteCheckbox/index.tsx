@@ -24,6 +24,11 @@ export interface TaskCompleteCheckboxProps {
   deferAnimation?: boolean;
   disabled?: boolean;
   size?: 'sm' | 'md';
+  /**
+   * Adds extra padding around the visible checkbox to widen the invisible hit zone.
+   * The visual box stays the same size — only the clickable area grows.
+   */
+  expandHitArea?: boolean;
   'aria-label': string;
   'data-testid'?: string;
   className?: string;
@@ -44,6 +49,7 @@ export const TaskCompleteCheckbox = React.forwardRef<TaskCompleteCheckboxHandle,
       deferAnimation = false,
       disabled = false,
       size = 'md',
+      expandHitArea = false,
       'aria-label': ariaLabel,
       'data-testid': testId,
       className,
@@ -93,7 +99,9 @@ export const TaskCompleteCheckbox = React.forwardRef<TaskCompleteCheckboxHandle,
     const checkboxVariants = buildCheckboxVariants(reducedMotion);
     const checkboxTransition = buildCheckboxTransition(reducedMotion);
 
-    const wrapperPadding = size === 'sm' ? 'p-1.5' : 'p-2';
+    // expandHitArea adds generous invisible padding so more of the row column is
+    // tappable, without changing the visible checkbox box.
+    const wrapperPadding = expandHitArea ? 'p-3' : size === 'sm' ? 'p-1.5' : 'p-2';
     const boxSize = size === 'sm' ? 'size-5' : 'size-6';
 
     return (

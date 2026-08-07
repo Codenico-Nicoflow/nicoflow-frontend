@@ -13,6 +13,7 @@ import { cn, showErrorToast } from '@/lib/utils';
 import { needsCompletionConfirm } from '../completionGuard';
 import { useConfirmComplete } from '../useConfirmComplete';
 
+import LongPressComplete from './LongPressComplete';
 import TaskBadges from './TaskBadges';
 
 interface TaskItemProps {
@@ -74,75 +75,83 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
 
   return (
     <AnimatedListItem index={index}>
-      <ListItemCard
-        variant="default"
-        borderColor="primary"
-        role="button"
-        tabIndex={0}
-        aria-label={t('actions.edit')}
-        data-testid={`task-card-${task.id}`}
-        onClick={() => onEdit(task)}
-        onKeyDown={handleCardKeyDown}
-        className="group cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+      <LongPressComplete
+        onComplete={handleToggle}
+        disabled={isCompleted}
+        className="relative"
+        data-testid={`task-long-press-${task.id}`}
       >
-        <div className={cn('flex items-center gap-1.5 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
-          {dragHandle}
-          <div className="flex-1 w-full space-y-1 sm:space-y-2 min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <h3
-                className={cn(
-                  'font-medium text-sm sm:text-base text-foreground dark:text-foreground leading-snug sm:leading-tight',
-                  isCompleted && 'line-through text-muted-foreground dark:text-muted-foreground'
-                )}
-              >
-                {task.title}
-              </h3>
-              <div className="sm:hidden">
+        <ListItemCard
+          variant="default"
+          borderColor="primary"
+          role="button"
+          tabIndex={0}
+          aria-label={t('actions.edit')}
+          data-testid={`task-card-${task.id}`}
+          onClick={() => onEdit(task)}
+          onKeyDown={handleCardKeyDown}
+          className="group cursor-pointer hover:bg-accent/40 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+        >
+          <div className={cn('flex items-center gap-1.5 sm:gap-3', isCompleted && 'opacity-60 transition-opacity')}>
+            {dragHandle}
+            <div className="flex-1 w-full space-y-1 sm:space-y-2 min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <h3
+                  className={cn(
+                    'font-medium text-sm sm:text-base text-foreground dark:text-foreground leading-snug sm:leading-tight',
+                    isCompleted && 'line-through text-muted-foreground dark:text-muted-foreground'
+                  )}
+                >
+                  {task.title}
+                </h3>
+                <div className="sm:hidden">
+                  <TaskBadges task={task} />
+                </div>
+              </div>
+
+              {task.notes && (
+                <p className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground leading-snug sm:leading-relaxed line-clamp-2">
+                  {task.notes}
+                </p>
+              )}
+
+              <div className="hidden sm:block">
                 <TaskBadges task={task} />
               </div>
             </div>
 
-            {task.notes && (
-              <p className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground leading-snug sm:leading-relaxed line-clamp-2">
-                {task.notes}
-              </p>
-            )}
-
-            <div className="hidden sm:block">
-              <TaskBadges task={task} />
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+              {/* Hover/focus edit shortcut — signals the whole card opens the editor. */}
+              <button
+                type="button"
+                aria-label={t('actions.edit')}
+                data-testid={`task-edit-${task.id}`}
+                onClick={() => onEdit(task)}
+                className="hidden rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground cursor-pointer group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
+              >
+                <Edit className="h-4 w-4" aria-hidden />
+              </button>
+              <ItemActionsMenu
+                actions={[
+                  { label: t('actions.edit'), icon: Edit, onClick: () => onEdit(task) },
+                  { label: t('actions.moveToSomeday'), icon: Moon, onClick: () => void handleMoveToSomeday() },
+                  { label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true },
+                ]}
+              />
+              <TaskCompleteCheckbox
+                ref={checkboxRef}
+                checked={isCompleted}
+                onToggle={handleToggle}
+                deferAnimation={willDefer}
+                expandHitArea
+                size="md"
+                aria-label={t('actions.complete', { title: task.title })}
+                data-testid={`task-checkbox-${task.id}`}
+              />
             </div>
           </div>
-
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
-            {/* Hover/focus edit shortcut — signals the whole card opens the editor. */}
-            <button
-              type="button"
-              aria-label={t('actions.edit')}
-              data-testid={`task-edit-${task.id}`}
-              onClick={() => onEdit(task)}
-              className="hidden rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground cursor-pointer group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
-            >
-              <Edit className="h-4 w-4" aria-hidden />
-            </button>
-            <ItemActionsMenu
-              actions={[
-                { label: t('actions.edit'), icon: Edit, onClick: () => onEdit(task) },
-                { label: t('actions.moveToSomeday'), icon: Moon, onClick: () => void handleMoveToSomeday() },
-                { label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true },
-              ]}
-            />
-            <TaskCompleteCheckbox
-              ref={checkboxRef}
-              checked={isCompleted}
-              onToggle={handleToggle}
-              deferAnimation={willDefer}
-              size="md"
-              aria-label={t('actions.complete', { title: task.title })}
-              data-testid={`task-checkbox-${task.id}`}
-            />
-          </div>
-        </div>
-      </ListItemCard>
+        </ListItemCard>
+      </LongPressComplete>
       {confirmDialog}
     </AnimatedListItem>
   );

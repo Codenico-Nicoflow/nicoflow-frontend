@@ -52,5 +52,13 @@
   "disabled": {
     "title": "עוזר ה‑AI אינו זמין",
     "description": "התכונה כבויה כרגע. נסו שוב מאוחר יותר."
+  },
+  "toolProposal": {
+    "confirm": "אישור",
+    "reject": "דחייה",
+    "applied": "בוצע",
+    "rejected": "נדחה",
+    "executing": "מבצע…",
+    "alreadyResolved": "כבר טופל"
   }
 }

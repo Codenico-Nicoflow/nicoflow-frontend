@@ -61,4 +61,50 @@ export interface AIStreamError {
   code: string;
 }
 
-export type AIStreamEvent = AIStreamDelta | AIStreamDone | AIStreamError;
+// Sent when Claude wants to perform a write action but has NOT executed it.
+// The stream ends after this frame — no `done` follows in the same turn.
+export interface AIStreamToolProposal {
+  type: 'tool_proposal';
+  toolUseId: string;
+  toolName: 'complete_task' | 'reschedule_task' | 'create_task';
+  input: unknown;
+  assistantMessageId: string;
+}
+
+export type AIStreamEvent = AIStreamDelta | AIStreamDone | AIStreamError | AIStreamToolProposal;
+
+// The set of tool names the AI can propose.
+export type AIToolName = AIStreamToolProposal['toolName'];
+
+// A pending tool proposal returned by GET /ai/sessions/:id/tool-calls?status=pending
+// (for rehydrating proposals after a page reload).
+export interface AIPendingToolCall {
+  id: string; // toolUseId
+  toolName: AIToolName;
+  input: unknown;
+  assistantMessageId: string;
+  createdAt: string;
+}
+
+// Status values for a tool proposal turn.
+export type ToolProposalStatus = 'pending_confirm' | 'executing' | 'done' | 'rejected' | 'error';
+
+// A locally-tracked tool proposal turn (lives in useAIStream.pending alongside
+// regular PendingMessage turns). Discriminated by kind === 'tool_proposal'.
+export interface PendingToolProposal {
+  kind: 'tool_proposal';
+  id: string; // toolUseId
+  role: 'assistant';
+  createdAt: string;
+  status: ToolProposalStatus;
+  tool: {
+    name: AIToolName;
+    input: unknown;
+    assistantMessageId: string;
+  };
+  // Set when status === 'error'. The 'already_resolved' value is a distinct
+  // terminal: a 409 CONFLICT means another client already acted, so the card
+  // shows a non-retryable "Already resolved" state instead of a generic error.
+  errorMessage?: string;
+  alreadyResolved?: boolean;
+}

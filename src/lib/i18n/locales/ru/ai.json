@@ -52,5 +52,13 @@
   "disabled": {
     "title": "AI-ассистент недоступен",
     "description": "Функция сейчас отключена. Загляните позже."
+  },
+  "toolProposal": {
+    "confirm": "Подтвердить",
+    "reject": "Отклонить",
+    "applied": "Применено",
+    "rejected": "Отклонено",
+    "executing": "Применяется…",
+    "alreadyResolved": "Уже выполнено"
   }
 }

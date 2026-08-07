@@ -245,6 +245,7 @@ export {
   useGetAISessionQuery,
   useGetAISessionsQuery,
   useGetAIUsageQuery,
+  useListPendingToolCallsQuery,
 } from './slices/ai/aiApi';
 export type {
   CreateAISessionRequest,
@@ -252,6 +253,7 @@ export type {
   GetAISessionResponse,
   GetAISessionsResponse,
   GetAIUsageResponse,
+  ListPendingToolCallsResponse,
 } from './slices/ai/type';
 
 // Google Calendar overlay exports (E-052)

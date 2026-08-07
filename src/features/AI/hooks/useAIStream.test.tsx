@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { PendingMessage, PendingTurn } from '@/features/AI/hooks';
 import { aiApi } from '@/lib/store';
 
 import { createMockStore } from '../../../../__tests__/renderComponent';
@@ -12,9 +13,12 @@ import { useAIStream } from './useAIStream';
 // Build one SSE `data:` frame (the terminating blank line is the delimiter).
 const frame = (obj: unknown) => `data: ${JSON.stringify(obj)}\n\n`;
 
+// Narrows a PendingTurn to a PendingMessage (non-proposal assistant turn).
+const asMessage = (turn: PendingTurn | undefined): PendingMessage | undefined =>
+  turn?.kind === 'tool_proposal' ? undefined : (turn as PendingMessage | undefined);
+
 // A controllable response body: push() feeds a chunk to the reader, close() ends
 // the stream, and error() rejects the in-flight read (models a dropped socket).
-// Chunks are queued so a read that arrives before a push still resolves.
 const controllableStream = () => {
   const encoder = new TextEncoder();
   let controller!: ReadableStreamDefaultController<Uint8Array>;
@@ -92,7 +96,7 @@ describe('useAIStream', () => {
     io.push(frame({ type: 'delta', text: 'Hel' }));
     io.push(frame({ type: 'delta', text: 'lo!' }));
     await waitFor(() => {
-      const assistant = result.current.pending.find(m => m.role === 'assistant');
+      const assistant = asMessage(result.current.pending.find(m => m.role === 'assistant'));
       expect(assistant?.content).toBe('Hello!');
     });
 
@@ -101,7 +105,7 @@ describe('useAIStream', () => {
     io.close();
 
     await waitFor(() => {
-      const assistant = result.current.pending.find(m => m.role === 'assistant');
+      const assistant = asMessage(result.current.pending.find(m => m.role === 'assistant'));
       expect(assistant?.status).toBe('done');
     });
     expect(await outcome).toBe('done');
@@ -129,7 +133,7 @@ describe('useAIStream', () => {
 
     expect(await outcome).toBe('error');
     await waitFor(() => {
-      const assistant = result.current.pending.find(m => m.role === 'assistant');
+      const assistant = asMessage(result.current.pending.find(m => m.role === 'assistant'));
       expect(assistant).toMatchObject({ content: 'partial', status: 'error' });
     });
   });
@@ -147,14 +151,14 @@ describe('useAIStream', () => {
 
     io.push(frame({ type: 'delta', text: 'so far' }));
     await waitFor(() => {
-      const assistant = result.current.pending.find(m => m.role === 'assistant');
+      const assistant = asMessage(result.current.pending.find(m => m.role === 'assistant'));
       expect(assistant?.content).toBe('so far');
     });
 
     result.current.abort();
     expect(await outcome).toBe('aborted');
     await waitFor(() => {
-      const assistant = result.current.pending.find(m => m.role === 'assistant');
+      const assistant = asMessage(result.current.pending.find(m => m.role === 'assistant'));
       expect(assistant).toMatchObject({ content: 'so far', status: 'done' });
     });
     expect(result.current.isStreaming).toBe(false);
@@ -168,7 +172,7 @@ describe('useAIStream', () => {
 
     expect(await outcome).toBe('error');
     await waitFor(() => {
-      const user = result.current.pending.find(m => m.role === 'user');
+      const user = asMessage(result.current.pending.find(m => m.role === 'user'));
       expect(user).toMatchObject({ status: 'error', errorCode: 'AI_LIMIT_REACHED' });
     });
   });
@@ -201,5 +205,169 @@ describe('useAIStream', () => {
 
     expect(await retried).toBe('done');
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  describe('tool_proposal handling', () => {
+    it('adds a tool_proposal pending entry and keeps preceding text when the stream emits a proposal', async () => {
+      const io = controllableStream();
+      fetchMock.mockResolvedValue(okResponse(io.stream));
+
+      const { result } = renderStream();
+      const outcome = result.current.send('s1', 'hi');
+
+      io.push(frame({ type: 'delta', text: 'Sure, I can help with that.' }));
+      await waitFor(() => {
+        const assistant = asMessage(result.current.pending.find(m => m.role === 'assistant'));
+        expect(assistant?.content).toBe('Sure, I can help with that.');
+      });
+
+      io.push(
+        frame({
+          type: 'tool_proposal',
+          toolUseId: 'toolu_abc',
+          toolName: 'complete_task',
+          input: { taskId: 'task-1' },
+          assistantMessageId: 'msg-1',
+        })
+      );
+      io.close();
+
+      // Stream ends with 'done' outcome (tool_proposal is a terminal event for the turn)
+      expect(await outcome).toBe('done');
+
+      await waitFor(() => {
+        const proposal = result.current.pending.find(p => p.kind === 'tool_proposal');
+        expect(proposal).toBeDefined();
+        expect(proposal?.id).toBe('toolu_abc');
+        expect(proposal?.status).toBe('pending_confirm');
+      });
+
+      // Preceding text turn must still be in pending
+      const textTurn = asMessage(
+        result.current.pending.find(m => m.role === 'assistant' && m.kind !== 'tool_proposal')
+      );
+      expect(textTurn?.content).toBe('Sure, I can help with that.');
+    });
+
+    it('transitions proposal status pending_confirm → executing → done when confirmTool succeeds', async () => {
+      // First stream: send → tool_proposal (no text before)
+      const sendIo = controllableStream();
+      fetchMock.mockResolvedValueOnce(okResponse(sendIo.stream));
+
+      const { result } = renderStream();
+      const outcome = result.current.send('s1', 'hi');
+
+      sendIo.push(
+        frame({
+          type: 'tool_proposal',
+          toolUseId: 'toolu_xyz',
+          toolName: 'complete_task',
+          input: { taskId: 'task-2' },
+          assistantMessageId: 'msg-2',
+        })
+      );
+      sendIo.close();
+      await outcome;
+
+      await waitFor(() => {
+        expect(result.current.pending.find(p => p.kind === 'tool_proposal')?.status).toBe('pending_confirm');
+      });
+
+      // Second stream: confirm → follow-up delta + done
+      const confirmIo = controllableStream();
+      fetchMock.mockResolvedValueOnce(okResponse(confirmIo.stream));
+
+      result.current.confirmTool('toolu_xyz', 's1');
+
+      await waitFor(() => {
+        expect(result.current.pending.find(p => p.kind === 'tool_proposal')?.status).toBe('executing');
+      });
+
+      confirmIo.push(frame({ type: 'delta', text: 'Done!' }));
+      confirmIo.push(
+        frame({ type: 'done', messageId: 'follow-1', usage: { used: 2, limit: 5, scope: 'lifetime', month: null } })
+      );
+      confirmIo.close();
+
+      await waitFor(() => {
+        expect(result.current.pending.find(p => p.kind === 'tool_proposal')?.status).toBe('done');
+      });
+
+      // Follow-up text turn appears as a new assistant message
+      const followUp = asMessage(result.current.pending.find(m => m.id === 'follow-1'));
+      expect(followUp?.content).toBe('Done!');
+    });
+
+    it('transitions to error with alreadyResolved=true on a 409 confirm response', async () => {
+      const sendIo = controllableStream();
+      fetchMock.mockResolvedValueOnce(okResponse(sendIo.stream));
+
+      const { result } = renderStream();
+      const outcome = result.current.send('s1', 'hi');
+
+      sendIo.push(
+        frame({
+          type: 'tool_proposal',
+          toolUseId: 'toolu_409',
+          toolName: 'complete_task',
+          input: { taskId: 'task-3' },
+          assistantMessageId: 'msg-3',
+        })
+      );
+      sendIo.close();
+      await outcome;
+
+      // Mock a 409 response for the confirm endpoint
+      fetchMock.mockResolvedValueOnce({
+        ok: false,
+        status: 409,
+        body: null,
+        json: async () => ({ data: null, error: { code: 'CONFLICT', message: 'already resolved' } }),
+      } as unknown as Response);
+
+      result.current.confirmTool('toolu_409', 's1');
+
+      await waitFor(() => {
+        const proposal = result.current.pending.find(p => p.kind === 'tool_proposal' && p.id === 'toolu_409');
+        if (proposal?.kind !== 'tool_proposal') throw new Error('Expected tool_proposal');
+        expect(proposal.status).toBe('error');
+        expect(proposal.alreadyResolved).toBe(true);
+      });
+    });
+
+    it('transitions to done with rejected status when rejectTool completes', async () => {
+      const sendIo = controllableStream();
+      fetchMock.mockResolvedValueOnce(okResponse(sendIo.stream));
+
+      const { result } = renderStream();
+      const outcome = result.current.send('s1', 'hi');
+
+      sendIo.push(
+        frame({
+          type: 'tool_proposal',
+          toolUseId: 'toolu_rej',
+          toolName: 'reschedule_task',
+          input: { taskId: 'task-4' },
+          assistantMessageId: 'msg-4',
+        })
+      );
+      sendIo.close();
+      await outcome;
+
+      const rejectIo = controllableStream();
+      fetchMock.mockResolvedValueOnce(okResponse(rejectIo.stream));
+
+      result.current.rejectTool('toolu_rej', 's1');
+
+      rejectIo.push(frame({ type: 'delta', text: 'Got it, skipping.' }));
+      rejectIo.push(
+        frame({ type: 'done', messageId: 'follow-rej', usage: { used: 2, limit: 5, scope: 'lifetime', month: null } })
+      );
+      rejectIo.close();
+
+      await waitFor(() => {
+        expect(result.current.pending.find(p => p.kind === 'tool_proposal')?.status).toBe('rejected');
+      });
+    });
   });
 });

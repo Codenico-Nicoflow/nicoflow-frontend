@@ -11,6 +11,7 @@ import type {
   GetAISessionResponse,
   GetAISessionsResponse,
   GetAIUsageResponse,
+  ListPendingToolCallsResponse,
 } from './type';
 
 // AI-assistant data layer: sessions CRUD + usage. Every endpoint unwraps the
@@ -66,6 +67,15 @@ export const aiApi = createApi({
       transformResponse: (raw: ApiEnvelope<GetAIUsageResponse>) => raw.data,
       transformErrorResponse: error => error.data,
     }),
+    // Pending tool proposals for a session — used to rehydrate the chat after a
+    // reload so unresolved proposals still appear. Tagged by session id so the
+    // list refetches whenever the session cache is invalidated.
+    listPendingToolCalls: builder.query<ListPendingToolCallsResponse, string>({
+      query: sessionId => `${AI_API.TOOL_CALLS(sessionId)}?status=pending`,
+      transformResponse: (raw: ApiEnvelope<ListPendingToolCallsResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      providesTags: (_result, _error, sessionId) => [{ type: 'AISession', id: sessionId }],
+    }),
   }),
 });
 
@@ -75,4 +85,5 @@ export const {
   useCreateAISessionMutation,
   useDeleteAISessionMutation,
   useGetAIUsageQuery,
+  useListPendingToolCallsQuery,
 } = aiApi;

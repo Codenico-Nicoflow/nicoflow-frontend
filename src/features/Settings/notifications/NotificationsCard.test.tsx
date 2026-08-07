@@ -3,7 +3,7 @@ import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { IUser } from '@/lib/types';
 
@@ -70,13 +70,12 @@ describe('NotificationsCard', () => {
     }
   });
 
-  it('AC: does not surface push, SMS, or lead-time controls', async () => {
+  it('AC: does not surface SMS or lead-time controls', async () => {
     server.use(prefsHandler());
 
     renderCard();
     await screen.findByTestId('pref-overdue');
 
-    expect(screen.queryByTestId('push-toggle')).not.toBeInTheDocument();
     expect(screen.queryByText(/sms/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/lead time|minutes before|minutes after/i)).not.toBeInTheDocument();
   });
@@ -168,5 +167,34 @@ describe('NotificationsCard', () => {
 
     await userEvent.click(digest);
     await waitFor(() => expect(putBody).toEqual({ emailDigest: true }));
+  });
+
+  it('push row appears after the five TOGGLE_META rows in the card', async () => {
+    // Stub a full browser Push environment so PushToggle renders instead of returning null.
+    const registration = { pushManager: { subscribe: vi.fn(), getSubscription: vi.fn().mockResolvedValue(null) } };
+    vi.stubGlobal('PushManager', function PushManager() {});
+    vi.stubGlobal('Notification', { permission: 'default', requestPermission: vi.fn() });
+    vi.stubGlobal('navigator', {
+      userAgent: 'test-agent',
+      serviceWorker: {
+        register: vi.fn().mockResolvedValue(registration),
+        ready: Promise.resolve(registration),
+        getRegistration: vi.fn().mockResolvedValue(undefined),
+      },
+    });
+    vi.stubEnv('VITE_VAPID_PUBLIC_KEY', 'BFN5TESTKEY0123456789abcdefABCDEF-_');
+
+    server.use(prefsHandler());
+    renderCard(proStore());
+
+    // All five standard toggles must render first.
+    const streaks = await screen.findByTestId('pref-streaks');
+    const pushRow = await screen.findByTestId('push-toggle-row');
+
+    // The push row must appear AFTER the streaks row in DOM order.
+    expect(streaks.compareDocumentPosition(pushRow)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 });

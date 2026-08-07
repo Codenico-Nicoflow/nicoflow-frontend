@@ -1,13 +1,16 @@
+import * as React from 'react';
+
 import { Edit, Moon, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import { AnimatedListItem, ItemActionsMenu, ListItemCard } from '@/components';
-import { Checkbox } from '@/components/ui/checkbox';
+import type { TaskCompleteCheckboxHandle } from '@/components';
+import { AnimatedListItem, ItemActionsMenu, ListItemCard, TaskCompleteCheckbox } from '@/components';
 import { useUpdateTaskStatusMutation } from '@/lib/store';
 import { type ITask, TaskStatus } from '@/lib/types';
 import { cn, showErrorToast } from '@/lib/utils';
 
+import { needsCompletionConfirm } from '../completionGuard';
 import { useConfirmComplete } from '../useConfirmComplete';
 
 import TaskBadges from './TaskBadges';
@@ -27,6 +30,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
   const { t } = useTranslation('task');
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const { guardComplete, confirmDialog } = useConfirmComplete();
+  const checkboxRef = React.useRef<TaskCompleteCheckboxHandle>(null);
   const isCompleted = task.status === TaskStatus.DONE;
 
   // The checkbox cycles inbox/active → done and back. The mutation is optimistic
@@ -38,6 +42,8 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
       // has to keep the row on the same tick the status changes, or it unmounts
       // before the new state is on screen.
       onStatusToggle?.(task.id);
+      // Animation deferred until confirm resolves — play it now alongside the flip.
+      checkboxRef.current?.playCompleteAnimation();
       try {
         await updateTaskStatus({ id: task.id, status: next }).unwrap();
       } catch (error) {
@@ -62,6 +68,9 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
       onEdit(task);
     }
   };
+
+  // Gate fires only on completing with open subtasks — never on uncompleting.
+  const willDefer = needsCompletionConfirm(task, TaskStatus.DONE) && !isCompleted;
 
   return (
     <AnimatedListItem index={index}>
@@ -122,15 +131,14 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
                 { label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true },
               ]}
             />
-            <Checkbox
-              className="scale-100 sm:scale-125 hover:scale-110 sm:hover:scale-150 cursor-pointer disabled:cursor-not-allowed transition-all duration-200"
-              data-testid={`task-checkbox-${task.id}`}
-              onClick={e => {
-                e.stopPropagation();
-                handleToggle();
-              }}
-              value={task.id}
+            <TaskCompleteCheckbox
+              ref={checkboxRef}
               checked={isCompleted}
+              onToggle={handleToggle}
+              deferAnimation={willDefer}
+              size="md"
+              aria-label={t('actions.complete', { title: task.title })}
+              data-testid={`task-checkbox-${task.id}`}
             />
           </div>
         </div>

@@ -60,7 +60,8 @@
   "actions": {
     "edit": "Edit Task",
     "delete": "Delete Task",
-    "moveToSomeday": "Move to Someday"
+    "moveToSomeday": "Move to Someday",
+    "complete": "Complete {{title}}"
   },
   "status": {
     "todo": "To do",

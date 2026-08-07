@@ -190,6 +190,31 @@ describe('useAIStream', () => {
     io.close();
   });
 
+  it('rejects two sends fired back-to-back in the same tick, with no render in between', async () => {
+    // Simulates a duplicate event (e.g. a stray double keydown) firing send()
+    // twice before React has had a chance to re-render the disabled composer.
+    // The in-flight guard must hold on the ref alone, not on rendered state.
+    const io = controllableStream();
+    fetchMock.mockResolvedValue(okResponse(io.stream));
+
+    const { result } = renderStream();
+    const [first, second] = [result.current.send('s1', 'hey'), result.current.send('s1', 'hey')];
+
+    expect(await second).toBe('error');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    io.push(frame({ type: 'delta', text: 'hi' }));
+    io.push(frame({ type: 'done', messageId: 'm1', usage: { used: 1, limit: 5, scope: 'lifetime', month: null } }));
+    io.close();
+    expect(await first).toBe('done');
+
+    // Only one user turn should ever have been created.
+    await waitFor(() => {
+      const userTurns = result.current.pending.filter(p => asMessage(p)?.role === 'user');
+      expect(userTurns).toHaveLength(1);
+    });
+  });
+
   it('retry() re-sends the last failed turn', async () => {
     fetchMock.mockResolvedValueOnce(errorResponse(502, 'AI_PROVIDER_ERROR'));
 

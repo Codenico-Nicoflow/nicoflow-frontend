@@ -85,6 +85,28 @@ describe('AIChat', () => {
     expect(screen.getByText('hello')).toBeInTheDocument();
   });
 
+  it('skips a persisted assistant turn that carries no visible text (a tool-only turn)', async () => {
+    // A turn whose entire content was a tool_use block (no accompanying prose)
+    // persists with content: '' — it must not render as an empty bubble.
+    server.use(
+      http.get(SESSION, () =>
+        HttpResponse.json(
+          sessionEnvelope([
+            { id: 'm1', role: 'user', content: 'complete my report task', createdAt: '2026-07-01T00:00:00Z' },
+            { id: 'm2', role: 'assistant', content: '', createdAt: '2026-07-01T00:00:01Z' },
+            { id: 'm3', role: 'assistant', content: 'Done, all set.', createdAt: '2026-07-01T00:00:02Z' },
+          ])
+        )
+      )
+    );
+    renderComponent(<AIChat sessionId="s1" />, { store: authedStore() });
+
+    await screen.findByText('complete my report task');
+    expect(screen.getByText('Done, all set.')).toBeInTheDocument();
+    // Only the two non-empty turns render — no stray bubble for m2.
+    expect(screen.queryAllByTestId(/^ai-message-/)).toHaveLength(2);
+  });
+
   it('streams an assistant reply incrementally after send', async () => {
     server.use(
       http.get(SESSION, () => HttpResponse.json(sessionEnvelope([]))),

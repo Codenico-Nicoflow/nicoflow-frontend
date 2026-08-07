@@ -10,14 +10,15 @@ import type { INotificationPref } from '@/lib/types';
 import { USER_STATUS } from '@/lib/types';
 
 import { PreferenceRow } from './PreferenceRow';
+import { PushToggle } from './PushToggle';
 import { ReminderHoursSection } from './ReminderHoursSection';
 
 const DEFAULT_MORNING_HOUR = 8;
 const DEFAULT_EVENING_HOUR = 20;
 
-// Boolean prefs surfaced here: emailDigest (Pro) + the four family toggles. Push/SMS
-// and the before/after lead-time prefs are deliberately absent — they have no delivery
-// path yet (E-037), so a toggle for them would be a broken promise.
+// Boolean prefs surfaced here: emailDigest (Pro) + the four family toggles + Push (E-037).
+// SMS and the before/after lead-time prefs are deliberately absent — they have no delivery
+// path yet, so a toggle for them would be a broken promise.
 type ToggleKey = 'emailDigest' | 'overdueEnabled' | 'dailySummaryEnabled' | 'inboxNudgesEnabled' | 'streaksEnabled';
 type LabelKey = 'digest.label' | 'prefs.overdue' | 'prefs.dailySummary' | 'prefs.inboxNudges' | 'prefs.streaks';
 
@@ -110,6 +111,7 @@ export const NotificationsCard = () => {
                 />
               );
             })}
+            <PushToggle isPro={isPro} disabled={isSaving} onLockedClick={onLockedClick} />
           </div>
         )}
 

@@ -212,7 +212,8 @@
           "4": "Thu",
           "5": "Fri",
           "6": "Sat"
-        }
+        },
+        "weekStartHint": "Also used for weekly habit goals — changing it changes when a weekly habit resets."
       }
     },
     "profile": {

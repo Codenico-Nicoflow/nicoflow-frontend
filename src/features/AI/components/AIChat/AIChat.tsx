@@ -138,9 +138,11 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
   // Rehydrated proposals appear after history (they are from a prior send).
   const renderTurns = () => (
     <div className="space-y-3">
-      {history.map(m => (
-        <AIMessage key={m.id} role={m.role} content={m.content} />
-      ))}
+      {history
+        .filter(m => m.content.trim() !== '')
+        .map(m => (
+          <AIMessage key={m.id} role={m.role} content={m.content} />
+        ))}
       {rehydratedProposals.map(p => (
         <AIToolProposal
           key={p.id}
@@ -170,6 +172,11 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
             />
           );
         }
+        // A finished assistant turn that streamed no text (e.g. the model went
+        // straight to a tool_use with no preceding prose) has nothing to show —
+        // skip the bubble. A turn still sending/streaming keeps rendering even
+        // with empty content so its placeholder/caret stays visible.
+        if (m.content.trim() === '' && m.status === 'done') return null;
         return (
           <AIMessage
             key={m.id}

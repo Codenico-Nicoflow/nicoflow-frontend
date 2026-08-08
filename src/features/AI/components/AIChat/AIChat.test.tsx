@@ -1,6 +1,6 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -130,6 +130,34 @@ describe('AIChat', () => {
     expect(await screen.findByText('hey')).toBeInTheDocument();
     // Assistant text accumulates as deltas arrive.
     await waitFor(() => expect(screen.getByText('Hello!')).toBeInTheDocument());
+  });
+
+  it('offers retry when the ASSISTANT turn fails mid-stream, not just the user turn', async () => {
+    // The user's half of the turn succeeds; the provider drops the connection
+    // partway through the reply (real-world case: an SSE error event with no
+    // preceding done). retry must still be offered even though it's the
+    // assistant bubble, not the user bubble, that carries the error state.
+    server.use(
+      http.get(SESSION, () => HttpResponse.json(sessionEnvelope([]))),
+      http.post(MESSAGES, () =>
+        sseResponse([
+          frame({ type: 'delta', text: "I'll help you plan your week!" }),
+          frame({ type: 'error', code: 'AI_PROVIDER_ERROR' }),
+        ])
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<AIChat sessionId="s1" />, { store: authedStore() });
+
+    await screen.findByText('Start a conversation with your AI assistant');
+    await user.type(screen.getByTestId('ai-composer-input'), 'Hey help me plan my week');
+    await user.keyboard('{Enter}');
+
+    await screen.findByText("I'll help you plan your week!");
+    // The retry affordance sits on the assistant bubble, not the user's.
+    const assistantBubble = screen.getByTestId('ai-message-assistant');
+    expect(within(assistantBubble).getByTestId('ai-message-retry')).toBeInTheDocument();
   });
 
   it('shows a retry error state and hides the composer when the session fails to load (503)', async () => {

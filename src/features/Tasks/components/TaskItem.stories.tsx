@@ -44,8 +44,8 @@ export const CarriedOver: Story = {
   },
 };
 
-export const Someday: Story = {
-  args: { task: mockTask({ title: 'Maybe one day', status: 'someday', energy: 'medium' }) },
+export const Cancelled: Story = {
+  args: { task: mockTask({ title: 'Called off', status: 'cancelled', energy: 'medium' }) },
 };
 
 // The whole card is clickable and opens the edit action.

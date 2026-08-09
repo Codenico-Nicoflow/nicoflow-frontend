@@ -6,7 +6,7 @@ import { Form } from '@/components/ui/form';
 
 import { StatusField } from '.';
 
-type StatusForm = { status: 'inbox' | 'active' | 'done' | 'cancelled' };
+type StatusForm = { status: 'active' | 'done' | 'cancelled' };
 
 type StoryArgs = {
   value: StatusForm['status'];
@@ -23,7 +23,7 @@ const meta: Meta<StoryArgs> = {
   argTypes: {
     value: {
       control: 'select',
-      options: ['inbox', 'active', 'done', 'cancelled'],
+      options: ['active', 'done', 'cancelled'],
       description: 'Seeds the form value.',
     },
     label: { control: 'text' },
@@ -53,14 +53,6 @@ export const Active: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole('combobox')).toHaveTextContent(/active/i);
-  },
-};
-
-export const Inbox: Story = {
-  args: { value: 'inbox' },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole('combobox')).toHaveTextContent(/inbox/i);
   },
 };
 

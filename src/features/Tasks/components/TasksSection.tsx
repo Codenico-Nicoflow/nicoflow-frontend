@@ -17,10 +17,17 @@ import { toast } from 'sonner';
 
 import { useDebouncedValue } from '@/hooks';
 import { useGetTasksQuery, useReorderTaskMutation } from '@/lib/store';
-import type { ITask, TaskEnergy } from '@/lib/types';
+import { type ITask, ScheduleFilter, type TaskEnergy } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
-import { countTasks, defaultTaskFilter, matchesFilter, TASK_FILTER, type TaskFilter } from '../filters';
+import {
+  countTasks,
+  defaultTaskFilter,
+  matchesFilter,
+  matchesScheduleFilter,
+  TASK_FILTER,
+  type TaskFilter,
+} from '../filters';
 import TasksEmptyState from '../states/TasksEmptyState';
 import TasksLoadingState from '../states/TasksLoadingState';
 
@@ -57,9 +64,11 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
   const [selectedTask, setSelectedTask] = useState<ITask | undefined>(undefined);
   const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
 
-  // null = untouched, so the filter follows the landing default below until the
-  // user picks one.
+  // null = untouched, so the filter follows the Active default until the user picks one.
   const [pickedFilter, setPickedFilter] = useState<TaskFilter | null>(null);
+  const [scheduleFilter, setScheduleFilter] = useState<(typeof ScheduleFilter)[keyof typeof ScheduleFilter]>(
+    ScheduleFilter.ALL
+  );
   const [activeEnergy, setActiveEnergy] = useState<TaskEnergy | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
@@ -85,14 +94,7 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
   }, [editTaskIdFromNav, location.key, tasks, isLoadingTasks]);
 
   const taskCounts = useMemo(() => countTasks(tasks), [tasks]);
-  // Latched on the first loaded list: the default is a landing choice, and
-  // re-deriving it every render would move the filter under the user as counts
-  // change — completing the last inbox task would silently switch them to All.
-  const landingFilter = useRef<TaskFilter | null>(null);
-  if (landingFilter.current === null && !isLoadingTasks) {
-    landingFilter.current = defaultTaskFilter(taskCounts);
-  }
-  const activeFilter = pickedFilter ?? landingFilter.current ?? TASK_FILTER.ALL;
+  const activeFilter = pickedFilter ?? defaultTaskFilter();
 
   // Checking a task off changes its status, which under every status filter but
   // All would drop the row mid-interaction — the completed state it just entered
@@ -104,11 +106,17 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
   const changeFilter = (next: TaskFilter) => {
     setPickedFilter(next);
     setPinned(new Set());
+    // The schedule chip only applies under Active — leaving it resets so it
+    // doesn't silently keep filtering a tab where it isn't shown.
+    if (next !== TASK_FILTER.ACTIVE) setScheduleFilter(ScheduleFilter.ALL);
   };
 
   const filteredTasks = useMemo(() => {
     let filtered = tasks.filter(task => matchesFilter(task, activeFilter) || pinned.has(task.id));
 
+    if (activeFilter === TASK_FILTER.ACTIVE) {
+      filtered = filtered.filter(task => matchesScheduleFilter(task, scheduleFilter) || pinned.has(task.id));
+    }
     if (activeEnergy !== 'all') {
       filtered = filtered.filter(task => task.energy === activeEnergy);
     }
@@ -120,7 +128,7 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
     }
 
     return [...filtered].sort((a, b) => a.displayOrder - b.displayOrder);
-  }, [tasks, activeFilter, activeEnergy, debouncedSearch, pinned]);
+  }, [tasks, activeFilter, scheduleFilter, activeEnergy, debouncedSearch, pinned]);
 
   const handleAddTask = () => {
     setSelectedTask(undefined);
@@ -178,6 +186,8 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
                 activeEnergy={activeEnergy}
                 onEnergyChange={setActiveEnergy}
                 taskCounts={taskCounts}
+                scheduleFilter={scheduleFilter}
+                onScheduleFilterChange={setScheduleFilter}
               />
             </div>
 

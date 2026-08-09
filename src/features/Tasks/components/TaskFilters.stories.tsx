@@ -2,13 +2,13 @@ import { useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-import type { TaskEnergy } from '@/lib/types';
+import { ScheduleFilter, type TaskEnergy } from '@/lib/types';
 
 import { TASK_FILTER, type TaskFilter } from '../filters';
 
 import TaskFilters from './TaskFilters';
 
-const counts = { all: 12, inbox: 3, unscheduled: 4, active: 5, someday: 2, done: 1, cancelled: 1 };
+const counts = { all: 12, active: 5, done: 1, cancelled: 1 };
 
 const meta: Meta<typeof TaskFilters> = {
   title: 'Tasks/TaskFilters',
@@ -19,6 +19,9 @@ const meta: Meta<typeof TaskFilters> = {
     const Demo = () => {
       const [status, setStatus] = useState<TaskFilter>(TASK_FILTER.ALL);
       const [energy, setEnergy] = useState<TaskEnergy | 'all'>('all');
+      const [schedule, setSchedule] = useState<(typeof ScheduleFilter)[keyof typeof ScheduleFilter]>(
+        ScheduleFilter.ALL
+      );
       return (
         <TaskFilters
           activeFilter={status}
@@ -26,6 +29,8 @@ const meta: Meta<typeof TaskFilters> = {
           activeEnergy={energy}
           onEnergyChange={setEnergy}
           taskCounts={counts}
+          scheduleFilter={schedule}
+          onScheduleFilterChange={setSchedule}
         />
       );
     };

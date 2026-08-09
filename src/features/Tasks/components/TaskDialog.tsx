@@ -72,7 +72,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
     defaultValues: {
       title: task?.title || '',
       notes: task?.notes || '',
-      status: task?.status || 'inbox',
+      status: task?.status || 'active',
       priority: task?.priority || 'low',
       energy: task?.energy || 'medium',
       rollsOver: task?.rollsOver ?? true,
@@ -102,7 +102,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       form.reset({
         title: task.title,
         notes: task.notes || '',
-        status: task.status || 'inbox',
+        status: task.status || 'active',
         priority: task.priority || 'low',
         energy: task.energy || 'medium',
         rollsOver: task.rollsOver ?? true,
@@ -115,7 +115,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       form.reset({
         title: '',
         notes: '',
-        status: 'inbox',
+        status: 'active',
         priority: 'low',
         energy: 'medium',
         rollsOver: true,
@@ -256,7 +256,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
             delay={0.15}
           />
 
-          {/* Status is only settable on existing tasks — new tasks default to inbox server-side. */}
+          {/* Status is only settable on existing tasks — new tasks default to active server-side. */}
           {isEditMode && <StatusField control={form.control} optional delay={0.18} />}
 
           <DialogFieldGrid columns={2}>

@@ -55,7 +55,7 @@ describe('TaskQuickAdd (in TasksSection)', () => {
     await waitFor(() => expect(screen.getByText('Existing task')).toBeInTheDocument());
     await user.type(screen.getByTestId('task-quick-add'), 'One too many{Enter}');
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('Someday')));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('Upgrade to Pro')));
     // The input keeps the title so the user can park something else instead.
     expect(screen.getByTestId('task-quick-add')).toHaveValue('One too many');
   });

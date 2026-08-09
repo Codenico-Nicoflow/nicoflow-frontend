@@ -146,9 +146,7 @@ const updateAreaSchema = z.object({
 const taskSchema = z.object({
   title: z.string().min(1, V.taskTitleRequired).max(255, V.taskTitleMax),
   notes: z.string().optional().nullable(),
-  // `missed` is set only by the backend recurrence sweep, never chosen in this
-  // form — but it must parse, or editing a missed occurrence fails validation.
-  status: z.enum(['inbox', 'active', 'someday', 'done', 'cancelled', 'missed'], { error: V.statusInvalid }).optional(),
+  status: z.enum(['active', 'done', 'cancelled'], { error: V.statusInvalid }).optional(),
   priority: z.enum(['low', 'medium', 'high'], { error: V.priorityInvalid }),
   energy: z.enum(['low', 'medium', 'deep'], { error: V.energyInvalid }),
   rollsOver: z.boolean().optional(),

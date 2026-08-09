@@ -12,7 +12,7 @@ const items = <T,>(list: T[]) => ({ data: { items: list }, error: null });
 const ranked = [
   mockTask({ id: 'f1', title: 'Reply to the designer', status: 'active', energy: 'low', estimatedMinutes: 10 }),
   mockTask({ id: 'f2', title: 'Draft the launch post', status: 'active', energy: 'medium', estimatedMinutes: 25 }),
-  mockTask({ id: 'f3', title: 'Refactor the auth flow', status: 'inbox', energy: 'deep', estimatedMinutes: 90 }),
+  mockTask({ id: 'f3', title: 'Refactor the auth flow', status: 'active', energy: 'deep', estimatedMinutes: 90 }),
 ];
 
 const meta: Meta<typeof FocusView> = {

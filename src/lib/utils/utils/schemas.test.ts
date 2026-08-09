@@ -285,9 +285,14 @@ describe('taskSchema', () => {
     expect(result.error?.issues[0]?.message).toBe('validation.energyInvalid');
   });
 
-  it('accepts the someday status', () => {
-    const result = taskSchema.safeParse({ ...validTask, status: 'someday' });
+  it('accepts the cancelled status', () => {
+    const result = taskSchema.safeParse({ ...validTask, status: 'cancelled' });
     expect(result.success).toBe(true);
+  });
+
+  it('rejects an unknown status', () => {
+    const result = taskSchema.safeParse({ ...validTask, status: 'someday' });
+    expect(result.success).toBe(false);
   });
 
   it('accepts an ISO date string scheduledFor', () => {

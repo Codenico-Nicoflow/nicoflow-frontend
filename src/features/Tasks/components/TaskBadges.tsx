@@ -98,13 +98,6 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
         </Badge>
       )}
 
-      {/* A lapsed occurrence: the window closed, not a failure to shout about. */}
-      {task.status === 'missed' && (
-        <Badge variant="outline" className="text-xs font-medium text-muted-foreground" data-testid="task-missed">
-          {t('task:status.missed')}
-        </Badge>
-      )}
-
       {/* URL */}
       {task.url && (
         <a

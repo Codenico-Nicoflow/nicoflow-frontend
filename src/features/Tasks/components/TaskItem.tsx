@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Edit, Moon, Trash2 } from 'lucide-react';
+import { Ban, Edit, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -33,7 +33,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
   const checkboxRef = React.useRef<TaskCompleteCheckboxHandle>(null);
   const isCompleted = task.status === TaskStatus.DONE;
 
-  // The checkbox cycles inbox/active → done and back. The mutation is optimistic
+  // The checkbox cycles active → done and back. The mutation is optimistic
   // (see taskApi) so the row flips instantly and rolls back if the request fails.
   const handleToggle = () => {
     const next = isCompleted ? TaskStatus.ACTIVE : TaskStatus.DONE;
@@ -52,9 +52,9 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
     });
   };
 
-  const handleMoveToSomeday = async () => {
+  const handleCancel = async () => {
     try {
-      await updateTaskStatus({ id: task.id, status: TaskStatus.SOMEDAY }).unwrap();
+      await updateTaskStatus({ id: task.id, status: TaskStatus.CANCELLED }).unwrap();
     } catch (error) {
       showErrorToast(error, toast);
     }
@@ -127,7 +127,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
             <ItemActionsMenu
               actions={[
                 { label: t('actions.edit'), icon: Edit, onClick: () => onEdit(task) },
-                { label: t('actions.moveToSomeday'), icon: Moon, onClick: () => void handleMoveToSomeday() },
+                { label: t('actions.cancel'), icon: Ban, onClick: () => void handleCancel() },
                 { label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true },
               ]}
             />

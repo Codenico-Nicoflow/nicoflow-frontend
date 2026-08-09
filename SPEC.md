@@ -666,7 +666,9 @@ Delete a project and all its tasks.
 
 ### 3.4 Tasks
 
-> **Calm / energy-aware contract.** Tasks carry an **`energy`** dimension (`low|medium|deep`) alongside `priority`, and a single **soft `scheduledFor`** intention (a date you _mean_ to do it) — there is no hard deadline on a task. A past `scheduledFor` does **not** go overdue — with **`rollsOver: true`** (the default) it carries forward to today, no guilt. Two extra statuses support this: **`someday`** (parked, off the active list) and **`cancelled`**.
+> **Calm / energy-aware contract.** Tasks carry an **`energy`** dimension (`low|medium|deep`) alongside `priority`, and a single **soft `scheduledFor`** intention (a date you _mean_ to do it) — there is no hard deadline on a task. A past `scheduledFor` does **not** go overdue — with **`rollsOver: true`** (the default) it carries forward to today, no guilt.
+>
+> **⚠️ Status simplified (2026-08-09).** `status` is exactly three values: **`active | done | cancelled`**. A task is always created `active` — there is no separate "unprocessed" status (that's the `bucket`/Inbox capture entity) and no "someday" parking state. **Scheduled-ness is orthogonal to status, not a status value** — `isScheduled` is derived client-side from `scheduledFor` being non-null. The Tasks feature exposes this as two independent filter axes: status tabs (`TASK_FILTER`: All/Active/Done/Cancelled) and a scheduled/unscheduled chip (`ScheduleFilter`, only shown under the Active tab, never a stored field). There is also no `missed` task status — a reaped recurring occurrence reads as `status: "cancelled"` on the wire; the backend's internal `occurrence_status` distinction never reaches `ITask`.
 
 > **`ITask` shape** — all IDs are strings.
 >
@@ -676,7 +678,7 @@ Delete a project and all its tasks.
 >   projectId: string;
 >   title: string;
 >   notes?: string | null;
->   status: 'inbox' | 'active' | 'someday' | 'done' | 'cancelled';
+>   status: 'active' | 'done' | 'cancelled';
 >   priority: 'low' | 'medium' | 'high'; // default "medium"
 >   energy: 'low' | 'medium' | 'deep'; // default "medium"
 >   rollsOver: boolean; // default true
@@ -701,13 +703,6 @@ Delete a project and all its tasks.
 
 > **List envelope.** List endpoints (`GET …/tasks`, `GET /focus`) return `{ "items": ITask[] }` inside the standard `data` envelope — i.e. `data.items`, **not** a bare `data: ITask[]`. The frontend `transformResponse` must unwrap to `.data.items`.
 
-> **⚠️ E-014 frontend type fix required (NIC-1382/1383/1384).** The live frontend `ITask` (`src/lib/types/interfaces/index.ts`) and `tasks/type.ts` are **out of sync** with the contract above and must be aligned (no `Number()`/string coercion — fix the types):
->
-> - `status` is typed off `TaskStatus { TODO, IN_PROGRESS, DONE }` → must become `"inbox" | "active" | "someday" | "done" | "cancelled"`.
-> - `scheduledFor` is typed `'today' | 'tomorrow' | 'this_week' | null` (an enum) → must become an **ISO date string** `string | null`. The `ScheduledFor` constant and its uses are obsolete; today/tomorrow/thisWeek is a _view_ (`/time-spread`), not a stored field.
-> - Add the missing fields: **`energy: "low"|"medium"|"deep"`** and **`rollsOver: boolean`** (plus on the create/update request types).
-> - List responses unwrap to `.data.items` (currently typed `ITask[]`).
-
 #### GET /v1/projects/:projectId/tasks
 
 List all tasks within a project.
@@ -718,7 +713,7 @@ List all tasks within a project.
 
 | Param       | Type   | Description                                                                                                   |
 | ----------- | ------ | ------------------------------------------------------------------------------------------------------------- |
-| `status`    | string | Filter by `inbox` \| `active` \| `someday` \| `done` \| `cancelled`                                           |
+| `status`    | string | Filter by `active` \| `done` \| `cancelled`                                                                   |
 | `priority`  | string | Filter by `low` \| `medium` \| `high`                                                                         |
 | `energy`    | string | Filter by `low` \| `medium` \| `deep`                                                                         |
 | `search`    | string | Case-insensitive ILIKE over `title` + `notes`                                                                 |
@@ -748,7 +743,7 @@ Retrieve a single task.
 Create a task inside a project. **Title-only is valid** (quick-add); everything else defaults server-side.
 
 - **Auth required:** Yes
-- **Plan limit:** Free plan allows **50 active+inbox tasks per project**. Only `active` and `inbox` count — `someday`, `done`, and `cancelled` are free. Exceeding it (or a PATCH that moves a task _into_ active/inbox over the cap) returns `PLAN_LIMIT_EXCEEDED` (403).
+- **Plan limit:** Free plan allows **50 active tasks per project**. Only `active` counts — `done` and `cancelled` are free. Exceeding it (or a PATCH that moves a task _into_ active over the cap) returns `PLAN_LIMIT_EXCEEDED` (403).
 
 **Request body**
 
@@ -769,7 +764,7 @@ Create a task inside a project. **Title-only is valid** (quick-add); everything 
 | ------------------ | ------- | -------- | ------------------------------------------------------------------------------------ |
 | `title`            | string  | Yes      | 1–255 characters (trimmed)                                                           |
 | `notes`            | string  | No       | ≤ 2000 characters                                                                    |
-| `status`           | string  | No       | `inbox` \| `active` \| `someday` \| `done` \| `cancelled` — default `inbox`          |
+| `status`           | string  | No       | `active` \| `done` \| `cancelled` — default `active`                                 |
 | `priority`         | string  | No       | `low` \| `medium` \| `high` — default `medium`                                       |
 | `energy`           | string  | No       | `low` \| `medium` \| `deep` — default `medium`                                       |
 | `rollsOver`        | boolean | No       | default `true` (a past `scheduledFor` carries forward)                               |
@@ -785,7 +780,7 @@ Create a task inside a project. **Title-only is valid** (quick-add); everything 
 
 #### PATCH /v1/tasks/:id
 
-Partial update of any mutable field. `status→done` sets `completedAt` server-side; moving away from `done` clears it. A PATCH that moves a task into `active`/`inbox` is subject to the plan limit.
+Partial update of any mutable field. `status→done` sets `completedAt` server-side; moving away from `done` clears it. A PATCH that moves a task into `active` is subject to the plan limit.
 
 - **Auth required:** Yes
 
@@ -811,7 +806,7 @@ Partial update of any mutable field. `status→done` sets `completedAt` server-s
 
 #### PATCH /v1/tasks/:id/status
 
-Status-only shorthand (checkbox toggle, move to someday). Same `completedAt` side-effects and plan-limit semantics as the full PATCH.
+Status-only shorthand (checkbox toggle, cancel). Same `completedAt` side-effects and plan-limit semantics as the full PATCH.
 
 - **Auth required:** Yes
 
@@ -821,9 +816,9 @@ Status-only shorthand (checkbox toggle, move to someday). Same `completedAt` sid
 { "status": "done" }
 ```
 
-| Field    | Type   | Required | Values                                                    |
-| -------- | ------ | -------- | --------------------------------------------------------- |
-| `status` | string | Yes      | `inbox` \| `active` \| `someday` \| `done` \| `cancelled` |
+| Field    | Type   | Required | Values                            |
+| -------- | ------ | -------- | --------------------------------- |
+| `status` | string | Yes      | `active` \| `done` \| `cancelled` |
 
 **Response — 200 OK** — Updated `ITask`
 
@@ -1113,7 +1108,7 @@ Delete an inbox item.
 
 ### 3.7 Focus & Time Spread View
 
-These two read-only endpoints derive their lists from the user's `active`+`inbox` tasks **across all projects**; `someday`/`done`/`cancelled` are excluded at the source. Both read the clock once, server-side (the result is deterministic for a given "now"), so no client date is sent.
+These two read-only endpoints derive their lists from the user's `active` tasks **across all projects**; `done`/`cancelled` are excluded at the source. Both read the clock once, server-side (the result is deterministic for a given "now"), so no client date is sent.
 
 #### GET /v1/focus
 

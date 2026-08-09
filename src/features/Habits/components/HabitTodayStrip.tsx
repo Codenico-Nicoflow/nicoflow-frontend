@@ -51,7 +51,10 @@ const StripItem = ({ habit, isSyncing = false }: { habit: IHabit; isSyncing?: bo
             be plainly false. */}
         <span
           className={cn(
-            'block h-4 truncate text-xs tabular-nums text-muted-foreground transition-opacity',
+            'block h-4 truncate text-xs tabular-nums transition-opacity',
+            habit.periodProgress && habit.periodProgress.current >= habit.periodProgress.target
+              ? 'text-green-600 dark:text-green-500'
+              : 'text-muted-foreground',
             // The count comes from the server, so between the write landing and
             // the refetch arriving it is stale. Dimming it says "this number is
             // catching up" instead of showing a confident wrong value — a gap

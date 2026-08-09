@@ -103,7 +103,7 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, compact 
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - progress)}
           className={cn(
-            'stroke-primary',
+            done ? 'stroke-green-600 dark:stroke-green-500' : 'stroke-primary',
             // Motion is confined to the moment of completion, and it is the one
             // thing the user's own tap produced — safe to show optimistically.
             'transition-[stroke-dashoffset] duration-200 ease-out',
@@ -116,7 +116,7 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, compact 
       <span className="absolute grid place-items-center">
         {done ? (
           <Check
-            className={cn(compact ? 'h-4 w-4' : 'h-5 w-5', 'text-primary')}
+            className={cn(compact ? 'h-4 w-4' : 'h-5 w-5', 'text-green-600 dark:text-green-500')}
             aria-hidden="true"
             data-testid="habit-ring-check"
           />

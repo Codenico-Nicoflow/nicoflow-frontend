@@ -52,7 +52,7 @@ const StripItem = ({ habit, isSyncing = false }: { habit: IHabit; isSyncing?: bo
         <span
           className={cn(
             'block h-4 truncate text-xs tabular-nums transition-opacity',
-            habit.periodProgress && habit.periodProgress.current >= habit.periodProgress.target
+            habit.periodProgress && (habit.periodProgress.current >= habit.periodProgress.target || habit.loggedToday)
               ? 'text-green-600 dark:text-green-500'
               : 'text-muted-foreground',
             // The count comes from the server, so between the write landing and

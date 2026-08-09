@@ -9,11 +9,20 @@ const PASSWORD_PLACEHOLDER = '••••••••';
 
 // A fresh, syntactically valid but unregistered username/email for register specs.
 function freshIdentity(): { email: string; username: string } {
-  const uid = `${process.env['GITHUB_RUN_ID'] ?? 'local'}-${Date.now()}`;
+  // Millisecond timestamps collide when multiple registers happen in the same
+  // CI run faster than the clock ticks (retries, parallel specs) — add a
+  // random suffix so two calls are never identical regardless of timing.
+  const rand = Math.random().toString(36).slice(2, 8);
+  const uid = `${process.env['GITHUB_RUN_ID'] ?? 'local'}-${Date.now()}-${rand}`;
   return {
     email: `e2e+${uid}@nicoflow.test`,
-    // Username is alphanumeric-only (max 20) — strip the hyphen/plus from uid.
-    username: `e2e${uid}`.replace(/[^a-z0-9]/gi, '').slice(0, 20),
+    // Username is alphanumeric-only (max 20). Keep the LAST 20 chars, not the
+    // first: `e2e${runId}-${timestamp}-${rand}` stripped of non-alnum
+    // front-loads the (constant, per-run) GITHUB_RUN_ID, so a naive
+    // slice(0, 20) chopped off the timestamp+random suffix entirely and left
+    // near-identical usernames across retries/registers in the same run —
+    // collisions the backend correctly rejected as "already registered".
+    username: `e2e${uid}`.replace(/[^a-z0-9]/gi, '').slice(-20),
   };
 }
 

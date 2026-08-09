@@ -10,7 +10,7 @@ export { default as TasksSection } from './components/TasksSection';
 
 // Filters
 export type { TaskCounts, TaskFilter } from './filters';
-export { countTasks, defaultTaskFilter, isUnscheduled, matchesFilter, TASK_FILTER } from './filters';
+export { countTasks, defaultTaskFilter, matchesFilter, matchesScheduleFilter, TASK_FILTER } from './filters';
 
 // States
 export { default as TasksEmptyState } from './states/TasksEmptyState';

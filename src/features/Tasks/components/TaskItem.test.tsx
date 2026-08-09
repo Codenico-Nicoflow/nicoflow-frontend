@@ -177,13 +177,13 @@ describe('TaskItem', () => {
     expect(screen.queryByTestId(CONFIRM_DIALOG_CONFIRM_BUTTON)).not.toBeInTheDocument();
   });
 
-  it('moves the task to someday from the three-dot menu', async () => {
+  it('cancels the task from the three-dot menu', async () => {
     let patchedStatus: unknown;
     server.use(
       http.patch(`${API}/tasks/t4/status`, async ({ request }) => {
         const body = (await request.json()) as { status: string };
         patchedStatus = body.status;
-        return HttpResponse.json(envelope(makeTask({ id: 't4', status: 'someday' })));
+        return HttpResponse.json(envelope(makeTask({ id: 't4', status: 'cancelled' })));
       })
     );
 
@@ -193,8 +193,8 @@ describe('TaskItem', () => {
     );
 
     await user.click(screen.getByTestId('item-actions-menu-trigger'));
-    await user.click(await screen.findByText('Move to Someday'));
+    await user.click(await screen.findByText('Cancel Task'));
 
-    await waitFor(() => expect(patchedStatus).toBe('someday'));
+    await waitFor(() => expect(patchedStatus).toBe('cancelled'));
   });
 });

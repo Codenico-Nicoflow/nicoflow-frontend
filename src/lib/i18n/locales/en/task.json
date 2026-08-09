@@ -60,17 +60,13 @@
   "actions": {
     "edit": "Edit Task",
     "delete": "Delete Task",
-    "moveToSomeday": "Move to Someday",
+    "cancel": "Cancel Task",
     "complete": "Complete {{title}}"
   },
   "status": {
-    "todo": "To do",
-    "inProgress": "In progress",
     "done": "Done",
     "cancelled": "Cancelled",
-    "inbox": "Inbox",
-    "active": "Active",
-    "missed": "Missed"
+    "active": "Active"
   },
   "priority": {
     "low": "Low",
@@ -86,15 +82,17 @@
   },
   "filters": {
     "all": "All",
-    "inbox": "Inbox",
-    "unscheduled": "Unscheduled",
     "active": "Active",
-    "someday": "Someday",
     "done": "Done",
     "cancelled": "Cancelled",
     "energyAll": "All energy",
     "energyLabel": "Filter by energy",
-    "missed": "Missed"
+    "scheduleLabel": "Filter by schedule",
+    "schedule": {
+      "all": "All",
+      "scheduled": "Scheduled",
+      "unscheduled": "Unscheduled"
+    }
   },
   "header": {
     "title": "Tasks",
@@ -144,7 +142,7 @@
   "quickAdd": {
     "placeholder": "Add a task, press Enter",
     "label": "Quick add task",
-    "planLimit": "This project is at its live-task limit. Someday and completed tasks are free, only live tasks count. Upgrade to Pro for unlimited.",
+    "planLimit": "This project is at its active-task limit. Completed and cancelled tasks are free, only active tasks count. Upgrade to Pro for unlimited.",
     "fabTask": "Quick Add Task",
     "fabTaskDescription": "Add a task to this project with a title and default settings.",
     "fabBucket": "Quick Add to Bucket",

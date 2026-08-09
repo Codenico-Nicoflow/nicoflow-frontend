@@ -27,15 +27,9 @@ export const PROJECT_STATUS = {
 // ============================================
 
 export const TaskStatus = {
-  INBOX: 'inbox',
   ACTIVE: 'active',
-  SOMEDAY: 'someday',
   DONE: 'done',
   CANCELLED: 'cancelled',
-  // A recurring occurrence whose window closed without completion (E-050).
-  // Distinct from CANCELLED — that is the user deciding against it, and the
-  // streak calculation has to tell them apart. Set only by the backend sweep.
-  MISSED: 'missed',
 } as const;
 
 export const TaskPriority = {
@@ -63,14 +57,20 @@ export const TaskSortField = {
   CREATED_AT: 'createdAt',
 } as const;
 
+// Status tabs. Independent of scheduling — see ScheduleFilter.
 export const FilterBy = {
   ALL: 'all',
-  INBOX: 'inbox',
   ACTIVE: 'active',
-  SOMEDAY: 'someday',
   DONE: 'done',
   CANCELLED: 'cancelled',
-  MISSED: 'missed',
+} as const;
+
+// Scheduled/unscheduled is derived from scheduledFor, never a stored status.
+// This chip is only meaningful under the Active status tab.
+export const ScheduleFilter = {
+  ALL: 'all',
+  SCHEDULED: 'scheduled',
+  UNSCHEDULED: 'unscheduled',
 } as const;
 
 // ============================================

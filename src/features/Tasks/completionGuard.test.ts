@@ -15,7 +15,6 @@ describe('needsCompletionConfirm', () => {
 
   it('does not ask for a transition that is not a completion', () => {
     expect(needsCompletionConfirm({ openSubtaskCount: 3 }, TaskStatus.ACTIVE)).toBe(false);
-    expect(needsCompletionConfirm({ openSubtaskCount: 3 }, TaskStatus.SOMEDAY)).toBe(false);
     expect(needsCompletionConfirm({ openSubtaskCount: 3 }, TaskStatus.CANCELLED)).toBe(false);
   });
 });

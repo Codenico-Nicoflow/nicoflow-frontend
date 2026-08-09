@@ -15,7 +15,7 @@ interface TaskQuickAddProps {
 }
 
 // Frictionless capture: one field, one keystroke. Title-only create — the
-// backend applies the defaults (status inbox, priority/energy medium, rollsOver).
+// backend applies the defaults (status active, priority/energy medium, rollsOver).
 const TaskQuickAdd = ({ projectId, onCreated, className }: TaskQuickAddProps) => {
   const { t } = useTranslation('task');
   const [title, setTitle] = useState('');
@@ -29,8 +29,8 @@ const TaskQuickAdd = ({ projectId, onCreated, className }: TaskQuickAddProps) =>
       setTitle('');
       onCreated?.();
     } catch (error) {
-      // Plan limit gets the on-brand nudge, not a generic error: only live
-      // (inbox/active) tasks count, so Someday and Done are always free.
+      // Plan limit gets the on-brand nudge, not a generic error: only active
+      // tasks count, so Done and Cancelled are always free.
       if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
         toast.error(t('quickAdd.planLimit'));
         return;

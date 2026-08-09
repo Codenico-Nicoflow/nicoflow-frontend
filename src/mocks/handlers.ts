@@ -90,7 +90,7 @@ export const makeTask = (overrides?: Partial<ITask>): ITask => ({
   projectId: 'project-1',
   title: 'Sample Task',
   notes: null,
-  status: TaskStatus.INBOX,
+  status: TaskStatus.ACTIVE,
   priority: TaskPriority.MEDIUM,
   energy: TaskEnergy.MEDIUM,
   rollsOver: true,

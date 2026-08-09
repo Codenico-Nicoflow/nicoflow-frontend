@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Inbox, XCircle } from 'lucide-react';
+import { CheckCircle2, Circle, XCircle } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -10,7 +10,6 @@ import { TaskStatus } from '@/lib/types';
 // `labelKey` points at a `task` namespace key resolved at render so the option
 // labels localize with the active language.
 const STATUS_OPTIONS = [
-  { value: TaskStatus.INBOX, labelKey: 'status.inbox', icon: Inbox, dot: 'bg-muted-foreground' },
   { value: TaskStatus.ACTIVE, labelKey: 'status.active', icon: Circle, dot: 'bg-primary' },
   { value: TaskStatus.DONE, labelKey: 'status.done', icon: CheckCircle2, dot: 'bg-success' },
   { value: TaskStatus.CANCELLED, labelKey: 'status.cancelled', icon: XCircle, dot: 'bg-destructive' },

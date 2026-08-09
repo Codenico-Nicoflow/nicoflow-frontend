@@ -26,6 +26,7 @@ export {
   RecurrenceFreq,
   RegisterInputs,
   ResetPasswordInputs,
+  ScheduleFilter,
   TaskEnergy,
   TaskPriority,
   TaskSortField,

@@ -51,6 +51,12 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, compact 
   const period = habit.periodProgress;
   const done = period ? period.current >= period.target : checked;
 
+  // Logged today but the weekly/period target isn't met yet — still worth a
+  // green cue so a 1-of-3 gym habit doesn't look identical to an untouched
+  // one and invite an accidental second tap.
+  const loggedTodayNotDone = !done && (checked || habit.loggedToday);
+  const isGreen = done || loggedTodayNotDone;
+
   // Optimistic, but only by one step. Filling the whole ring on tap would show a
   // 1-of-3 habit as complete; advancing one unit is what the tap actually did.
   const optimisticProgress = period
@@ -103,7 +109,7 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, compact 
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - progress)}
           className={cn(
-            done ? 'stroke-green-600 dark:stroke-green-500' : 'stroke-primary',
+            isGreen ? 'stroke-green-600 dark:stroke-green-500' : 'stroke-primary',
             // Motion is confined to the moment of completion, and it is the one
             // thing the user's own tap produced — safe to show optimistically.
             'transition-[stroke-dashoffset] duration-200 ease-out',
@@ -121,7 +127,13 @@ export const HabitRing = ({ habit, disabled = false, checked, onToggle, compact 
             data-testid="habit-ring-check"
           />
         ) : isBinary ? null : (
-          <span className="text-[11px] font-medium tabular-nums text-muted-foreground" data-testid="habit-ring-count">
+          <span
+            className={cn(
+              'text-[11px] font-medium tabular-nums',
+              loggedTodayNotDone ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground'
+            )}
+            data-testid="habit-ring-count"
+          >
             {countLabel}
           </span>
         )}

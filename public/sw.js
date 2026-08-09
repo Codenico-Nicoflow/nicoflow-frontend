@@ -32,7 +32,7 @@ self.addEventListener('push', event => {
         tag: NOTIFICATION_TAG, // collapse duplicates into one
         icon: '/favicon.ico',
         badge: '/favicon.ico',
-        data: { type: payload.type },
+        data: { url: targetUrl(payload) },
       });
     })()
   );
@@ -40,24 +40,26 @@ self.addEventListener('push', event => {
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
+  const url = new URL(event.notification.data?.url || '/', self.location.origin).href;
   event.waitUntil(
     (async () => {
       const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-      // Focus an existing Nicoflow tab if one is open; otherwise open the app.
+      // Focus + navigate an existing Nicoflow tab if one is open; otherwise open one.
       const existing = clientList.find(client => 'focus' in client);
       if (existing) {
         await existing.focus();
+        if ('navigate' in existing) await existing.navigate(url);
         return;
       }
-      if (self.clients.openWindow) await self.clients.openWindow('/');
+      if (self.clients.openWindow) await self.clients.openWindow(url);
     })()
   );
 });
 
-// Push payloads are the JSON our backend sends ({ title, body, type }); fall back to
-// generic copy if a payload is absent or unparseable so a notification still shows.
+// Push payloads are the JSON our backend sends ({ title, body, type, metadata }); fall
+// back to generic copy if a payload is absent or unparseable so a notification still shows.
 function readPayload(data) {
-  const fallback = { title: 'Nicoflow', body: 'You have a new notification', type: '' };
+  const fallback = { title: 'Nicoflow', body: 'You have a new notification', type: '', metadata: {} };
   if (!data) return fallback;
   try {
     const parsed = data.json();
@@ -65,8 +67,18 @@ function readPayload(data) {
       title: typeof parsed.title === 'string' ? parsed.title : fallback.title,
       body: typeof parsed.body === 'string' ? parsed.body : fallback.body,
       type: typeof parsed.type === 'string' ? parsed.type : '',
+      metadata: parsed.metadata && typeof parsed.metadata === 'object' ? parsed.metadata : {},
     };
   } catch {
     return fallback;
   }
+}
+
+// Maps a notification's type + metadata to the in-app route it should open. Every
+// notification we currently emit resolves to a project (a task has no standalone
+// route — it opens as a dialog on its project page). Falls back to the app root.
+function targetUrl(payload) {
+  const projectId = payload.metadata.projectId;
+  if (projectId && typeof projectId === 'string') return `/projects/${projectId}`;
+  return '/';
 }

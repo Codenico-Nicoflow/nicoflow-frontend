@@ -1,8 +1,14 @@
-import type { TiptapDoc } from '@/lib/types';
+import type { INote, TiptapDoc } from '@/lib/types';
 
 // GET /notes?projectId= — projectId is required by the API (422 without it).
 export type ListNotesRequest = {
   projectId: string;
+};
+
+// Paginated list response for GET /notes (keyset on (updated_at, id) DESC).
+export type ListNotesPage = {
+  items: INote[];
+  nextCursor: string;
 };
 
 // POST /notes. `content` is optional: omitted ⇒ the server's empty-doc default.

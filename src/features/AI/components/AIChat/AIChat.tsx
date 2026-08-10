@@ -8,7 +8,13 @@ import { EmptyState } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { PendingToolProposal } from '@/features/AI/types';
-import { useGetAISessionQuery, useGetAreasWithProjectsQuery, useListPendingToolCallsQuery } from '@/lib/store';
+import { useInfiniteScrollSentinel } from '@/hooks';
+import {
+  useGetAISessionQuery,
+  useGetAreasWithProjectsQuery,
+  useGetSessionMessagesInfiniteQuery,
+  useListPendingToolCallsQuery,
+} from '@/lib/store';
 import { ToastMessages } from '@/lib/utils';
 
 import { useAIQuota, useAIStream } from '../../hooks';
@@ -19,6 +25,7 @@ import { AIDisabledBanner } from '../QuotaIndicator/AIDisabledBanner';
 import { QuotaWall } from '../QuotaIndicator/QuotaWall';
 
 import { Composer } from './Composer';
+import { useAnchoredPrepend } from './useAnchoredPrepend';
 import { useAutoScroll } from './useAutoScroll';
 
 export interface AIChatProps {
@@ -37,6 +44,43 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
   const { pending, isStreaming, send, abort, retry, reset, confirmTool, rejectTool } = useAIStream();
   const { quota, featureDisabled } = useAIQuota();
   const { ref, pinned, scrollToBottom, jumpToLatest } = useAutoScroll<HTMLDivElement>();
+
+  // Older message history — fetched backwards from messagesCursor (the cursor
+  // pointing just before the initial 50 messages the session detail includes).
+  // Skip entirely when the session hasn't loaded yet or has ≤50 messages.
+  const seedCursor = session?.messagesCursor ?? '';
+  const {
+    data: olderMessagesData,
+    isFetchingPreviousPage,
+    hasPreviousPage,
+    fetchPreviousPage,
+  } = useGetSessionMessagesInfiniteQuery(
+    { sessionId, seedCursor },
+    {
+      skip: !sessionId || seedCursor === '',
+      // Seed the first fetch from the session's messagesCursor so it fetches
+      // the page immediately before the initial 50 messages.
+      initialPageParam: seedCursor,
+    }
+  );
+
+  // Flatten all older-history pages (they come back ASC: oldest→newest).
+  const olderMessages = useMemo(() => olderMessagesData?.pages.flatMap(p => p.items) ?? [], [olderMessagesData]);
+
+  // Sentinel ref for the top-of-chat load-older trigger.
+  const containerRef = ref as React.RefObject<HTMLDivElement | null>;
+  const { sentinelRef: topSentinelRef } = useInfiniteScrollSentinel({
+    hasMore: !!hasPreviousPage,
+    isLoadingMore: isFetchingPreviousPage,
+    onLoadMore: fetchPreviousPage,
+    root: containerRef,
+    // Small margin so the user doesn't have to scroll all the way to the very top.
+    rootMargin: '100px',
+  });
+
+  // Preserve scroll position while older messages are prepended above.
+  const composedLength = olderMessages.length + (session?.messages.length ?? 0);
+  useAnchoredPrepend({ containerRef, itemsLength: composedLength, isPrepending: isFetchingPreviousPage });
 
   // Pending proposals from the server — used to rehydrate after reload.
   const { data: serverPendingCalls } = useListPendingToolCallsQuery(sessionId, { skip: !sessionId });
@@ -134,10 +178,19 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
 
   if (featureDisabled) return <AIDisabledBanner />;
 
-  // All displayable turns: persisted history + local pending + server rehydrated proposals.
-  // Rehydrated proposals appear after history (they are from a prior send).
+  // All displayable turns: older loaded history + session initial history +
+  // local pending + server rehydrated proposals. Rehydrated proposals appear
+  // after the session history (they are from a prior send).
   const renderTurns = () => (
     <div className="space-y-3">
+      {/* Top sentinel: when visible, loads the next older page. */}
+      {isFetchingPreviousPage && <Skeleton className="h-10 w-full" />}
+      <div ref={topSentinelRef} aria-hidden="true" />
+      {olderMessages
+        .filter(m => m.content.trim() !== '')
+        .map(m => (
+          <AIMessage key={m.id} role={m.role} content={m.content} />
+        ))}
       {history
         .filter(m => m.content.trim() !== '')
         .map(m => (

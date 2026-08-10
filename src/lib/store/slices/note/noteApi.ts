@@ -1,12 +1,12 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import type { ApiEnvelope, ApiErrorBody, INote, INoteDetail } from '@/lib/types';
+import type { ApiEnvelope, ApiErrorBody, INoteDetail } from '@/lib/types';
 import { NOTE_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 
-import type { CreateNoteRequest, ListNotesRequest, UpdateNoteRequest } from './type';
+import type { CreateNoteRequest, ListNotesPage, ListNotesRequest, UpdateNoteRequest } from './type';
 
 // The raw RTK Query error is { status, data: <full envelope> }, so the API code
 // sits at error.data.error.code — one level deeper than the bare `error.data`
@@ -34,13 +34,27 @@ export const noteApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Note'],
   endpoints: builder => ({
-    getNotes: builder.query<INote[], ListNotesRequest>({
-      query: ({ projectId }) => `${NOTE_API.LIST}?${new URLSearchParams({ projectId }).toString()}`,
-      transformResponse: (raw: ApiEnvelope<INote[]>) => raw.data,
+    // Cursor-paginated note list (keyset on (updated_at, id) DESC).
+    // Three generics: page shape, query arg (cache key), page param type.
+    getNotes: builder.infiniteQuery<ListNotesPage, ListNotesRequest, string>({
+      infiniteQueryOptions: {
+        initialPageParam: '',
+        getNextPageParam: (lastPage: ListNotesPage) => (lastPage.nextCursor === '' ? undefined : lastPage.nextCursor),
+      },
+      query: ({ queryArg, pageParam }) => {
+        const params = new URLSearchParams({ projectId: queryArg.projectId });
+        if (pageParam !== '') params.set('cursor', pageParam);
+        params.set('limit', '50');
+        return `${NOTE_API.LIST}?${params.toString()}`;
+      },
+      transformResponse: (raw: ApiEnvelope<ListNotesPage>) => raw.data,
       transformErrorResponse: toApiError,
       providesTags: result =>
         result
-          ? [...result.map(({ id }) => ({ type: 'Note' as const, id })), { type: 'Note' as const, id: 'LIST' }]
+          ? [
+              ...result.pages.flatMap(page => page.items.map(({ id }) => ({ type: 'Note' as const, id }))),
+              { type: 'Note' as const, id: 'LIST' },
+            ]
           : [{ type: 'Note' as const, id: 'LIST' }],
     }),
 
@@ -94,7 +108,7 @@ export const noteApi = createApi({
 });
 
 export const {
-  useGetNotesQuery,
+  useGetNotesInfiniteQuery,
   useGetNoteQuery,
   useCreateNoteMutation,
   useUpdateNoteMutation,

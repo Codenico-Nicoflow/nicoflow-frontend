@@ -33,6 +33,8 @@ const makeNoteDetail = (overrides: Partial<INoteDetail> = {}): INoteDetail => ({
   ...overrides,
 });
 
+const pagedEnvelope = (items: INote[]) => ({ data: { items, nextCursor: '' }, error: null });
+
 const makeStore = () =>
   configureStore({
     reducer: { auth: authReducer, [noteApi.reducerPath]: noteApi.reducer },
@@ -40,14 +42,15 @@ const makeStore = () =>
   });
 
 describe('noteApi slice', () => {
-  it('getNotes unwraps the envelope and keeps string IDs', async () => {
-    server.use(http.get(`${API}/notes`, () => HttpResponse.json({ data: [makeNote()], error: null })));
+  it('getNotes unwraps the paginated envelope and keeps string IDs', async () => {
+    server.use(http.get(`${API}/notes`, () => HttpResponse.json(pagedEnvelope([makeNote()]))));
 
     const store = makeStore();
     const res = await store.dispatch(noteApi.endpoints.getNotes.initiate({ projectId: 'p1' }));
 
-    expect(res.data).toEqual([makeNote()]);
-    expect(typeof res.data?.[0]?.id).toBe('string');
+    const firstPage = (res.data as { pages: { items: INote[] }[] } | undefined)?.pages[0];
+    expect(firstPage?.items[0]).toEqual(makeNote());
+    expect(typeof firstPage?.items[0]?.id).toBe('string');
   });
 
   it('getNotes sends projectId as a query param', async () => {
@@ -55,7 +58,7 @@ describe('noteApi slice', () => {
     server.use(
       http.get(`${API}/notes`, ({ request }) => {
         seen = new URL(request.url).searchParams.get('projectId');
-        return HttpResponse.json({ data: [], error: null });
+        return HttpResponse.json(pagedEnvelope([]));
       })
     );
 
@@ -67,11 +70,11 @@ describe('noteApi slice', () => {
 
   // The list shape carries no body at all — that is the whole point of the split.
   it('getNotes rows carry an excerpt and no content', async () => {
-    server.use(http.get(`${API}/notes`, () => HttpResponse.json({ data: [makeNote()], error: null })));
+    server.use(http.get(`${API}/notes`, () => HttpResponse.json(pagedEnvelope([makeNote()]))));
 
     const store = makeStore();
     const res = await store.dispatch(noteApi.endpoints.getNotes.initiate({ projectId: 'p1' }));
-    const row = res.data?.[0];
+    const row = (res.data as { pages: { items: INote[] }[] } | undefined)?.pages[0]?.items[0];
 
     expect(row?.excerpt).toBe('Reference material for the weekly review.');
     expect(row).not.toHaveProperty('content');
@@ -178,7 +181,7 @@ describe('noteApi slice', () => {
     server.use(
       http.get(`${API}/notes`, () => {
         listCalls += 1;
-        return HttpResponse.json({ data: [makeNote()], error: null });
+        return HttpResponse.json(pagedEnvelope([makeNote()]));
       }),
       http.patch(`${API}/notes/n1`, () => HttpResponse.json({ data: makeNoteDetail({ version: 2 }), error: null }))
     );
@@ -200,7 +203,7 @@ describe('noteApi slice', () => {
     server.use(
       http.get(`${API}/notes`, () => {
         listCalls += 1;
-        return HttpResponse.json({ data: [], error: null });
+        return HttpResponse.json(pagedEnvelope([]));
       }),
       http.post(`${API}/notes`, () => HttpResponse.json({ data: makeNoteDetail(), error: null }, { status: 201 }))
     );
@@ -221,7 +224,7 @@ describe('noteApi slice', () => {
     server.use(
       http.get(`${API}/notes`, () => {
         listCalls += 1;
-        return HttpResponse.json({ data: [makeNote()], error: null });
+        return HttpResponse.json(pagedEnvelope([makeNote()]));
       }),
       http.delete(`${API}/notes/n1`, () => new HttpResponse(null, { status: 204 }))
     );

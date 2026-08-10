@@ -78,7 +78,7 @@ export {
   useGetCalendarTasksQuery,
   useGetFocusQuery,
   useGetTaskQuery,
-  useGetTasksQuery,
+  useGetTasksInfiniteQuery,
   useGetTimeSpreadQuery,
   useReorderTaskMutation,
   useScheduleTaskMutation,
@@ -91,6 +91,7 @@ export type {
   GetCalendarTasksRequest,
   GetCalendarTasksResponse,
   GetFocusRequest,
+  GetTasksPage,
   GetTimeSpreadResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
@@ -191,10 +192,10 @@ export {
   useCreateNoteMutation,
   useDeleteNoteMutation,
   useGetNoteQuery,
-  useGetNotesQuery,
+  useGetNotesInfiniteQuery,
   useUpdateNoteMutation,
 } from './slices/note/noteApi';
-export type { CreateNoteRequest, ListNotesRequest, UpdateNoteRequest } from './slices/note/type';
+export type { CreateNoteRequest, ListNotesPage, ListNotesRequest, UpdateNoteRequest } from './slices/note/type';
 
 // Habit exports (E-055)
 export { habitApi } from './slices/habit/habitApi';
@@ -245,6 +246,7 @@ export {
   useGetAISessionQuery,
   useGetAISessionsQuery,
   useGetAIUsageQuery,
+  useGetSessionMessagesInfiniteQuery,
   useListPendingToolCallsQuery,
 } from './slices/ai/aiApi';
 export type {
@@ -253,6 +255,8 @@ export type {
   GetAISessionResponse,
   GetAISessionsResponse,
   GetAIUsageResponse,
+  GetSessionMessagesPage,
+  GetSessionMessagesRequest,
   ListPendingToolCallsResponse,
 } from './slices/ai/type';
 

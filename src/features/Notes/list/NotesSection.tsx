@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { AlertTriangle, NotebookPen, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -6,8 +8,9 @@ import { toast } from 'sonner';
 import { EmptyState } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useInfiniteScrollSentinel } from '@/hooks';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
-import { useCreateNoteMutation, useGetNotesQuery } from '@/lib/store';
+import { useCreateNoteMutation, useGetNotesInfiniteQuery } from '@/lib/store';
 import { EMPTY_TIPTAP_DOC } from '@/lib/types';
 
 import { NoteRow } from './NoteRow';
@@ -26,8 +29,24 @@ export const NotesSection = ({ projectId, showHeading = true }: NotesSectionProp
   const navigate = useNavigate();
   const dateLocale = getDateLocale(i18n.language);
 
-  const { data: notes, isLoading, isError, refetch } = useGetNotesQuery({ projectId }, { skip: !projectId });
+  const {
+    data: notesData,
+    isLoading,
+    isError,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useGetNotesInfiniteQuery({ projectId }, { skip: !projectId });
   const [createNote, { isLoading: isCreating }] = useCreateNoteMutation();
+
+  const notes = useMemo(() => notesData?.pages.flatMap(p => p.items) ?? [], [notesData]);
+
+  const { sentinelRef } = useInfiniteScrollSentinel({
+    hasMore: !!hasNextPage,
+    isLoadingMore: isFetchingNextPage,
+    onLoadMore: fetchNextPage,
+  });
 
   const handleCreate = async () => {
     try {
@@ -82,7 +101,7 @@ export const NotesSection = ({ projectId, showHeading = true }: NotesSectionProp
           }
           data-testid="notes-error"
         />
-      ) : !notes || notes.length === 0 ? (
+      ) : notes.length === 0 ? (
         // Empty state sits ABOVE a still-present surface rather than replacing
         // the section — the heading and create action stay reachable (the
         // pattern settled in the Calendar month view, NIC-1803).
@@ -101,6 +120,9 @@ export const NotesSection = ({ projectId, showHeading = true }: NotesSectionProp
               <NoteRow note={note} dateLocale={dateLocale} onOpen={id => navigate(`/notes/${id}`)} />
             </li>
           ))}
+          {/* Sentinel triggers the next page; inline skeleton for subsequent-page loads only. */}
+          <li ref={sentinelRef} aria-hidden="true" />
+          {isFetchingNextPage && <Skeleton className="h-16 w-full" />}
         </ul>
       )}
     </section>

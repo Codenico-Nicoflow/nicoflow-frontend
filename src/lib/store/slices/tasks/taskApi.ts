@@ -1,3 +1,4 @@
+import type { InfiniteData } from '@reduxjs/toolkit/query';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import type { ApiEnvelope, ITask } from '@/lib/types';
@@ -16,8 +17,8 @@ import type {
   GetFocusResponse,
   GetTaskRequest,
   GetTaskResponse,
+  GetTasksPage,
   GetTasksRequest,
-  GetTasksResponse,
   GetTimeSpreadResponse,
   ReorderTaskRequest,
   ReorderTaskResponse,
@@ -40,9 +41,9 @@ type TaskApiDispatch = <T extends CalendarPatch>(patch: T) => ReturnType<T>;
  * Apply `mutate` to a task inside every cached calendar window, returning the
  * patch handles so a failed mutation can undo them.
  *
- * Only `getCalendarTasks` entries are touched: the per-project lists have no
- * drag surface, and re-patching them would duplicate work the invalidation
- * already does on success.
+ * Only `getCalendarTasks` entries are touched: the per-project infinite lists
+ * have no drag surface, and re-patching them would duplicate work the
+ * invalidation already does on success.
  */
 const patchCalendarCaches = (
   state: TaskApiState,
@@ -65,17 +66,34 @@ const patchCalendarCaches = (
 export const taskApi = createApi({
   reducerPath: 'taskApi',
   baseQuery: baseQueryWithReauth,
-  // 'Task' = per-project lists. 'Focus' and 'TimeSpread' are derived cross-project
-  // views (ranked list / day buckets): any task mutation must refresh them too.
+  // 'Task' = per-project infinite lists. 'Focus' and 'TimeSpread' are derived
+  // cross-project views (ranked list / day buckets): any task mutation must
+  // refresh them too.
   tagTypes: ['Task', 'Focus', 'TimeSpread'],
   endpoints: builder => ({
-    getTasks: builder.query<GetTasksResponse, GetTasksRequest>({
-      query: ({ projectId, ...params }) => ({
-        url: `/projects/${projectId}/tasks`,
-        params,
+    // Cursor-paginated per-project task list (keyset on (created_at, id) DESC).
+    // Three generics: page shape, query arg (cache key), page param type.
+    // Filter counts in the UI only reflect loaded pages once a project exceeds
+    // one page — accepted tradeoff (no summary-count endpoint).
+    getTasks: builder.infiniteQuery<GetTasksPage, GetTasksRequest, string>({
+      infiniteQueryOptions: {
+        initialPageParam: '',
+        getNextPageParam: (lastPage: GetTasksPage) => (lastPage.nextCursor === '' ? undefined : lastPage.nextCursor),
+      },
+      query: ({ queryArg, pageParam }) => ({
+        url: `/projects/${queryArg.projectId}/tasks`,
+        params: {
+          ...(queryArg.status !== undefined && { status: queryArg.status }),
+          ...(queryArg.priority !== undefined && { priority: queryArg.priority }),
+          ...(queryArg.energy !== undefined && { energy: queryArg.energy }),
+          ...(queryArg.search !== undefined && { search: queryArg.search }),
+          ...(queryArg.sortField !== undefined && { sortField: queryArg.sortField }),
+          ...(queryArg.sortOrder !== undefined && { sortOrder: queryArg.sortOrder }),
+          ...(pageParam !== '' && { cursor: pageParam }),
+          limit: 50,
+        },
       }),
-      // List endpoints wrap the array as { items } inside the data envelope.
-      transformResponse: (raw: ApiEnvelope<{ items: GetTasksResponse }>) => raw.data.items,
+      transformResponse: (raw: ApiEnvelope<GetTasksPage>) => raw.data,
       transformErrorResponse: error => error.data,
       providesTags: ['Task'],
     }),
@@ -103,9 +121,9 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<UpdateTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      // Only the calendar windows are patched optimistically — a resize on the
-      // grid must track the pointer. Dialog edits go through the same endpoint
-      // and simply get a patch that no cached window contains.
+      // Only calendar windows are patched optimistically — resize on the grid
+      // must track the pointer. Dialog edits go through the same endpoint and
+      // simply get a patch that no cached window contains.
       onQueryStarted: async ({ id, ...body }, { dispatch, getState, queryFulfilled }) => {
         const patches = patchCalendarCaches(getState(), dispatch, id, task => {
           if (body.estimatedMinutes !== undefined) task.estimatedMinutes = body.estimatedMinutes;
@@ -136,18 +154,28 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<UpdateTaskStatusResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      // Optimistic: flip the status in every cached getTasks list immediately
-      // (lists are keyed by project + filters), and undo all patches on failure.
+      // Optimistic: flip the status in every page of every cached getTasks
+      // list, then undo all patches on failure. The cache is now InfiniteData
+      // so we walk pages[].items instead of a flat draft array.
       onQueryStarted: async ({ id, status }, { dispatch, getState, queryFulfilled }) => {
         const entries = taskApi.util.selectInvalidatedBy(getState(), [{ type: 'Task' }]);
         const patches = entries
           .filter(entry => entry.endpointName === 'getTasks')
           .map(entry =>
             dispatch(
-              taskApi.util.updateQueryData('getTasks', entry.originalArgs as GetTasksRequest, draft => {
-                const found = draft.find(task => task.id === id);
-                if (found) found.status = status;
-              })
+              taskApi.util.updateQueryData(
+                'getTasks',
+                entry.originalArgs as GetTasksRequest,
+                (draft: InfiniteData<GetTasksPage, string>) => {
+                  for (const page of draft.pages) {
+                    const found = page.items.find(task => task.id === id);
+                    if (found) {
+                      found.status = status;
+                      break;
+                    }
+                  }
+                }
+              )
             )
           );
         try {
@@ -166,23 +194,35 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<ReorderTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      // Optimistic: move the task to its target order in every cached getTasks
-      // list and repack siblings contiguously (mirrors the backend); undo on failure.
+      // Optimistic: move the task to its target order across all pages, repack
+      // siblings contiguously (mirrors the backend), and undo on failure. Only
+      // the first page that contains the task is mutated — displayOrder is
+      // contiguous within the project and reordering crosses pages only when
+      // the user drags past the loaded boundary, which the UI does not support.
       onQueryStarted: async ({ id, displayOrder }, { dispatch, getState, queryFulfilled }) => {
         const entries = taskApi.util.selectInvalidatedBy(getState(), [{ type: 'Task' }]);
         const patches = entries
           .filter(entry => entry.endpointName === 'getTasks')
           .map(entry =>
             dispatch(
-              taskApi.util.updateQueryData('getTasks', entry.originalArgs as GetTasksRequest, draft => {
-                const moved = draft.find(task => task.id === id);
-                if (!moved) return;
-                const siblings = draft.filter(task => task.id !== id).sort((a, b) => a.displayOrder - b.displayOrder);
-                siblings.splice(Math.min(Math.max(displayOrder, 0), siblings.length), 0, moved);
-                siblings.forEach((task, order) => {
-                  task.displayOrder = order;
-                });
-              })
+              taskApi.util.updateQueryData(
+                'getTasks',
+                entry.originalArgs as GetTasksRequest,
+                (draft: InfiniteData<GetTasksPage, string>) => {
+                  for (const page of draft.pages) {
+                    const moved = page.items.find(task => task.id === id);
+                    if (!moved) continue;
+                    const siblings = page.items
+                      .filter(task => task.id !== id)
+                      .sort((a, b) => a.displayOrder - b.displayOrder);
+                    siblings.splice(Math.min(Math.max(displayOrder, 0), siblings.length), 0, moved);
+                    siblings.forEach((task, order) => {
+                      task.displayOrder = order;
+                    });
+                    break;
+                  }
+                }
+              )
             )
           );
         try {
@@ -201,9 +241,9 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<ScheduleTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
-      // Optimistic so a calendar drag lands under the pointer instead of after a
-      // round trip; a rejected mutation (including the free-plan 403) undoes the
-      // patch and the block visibly springs back.
+      // Optimistic so a calendar drag lands under the pointer instead of after
+      // a round trip; a rejected mutation (including the free-plan 403) undoes
+      // the patch and the block visibly springs back.
       onQueryStarted: async ({ id, ...body }, { dispatch, getState, queryFulfilled }) => {
         const patches = patchCalendarCaches(getState(), dispatch, id, task => {
           if (body.scheduledFor !== undefined) task.scheduledFor = body.scheduledFor;
@@ -241,8 +281,8 @@ export const taskApi = createApi({
       providesTags: ['TimeSpread'],
     }),
     // Calendar range — the flat window the hour grid renders. Deliberately under
-    // the 'Task' tag rather than a tag of its own: it IS the task list for a date
-    // window, so every existing task mutation and WS task event already
+    // the 'Task' tag rather than a tag of its own: it IS the task list for a
+    // date window, so every existing task mutation and WS task event already
     // invalidates it, and the calendar stays live for free.
     getCalendarTasks: builder.query<GetCalendarTasksResponse, GetCalendarTasksRequest>({
       query: params => ({
@@ -257,7 +297,7 @@ export const taskApi = createApi({
 });
 
 export const {
-  useGetTasksQuery,
+  useGetTasksInfiniteQuery,
   useGetTaskQuery,
   useCreateTaskMutation,
   useUpdateTaskMutation,

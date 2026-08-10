@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NotesSection } from '@/features/Notes';
 import { ProjectDeleteDialog, ProjectDialog, ProjectHeader, ProjectLoadingState } from '@/features/Project';
 import { TasksSection } from '@/features/Tasks';
-import { useGetNotesQuery, useGetProjectQuery, useGetTasksQuery } from '@/lib/store';
+import { useGetNotesInfiniteQuery, useGetProjectQuery, useGetTasksInfiniteQuery } from '@/lib/store';
 
 import { parseProjectTab, PROJECT_TAB, PROJECT_TAB_PARAM } from './tabs';
 
@@ -24,9 +24,12 @@ const ProjectView = () => {
   const { data: project, isLoading, isError } = useGetProjectQuery(projectId, { skip: !projectId });
 
   // Counts only, for the tab badges — both lists are already cached by the
-  // sections themselves, so these resolve from the store rather than refetching.
-  const { data: tasks = [] } = useGetTasksQuery({ projectId }, { skip: !projectId });
-  const { data: notes = [] } = useGetNotesQuery({ projectId }, { skip: !projectId });
+  // sections themselves (RTK dedupes against the same cache entry), no double-fetch.
+  // Counts only reflect the first loaded page until the user scrolls to load more.
+  const { data: tasksData } = useGetTasksInfiniteQuery({ projectId }, { skip: !projectId });
+  const { data: notesData } = useGetNotesInfiniteQuery({ projectId }, { skip: !projectId });
+  const tasks = tasksData?.pages[0]?.items ?? [];
+  const notes = notesData?.pages[0]?.items ?? [];
 
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = parseProjectTab(searchParams.get(PROJECT_TAB_PARAM));

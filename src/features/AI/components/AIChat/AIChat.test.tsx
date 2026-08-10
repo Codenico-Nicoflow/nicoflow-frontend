@@ -18,7 +18,15 @@ const AREAS_WITH_PROJECTS = 'http://localhost:8080/v1/areas/with-projects';
 const authedStore = () => createMockStore({ auth: { user: mockUser, token: 'tok', isLoading: false } });
 
 const sessionEnvelope = (messages: unknown[]) => ({
-  data: { id: 's1', title: 'Chat', createdAt: '2026-07-01T00:00:00Z', updatedAt: '2026-07-01T00:00:00Z', messages },
+  data: {
+    id: 's1',
+    title: 'Chat',
+    createdAt: '2026-07-01T00:00:00Z',
+    updatedAt: '2026-07-01T00:00:00Z',
+    messages,
+    // Empty string = session has ≤50 messages; no older-history fetch triggered.
+    messagesCursor: '',
+  },
   error: null,
 });
 

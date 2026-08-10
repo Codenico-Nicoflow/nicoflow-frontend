@@ -1,4 +1,4 @@
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { FetchBaseQueryError, InfiniteData } from '@reduxjs/toolkit/query';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import type { ApiEnvelope, ApiErrorBody, INoteDetail } from '@/lib/types';
@@ -7,6 +7,38 @@ import { NOTE_API } from '@/lib/types';
 import { baseQueryWithReauth } from '../baseQuery';
 
 import type { CreateNoteRequest, ListNotesPage, ListNotesRequest, UpdateNoteRequest } from './type';
+
+// Derived from the RTK utils themselves rather than importing RootState — see
+// taskApi.ts's identical types for why.
+type NoteApiState = Parameters<typeof noteApi.util.selectInvalidatedBy>[0];
+type NoteListPatch = ReturnType<typeof noteApi.util.updateQueryData>;
+type NoteApiDispatch = <T extends NoteListPatch>(patch: T) => ReturnType<T>;
+
+/**
+ * Truncate every cached `getNotes` page list back to just page 1.
+ *
+ * A create/edit/delete shifts the keyset (updated_at DESC) — create adds a
+ * row, delete removes one, and an edit re-tops the note. Called from
+ * `onQueryStarted` BEFORE the request resolves, so only page 1 remains by
+ * the time `invalidatesTags`' own refetch runs — see taskApi.ts's
+ * `collapseTaskListsToPage1` for the full race-condition explanation.
+ */
+const collapseNoteListsToPage1 = (state: NoteApiState, dispatch: NoteApiDispatch) =>
+  noteApi.util
+    .selectInvalidatedBy(state, [{ type: 'Note', id: 'LIST' }])
+    .filter(entry => entry.endpointName === 'getNotes')
+    .forEach(entry =>
+      dispatch(
+        noteApi.util.updateQueryData(
+          'getNotes',
+          entry.originalArgs as ListNotesRequest,
+          (draft: InfiniteData<ListNotesPage, string>) => {
+            draft.pages = draft.pages.slice(0, 1);
+            draft.pageParams = draft.pageParams.slice(0, 1);
+          }
+        )
+      )
+    );
 
 // The raw RTK Query error is { status, data: <full envelope> }, so the API code
 // sits at error.data.error.code — one level deeper than the bare `error.data`
@@ -73,6 +105,10 @@ export const noteApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<INoteDetail>) => raw.data,
       transformErrorResponse: toApiError,
+      // Collapse before the request resolves — see collapseNoteListsToPage1.
+      onQueryStarted: (_arg, { dispatch, getState }) => {
+        collapseNoteListsToPage1(getState(), dispatch);
+      },
       invalidatesTags: [{ type: 'Note', id: 'LIST' }],
     }),
 
@@ -87,6 +123,11 @@ export const noteApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<INoteDetail>) => raw.data,
       transformErrorResponse: toApiError,
+      // Collapse before the request resolves — an edit re-tops the note (the
+      // list keys on updated_at DESC), same page-boundary shift as create.
+      onQueryStarted: (_arg, { dispatch, getState }) => {
+        collapseNoteListsToPage1(getState(), dispatch);
+      },
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Note', id },
         { type: 'Note', id: 'LIST' },
@@ -99,6 +140,9 @@ export const noteApi = createApi({
         method: 'DELETE',
       }),
       transformErrorResponse: toApiError,
+      onQueryStarted: (_arg, { dispatch, getState }) => {
+        collapseNoteListsToPage1(getState(), dispatch);
+      },
       invalidatesTags: (_result, _error, id) => [
         { type: 'Note', id },
         { type: 'Note', id: 'LIST' },

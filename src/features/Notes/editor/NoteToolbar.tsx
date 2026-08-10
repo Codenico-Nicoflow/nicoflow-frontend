@@ -4,6 +4,7 @@ import type { Editor } from '@tiptap/react';
 import { useEditorState } from '@tiptap/react';
 import {
   Bold,
+  CheckSquare,
   Code,
   Heading1,
   Heading2,
@@ -47,6 +48,7 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
             isHeading3: instance.isActive('heading', { level: 3 }),
             isBulletList: instance.isActive('bulletList'),
             isOrderedList: instance.isActive('orderedList'),
+            isTaskList: instance.isActive('taskList'),
             isCodeBlock: instance.isActive('codeBlock'),
             isTable: instance.isActive('table'),
             isLink: instance.isActive('link'),
@@ -103,6 +105,12 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
         icon={ListOrdered}
         isActive={state.isOrderedList}
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
+      />
+      <ToolbarButton
+        label={t('toolbar.taskList')}
+        icon={CheckSquare}
+        isActive={state.isTaskList}
+        onClick={() => editor.chain().focus().toggleTaskList().run()}
       />
       <ToolbarButton
         label={t('toolbar.codeBlock')}

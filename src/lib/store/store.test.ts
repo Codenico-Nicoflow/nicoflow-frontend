@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
+import type { InfiniteData } from '@reduxjs/toolkit/query';
 import { describe, expect, it } from 'vitest';
 
 import type { IUser } from '@/lib/types';
 
 import { clearAuth, setUser } from './slices/auth/authSlice';
 import { taskApi } from './slices/tasks/taskApi';
+import type { GetTasksPage } from './slices/tasks/type';
 import { rootReducer } from './store';
 
 const mockUser: IUser = {
@@ -30,7 +32,11 @@ describe('rootReducer logout cache reset', () => {
   it('wipes every RTK Query cache on clearAuth so a new user sees no stale data', () => {
     const store = makeStore();
     store.dispatch(setUser(mockUser));
-    store.dispatch(taskApi.util.upsertQueryData('getTasks', { projectId: 'p1' }, []));
+    const emptyInfiniteData: InfiniteData<GetTasksPage, string> = {
+      pages: [{ items: [], nextCursor: '' }],
+      pageParams: [''],
+    };
+    store.dispatch(taskApi.util.upsertQueryData('getTasks', { projectId: 'p1' }, emptyInfiniteData));
 
     expect(Object.keys(store.getState()[taskApi.reducerPath].queries).length).toBeGreaterThan(0);
 

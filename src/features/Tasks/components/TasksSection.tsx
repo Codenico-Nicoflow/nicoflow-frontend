@@ -15,8 +15,9 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { useDebouncedValue } from '@/hooks';
-import { useGetTasksQuery, useReorderTaskMutation } from '@/lib/store';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useDebouncedValue, useInfiniteScrollSentinel } from '@/hooks';
+import { useGetTasksInfiniteQuery, useReorderTaskMutation } from '@/lib/store';
 import { type ITask, ScheduleFilter, type TaskEnergy } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
@@ -48,10 +49,26 @@ interface TasksSectionProps {
 
 const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSectionProps) => {
   const { t } = useTranslation('task');
-  // One project-scoped fetch is the source of truth; status/energy/search are
-  // applied client-side over the (capped, ≤50) project list so counts stay exact.
-  const { data: tasks = [], isLoading: isLoadingTasks } = useGetTasksQuery({ projectId });
+  // Infinite query — each page is 50 tasks. Filters are still applied
+  // client-side over all loaded pages.
+  const {
+    data: tasksData,
+    isLoading: isLoadingTasks,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetTasksInfiniteQuery({ projectId });
   const [reorderTask] = useReorderTaskMutation();
+
+  // Flatten all loaded pages into a single array for rendering and filter logic.
+  // Filter counts only reflect loaded pages once a project exceeds one page.
+  const tasks = useMemo(() => tasksData?.pages.flatMap(p => p.items) ?? [], [tasksData]);
+
+  const { sentinelRef } = useInfiniteScrollSentinel({
+    hasMore: !!hasNextPage,
+    isLoadingMore: isFetchingNextPage,
+    onLoadMore: fetchNextPage,
+  });
 
   // Drag starts after 5px of movement so plain clicks on the handle don't lift the row.
   const sensors = useSensors(
@@ -93,6 +110,7 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
     }
   }, [editTaskIdFromNav, location.key, tasks, isLoadingTasks]);
 
+  // Counts only reflect loaded pages once a project exceeds one page (accepted tradeoff).
   const taskCounts = useMemo(() => countTasks(tasks), [tasks]);
   const activeFilter = pickedFilter ?? defaultTaskFilter();
 
@@ -207,6 +225,9 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
                     ))}
                   </div>
                 </SortableContext>
+                {/* Sentinel triggers the next page fetch when scrolled into view. */}
+                <div ref={sentinelRef} aria-hidden="true" />
+                {isFetchingNextPage && <Skeleton className="mt-3 h-16 w-full" />}
               </DndContext>
             ) : (
               <div className="text-center py-12 text-muted-foreground" data-testid="task-no-results">

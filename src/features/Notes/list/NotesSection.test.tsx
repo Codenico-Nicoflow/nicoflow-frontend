@@ -32,7 +32,9 @@ const note = (overrides: Partial<INote> = {}): INote => ({
 });
 
 const listReturns = (notes: INote[]) =>
-  server.use(http.get(`${API}/notes`, () => HttpResponse.json({ data: notes, error: null })));
+  server.use(
+    http.get(`${API}/notes`, () => HttpResponse.json({ data: { items: notes, nextCursor: '' }, error: null }))
+  );
 
 beforeEach(() => {
   mockNavigate.mockClear();
@@ -92,7 +94,7 @@ describe('NotesSection loading and empty states', () => {
     server.use(
       http.get(`${API}/notes`, async () => {
         await new Promise(resolve => setTimeout(resolve, 50));
-        return HttpResponse.json({ data: [note()], error: null });
+        return HttpResponse.json({ data: { items: [note()], nextCursor: '' }, error: null });
       })
     );
 
@@ -125,7 +127,7 @@ describe('NotesSection loading and empty states', () => {
         if (calls === 1) {
           return HttpResponse.json({ data: null, error: { code: 'INTERNAL_ERROR', message: 'boom' } }, { status: 500 });
         }
-        return HttpResponse.json({ data: [note()], error: null });
+        return HttpResponse.json({ data: { items: [note()], nextCursor: '' }, error: null });
       })
     );
 

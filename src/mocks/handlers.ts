@@ -242,7 +242,8 @@ export const handlers = [
   http.get('http://localhost:8080/v1/notes/:id', ({ params }) =>
     HttpResponse.json(envelope(makeNoteDetail({ id: String(params.id) })))
   ),
-  http.get('http://localhost:8080/v1/notes', () => HttpResponse.json(envelope([]))),
+  // Paginated response shape — { items, nextCursor }. Suites override per-case.
+  http.get('http://localhost:8080/v1/notes', () => HttpResponse.json(envelope({ items: [], nextCursor: '' }))),
   // Habits (E-055). Literal paths before the :id wildcard, or /habits/today
   // resolves as a habit whose id is "today".
   http.get('http://localhost:8080/v1/habits/today', () => HttpResponse.json(envelope([]))),
@@ -253,7 +254,10 @@ export const handlers = [
   http.get('http://localhost:8080/v1/habits', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/areas', () => HttpResponse.json(envelope([]))),
   http.get('http://localhost:8080/v1/projects', () => HttpResponse.json(envelope([]))),
-  http.get('http://localhost:8080/v1/projects/:projectId/tasks', () => HttpResponse.json(envelope({ items: [] }))),
+  // Paginated response shape — { items, nextCursor }. Suites override per-case.
+  http.get('http://localhost:8080/v1/projects/:projectId/tasks', () =>
+    HttpResponse.json(envelope({ items: [], nextCursor: '' }))
+  ),
   http.get('http://localhost:8080/v1/focus', () => HttpResponse.json(envelope({ items: [] }))),
   // Calendar range (E-051) — flat window the hour grid reads.
   http.get('http://localhost:8080/v1/tasks', () => HttpResponse.json(envelope({ items: [] }))),
@@ -302,6 +306,11 @@ export const handlers = [
   // merely mount the chat aren't walled. Suites override per-case.
   http.get('http://localhost:8080/v1/ai/usage', () =>
     HttpResponse.json(envelope({ used: 12, limit: 500, scope: 'month', month: '2026-07' }))
+  ),
+  // AI session messages pagination — empty history, no older pages to load.
+  // Suites that need paginated history override with server.use(...) per-test.
+  http.get('http://localhost:8080/v1/ai/sessions/:id/messages', () =>
+    HttpResponse.json(envelope({ items: [], nextCursor: '' }))
   ),
   // Google Calendar overlay (E-052): a connected account with no events, so any
   // surface that renders the calendar gets a well-formed empty overlay instead

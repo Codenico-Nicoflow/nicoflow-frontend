@@ -1,12 +1,14 @@
 import type { ITask, TaskEnergy, TaskPriority, TaskStatus } from '@/lib/types';
 
-/* Task API — list endpoints return { items } inside the data envelope (SPEC §3.4). */
-export type GetTasksResponse = ITask[];
+/* Task API — list endpoints return { items, nextCursor } inside the data envelope. */
+export type GetTasksPage = { items: ITask[]; nextCursor: string };
 export type GetTaskResponse = ITask;
 export type GetTaskRequest = string;
 
 // Tasks are listed per project: GET /projects/:projectId/tasks with optional
-// server-side status/priority/energy/search/sort params (SPEC §3.4).
+// server-side status/priority/energy/search/sort params (SPEC §3.4). Pagination
+// is keyset on (created_at, id) DESC regardless of visible sort; cursor is
+// opaque string, empty string means "first page".
 export type GetTasksRequest = {
   projectId: string;
   status?: TaskStatus;

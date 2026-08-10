@@ -4,7 +4,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { useGetNotesQuery } from '@/lib/store';
+import { useGetNotesInfiniteQuery } from '@/lib/store';
 
 const API = 'http://localhost:8080/v1';
 
@@ -13,10 +13,11 @@ const API = 'http://localhost:8080/v1';
 // through the shared helper is the only thing that catches it, so this asserts
 // resolution rather than the reducer key being present.
 const NotesProbe = () => {
-  const { data, isLoading } = useGetNotesQuery({ projectId: 'p1' });
+  const { data, isLoading } = useGetNotesInfiniteQuery({ projectId: 'p1' });
 
   if (isLoading) return <p>loading</p>;
-  return <p>{data?.length ?? 0} notes</p>;
+  const count = data?.pages.flatMap(p => p.items).length ?? 0;
+  return <p>{count} notes</p>;
 };
 
 describe('noteApi registration', () => {
@@ -24,17 +25,20 @@ describe('noteApi registration', () => {
     server.use(
       http.get(`${API}/notes`, () =>
         HttpResponse.json({
-          data: [
-            {
-              id: 'n1',
-              projectId: 'p1',
-              title: 'Note',
-              excerpt: 'x',
-              version: 1,
-              createdAt: '2026-03-01T08:00:00Z',
-              updatedAt: '2026-03-01T08:00:00Z',
-            },
-          ],
+          data: {
+            items: [
+              {
+                id: 'n1',
+                projectId: 'p1',
+                title: 'Note',
+                excerpt: 'x',
+                version: 1,
+                createdAt: '2026-03-01T08:00:00Z',
+                updatedAt: '2026-03-01T08:00:00Z',
+              },
+            ],
+            nextCursor: '',
+          },
           error: null,
         })
       )

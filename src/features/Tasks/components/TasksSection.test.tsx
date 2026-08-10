@@ -14,7 +14,7 @@ import TasksSection from './TasksSection';
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const API = 'http://localhost:8080/v1';
-const items = <T,>(list: T[]) => ({ data: { items: list }, error: null });
+const items = <T,>(list: T[]) => ({ data: { items: list, nextCursor: '' }, error: null });
 
 const seed = [
   makeTask({ id: 'a', title: 'Active deep task', status: 'active', energy: 'deep', displayOrder: 0 }),

@@ -11,6 +11,8 @@ import type {
   GetAISessionResponse,
   GetAISessionsResponse,
   GetAIUsageResponse,
+  GetSessionMessagesPage,
+  GetSessionMessagesRequest,
   ListPendingToolCallsResponse,
 } from './type';
 
@@ -76,6 +78,35 @@ export const aiApi = createApi({
       transformErrorResponse: error => error.data,
       providesTags: (_result, _error, sessionId) => [{ type: 'AISession', id: sessionId }],
     }),
+
+    // Older chat history (GET /ai/sessions/:id/messages). Items come back ASC
+    // (oldest→newest) and nextCursor points to the OLDER batch — so this uses
+    // getPreviousPageParam. The first fetch is seeded from the session detail's
+    // messagesCursor field (passed as seedCursor in the query arg, then set as
+    // initialPageParam at the call site via useInfiniteQueryOptions).
+    getSessionMessages: builder.infiniteQuery<GetSessionMessagesPage, GetSessionMessagesRequest, string>({
+      infiniteQueryOptions: {
+        // Static default; overridden per-session at the hook call site via
+        // { initialPageParam: seedCursor } in UseInfiniteQueryOptions.
+        initialPageParam: '',
+        // RTK requires getNextPageParam even when only loading in the "previous"
+        // direction. Return undefined so hasNextPage is always false.
+        getNextPageParam: () => undefined,
+        // Only "load older" is supported via fetchPreviousPage.
+        getPreviousPageParam: (firstPage: GetSessionMessagesPage) =>
+          firstPage.nextCursor === '' ? undefined : firstPage.nextCursor,
+      },
+      query: ({ queryArg, pageParam }) => ({
+        url: AI_API.MESSAGES(queryArg.sessionId),
+        params: {
+          ...(pageParam !== '' && { cursor: pageParam }),
+          limit: 50,
+        },
+      }),
+      transformResponse: (raw: ApiEnvelope<GetSessionMessagesPage>) => raw.data,
+      transformErrorResponse: error => error.data,
+      providesTags: (_result, _error, { sessionId }) => [{ type: 'AISession', id: sessionId }],
+    }),
   }),
 });
 
@@ -86,4 +117,5 @@ export const {
   useDeleteAISessionMutation,
   useGetAIUsageQuery,
   useListPendingToolCallsQuery,
+  useGetSessionMessagesInfiniteQuery,
 } = aiApi;

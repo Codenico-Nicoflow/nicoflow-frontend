@@ -47,6 +47,7 @@
     "heading3": "Subheading",
     "bulletList": "Bulleted list",
     "orderedList": "Numbered list",
+    "taskList": "Checklist",
     "codeBlock": "Code block",
     "table": "Insert table",
     "link": "Add link",

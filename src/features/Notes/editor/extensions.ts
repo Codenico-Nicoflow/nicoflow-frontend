@@ -1,5 +1,7 @@
 import Placeholder from '@tiptap/extension-placeholder';
 import { TableKit } from '@tiptap/extension-table';
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
 import type { Extensions } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -64,5 +66,9 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
     },
   }),
   TableKit,
+  // Not nestable — flat checklists are the product ask; nesting adds an
+  // indent/outdent interaction this editor doesn't otherwise expose.
+  TaskItem.configure({ nested: false }),
+  TaskList,
   Placeholder.configure({ placeholder }),
 ];

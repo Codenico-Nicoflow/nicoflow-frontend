@@ -27,7 +27,17 @@ describe('note editor schema', () => {
     const editor = makeEditor();
     const { schema } = editor;
 
-    for (const node of ['paragraph', 'heading', 'bulletList', 'orderedList', 'codeBlock', 'blockquote', 'table']) {
+    for (const node of [
+      'paragraph',
+      'heading',
+      'bulletList',
+      'orderedList',
+      'codeBlock',
+      'blockquote',
+      'table',
+      'taskList',
+      'taskItem',
+    ]) {
       expect(schema.nodes[node], `${node} should be registered`).toBeDefined();
     }
     for (const mark of ['bold', 'italic', 'strike', 'code', 'link']) {
@@ -289,6 +299,26 @@ describe('note editor commands', () => {
     editor.commands.insertTable({ rows: 2, cols: 2, withHeaderRow: true });
 
     expect(hasNodeType(editor.getJSON() as TiptapDoc, 'table')).toBe(true);
+
+    editor.destroy();
+  });
+
+  it('converts a paragraph to a checklist', () => {
+    withSelectedParagraph(editor => editor.commands.toggleTaskList(), 'taskList');
+  });
+
+  it('tracks a task item as checked', () => {
+    const editor = makeEditor();
+    editor.commands.setContent('<p>buy milk</p>');
+    editor.commands.setTextSelection({ from: 1, to: 9 });
+    editor.commands.toggleTaskList();
+
+    editor.commands.updateAttributes('taskItem', { checked: true });
+    const doc = editor.getJSON() as TiptapDoc;
+
+    const taskItem = doc.content?.[0]?.content?.[0];
+    expect(taskItem?.type).toBe('taskItem');
+    expect(taskItem?.attrs?.checked).toBe(true);
 
     editor.destroy();
   });

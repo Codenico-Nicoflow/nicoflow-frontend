@@ -45,6 +45,40 @@ type TaskApiDispatch = <T extends CalendarPatch>(patch: T) => ReturnType<T>;
  * have no drag surface, and re-patching them would duplicate work the
  * invalidation already does on success.
  */
+/**
+ * Truncate every cached `getTasks` page list back to just page 1.
+ *
+ * A create/delete/reorder shifts the keyset (created_at DESC) that later
+ * pages' cursors were computed against. If those stale pages are still in
+ * the cache when the mutation's `invalidatesTags` fires, RTK's automatic
+ * refetch replays each one's stored cursor as if nothing moved, re-including
+ * whatever row now sits on the old page boundary — a visible duplicate.
+ *
+ * Called from `onQueryStarted` BEFORE `queryFulfilled` — i.e. as soon as the
+ * request goes out, not after it resolves. `invalidatesTags`' own refetch is
+ * dispatched by middleware in the same tick the mutation settles, so
+ * truncating afterward races it and can lose; truncating up front guarantees
+ * only page 1 exists by the time that refetch runs. Trade-off: a user several
+ * pages deep loses that depth on any task mutation and re-scrolls — accepted,
+ * correctness over preserved scroll position.
+ */
+const collapseTaskListsToPage1 = (state: TaskApiState, dispatch: TaskApiDispatch) =>
+  taskApi.util
+    .selectInvalidatedBy(state, [{ type: 'Task' }])
+    .filter(entry => entry.endpointName === 'getTasks')
+    .forEach(entry =>
+      dispatch(
+        taskApi.util.updateQueryData(
+          'getTasks',
+          entry.originalArgs as GetTasksRequest,
+          (draft: InfiniteData<GetTasksPage, string>) => {
+            draft.pages = draft.pages.slice(0, 1);
+            draft.pageParams = draft.pageParams.slice(0, 1);
+          }
+        )
+      )
+    );
+
 const patchCalendarCaches = (
   state: TaskApiState,
   dispatch: TaskApiDispatch,
@@ -111,6 +145,10 @@ export const taskApi = createApi({
       }),
       transformResponse: (raw: ApiEnvelope<CreateTaskResponse>) => raw.data,
       transformErrorResponse: error => error.data,
+      // Collapse before the request resolves — see collapseTaskListsToPage1.
+      onQueryStarted: (_arg, { dispatch, getState }) => {
+        collapseTaskListsToPage1(getState(), dispatch);
+      },
       invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     updateTask: builder.mutation<UpdateTaskResponse, UpdateTaskRequest>({
@@ -144,6 +182,9 @@ export const taskApi = createApi({
         method: 'DELETE',
       }),
       transformErrorResponse: error => error.data,
+      onQueryStarted: (_arg, { dispatch, getState }) => {
+        collapseTaskListsToPage1(getState(), dispatch);
+      },
       invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
     updateTaskStatus: builder.mutation<UpdateTaskStatusResponse, UpdateTaskStatusRequest>({

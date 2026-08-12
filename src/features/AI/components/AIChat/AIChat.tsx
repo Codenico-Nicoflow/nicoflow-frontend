@@ -101,9 +101,18 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
   const history = useMemo(() => session?.messages ?? [], [session?.messages]);
 
   const historyIds = useMemo(() => new Set(history.map(m => m.id)), [history]);
+  // The server never echoes back the client-generated id for the USER half of a
+  // turn (AIStreamDone only carries the assistant's persisted messageId), so a
+  // pending user turn can never be matched into history by id — match by
+  // role+content instead, or it renders twice once the session refetches.
+  const historyUserContents = useMemo(
+    () => new Set(history.filter(m => m.role === 'user').map(m => m.content)),
+    [history]
+  );
   const extraTurns = pending.filter(p => {
     // Tool proposals are never in persisted history by id, so always include them.
     if (p.kind === 'tool_proposal') return true;
+    if (p.role === 'user') return !historyUserContents.has(p.content);
     return !historyIds.has(p.id);
   });
 

@@ -43,8 +43,11 @@ export interface UseAIStream {
   abort: () => void;
   retry: () => Promise<SendOutcome>;
   reset: () => void;
-  confirmTool: (toolUseId: string, sessionId: string) => Promise<void>;
-  rejectTool: (toolUseId: string, sessionId: string) => Promise<void>;
+  // Resolves true only when the action actually applied (done/aborted) — false
+  // on any failure (409 already-resolved, network error, stream failure), so
+  // the caller never reports success for a call that didn't take effect.
+  confirmTool: (toolUseId: string, sessionId: string) => Promise<boolean>;
+  rejectTool: (toolUseId: string, sessionId: string) => Promise<boolean>;
 }
 
 const now = () => new Date().toISOString();
@@ -285,9 +288,9 @@ export const useAIStream = (): UseAIStream => {
       endpoint: string,
       successStatus: 'done' | 'rejected',
       onConfirmed: () => void
-    ): Promise<void> => {
+    ): Promise<boolean> => {
       // Respect the one-in-flight guard — same behaviour as send().
-      if (controllerRef.current) return;
+      if (controllerRef.current) return false;
 
       patchProposal(toolUseId, { status: 'executing' });
 
@@ -307,7 +310,7 @@ export const useAIStream = (): UseAIStream => {
         if (!controller.signal.aborted) {
           patchProposal(toolUseId, { status: 'error', errorMessage: 'Network error' });
         }
-        return;
+        return false;
       }
 
       if (!response.ok || !response.body) {
@@ -319,7 +322,7 @@ export const useAIStream = (): UseAIStream => {
           const body: unknown = await response.json().catch(() => null);
           patchProposal(toolUseId, { status: 'error', errorMessage: extractEnvelopeCode(body) });
         }
-        return;
+        return false;
       }
 
       // Append a new assistant follow-up turn below the proposal card.
@@ -343,17 +346,18 @@ export const useAIStream = (): UseAIStream => {
       if (outcome === 'done' || outcome === 'aborted') {
         patchProposal(toolUseId, { status: successStatus });
         onConfirmed();
-      } else {
-        // Keep proposal actionable (retriable) on non-409 stream failures.
-        patchProposal(toolUseId, { status: 'error', errorMessage: 'Stream failed' });
+        return true;
       }
+      // Keep proposal actionable (retriable) on non-409 stream failures.
+      patchProposal(toolUseId, { status: 'error', errorMessage: 'Stream failed' });
+      return false;
     },
     [drainStream, openStream, patchProposal]
   );
 
   const confirmTool = useCallback(
-    async (toolUseId: string, sessionId: string): Promise<void> => {
-      await runToolAction(
+    async (toolUseId: string, sessionId: string): Promise<boolean> => {
+      return runToolAction(
         toolUseId,
         sessionId,
         `/ai/sessions/${sessionId}/tool-calls/${toolUseId}/confirm`,
@@ -368,8 +372,8 @@ export const useAIStream = (): UseAIStream => {
   );
 
   const rejectTool = useCallback(
-    async (toolUseId: string, sessionId: string): Promise<void> => {
-      await runToolAction(
+    async (toolUseId: string, sessionId: string): Promise<boolean> => {
+      return runToolAction(
         toolUseId,
         sessionId,
         `/ai/sessions/${sessionId}/tool-calls/${toolUseId}/reject`,

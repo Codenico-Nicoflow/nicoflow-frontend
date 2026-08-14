@@ -15,7 +15,7 @@ import {
   useGetSessionMessagesInfiniteQuery,
   useListPendingToolCallsQuery,
 } from '@/lib/store';
-import { ToastMessages } from '@/lib/utils';
+import { showSuccessToast, ToastMessages } from '@/lib/utils';
 
 import { useAIQuota, useAIStream } from '../../hooks';
 import { applyServerBlock, isQuotaBlocked } from '../../quota';
@@ -127,7 +127,8 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
   }, [isStreaming, merged, reset]);
 
   // Synthetic pending proposals from server (reload rehydration): inject those
-  // whose toolUseId is not already tracked locally.
+  // whose toolUseId is not already tracked locally. Proposal identity is always
+  // `toolUseId` (what confirm/reject key off), never the server row's `id`.
   const localProposalIds = useMemo(
     () => new Set(pending.filter((p): p is PendingToolProposal => p.kind === 'tool_proposal').map(p => p.id)),
     [pending]
@@ -135,10 +136,10 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
   const rehydratedProposals = useMemo<PendingToolProposal[]>(() => {
     if (!serverPendingCalls) return [];
     return serverPendingCalls
-      .filter(c => !localProposalIds.has(c.id))
+      .filter(c => !localProposalIds.has(c.toolUseId))
       .map(c => ({
         kind: 'tool_proposal' as const,
-        id: c.id,
+        id: c.toolUseId,
         role: 'assistant' as const,
         createdAt: c.createdAt,
         status: 'pending_confirm' as const,
@@ -159,14 +160,17 @@ export const AIChat = ({ sessionId }: AIChatProps) => {
     const proposal = [...pending, ...rehydratedProposals].find(
       (p): p is PendingToolProposal => p.kind === 'tool_proposal' && p.id === toolUseId
     );
-    void confirmTool(toolUseId, sessionId).then(() => {
+    void confirmTool(toolUseId, sessionId).then(succeeded => {
+      if (!succeeded) return;
       // Toast keyed by tool name, matching ToastMessages for task mutations.
+      // showSuccessToast resolves the ToastMessages key through i18n — toast.success
+      // must never be called with the raw key directly.
       if (proposal?.tool.name === 'complete_task') {
-        toast.success(ToastMessages.TASK_UPDATED_SUCCESSFULLY);
+        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
       } else if (proposal?.tool.name === 'create_task') {
-        toast.success(ToastMessages.TASK_CREATED_SUCCESSFULLY);
+        showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
       } else if (proposal?.tool.name === 'reschedule_task') {
-        toast.success(ToastMessages.TASK_UPDATED_SUCCESSFULLY);
+        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
       }
     });
   };

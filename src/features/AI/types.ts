@@ -77,9 +77,12 @@ export type AIStreamEvent = AIStreamDelta | AIStreamDone | AIStreamError | AIStr
 export type AIToolName = AIStreamToolProposal['toolName'];
 
 // A pending tool proposal returned by GET /ai/sessions/:id/tool-calls?status=pending
-// (for rehydrating proposals after a page reload).
+// (for rehydrating proposals after a page reload). `id` is the DB row's primary
+// key — NOT the identity used to confirm/reject. Confirm/reject and dedup against
+// live-streamed proposals must key off `toolUseId`.
 export interface AIPendingToolCall {
-  id: string; // toolUseId
+  id: string;
+  toolUseId: string;
   toolName: AIToolName;
   input: unknown;
   assistantMessageId: string;

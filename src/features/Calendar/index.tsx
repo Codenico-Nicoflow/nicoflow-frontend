@@ -216,6 +216,9 @@ const CalendarPage = ({ now = new Date() }: CalendarViewProps) => {
         todayKey={todayKey}
         onDrillDown={day => commit({ view: 'day', date: day })}
         onSelect={handleSelect}
+        googleEvents={googleEvents}
+        googleCalendars={googleCalendars ?? []}
+        onSelectGoogleEvent={setSelectedEvent}
       />
     )
   ) : isAgenda ? (

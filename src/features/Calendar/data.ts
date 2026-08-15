@@ -53,6 +53,13 @@ export const DAYS_PER_WEEK = 7;
 export const MAX_MONTH_CHIPS = 3;
 
 /**
+ * Google event chips a desktop month cell shows before collapsing the rest
+ * into "+N more". Kept smaller than the task cap — the user's own work stays
+ * the primary read, Google is context underneath it.
+ */
+export const MAX_MONTH_GOOGLE_CHIPS = 2;
+
+/**
  * Rows the all-day rail shows before collapsing behind "+N more".
  *
  * Uncapped, a single heavy day stretched the rail and pushed the hour grid —

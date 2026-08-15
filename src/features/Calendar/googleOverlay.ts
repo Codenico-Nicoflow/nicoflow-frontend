@@ -81,6 +81,18 @@ const spanWithinDay = (event: IGoogleEvent, dayKey: string): [number, number] | 
 export const eventCountOn = (events: IGoogleEvent[], dayKey: string): number => timedEventsOn(events, dayKey).length;
 
 /**
+ * All events touching a day — timed and all-day alike — earliest first, for a
+ * flat month cell that has no hour axis to place a chip against. All-day
+ * events sort ahead of timed ones since they have no start minute to compare.
+ */
+export const googleEventsOn = (events: IGoogleEvent[], dayKey: string): IGoogleEvent[] =>
+  [...allDayEventsOn(events, dayKey), ...timedEventsOn(events, dayKey)].sort((a, b) => {
+    if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
+    if (a.allDay) return 0;
+    return (eventMinutes(a.start) ?? 0) - (eventMinutes(b.start) ?? 0);
+  });
+
+/**
  * A drawn Google event chip: its extent, plus the horizontal share it takes
  * when a task or another event shares its minutes.
  */

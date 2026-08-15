@@ -4,13 +4,16 @@ import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
+import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
 import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-import { MAX_MONTH_CHIPS } from '../data';
+import { MAX_MONTH_CHIPS, MAX_MONTH_GOOGLE_CHIPS } from '../data';
+import { googleEventsOn } from '../googleOverlay';
 import { monthGridWeeks, toDayKey } from '../utils';
 
 import MonthChip from './MonthChip';
+import MonthGoogleChip from './MonthGoogleChip';
 
 interface MonthGridProps {
   /** Full padded month grid — always 6 whole weeks, so rows stay rectangular. */
@@ -21,6 +24,10 @@ interface MonthGridProps {
   todayKey: string;
   onDrillDown: (day: Date) => void;
   onSelect: (taskId: string) => void;
+  /** Google overlay — empty when locked or not yet loaded, never awaited. */
+  googleEvents?: IGoogleEvent[];
+  googleCalendars?: IGoogleCalendar[];
+  onSelectGoogleEvent?: (event: IGoogleEvent) => void;
 }
 
 /**
@@ -30,7 +37,17 @@ interface MonthGridProps {
  * month exists for. The overflow affordance drills into the day, which is where
  * the full list already lives.
  */
-const MonthGrid = ({ days, anchor, tasksByDay, todayKey, onDrillDown, onSelect }: MonthGridProps) => {
+const MonthGrid = ({
+  days,
+  anchor,
+  tasksByDay,
+  todayKey,
+  onDrillDown,
+  onSelect,
+  googleEvents = [],
+  googleCalendars = [],
+  onSelectGoogleEvent,
+}: MonthGridProps) => {
   const { t, i18n } = useTranslation('task');
   const locale = getDateLocale(i18n.language);
 
@@ -68,6 +85,9 @@ const MonthGrid = ({ days, anchor, tasksByDay, todayKey, onDrillDown, onSelect }
           const tasks = tasksByDay.get(key) ?? [];
           const visible = tasks.slice(0, MAX_MONTH_CHIPS);
           const overflow = tasks.length - visible.length;
+          const googleDay = googleEventsOn(googleEvents, key);
+          const visibleGoogle = googleDay.slice(0, MAX_MONTH_GOOGLE_CHIPS);
+          const googleOverflow = googleDay.length - visibleGoogle.length;
           const outside = !isSameMonth(day, anchor);
           const isToday = key === todayKey;
 
@@ -123,6 +143,25 @@ const MonthGrid = ({ days, anchor, tasksByDay, todayKey, onDrillDown, onSelect }
                     data-testid={`calendar-month-overflow-${key}`}
                   >
                     {t('calendar.moreCount', { count: overflow })}
+                  </span>
+                )}
+
+                {onSelectGoogleEvent &&
+                  visibleGoogle.map(event => (
+                    <MonthGoogleChip
+                      key={event.id}
+                      event={event}
+                      calendars={googleCalendars}
+                      onSelect={onSelectGoogleEvent}
+                    />
+                  ))}
+
+                {onSelectGoogleEvent && googleOverflow > 0 && (
+                  <span
+                    className="px-1 text-[11px] font-medium text-muted-foreground"
+                    data-testid={`calendar-month-google-overflow-${key}`}
+                  >
+                    {t('calendar.moreCount', { count: googleOverflow })}
                   </span>
                 )}
               </div>

@@ -25,11 +25,12 @@ const ProjectView = () => {
 
   // Counts only, for the tab badges — both lists are already cached by the
   // sections themselves (RTK dedupes against the same cache entry), no double-fetch.
-  // Counts only reflect the first loaded page until the user scrolls to load more.
+  // Counts reflect every page loaded so far (grows as TasksSection/NotesSection
+  // scroll further), not just the first page.
   const { data: tasksData } = useGetTasksInfiniteQuery({ projectId }, { skip: !projectId });
   const { data: notesData } = useGetNotesInfiniteQuery({ projectId }, { skip: !projectId });
-  const tasks = tasksData?.pages[0]?.items ?? [];
-  const notes = notesData?.pages[0]?.items ?? [];
+  const tasks = tasksData?.pages.flatMap(p => p.items) ?? [];
+  const notes = notesData?.pages.flatMap(p => p.items) ?? [];
 
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = parseProjectTab(searchParams.get(PROJECT_TAB_PARAM));

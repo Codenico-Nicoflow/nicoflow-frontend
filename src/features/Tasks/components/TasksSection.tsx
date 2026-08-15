@@ -15,7 +15,6 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedValue, useInfiniteScrollSentinel } from '@/hooks';
 import { useGetTasksInfiniteQuery, useReorderTaskMutation } from '@/lib/store';
 import { type ITask, ScheduleFilter, type TaskEnergy } from '@/lib/types';
@@ -227,7 +226,11 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
                 </SortableContext>
                 {/* Sentinel triggers the next page fetch when scrolled into view. */}
                 <div ref={sentinelRef} aria-hidden="true" />
-                {isFetchingNextPage && <Skeleton className="mt-3 h-16 w-full" />}
+                {isFetchingNextPage && (
+                  <div className="mt-3">
+                    <TasksLoadingState count={3} />
+                  </div>
+                )}
               </DndContext>
             ) : (
               <div className="text-center py-12 text-muted-foreground" data-testid="task-no-results">

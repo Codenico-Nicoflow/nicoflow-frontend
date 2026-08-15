@@ -3,10 +3,15 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const TasksLoadingState = () => {
+interface TasksLoadingStateProps {
+  /** Row count — fewer for an in-flight next-page fetch than a first load. */
+  count?: number;
+}
+
+const TasksLoadingState = ({ count = 4 }: TasksLoadingStateProps) => {
   return (
     <div className="space-y-3">
-      {Array.from({ length: 4 }).map((_, index) => (
+      {Array.from({ length: count }).map((_, index) => (
         <motion.div
           key={index}
           initial={{ opacity: 0, y: 20 }}

@@ -59,6 +59,11 @@ export type DeleteTaskResponse = void;
 export type UpdateTaskStatusRequest = { id: string; status: TaskStatus };
 export type UpdateTaskStatusResponse = ITask;
 
+// Manual reap (PATCH /tasks/:id/mark-missed) — same terminal state the overdue
+// sweep sets automatically, triggered now instead of at next local midnight.
+export type MarkTaskMissedRequest = { id: string };
+export type MarkTaskMissedResponse = ITask;
+
 // Single-task reorder (PATCH /tasks/:id/reorder) — the backend repacks siblings
 // so displayOrder stays contiguous within the project.
 export type ReorderTaskRequest = { id: string; displayOrder: number };

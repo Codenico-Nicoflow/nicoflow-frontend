@@ -20,6 +20,8 @@ import type {
   GetTasksPage,
   GetTasksRequest,
   GetTimeSpreadResponse,
+  MarkTaskMissedRequest,
+  MarkTaskMissedResponse,
   ReorderTaskRequest,
   ReorderTaskResponse,
   ScheduleTaskRequest,
@@ -227,6 +229,15 @@ export const taskApi = createApi({
       },
       invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
     }),
+    markTaskMissed: builder.mutation<MarkTaskMissedResponse, MarkTaskMissedRequest>({
+      query: ({ id }) => ({
+        url: `${TASKS_API.UPDATE_TASK}${id}/mark-missed`,
+        method: 'PATCH',
+      }),
+      transformResponse: (raw: ApiEnvelope<MarkTaskMissedResponse>) => raw.data,
+      transformErrorResponse: error => error.data,
+      invalidatesTags: ['Task', 'Focus', 'TimeSpread'],
+    }),
     reorderTask: builder.mutation<ReorderTaskResponse, ReorderTaskRequest>({
       query: ({ id, displayOrder }) => ({
         url: `${TASKS_API.UPDATE_TASK}${id}/reorder`,
@@ -344,6 +355,7 @@ export const {
   useUpdateTaskMutation,
   useDeleteTaskMutation,
   useUpdateTaskStatusMutation,
+  useMarkTaskMissedMutation,
   useReorderTaskMutation,
   useScheduleTaskMutation,
   useGetFocusQuery,

@@ -18,6 +18,12 @@ interface MonthChipProps {
 const MonthChip = ({ task, onSelect }: MonthChipProps) => {
   const { t } = useTranslation('task');
   const isDone = task.status === TaskStatus.DONE;
+  // A reaped recurring occurrence — cancelled by the system (sweep or manual
+  // mark-missed), not by the user choosing to skip it. Styled distinctly from
+  // both an ordinary cancel (which never shows here — see calendar query) and
+  // a completed task: muted like done, but no strikethrough, since nothing was
+  // actually crossed off.
+  const isMissed = task.occurrenceStatus === 'missed';
 
   return (
     <button
@@ -30,13 +36,17 @@ const MonthChip = ({ task, onSelect }: MonthChipProps) => {
       className={cn(
         'flex w-full items-baseline gap-1 rounded px-1 py-0.5 text-start text-[11px] leading-tight',
         'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
-        isDone ? 'text-muted-foreground line-through' : 'text-foreground'
+        isDone && 'text-muted-foreground line-through',
+        isMissed && 'text-muted-foreground/70 italic',
+        !isDone && !isMissed && 'text-foreground'
       )}
       data-testid={`calendar-month-chip-${task.id}`}
       aria-label={
-        task.scheduledTime
-          ? t('calendar.chipTimedLabel', { title: task.title, time: task.scheduledTime })
-          : t('calendar.chipUntimedLabel', { title: task.title })
+        isMissed
+          ? t('calendar.chipMissedLabel', { title: task.title })
+          : task.scheduledTime
+            ? t('calendar.chipTimedLabel', { title: task.title, time: task.scheduledTime })
+            : t('calendar.chipUntimedLabel', { title: task.title })
       }
     >
       {task.scheduledTime && (

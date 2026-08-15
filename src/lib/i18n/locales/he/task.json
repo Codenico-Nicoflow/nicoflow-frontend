@@ -62,6 +62,7 @@
     "edit": "עריכת משימה",
     "delete": "מחיקת משימה",
     "cancel": "ביטול משימה",
+    "markMissed": "סימון כפוספסה",
     "complete": "סימון {{title}} כהושלמה"
   },
   "status": {
@@ -244,6 +245,7 @@
     "monthEmptyDescription": "משימות שתתזמן לחודש זה יופיעו כאן.",
     "chipTimedLabel": "{{title}} בשעה {{time}}",
     "chipUntimedLabel": "{{title}}, כל היום",
+    "chipMissedLabel": "{{title}}, פוספסה",
     "timedSchedulingLocked": "תזמון לפי שעה הוא תכונת Pro. שדרגו כדי לגרור משימות לשעה מסוימת.",
     "teaserTitle": "תזמון לפי שעה הוא תכונת Pro",
     "teaserDescription": "זהו החודש האמיתי שלך. שדרגו כדי לקבוע משימות לשעה מסוימת ולגרור אותן לאורך היום.",

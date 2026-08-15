@@ -69,6 +69,9 @@ export interface ITask {
   // ordinary task.
   recurrenceRuleId?: string | null;
   occurrenceDate?: string | null; // ISO date "YYYY-MM-DD"
+  // Null on an ordinary or still-live occurrence; 'missed' once the recurrence
+  // engine has reaped it (nightly sweep or manual mark-missed).
+  occurrenceStatus?: string | null;
   // SUM of closed focus segments in seconds (E-049). Enriched only on
   // GET /tasks/:id and GET /focus — always 0 on the project task-list.
   totalFocusSeconds: number;

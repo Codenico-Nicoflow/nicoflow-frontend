@@ -1,12 +1,12 @@
 import * as React from 'react';
 
-import { Ban, Edit, Trash2 } from 'lucide-react';
+import { Ban, CalendarX, Edit, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import type { TaskCompleteCheckboxHandle } from '@/components';
 import { AnimatedListItem, ItemActionsMenu, ListItemCard, TaskCompleteCheckbox } from '@/components';
-import { useUpdateTaskStatusMutation } from '@/lib/store';
+import { useMarkTaskMissedMutation, useUpdateTaskStatusMutation } from '@/lib/store';
 import { type ITask, TaskStatus } from '@/lib/types';
 import { cn, showErrorToast } from '@/lib/utils';
 
@@ -29,9 +29,19 @@ interface TaskItemProps {
 const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }: TaskItemProps) => {
   const { t } = useTranslation('task');
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  const [markTaskMissed] = useMarkTaskMissedMutation();
   const { guardComplete, confirmDialog } = useConfirmComplete();
   const checkboxRef = React.useRef<TaskCompleteCheckboxHandle>(null);
   const isCompleted = task.status === TaskStatus.DONE;
+  // Mirrors the backend's own mark-missed guard (today-or-past, active,
+  // recurring, unreaped) so the menu doesn't offer an action the server would
+  // reject — the server stays the authority via TASK_NOT_MISSABLE either way.
+  const canMarkMissed =
+    task.status === TaskStatus.ACTIVE &&
+    !!task.recurrenceRuleId &&
+    !task.occurrenceStatus &&
+    !!task.occurrenceDate &&
+    task.occurrenceDate <= new Date().toISOString().slice(0, 10);
 
   // The checkbox cycles active → done and back. The mutation is optimistic
   // (see taskApi) so the row flips instantly and rolls back if the request fails.
@@ -55,6 +65,14 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
   const handleCancel = async () => {
     try {
       await updateTaskStatus({ id: task.id, status: TaskStatus.CANCELLED }).unwrap();
+    } catch (error) {
+      showErrorToast(error, toast);
+    }
+  };
+
+  const handleMarkMissed = async () => {
+    try {
+      await markTaskMissed({ id: task.id }).unwrap();
     } catch (error) {
       showErrorToast(error, toast);
     }
@@ -128,6 +146,9 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
               actions={[
                 { label: t('actions.edit'), icon: Edit, onClick: () => onEdit(task) },
                 { label: t('actions.cancel'), icon: Ban, onClick: () => void handleCancel() },
+                ...(canMarkMissed
+                  ? [{ label: t('actions.markMissed'), icon: CalendarX, onClick: () => void handleMarkMissed() }]
+                  : []),
                 { label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true },
               ]}
             />

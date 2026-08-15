@@ -80,6 +80,7 @@ export {
   useGetTaskQuery,
   useGetTasksInfiniteQuery,
   useGetTimeSpreadQuery,
+  useMarkTaskMissedMutation,
   useReorderTaskMutation,
   useScheduleTaskMutation,
   useUpdateTaskMutation,

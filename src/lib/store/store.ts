@@ -13,6 +13,7 @@ import focusLiveReducer from './slices/focusSession/focusLiveSlice';
 import { focusSessionApi } from './slices/focusSession/focusSessionApi';
 import { googleCalendarApi } from './slices/googleCalendar/googleCalendarApi';
 import { habitApi } from './slices/habit/habitApi';
+import { nlpApi } from './slices/nlp/nlpApi';
 import { noteApi } from './slices/note/noteApi';
 import { notificationApi } from './slices/notification/notificationApi';
 import { projectApi } from './slices/project/projectApi';
@@ -38,6 +39,7 @@ const apiReducerPaths = [
   googleCalendarApi.reducerPath,
   noteApi.reducerPath,
   habitApi.reducerPath,
+  nlpApi.reducerPath,
 ] as const;
 
 const combinedReducer = combineReducers({
@@ -59,6 +61,7 @@ const combinedReducer = combineReducers({
   [googleCalendarApi.reducerPath]: googleCalendarApi.reducer,
   [noteApi.reducerPath]: noteApi.reducer,
   [habitApi.reducerPath]: habitApi.reducer,
+  [nlpApi.reducerPath]: nlpApi.reducer,
 });
 
 type CombinedState = ReturnType<typeof combinedReducer>;
@@ -106,7 +109,8 @@ export const store = configureStore({
       focusSessionApi.middleware,
       googleCalendarApi.middleware,
       noteApi.middleware,
-      habitApi.middleware
+      habitApi.middleware,
+      nlpApi.middleware
     ),
 });
 

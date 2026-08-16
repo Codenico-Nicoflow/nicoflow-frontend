@@ -215,6 +215,11 @@ export {
 } from './slices/habit/habitApi';
 export type { CheckInRequest, CreateHabitRequest, UndoCheckInRequest, UpdateHabitRequest } from './slices/habit/type';
 
+// NLP date-text parsing exports (NIC-1931/1932)
+export { nlpApi } from './slices/nlp/nlpApi';
+export { useParseNLPDateMutation } from './slices/nlp/nlpApi';
+export type { NLPDateLocale, ParseNLPDateRequest, ParseNLPDateResponse } from './slices/nlp/type';
+
 // Notification exports
 export { notificationApi } from './slices/notification/notificationApi';
 export {

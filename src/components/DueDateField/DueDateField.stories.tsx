@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { http, HttpResponse } from 'msw';
 import { useForm } from 'react-hook-form';
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { Form } from '@/components/ui/form';
 
 import { DueDateField } from '.';
+
+const API = 'http://localhost:8080/v1';
+const envelope = <T,>(data: T) => ({ data, error: null });
 
 type DueDateForm = { dueDate?: Date };
 
@@ -61,3 +65,41 @@ export const WithDate: Story = {
 };
 
 export const Optional: Story = { args: { optional: true } };
+
+// Text-input mode (NIC-1932): switching to it, high-confidence parse → chip → confirm.
+export const NLPHighConfidence: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post(`${API}/nlp/parse-date`, () =>
+          HttpResponse.json(envelope({ date: '2026-06-19', confidence: 'high', display: 'next friday' }))
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('due-date-nlp-toggle'));
+    await userEvent.type(await canvas.findByTestId('due-date-nlp-input'), 'next friday');
+    await expect(await canvas.findByTestId('due-date-nlp-chip', {}, { timeout: 2000 })).toBeInTheDocument();
+  },
+};
+
+// Low-confidence parse → "did you mean" prompt, no date auto-applied.
+export const NLPLowConfidence: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post(`${API}/nlp/parse-date`, () =>
+          HttpResponse.json(envelope({ date: null, confidence: 'low', display: null }))
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('due-date-nlp-toggle'));
+    await userEvent.type(await canvas.findByTestId('due-date-nlp-input'), 'asdfghjkl');
+    await expect(await canvas.findByTestId('due-date-nlp-did-you-mean', {}, { timeout: 2000 })).toBeInTheDocument();
+  },
+};

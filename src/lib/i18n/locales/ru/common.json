@@ -70,6 +70,13 @@
   "fields": {
     "dueDateLabel": "Срок",
     "pickDate": "Выберите дату",
+    "typeDate": "Введите дату",
+    "switchToCalendar": "Вернуться к календарю",
+    "switchToTextInput": "Ввести дату текстом",
+    "nlpPlaceholder": "например: в следующую пятницу",
+    "nlpDidYouMean": "Вы имели в виду {{date}}?",
+    "nlpYes": "Да",
+    "nlpNo": "Нет",
     "optional": "(Необязательно)",
     "priorityLabel": "Приоритет",
     "priorityPlaceholder": "Выберите приоритет",

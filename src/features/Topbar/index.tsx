@@ -2,7 +2,7 @@ import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-import { LanguageSwitcher, ModeToggle } from '@/components';
+import { LanguageSwitcher, Logo, ModeToggle } from '@/components';
 import { Notifications } from '@/features/Notifications';
 
 import { UserMenu } from './components/UserMenu';
@@ -22,9 +22,7 @@ export const Topbar = ({ onSearchOpen }: TopbarProps) => {
         onClick={() => navigate('/quick-access/today')}
         className="flex items-center gap-2 font-semibold text-foreground"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          N
-        </span>
+        <Logo variant="mark" size={28} />
         <span className="hidden sm:inline">{t('common:appName')}</span>
       </button>
 

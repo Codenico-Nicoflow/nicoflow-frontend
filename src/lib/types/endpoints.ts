@@ -124,6 +124,11 @@ export const AI_API = {
   TOOL_CALLS: (sessionId: string) => `/ai/sessions/${sessionId}/tool-calls`, // GET ?status=pending
 };
 
+// Stateless date parsing (NIC-1931). No cache tag — fire-and-forget.
+export const NLP_API = {
+  PARSE_DATE: '/nlp/parse-date',
+};
+
 export const GOOGLE_CALENDAR_API = {
   CONNECT: '/calendar/google/connect', // GET → { authUrl }
   CONNECTION: '/calendar/google/connection', // GET connection · DELETE disconnect

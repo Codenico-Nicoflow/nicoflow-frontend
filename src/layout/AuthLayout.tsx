@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link, Outlet } from 'react-router-dom';
 
+import { Logo } from '@/components';
+
 const SLIDES = [
   {
     headline: 'Your tasks,\norganized.',
@@ -33,8 +35,8 @@ const AuthLayout = () => {
       {/* Left hero panel — hidden on mobile */}
       <div className="hidden lg:flex w-1/2 flex-col bg-primary text-primary-foreground p-10">
         <Link to="/sign-in" className="flex items-center gap-2 select-none">
-          <span className="h-8 w-8 rounded-lg bg-primary-foreground/15 flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">N</span>
+          <span className="inline-flex size-9 items-center justify-center rounded-xl bg-white/15">
+            <Logo variant="mark" size={24} mono className="text-white" />
           </span>
           <span className="text-xl font-bold tracking-tight">Nicoflow</span>
         </Link>
@@ -77,9 +79,7 @@ const AuthLayout = () => {
         {/* Mobile logo */}
         <header className="flex lg:hidden justify-center pt-8 pb-2">
           <Link to="/sign-in" className="flex items-center gap-2 select-none">
-            <span className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">N</span>
-            </span>
+            <Logo variant="mark" size={24} />
             <span className="text-xl font-bold text-foreground tracking-tight">Nicoflow</span>
           </Link>
         </header>

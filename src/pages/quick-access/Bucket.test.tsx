@@ -1,11 +1,11 @@
 import { renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import type { IBucket } from '@nicoflow/shared/types';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import type { IBucket } from '@/lib/types';
 import { makeBucket } from '@/mocks/handlers';
 
 import Bucket from './Bucket';

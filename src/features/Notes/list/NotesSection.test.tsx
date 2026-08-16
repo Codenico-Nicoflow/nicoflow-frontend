@@ -1,12 +1,11 @@
 import { renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import type { INote } from '@nicoflow/shared/types';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import type { INote } from '@/lib/types';
 
 import { NotesSection } from './NotesSection';
 

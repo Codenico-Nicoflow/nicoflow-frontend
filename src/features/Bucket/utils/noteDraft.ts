@@ -1,4 +1,4 @@
-import type { TiptapDoc } from '@/lib/types';
+import type { TiptapDoc } from '@nicoflow/shared/types';
 
 // Capture allows 500 characters; a note title is capped at 255. Truncating on
 // the client (before the field is shown, not at submit) is what lets the user

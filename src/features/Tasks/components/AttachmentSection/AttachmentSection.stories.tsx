@@ -1,8 +1,8 @@
+import type { IAttachment } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { http, HttpResponse } from 'msw';
 import { expect, screen } from 'storybook/test';
 
-import type { IAttachment } from '@/lib/types';
 import { mockUser } from '@/stories/mocks';
 
 import { AttachmentSection } from './AttachmentSection';

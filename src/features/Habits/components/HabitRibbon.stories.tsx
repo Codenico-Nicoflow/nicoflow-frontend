@@ -1,6 +1,5 @@
+import type { IHabitCell } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
-
-import type { IHabitCell } from '@/lib/types';
 
 import { HabitRibbon } from './HabitRibbon';
 

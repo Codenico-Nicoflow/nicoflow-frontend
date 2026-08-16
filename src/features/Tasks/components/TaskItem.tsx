@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { type ITask, TaskStatus } from '@nicoflow/shared/types';
 import { Ban, CalendarX, Edit, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -7,7 +8,6 @@ import { toast } from 'sonner';
 import type { TaskCompleteCheckboxHandle } from '@/components';
 import { AnimatedListItem, ItemActionsMenu, ListItemCard, TaskCompleteCheckbox } from '@/components';
 import { useMarkTaskMissedMutation, useUpdateTaskStatusMutation } from '@/lib/store';
-import { type ITask, TaskStatus } from '@/lib/types';
 import { cn, showErrorToast } from '@/lib/utils';
 
 import { needsCompletionConfirm } from '../completionGuard';

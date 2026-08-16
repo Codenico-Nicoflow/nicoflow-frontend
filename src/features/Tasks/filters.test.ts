@@ -1,6 +1,6 @@
+import { ScheduleFilter, TaskStatus } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
 
-import { ScheduleFilter, TaskStatus } from '@/lib/types';
 import { makeTask } from '@/mocks/handlers';
 
 import { countTasks, defaultTaskFilter, matchesFilter, matchesScheduleFilter, TASK_FILTER } from './filters';

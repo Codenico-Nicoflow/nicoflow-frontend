@@ -1,4 +1,4 @@
-import type { IProject } from '@/lib/types';
+import type { IProject } from '@nicoflow/shared/types';
 
 export type GetProjectsResponse = { items: IProject[]; nextCursor: string };
 export type GetProjectResponse = IProject;

@@ -1,8 +1,8 @@
+import type { IconId, IProject } from '@nicoflow/shared/types';
 import { Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { LazyIcon } from '@/components';
-import type { IconId, IProject } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 export const RailProjectRow = ({ project, active }: { project: IProject; active: boolean }) => (

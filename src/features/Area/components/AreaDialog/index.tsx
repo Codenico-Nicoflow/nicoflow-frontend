@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { IArea } from '@nicoflow/shared/types';
 import { Layers, Tag } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,6 @@ import { toast } from 'sonner';
 import { ColorField, FormDialog, IconField, NameField, PlanLimitAlert } from '@/components';
 import { Form } from '@/components/ui/form.tsx';
 import { areaApi, invalidateApiTags, useCreateAreaMutation, useUpdateAreaMutation } from '@/lib/store';
-import type { IArea } from '@/lib/types';
 import type { AreaFormData } from '@/lib/utils';
 import {
   createAreaSchema,

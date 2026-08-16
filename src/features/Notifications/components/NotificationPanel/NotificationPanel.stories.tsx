@@ -1,8 +1,8 @@
+import type { INotification } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { delay, http, HttpResponse } from 'msw';
 
 import { Popover, PopoverAnchor } from '@/components/ui/popover';
-import type { INotification } from '@/lib/types';
 import { withStoryProviders } from '@/stories/decorators/withStoryProviders';
 
 import { NotificationPanel } from './index';

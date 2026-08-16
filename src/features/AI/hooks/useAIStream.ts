@@ -1,10 +1,10 @@
 import { useCallback, useRef, useState } from 'react';
 
+import { AI_API } from '@nicoflow/shared/types';
 import { useStore } from 'react-redux';
 
 import type { RootState } from '@/lib/store';
 import { aiApi, invalidateApiTags, refreshSessionFromStore, taskApi, useAppDispatch } from '@/lib/store';
-import { AI_API } from '@/lib/types';
 
 import type { AIMessageView, AIToolName, PendingToolProposal } from '../types';
 

@@ -1,7 +1,6 @@
+import { TaskEnergy } from '@nicoflow/shared/types';
 import { addDays, format, subDays } from 'date-fns';
 import { describe, expect, it } from 'vitest';
-
-import { TaskEnergy } from '@/lib/types';
 
 import { formatTaskGentleDate, getEnergyGlyph } from '.';
 

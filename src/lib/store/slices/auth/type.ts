@@ -1,4 +1,4 @@
-import type { IUser } from '@/lib/types';
+import type { IUser } from '@nicoflow/shared/types';
 
 export type LoginRequest = {
   /** Email address or username. */
@@ -22,7 +22,7 @@ export type AuthResponse = {
   user: IUser;
 };
 
-export type { ApiEnvelope } from '@/lib/types';
+export type { ApiEnvelope } from '@nicoflow/shared/types';
 
 export type ForgotPasswordRequest = {
   email: string;

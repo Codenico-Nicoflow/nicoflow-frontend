@@ -1,7 +1,7 @@
+import type { IHabit } from '@nicoflow/shared/types';
 import { Check, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { IHabit } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { todayProgress } from '../habitUtils';

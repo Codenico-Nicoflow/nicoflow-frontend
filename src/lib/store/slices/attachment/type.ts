@@ -1,4 +1,4 @@
-import type { AttachmentOwnerType, IAttachment } from '@/lib/types';
+import type { AttachmentOwnerType, IAttachment } from '@nicoflow/shared/types';
 
 // List query args — the polymorphic owner pair sent as ?ownerType=&ownerId=.
 export type GetAttachmentsRequest = {

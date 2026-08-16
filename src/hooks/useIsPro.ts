@@ -1,5 +1,6 @@
+import { USER_STATUS } from '@nicoflow/shared/types';
+
 import { useAppUser } from '@/lib/store';
-import { USER_STATUS } from '@/lib/types';
 
 /**
  * Plan read from the auth state, matching the backend's JWT claim.

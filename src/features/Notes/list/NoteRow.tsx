@@ -1,8 +1,8 @@
+import type { INote } from '@nicoflow/shared/types';
 import type { Locale } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 
 import { Timestamp } from '@/components';
-import type { INote } from '@/lib/types';
 
 export interface NoteRowProps {
   note: INote;

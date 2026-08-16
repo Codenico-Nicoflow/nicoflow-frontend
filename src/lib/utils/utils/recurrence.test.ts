@@ -1,6 +1,5 @@
+import { MONTHDAY_LAST, RecurrenceFreq } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
-
-import { MONTHDAY_LAST, RecurrenceFreq } from '@/lib/types';
 
 import { normalizeScheduleForFreq, summarizeRecurrence, validateRecurrence } from './recurrence';
 

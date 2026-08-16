@@ -1,10 +1,10 @@
 import { renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import { ActiveTab } from '@nicoflow/shared/types';
 import { screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { ActiveTab } from '@/lib/types/interfaces';
 import { makeHabit } from '@/mocks/handlers';
 
 import TimeSpreadView from './index';

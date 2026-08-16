@@ -1,3 +1,4 @@
+import { type IconId, type IProject } from '@nicoflow/shared/types';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Edit3, Star, Trash2 } from 'lucide-react';
@@ -6,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { LazyIcon } from '@/components';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { type IconId, type IProject } from '@/lib/types';
 import { cn, getProjectStatusColor } from '@/lib/utils';
 
 import { useToggleFavorite } from '../../useToggleFavorite';

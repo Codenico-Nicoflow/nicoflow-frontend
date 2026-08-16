@@ -1,7 +1,6 @@
+import type { TiptapDoc } from '@nicoflow/shared/types';
 import { Editor } from '@tiptap/core';
 import { describe, expect, it, vi } from 'vitest';
-
-import type { TiptapDoc } from '@/lib/types';
 
 import { createNoteExtensions, isAllowedLinkProtocol, openLinkFromEvent } from './extensions';
 

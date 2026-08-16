@@ -1,12 +1,12 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import type { IRecurrenceRule } from '@nicoflow/shared/types';
+import { RecurrenceFreq } from '@nicoflow/shared/types';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import type { IRecurrenceRule } from '@/lib/types';
-import { RecurrenceFreq } from '@/lib/types';
 import { makeUser } from '@/mocks/handlers';
 
 import { RecurrenceCard } from './RecurrenceCard';

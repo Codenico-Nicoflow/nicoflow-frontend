@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
+import type { IHabit } from '@nicoflow/shared/types';
 import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetHabitsQuery, useGetHabitsTodayQuery } from '@/lib/store';
-import type { IHabit } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { HABIT_FALLBACK_ICON, HABIT_SUBJECT_ICONS } from '../data';

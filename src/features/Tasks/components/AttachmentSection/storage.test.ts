@@ -1,6 +1,5 @@
+import type { IAttachment } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
-
-import type { IAttachment } from '@/lib/types';
 
 import { formatMegabytes, STORAGE_LIMIT_BYTES, storageLevel, sumBytes, usageRatio } from './storage';
 

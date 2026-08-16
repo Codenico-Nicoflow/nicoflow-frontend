@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import type { IProject } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -21,7 +22,6 @@ import {
   useReorderProjectsMutation,
   useUpdateProjectMutation,
 } from '@/lib/store';
-import type { IProject } from '@/lib/types';
 import type { IconId } from '@/lib/utils';
 import { showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 

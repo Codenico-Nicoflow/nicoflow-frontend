@@ -1,3 +1,4 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { format, isSameMonth } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -5,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
 import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
-import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { MAX_MONTH_CHIPS, MAX_MONTH_GOOGLE_CHIPS } from '../data';

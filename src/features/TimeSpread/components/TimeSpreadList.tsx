@@ -1,5 +1,5 @@
-import type { ITask } from '@/lib/types';
-import { ActiveTab } from '@/lib/types/interfaces';
+import type { ITask } from '@nicoflow/shared/types';
+import { ActiveTab } from '@nicoflow/shared/types';
 
 import TimeSpreadRow from './TimeSpreadRow';
 

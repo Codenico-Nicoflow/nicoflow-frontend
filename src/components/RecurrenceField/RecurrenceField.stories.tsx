@@ -1,9 +1,8 @@
 import { useState } from 'react';
 
+import { RecurrenceFreq } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, screen, userEvent } from 'storybook/test';
-
-import { RecurrenceFreq } from '@/lib/types';
 
 import { RecurrenceField } from './index';
 import type { RecurrenceValue } from './types';

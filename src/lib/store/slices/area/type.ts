@@ -1,4 +1,4 @@
-import type { IArea, IProject } from '@/lib/types';
+import type { IArea, IProject } from '@nicoflow/shared/types';
 
 export type GetAreaRequest = string;
 

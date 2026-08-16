@@ -1,8 +1,7 @@
+import type { ApiEnvelope, ITask } from '@nicoflow/shared/types';
+import { TASKS_API } from '@nicoflow/shared/types';
 import type { InfiniteData } from '@reduxjs/toolkit/query';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
-import type { ApiEnvelope, ITask } from '@/lib/types';
-import { TASKS_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 

@@ -1,4 +1,4 @@
-import type { IFocusSession } from '@/lib/types';
+import type { IFocusSession } from '@nicoflow/shared/types';
 
 export interface OpenFocusSessionRequest {
   taskId: string;

@@ -1,10 +1,10 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
-import type { ITask } from '@/lib/types';
 
 import type { FocusTimer as FocusTimerState } from '../useFocusTimer';
 

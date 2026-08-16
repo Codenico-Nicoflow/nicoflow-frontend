@@ -1,8 +1,8 @@
+import type { ProcessingOption, ProcessingResult } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import type { ProcessingOption, ProcessingResult } from '@/lib/types';
 
 interface BucketProcessListProps {
   processingOptions: readonly ProcessingOption[];

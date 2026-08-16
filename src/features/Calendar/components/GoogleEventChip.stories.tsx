@@ -1,9 +1,9 @@
+import type { ITask } from '@nicoflow/shared/types';
+import { TaskPriority, TaskStatus } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
 
 import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
-import type { ITask } from '@/lib/types';
-import { TaskPriority, TaskStatus } from '@/lib/types';
 import { withStoryProviders } from '@/stories/decorators/withStoryProviders';
 
 import { resolveCalendarPrefs } from '../displayPrefs';

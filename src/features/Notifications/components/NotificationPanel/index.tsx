@@ -1,3 +1,4 @@
+import { USER_STATUS } from '@nicoflow/shared/types';
 import { AnimatePresence } from 'framer-motion';
 import { Bell, BellOff, CheckCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +15,6 @@ import {
   useMarkAllReadMutation,
   useMarkReadMutation,
 } from '@/lib/store';
-import { USER_STATUS } from '@/lib/types';
 
 import { enableDesktopNotifications, useDesktopEnabled } from '../../desktop/useDesktopNotification';
 

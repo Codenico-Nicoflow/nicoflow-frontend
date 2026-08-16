@@ -1,6 +1,5 @@
+import { TaskEnergy } from '@nicoflow/shared/types';
 import { BatteryLow, BatteryMedium, Brain } from 'lucide-react';
-
-import { TaskEnergy } from '@/lib/types';
 
 // The three energy segments, in ascending focus-cost order. Each carries a
 // small glyph, the i18n key for its label, and a Tailwind text-color class for

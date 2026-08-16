@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
+import { ScheduleFilter, type TaskEnergy } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
-
-import { ScheduleFilter, type TaskEnergy } from '@/lib/types';
 
 import { TASK_FILTER, type TaskFilter } from '../filters';
 

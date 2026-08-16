@@ -1,9 +1,9 @@
+import type { INote } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { NotebookPen } from 'lucide-react';
 import { expect, within } from 'storybook/test';
 
 import { EmptyState } from '@/components';
-import type { INote } from '@/lib/types';
 
 import { NoteRow } from './NoteRow';
 

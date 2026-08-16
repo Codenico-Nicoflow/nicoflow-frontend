@@ -1,9 +1,9 @@
+import type { IconId, IProject } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { LazyIcon } from '@/components';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { IconId, IProject } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 // Favorites render their project's folderIcon (an IconId string via LazyIcon),

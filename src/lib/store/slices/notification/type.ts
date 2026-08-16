@@ -1,4 +1,4 @@
-import type { INotification, INotificationPref } from '@/lib/types';
+import type { INotification, INotificationPref } from '@nicoflow/shared/types';
 
 // List query params: opaque cursor + optional read filter (matches the backend
 // keyset pagination). Undefined fields are omitted from the request.

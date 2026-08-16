@@ -1,8 +1,7 @@
+import type { ApiEnvelope, ApiErrorBody, INoteDetail } from '@nicoflow/shared/types';
+import { NOTE_API } from '@nicoflow/shared/types';
 import type { FetchBaseQueryError, InfiniteData } from '@reduxjs/toolkit/query';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
-import type { ApiEnvelope, ApiErrorBody, INoteDetail } from '@/lib/types';
-import { NOTE_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 

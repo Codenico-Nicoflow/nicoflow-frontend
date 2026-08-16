@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { ITask } from '@nicoflow/shared/types';
 import { toast } from 'sonner';
 
 import {
@@ -12,7 +13,6 @@ import {
   useFocusHeartbeatMutation,
   useOpenFocusSessionMutation,
 } from '@/lib/store';
-import type { ITask } from '@/lib/types';
 import { getApiErrorCode, showErrorToast } from '@/lib/utils';
 
 import { HEARTBEAT_INTERVAL_MS, IDLE_TIMEOUT_MS, TICK_INTERVAL_MS } from './timerUtils';

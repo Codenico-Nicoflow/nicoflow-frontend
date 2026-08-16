@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { ApiErrorBody, TiptapDoc } from '@nicoflow/shared/types';
+
 import { useUpdateNoteMutation } from '@/lib/store';
-import type { ApiErrorBody, TiptapDoc } from '@/lib/types';
 
 import type { SaveStatusValue } from './types';
 import { AUTOSAVE_DEBOUNCE_MS, SaveStatus } from './types';

@@ -1,10 +1,10 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { AnimatedListItem, ListItemCard } from '@/components';
 import { Button } from '@/components/ui/button';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
-import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface FocusTaskRowProps {

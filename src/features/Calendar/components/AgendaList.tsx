@@ -1,10 +1,10 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { format, isToday } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
-import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { toDayKey } from '../utils';

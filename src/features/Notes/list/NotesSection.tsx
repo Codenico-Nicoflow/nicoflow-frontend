@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+import { EMPTY_TIPTAP_DOC } from '@nicoflow/shared/types';
 import { AlertTriangle, NotebookPen, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +12,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useInfiniteScrollSentinel } from '@/hooks';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
 import { useCreateNoteMutation, useGetNotesInfiniteQuery } from '@/lib/store';
-import { EMPTY_TIPTAP_DOC } from '@/lib/types';
 
 import { NoteRow } from './NoteRow';
 

@@ -1,3 +1,4 @@
+import { TaskStatus } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +7,6 @@ import { toast } from 'sonner';
 import { useConfirmComplete } from '@/features/Tasks/useConfirmComplete';
 import { useDebouncedValue } from '@/hooks';
 import { useGetFocusQuery, useUpdateTaskStatusMutation } from '@/lib/store';
-import { TaskStatus } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
 import FocusChips from './components/FocusChips';

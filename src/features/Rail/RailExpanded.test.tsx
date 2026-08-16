@@ -1,12 +1,12 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import { PROJECT_STATUS } from '@nicoflow/shared/types';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { areaApi, invalidateApiTags } from '@/lib/store';
-import { PROJECT_STATUS } from '@/lib/types';
 import { makeArea, makeProject } from '@/mocks/handlers';
 
 import { Rail } from './index';

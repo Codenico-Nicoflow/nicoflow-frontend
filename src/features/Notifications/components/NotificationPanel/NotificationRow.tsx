@@ -1,10 +1,10 @@
+import type { INotification } from '@nicoflow/shared/types';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { Timestamp } from '@/components';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
-import type { INotification } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { iconForType } from '../../notificationTypes';

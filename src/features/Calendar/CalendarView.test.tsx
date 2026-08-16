@@ -1,12 +1,12 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import { TaskStatus } from '@nicoflow/shared/types';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
-import { TaskStatus } from '@/lib/types';
 import { makeTask, makeUser } from '@/mocks/handlers';
 
 import CalendarView from './index';

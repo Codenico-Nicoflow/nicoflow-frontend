@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import type { IRecurrenceRule } from '@nicoflow/shared/types';
+import { FREE_PLAN_RULE_LIMIT } from '@nicoflow/shared/types';
 import { Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -13,8 +15,6 @@ import {
   useGetRecurrenceRulesQuery,
   usePauseRecurrenceRuleMutation,
 } from '@/lib/store';
-import type { IRecurrenceRule } from '@/lib/types';
-import { FREE_PLAN_RULE_LIMIT } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
 import { RecurrenceRuleRow } from './RecurrenceRuleRow';

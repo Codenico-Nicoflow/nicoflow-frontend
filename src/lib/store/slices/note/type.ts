@@ -1,4 +1,4 @@
-import type { INote, TiptapDoc } from '@/lib/types';
+import type { INote, TiptapDoc } from '@nicoflow/shared/types';
 
 // GET /notes?projectId= — projectId is required by the API (422 without it).
 export type ListNotesRequest = {

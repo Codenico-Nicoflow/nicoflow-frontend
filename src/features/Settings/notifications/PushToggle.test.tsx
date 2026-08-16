@@ -1,12 +1,11 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import type { IUser } from '@nicoflow/shared/types';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-import type { IUser } from '@/lib/types';
 
 import { PushToggle } from './PushToggle';
 

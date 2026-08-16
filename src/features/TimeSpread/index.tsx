@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 
+import type { ITask } from '@nicoflow/shared/types';
+import { ActiveTab } from '@nicoflow/shared/types';
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,8 +10,6 @@ import { EmptyState } from '@/components';
 import { HabitTodayStrip } from '@/features/Habits';
 import { TaskDialog, TasksLoadingState } from '@/features/Tasks';
 import { useGetTimeSpreadQuery } from '@/lib/store';
-import type { ITask } from '@/lib/types';
-import { ActiveTab } from '@/lib/types/interfaces';
 
 import TimeSpreadList from './components/TimeSpreadList';
 import TimeSpreadTabs from './components/TimeSpreadTabs';

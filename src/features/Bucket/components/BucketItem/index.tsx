@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
+import { type IBucket } from '@nicoflow/shared/types';
 import { Edit, Trash2, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { AnimatedListItem, ItemActionsMenu, ListItemCard, Timestamp } from '@/components';
 import { ExpandableText } from '@/components/ui/expandable-text.tsx';
-import { type IBucket } from '@/lib/types';
 
 interface BucketItemProps {
   bucket: IBucket;

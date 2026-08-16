@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import type { IHabit } from '@nicoflow/shared/types';
 import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +14,6 @@ import {
   useGetHabitsQuery,
   useRestoreHabitMutation,
 } from '@/lib/store';
-import type { IHabit } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { HabitFormDialog } from './components/HabitFormDialog';

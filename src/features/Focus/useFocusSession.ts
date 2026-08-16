@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import type { ITask } from '@/lib/types';
+import type { ITask } from '@nicoflow/shared/types';
 
 export interface FocusSession {
   /** The task the user is doing right now, or null before Start / after finishing all. */

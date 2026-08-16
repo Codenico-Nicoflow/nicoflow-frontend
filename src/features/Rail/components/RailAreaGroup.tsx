@@ -1,10 +1,10 @@
 import { useId } from 'react';
 
+import type { IconId } from '@nicoflow/shared/types';
 import { ChevronDown } from 'lucide-react';
 
 import { LazyIcon } from '@/components';
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-import type { IconId } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { selectTreeProjects } from '../tree';

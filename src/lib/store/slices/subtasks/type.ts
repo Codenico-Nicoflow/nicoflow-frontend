@@ -1,4 +1,4 @@
-import type { ISubtask } from '@/lib/types';
+import type { ISubtask } from '@nicoflow/shared/types';
 
 /* Subtask API */
 export type GetSubtasksRequest = string; // taskId

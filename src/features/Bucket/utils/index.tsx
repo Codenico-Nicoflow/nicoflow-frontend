@@ -1,7 +1,7 @@
+import { ProcessingResult } from '@nicoflow/shared/types';
 import { toast } from 'sonner';
 
 import type { NoteDetails, ProcessBucketDto, TaskDetails } from '@/lib/store';
-import { ProcessingResult } from '@/lib/types';
 import { showErrorToast, showSuccessToast, type TaskFormData, ToastMessages } from '@/lib/utils';
 
 /**

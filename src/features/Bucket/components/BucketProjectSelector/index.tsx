@@ -1,7 +1,7 @@
+import type { IProject } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
-import type { IProject } from '@/lib/types';
 
 interface BucketProjectSelectorProps {
   selectedProjectId: string | undefined;

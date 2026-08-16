@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 
+import type { IHabitCell } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 
-import type { IHabitCell } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { toRibbonRuns } from '../habitUtils';

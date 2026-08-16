@@ -1,9 +1,9 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { getDateLocale } from '@/lib/i18n/dateLocale';
 import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
-import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MINUTES_PER_DAY } from '../data';

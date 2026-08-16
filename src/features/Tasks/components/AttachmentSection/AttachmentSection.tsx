@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
 
+import type { AttachmentOwnerType } from '@nicoflow/shared/types';
+import { USER_STATUS, validateAttachmentFile } from '@nicoflow/shared/types';
 import { FileText, Loader2, Paperclip, RotateCw, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -13,9 +15,6 @@ import {
   useGetStorageUsageQuery,
   useGetUploadUrlMutation,
 } from '@/lib/store';
-import type { AttachmentOwnerType } from '@/lib/types';
-import { USER_STATUS } from '@/lib/types';
-import { validateAttachmentFile } from '@/lib/types/attachment';
 import { getApiErrorCode, showErrorToast, uploadToS3 } from '@/lib/utils';
 
 import { AttachmentRow } from './AttachmentRow';

@@ -1,4 +1,10 @@
-import { type IBucket, type ProcessingResult, type TaskEnergy, type TaskPriority, type TiptapDoc } from '@/lib/types';
+import {
+  type IBucket,
+  type ProcessingResult,
+  type TaskEnergy,
+  type TaskPriority,
+  type TiptapDoc,
+} from '@nicoflow/shared/types';
 
 export interface CreateBucketDto {
   content: string;

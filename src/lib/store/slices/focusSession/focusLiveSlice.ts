@@ -1,6 +1,5 @@
+import type { IFocusSession } from '@nicoflow/shared/types';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-
-import type { IFocusSession } from '@/lib/types';
 
 import type { RootState } from '../../store';
 

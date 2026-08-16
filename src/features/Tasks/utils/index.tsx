@@ -1,7 +1,7 @@
+import { type ITask, TaskEnergy, TaskPriority } from '@nicoflow/shared/types';
 import { format, isPast, isToday, isTomorrow, parseISO } from 'date-fns';
 
 import { ENERGY_OPTIONS } from '@/components';
-import { type ITask, TaskEnergy, TaskPriority } from '@/lib/types';
 
 export type PriorityResult =
   | { kind: 'low'; className: string }

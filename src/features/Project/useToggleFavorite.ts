@@ -1,9 +1,9 @@
+import type { IProject } from '@nicoflow/shared/types';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 import { canToggleFavorite } from '@/features/Rail/favorites';
 import { areaApi, invalidateApiTags, projectApi, useGetProjectsQuery, useUpdateProjectMutation } from '@/lib/store';
-import type { IProject } from '@/lib/types';
 import { showErrorToast, ToastMessages } from '@/lib/utils';
 
 /**

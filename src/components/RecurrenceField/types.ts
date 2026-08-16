@@ -1,5 +1,5 @@
-import type { RecurrenceFreq } from '@/lib/types';
-import { RecurrenceFreq as Freq } from '@/lib/types';
+import type { RecurrenceFreq } from '@nicoflow/shared/types';
+import { RecurrenceFreq as Freq } from '@nicoflow/shared/types';
 
 // The schedule the field edits. `null` at the call site means "not a repeating
 // task" — the absence of a value, not a disabled flag, so the parent form can

@@ -1,12 +1,12 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import type { IAttachment } from '@nicoflow/shared/types';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { IAttachment } from '@/lib/types';
 import { makeUser } from '@/mocks/handlers';
 
 import { AttachmentRow } from './AttachmentRow';

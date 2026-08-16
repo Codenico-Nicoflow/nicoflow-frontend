@@ -1,6 +1,5 @@
+import { TaskStatus } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
-
-import { TaskStatus } from '@/lib/types';
 
 import { needsCompletionConfirm } from './completionGuard';
 

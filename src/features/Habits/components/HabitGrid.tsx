@@ -1,4 +1,4 @@
-import type { IHabit } from '@/lib/types';
+import type { IHabit } from '@nicoflow/shared/types';
 
 import { HABIT_GRID_CLASSES } from '../data';
 

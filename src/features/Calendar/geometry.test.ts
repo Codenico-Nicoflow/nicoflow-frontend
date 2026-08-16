@@ -1,6 +1,6 @@
+import { TaskStatus } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
 
-import { TaskStatus } from '@/lib/types';
 import { makeTask } from '@/mocks/handlers';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES } from './data';

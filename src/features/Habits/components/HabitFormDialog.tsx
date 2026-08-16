@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { IHabit } from '@nicoflow/shared/types';
 import { Repeat } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,6 @@ import { FormDialog, PlanLimitAlert } from '@/components';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCreateHabitMutation, useUpdateHabitMutation } from '@/lib/store';
-import type { IHabit } from '@/lib/types';
 
 import { emptyHabitForm, type HabitFormData, habitSchema } from '../schema';
 

@@ -1,10 +1,9 @@
 import { useId } from 'react';
 
+import type { TiptapDoc } from '@nicoflow/shared/types';
+import { withEditableBody } from '@nicoflow/shared/types';
 import { EditorContent, useEditor } from '@tiptap/react';
 import { useTranslation } from 'react-i18next';
-
-import type { TiptapDoc } from '@/lib/types';
-import { withEditableBody } from '@/lib/types';
 
 import { createNoteExtensions, openLinkFromEvent } from './extensions';
 import { NoteToolbar } from './NoteToolbar';

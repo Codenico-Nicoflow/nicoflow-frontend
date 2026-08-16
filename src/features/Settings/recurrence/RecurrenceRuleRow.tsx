@@ -1,3 +1,4 @@
+import type { IRecurrenceRule } from '@nicoflow/shared/types';
 import { MoreVertical, Pause, Play, Repeat, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +13,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetRecurrenceStatsQuery } from '@/lib/store';
-import type { IRecurrenceRule } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface RecurrenceRuleRowProps {

@@ -70,6 +70,13 @@
   "fields": {
     "dueDateLabel": "Due Date",
     "pickDate": "Pick a date",
+    "typeDate": "Type a date",
+    "switchToCalendar": "Switch to calendar",
+    "switchToTextInput": "Type a date instead",
+    "nlpPlaceholder": "e.g. next friday",
+    "nlpDidYouMean": "Did you mean {{date}}?",
+    "nlpYes": "Yes",
+    "nlpNo": "No",
     "optional": "(Optional)",
     "priorityLabel": "Priority",
     "priorityPlaceholder": "Select priority",

@@ -70,6 +70,13 @@
   "fields": {
     "dueDateLabel": "תאריך יעד",
     "pickDate": "בחרו תאריך",
+    "typeDate": "הקלידו תאריך",
+    "switchToCalendar": "חזרה ללוח שנה",
+    "switchToTextInput": "הקלידו תאריך במקום",
+    "nlpPlaceholder": "לדוגמה: יום שישי הבא",
+    "nlpDidYouMean": "התכוונתם ל-{{date}}?",
+    "nlpYes": "כן",
+    "nlpNo": "לא",
     "optional": "(אופציונלי)",
     "priorityLabel": "עדיפות",
     "priorityPlaceholder": "בחרו עדיפות",

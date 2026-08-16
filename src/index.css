@@ -29,7 +29,7 @@
 @theme inline {
   /* ── Typography ─────────────────────────────────────────────────────────── */
   --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, 'Cascadia Code', monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 
   /* ── Radius scale (3.10 spec — absolute px values) ──────────────────────── */
   --radius-sm: 6px;

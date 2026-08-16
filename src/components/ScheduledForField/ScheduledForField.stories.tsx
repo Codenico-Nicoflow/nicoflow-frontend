@@ -5,12 +5,12 @@ import { expect, userEvent, within } from 'storybook/test';
 
 import { Form } from '@/components/ui/form';
 
-import { DueDateField } from '.';
+import { ScheduledForField } from '.';
 
 const API = 'http://localhost:8080/v1';
 const envelope = <T,>(data: T) => ({ data, error: null });
 
-type DueDateForm = { dueDate?: Date };
+type ScheduledForForm = { scheduledFor?: string | null };
 
 type StoryArgs = {
   /** ISO date string ('' = no date). */
@@ -21,10 +21,10 @@ type StoryArgs = {
 };
 
 const meta: Meta<StoryArgs> = {
-  title: 'Components/Fields/DueDateField',
+  title: 'Components/Fields/ScheduledForField',
   tags: ['autodocs'],
   parameters: { layout: 'centered' },
-  args: { value: '', label: 'Due Date', optional: false, delay: 0.15 },
+  args: { value: '', label: 'Scheduled for', optional: true, delay: 0.15 },
   argTypes: {
     value: { control: 'text', description: "ISO date that seeds the field (e.g. '2026-06-15'); empty = none." },
     label: { control: 'text' },
@@ -33,11 +33,11 @@ const meta: Meta<StoryArgs> = {
   },
   render: ({ value, ...props }) => {
     const Demo = () => {
-      const form = useForm<DueDateForm>({ defaultValues: { dueDate: value ? new Date(value) : undefined } });
+      const form = useForm<ScheduledForForm>({ defaultValues: { scheduledFor: value || undefined } });
       return (
         <Form {...form}>
           <form className="w-[360px]">
-            <DueDateField control={form.control} {...props} />
+            <ScheduledForField control={form.control} {...props} />
           </form>
         </Form>
       );
@@ -64,9 +64,7 @@ export const WithDate: Story = {
   },
 };
 
-export const Optional: Story = { args: { optional: true } };
-
-// Text-input mode (NIC-1932): switching to it, high-confidence parse → chip → confirm.
+// Text-input mode (NIC-1932): high-confidence parse → chip → confirm.
 export const NLPHighConfidence: Story = {
   parameters: {
     msw: {
@@ -79,9 +77,9 @@ export const NLPHighConfidence: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('due-date-nlp-toggle'));
-    await userEvent.type(await canvas.findByTestId('due-date-nlp-input'), 'next friday');
-    await expect(await canvas.findByTestId('due-date-nlp-chip', {}, { timeout: 2000 })).toBeInTheDocument();
+    await userEvent.click(await canvas.findByTestId('scheduled-for-nlp-toggle'));
+    await userEvent.type(await canvas.findByTestId('scheduled-for-nlp-input'), 'next friday');
+    await expect(await canvas.findByTestId('scheduled-for-nlp-chip', {}, { timeout: 2000 })).toBeInTheDocument();
   },
 };
 
@@ -98,8 +96,10 @@ export const NLPLowConfidence: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('due-date-nlp-toggle'));
-    await userEvent.type(await canvas.findByTestId('due-date-nlp-input'), 'asdfghjkl');
-    await expect(await canvas.findByTestId('due-date-nlp-did-you-mean', {}, { timeout: 2000 })).toBeInTheDocument();
+    await userEvent.click(await canvas.findByTestId('scheduled-for-nlp-toggle'));
+    await userEvent.type(await canvas.findByTestId('scheduled-for-nlp-input'), 'asdfghjkl');
+    await expect(
+      await canvas.findByTestId('scheduled-for-nlp-did-you-mean', {}, { timeout: 2000 })
+    ).toBeInTheDocument();
   },
 };

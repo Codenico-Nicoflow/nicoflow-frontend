@@ -17,6 +17,7 @@ import {
   focusSessionApi,
   googleCalendarApi,
   habitApi,
+  nlpApi,
   noteApi,
   notificationApi,
   projectApi,
@@ -51,6 +52,7 @@ const createRootReducer = () =>
     [googleCalendarApi.reducerPath]: googleCalendarApi.reducer,
     [noteApi.reducerPath]: noteApi.reducer,
     [habitApi.reducerPath]: habitApi.reducer,
+    [nlpApi.reducerPath]: nlpApi.reducer,
   });
 
 type RootReducer = ReturnType<typeof createRootReducer>;
@@ -83,7 +85,8 @@ export const createMockStore = (preloadedState?: {
         focusSessionApi.middleware,
         googleCalendarApi.middleware,
         noteApi.middleware,
-        habitApi.middleware
+        habitApi.middleware,
+        nlpApi.middleware
       ),
   });
 };

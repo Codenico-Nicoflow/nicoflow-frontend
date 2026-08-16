@@ -6,6 +6,7 @@ export * from './bucket';
 export * from './focusSession';
 export * from './googleCalendar';
 export * from './habit';
+export * from './nlp';
 export * from './note';
 export * from './notification';
 export * from './project';

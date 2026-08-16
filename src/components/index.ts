@@ -19,6 +19,7 @@ export { LanguageSwitcher } from './LanguageSwitcher';
 export { LazyIcon } from './LazyIcon';
 export { ListItemCard } from './ListItemCard';
 export { LoadingOverlayProvider, useLoadingOverlay } from './LoadingOverlayProvider';
+export { Logo } from './Logo';
 export { ModeToggle } from './ModeToggle';
 export { NameField } from './NameField';
 export { OptionalBadge } from './OptionalBadge';

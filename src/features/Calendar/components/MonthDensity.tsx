@@ -1,8 +1,8 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { format, isSameMonth } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { getDateLocale } from '@/lib/i18n/dateLocale';
-import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { MAX_DENSITY_DOTS } from '../data';

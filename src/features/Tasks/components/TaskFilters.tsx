@@ -1,8 +1,8 @@
+import { ScheduleFilter, TaskEnergy } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 
 import { ENERGY_OPTIONS } from '@/components';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { ScheduleFilter, TaskEnergy } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { TASK_FILTER, TASK_FILTER_ORDER, type TaskCounts, type TaskFilter } from '../filters';

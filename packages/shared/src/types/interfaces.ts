@@ -2,9 +2,9 @@
 // IMPORTS
 // ============================================
 
-import type { ProcessingResult, RecurrenceFreq, TaskEnergy, TaskPriority, TaskStatus } from '../constants';
-import type { IconId } from '../icons';
-import type { TiptapDoc } from '../tiptap';
+import type { ProcessingResult, RecurrenceFreq, TaskEnergy, TaskPriority, TaskStatus } from './constants';
+import type { IconId } from './icons';
+import type { TiptapDoc } from './tiptap';
 
 // ============================================
 // INTERFACES

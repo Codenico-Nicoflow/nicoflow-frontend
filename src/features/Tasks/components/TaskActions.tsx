@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { type ITask } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { Edit, MoreVertical, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { type ITask } from '@/lib/types';
 
 interface TaskActionsProps {
   task: ITask;

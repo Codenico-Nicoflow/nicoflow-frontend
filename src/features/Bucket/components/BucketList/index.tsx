@@ -1,9 +1,9 @@
+import { type IBucket } from '@nicoflow/shared/types';
 import { Inbox } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
-import { type IBucket } from '@/lib/types';
 
 import { BucketItem } from '../BucketItem';
 

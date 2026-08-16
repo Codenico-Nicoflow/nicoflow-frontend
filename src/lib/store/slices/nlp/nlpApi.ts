@@ -1,7 +1,6 @@
+import type { ApiEnvelope } from '@nicoflow/shared/types';
+import { NLP_API } from '@nicoflow/shared/types';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
-import type { ApiEnvelope } from '@/lib/types';
-import { NLP_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 

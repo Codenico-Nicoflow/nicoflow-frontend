@@ -1,6 +1,5 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { addDays, format, isSameDay, parseISO } from 'date-fns';
-
-import type { ITask } from '@/lib/types';
 
 export interface DayGroup {
   /** ISO day key "yyyy-MM-dd" — stable for keys/testids. */

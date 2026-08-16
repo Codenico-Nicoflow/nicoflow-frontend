@@ -1,8 +1,7 @@
+import type { IUser } from '@nicoflow/shared/types';
 import { configureStore } from '@reduxjs/toolkit';
 import type { InfiniteData } from '@reduxjs/toolkit/query';
 import { describe, expect, it } from 'vitest';
-
-import type { IUser } from '@/lib/types';
 
 import { clearAuth, setUser } from './slices/auth/authSlice';
 import { taskApi } from './slices/tasks/taskApi';

@@ -1,5 +1,5 @@
-import type { ITask } from '@/lib/types';
-import { TaskStatus } from '@/lib/types';
+import type { ITask } from '@nicoflow/shared/types';
+import { TaskStatus } from '@nicoflow/shared/types';
 
 import { DEFAULT_BLOCK_MINUTES, HOUR_HEIGHT_PX, MIN_BLOCK_MINUTES, MINUTES_PER_DAY } from './data';
 import { toDayKey, wallClockIn } from './utils';

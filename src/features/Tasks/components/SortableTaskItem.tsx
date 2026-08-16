@@ -1,9 +1,9 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import type { ITask } from '@nicoflow/shared/types';
 import { GripVertical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import type { ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import TaskItem from './TaskItem';

@@ -1,6 +1,7 @@
+import type { IProject } from '@nicoflow/shared/types';
+import { PROJECT_STATUS } from '@nicoflow/shared/types';
+
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-import type { IProject } from '@/lib/types';
-import { PROJECT_STATUS } from '@/lib/types';
 
 // displayOrder only, matching AreasBoard. Ties keep the server's order (Array
 // #sort is stable) rather than falling back to name — a name tiebreak would

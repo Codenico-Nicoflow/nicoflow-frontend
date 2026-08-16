@@ -1,9 +1,8 @@
 import { server } from '__tests__/server';
+import type { ApiErrorBody, INote, INoteDetail } from '@nicoflow/shared/types';
 import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
-
-import type { ApiErrorBody, INote, INoteDetail } from '@/lib/types';
 
 import authReducer from '../auth/authSlice';
 

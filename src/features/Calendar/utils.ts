@@ -1,6 +1,5 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { addDays, addMonths, endOfWeek, format, parseISO, startOfMonth, startOfWeek } from 'date-fns';
-
-import type { ITask } from '@/lib/types';
 
 import { CALENDAR_VIEWS, type CalendarView, DAYS_PER_WEEK, DEFAULT_VIEW, MONTH_GRID_DAYS } from './data';
 import type { CalendarPrefs } from './displayPrefs';

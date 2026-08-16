@@ -10,6 +10,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { type ITask, ScheduleFilter, type TaskEnergy } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
@@ -17,7 +18,6 @@ import { toast } from 'sonner';
 
 import { useDebouncedValue, useInfiniteScrollSentinel } from '@/hooks';
 import { useGetTasksInfiniteQuery, useReorderTaskMutation } from '@/lib/store';
-import { type ITask, ScheduleFilter, type TaskEnergy } from '@/lib/types';
 import { showErrorToast } from '@/lib/utils';
 
 import {

@@ -1,4 +1,4 @@
-import type { IProject } from '@/lib/types';
+import type { IProject } from '@nicoflow/shared/types';
 
 /**
  * How many projects may be starred at once. The cap is enforced in the UI only

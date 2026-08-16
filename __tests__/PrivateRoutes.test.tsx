@@ -1,7 +1,7 @@
+import type { IUser } from '@nicoflow/shared/types';
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { IUser } from '@/lib/types';
 import AppRoutes from '@/router';
 
 import { createMockStore, renderComponent } from './renderComponent';

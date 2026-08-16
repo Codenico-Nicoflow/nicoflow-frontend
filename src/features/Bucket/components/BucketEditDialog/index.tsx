@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type IBucket } from '@nicoflow/shared/types';
 import { Edit } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +10,6 @@ import { toast } from 'sonner';
 import { DescriptionField, FormDialog } from '@/components';
 import { Form } from '@/components/ui/form.tsx';
 import { useUpdateBucketMutation } from '@/lib/store';
-import { type IBucket } from '@/lib/types';
 import { type BucketFormData, bucketSchema, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 import { hasFormChanges } from '@/lib/utils';
 

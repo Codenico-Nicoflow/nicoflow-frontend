@@ -1,10 +1,10 @@
 import { server } from '__tests__/server';
+import type { IProject } from '@nicoflow/shared/types';
 import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import type { AreaWithProjects } from '@/lib/store/slices/area/type';
-import type { IProject } from '@/lib/types';
 
 import { areaApi } from '../area/areaApi';
 import authReducer from '../auth/authSlice';

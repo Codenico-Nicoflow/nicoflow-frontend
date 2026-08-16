@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+import type { ITask } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -16,7 +17,6 @@ import {
   useScheduleTaskMutation,
   useUpdateTaskMutation,
 } from '@/lib/store';
-import type { ITask } from '@/lib/types';
 import { getApiErrorCode, resolveTimeZone, showErrorToast } from '@/lib/utils';
 
 import AgendaList from './components/AgendaList';

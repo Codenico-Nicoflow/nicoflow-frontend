@@ -1,3 +1,4 @@
+import { AUTH_API } from '@nicoflow/shared/types';
 import type {
   BaseQueryApi,
   BaseQueryFn,
@@ -10,7 +11,6 @@ import { Mutex } from 'async-mutex';
 import { toast } from 'sonner';
 
 import i18n from '@/lib/i18n';
-import { AUTH_API } from '@/lib/types';
 
 import type { AppDispatch, RootState } from '../store';
 

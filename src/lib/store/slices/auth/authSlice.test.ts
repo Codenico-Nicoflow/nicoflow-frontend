@@ -1,6 +1,5 @@
+import type { IUser } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
-
-import type { IUser } from '@/lib/types';
 
 import type { AuthState } from './authSlice';
 import authReducer, { clearAuth, selectIsLoading, selectUser, setIsLoading, setToken, setUser } from './authSlice';

@@ -1,4 +1,4 @@
-import { type ITask, ScheduleFilter, TaskStatus } from '@/lib/types';
+import { type ITask, ScheduleFilter, TaskStatus } from '@nicoflow/shared/types';
 
 /** Status tabs map 1:1 to TaskStatus; `all` is a lens over the same list. */
 export const TASK_FILTER = {

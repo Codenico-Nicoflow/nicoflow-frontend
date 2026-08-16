@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+import { type IBucket } from '@nicoflow/shared/types';
 import { Archive, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +17,6 @@ import {
   BucketQuickInput,
 } from '@/features/Bucket';
 import { useGetBucketsQuery } from '@/lib/store';
-import { type IBucket } from '@/lib/types';
 
 const Bucket = () => {
   const { t } = useTranslation('bucket');

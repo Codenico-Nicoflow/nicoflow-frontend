@@ -1,3 +1,4 @@
+import { USER_STATUS } from '@nicoflow/shared/types';
 import { FileText, HelpCircle, Shield, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -12,7 +13,6 @@ import { PreferencesCard } from '@/features/Settings/PreferencesCard';
 import { RecurrenceCard } from '@/features/Settings/recurrence/RecurrenceCard';
 import { SecurityCard } from '@/features/Settings/SecurityCard';
 import { useAppUser } from '@/lib/store';
-import { USER_STATUS } from '@/lib/types';
 
 const Settings = () => {
   const { t } = useTranslation();

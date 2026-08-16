@@ -1,8 +1,8 @@
+import type { TaskEnergy } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 
 import { ENERGY_OPTIONS } from '@/components';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import type { TaskEnergy } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { TIME_CHIPS } from '../data';

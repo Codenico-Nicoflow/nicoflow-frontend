@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 
+import type { IHabit } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { useCheckInMutation, useUndoCheckInMutation } from '@/lib/store';
-import type { IHabit } from '@/lib/types';
 
 import { isMilestone } from './habitUtils';
 

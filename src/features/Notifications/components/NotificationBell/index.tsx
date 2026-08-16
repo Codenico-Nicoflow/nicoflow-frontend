@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 
+import { USER_STATUS } from '@nicoflow/shared/types';
 import { motion, useAnimationControls, useReducedMotion } from 'framer-motion';
 import { Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { PopoverTrigger } from '@/components/ui/popover';
 import { useAppUser, useGetUnreadCountQuery } from '@/lib/store';
-import { USER_STATUS } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { useDesktopNotification } from '../../desktop/useDesktopNotification';

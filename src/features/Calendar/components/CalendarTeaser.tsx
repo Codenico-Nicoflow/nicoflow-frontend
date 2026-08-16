@@ -1,9 +1,9 @@
+import type { ITask } from '@nicoflow/shared/types';
 import { Lock, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
-import type { ITask } from '@/lib/types';
 
 import MonthDensity from './MonthDensity';
 import MonthGrid from './MonthGrid';

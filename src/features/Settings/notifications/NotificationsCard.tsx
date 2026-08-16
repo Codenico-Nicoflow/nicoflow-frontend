@@ -1,3 +1,5 @@
+import type { INotificationPref } from '@nicoflow/shared/types';
+import { USER_STATUS } from '@nicoflow/shared/types';
 import { CalendarClock, Inbox, ListChecks, Mail, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -6,8 +8,6 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAppUser, useGetPreferencesQuery, useUpdatePreferencesMutation } from '@/lib/store';
-import type { INotificationPref } from '@/lib/types';
-import { USER_STATUS } from '@/lib/types';
 
 import { PreferenceRow } from './PreferenceRow';
 import { PushToggle } from './PushToggle';

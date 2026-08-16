@@ -1,9 +1,9 @@
+import { type ITask } from '@nicoflow/shared/types';
 import { AlarmClock, Clock, ExternalLink, Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { formatDuration } from '@/components/EstimatedTimeField/presets';
 import { Badge } from '@/components/ui/badge';
-import { type ITask } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { formatTaskGentleDate, formatTaskPriority, getEnergyGlyph } from '../utils';

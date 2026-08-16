@@ -78,6 +78,7 @@ export type {
   ProcessingOption,
 } from './interfaces';
 export type { ApiEnvelope, ApiErrorBody } from './interfaces';
+export { ActiveTab } from './interfaces';
 export { HabitPolarity, HabitScheduleKind, HabitStreakUnit } from './interfaces';
 export type { JsonValue, TiptapDoc, TiptapMark } from './tiptap';
 export { EMPTY_TIPTAP_DOC, withEditableBody } from './tiptap';

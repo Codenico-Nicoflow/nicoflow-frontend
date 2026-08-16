@@ -1,3 +1,4 @@
+import { PROJECT_STATUS } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { Archive, CheckCircle, Clock } from 'lucide-react';
 import { type Control } from 'react-hook-form';
@@ -5,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form.tsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
-import { PROJECT_STATUS } from '@/lib/types';
 import { type ProjectFormData } from '@/lib/utils';
 
 interface ProjectStatusFieldProps {

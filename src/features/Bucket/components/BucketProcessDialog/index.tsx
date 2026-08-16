@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { BUCKET_PROCESSING_OPTIONS, type IBucket, ProcessingResult } from '@nicoflow/shared/types';
 import { AlertCircle, CheckSquare, Repeat } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +25,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { invalidateApiTags, noteApi, taskApi, useGetProjectsQuery, useProcessBucketMutation } from '@/lib/store';
-import { BUCKET_PROCESSING_OPTIONS, type IBucket, ProcessingResult } from '@/lib/types';
 import { type TaskFormData, taskSchema } from '@/lib/utils';
 
 import { canProcessBucket, getDefaultTaskFormValues, handleBucketProcess } from '../../utils';

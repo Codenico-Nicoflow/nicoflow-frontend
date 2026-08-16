@@ -1,7 +1,6 @@
+import type { TiptapDoc } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-
-import type { TiptapDoc } from '@/lib/types';
 
 import { NoteEditor } from './NoteEditor';
 

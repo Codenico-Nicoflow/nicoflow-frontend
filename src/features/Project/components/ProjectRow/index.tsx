@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import type { IconId, IProject } from '@nicoflow/shared/types';
 import { format } from 'date-fns';
 import { Calendar, GripVertical, Pencil, SquareArrowOutUpRight, Star, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +10,6 @@ import { ItemActionsMenu, LazyIcon } from '@/components';
 import { projectDragId } from '@/components/DragAndDropContext/resolveDragEnd';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { IconId, IProject } from '@/lib/types';
 import { cn, getProjectStatusColor } from '@/lib/utils';
 
 import { useToggleFavorite } from '../../useToggleFavorite';

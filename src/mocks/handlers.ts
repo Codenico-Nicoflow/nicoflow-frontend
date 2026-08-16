@@ -1,6 +1,3 @@
-import { http, HttpResponse } from 'msw';
-
-import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 import type {
   IArea,
   IBucket,
@@ -15,8 +12,11 @@ import type {
   ISubtask,
   ITask,
   IUser,
-} from '@/lib/types';
-import { TaskEnergy, TaskPriority, TaskStatus } from '@/lib/types/constants';
+} from '@nicoflow/shared/types';
+import { TaskEnergy, TaskPriority, TaskStatus } from '@nicoflow/shared/types';
+import { http, HttpResponse } from 'msw';
+
+import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 
 export const mockUser: IUser = {
   id: '1',

@@ -1,10 +1,10 @@
+import type { IUser } from '@nicoflow/shared/types';
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import type { SupportedLanguage } from '@/lib/i18n';
 import { useAppUser, useUpdateProfileMutation } from '@/lib/store';
-import type { IUser } from '@/lib/types';
 
 // Changes language/theme. Logged out: local-only. Logged in: the server is the
 // source of truth, so the change is applied only after the PATCH succeeds.

@@ -1,7 +1,6 @@
+import type { ApiEnvelope, ISubtask } from '@nicoflow/shared/types';
+import { SUBTASK_API } from '@nicoflow/shared/types';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
-import type { ApiEnvelope, ISubtask } from '@/lib/types';
-import { SUBTASK_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 

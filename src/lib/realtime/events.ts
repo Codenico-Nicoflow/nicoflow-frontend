@@ -2,7 +2,7 @@
 // Payloads are full resources; we deliberately don't type each one — the client
 // reacts by invalidating RTK Query tags and refetching, never by patching cache
 // from the payload, so the exact payload shape doesn't matter here.
-import type { IFocusSession } from '@/lib/types';
+import type { IFocusSession } from '@nicoflow/shared/types';
 
 export type WsEvent = {
   event: string;

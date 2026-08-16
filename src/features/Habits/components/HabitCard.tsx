@@ -1,10 +1,10 @@
+import type { IHabit, IHabitCell } from '@nicoflow/shared/types';
 import { Archive, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ItemActionsMenu } from '@/components';
 import type { ItemAction } from '@/components/ItemActionsMenu';
 import { Button } from '@/components/ui/button';
-import type { IHabit, IHabitCell } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { HABIT_FALLBACK_ICON, HABIT_SUBJECT_ICONS } from '../data';

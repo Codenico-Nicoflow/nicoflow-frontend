@@ -1,8 +1,7 @@
+import type { ApiEnvelope } from '@nicoflow/shared/types';
+import { PROJECT_API } from '@nicoflow/shared/types';
 import type { Dispatch, UnknownAction } from '@reduxjs/toolkit';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
-import type { ApiEnvelope } from '@/lib/types';
-import { PROJECT_API } from '@/lib/types';
 
 import { areaApi } from '../area/areaApi';
 import { baseQueryWithReauth } from '../baseQuery';

@@ -1,4 +1,4 @@
-import { HabitScheduleKind, type IHabit, type IHabitCell } from '@/lib/types';
+import { HabitScheduleKind, type IHabit, type IHabitCell } from '@nicoflow/shared/types';
 
 // Pure habit helpers. Deliberately framework-agnostic — no DOM, no React, no
 // i18n instance — so this module moves into @nicoflow/shared under E-033 without

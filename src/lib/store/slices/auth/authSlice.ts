@@ -1,6 +1,5 @@
+import type { IUser } from '@nicoflow/shared/types';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-
-import type { IUser } from '@/lib/types';
 
 import type { RootState } from '../../store';
 

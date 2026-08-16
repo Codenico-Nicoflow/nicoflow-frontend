@@ -1,4 +1,4 @@
-import { type ITask, TaskStatus } from '@/lib/types';
+import { type ITask, TaskStatus } from '@nicoflow/shared/types';
 
 /**
  * Whether completing this task should be confirmed first. Only a transition

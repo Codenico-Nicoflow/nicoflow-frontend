@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import { FREE_PLAN_AREA_LIMIT, FREE_PLAN_PROJECT_LIMIT, USER_STATUS } from '@nicoflow/shared/types';
 import { Layers, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,7 +14,6 @@ import { AreaCard } from '@/features/Area/components/AreaCard';
 import { AreaDialog } from '@/features/Area/components/AreaDialog';
 import { ProjectDialog } from '@/features/Project';
 import { useAppUser, useGetAreasWithProjectsQuery } from '@/lib/store';
-import { FREE_PLAN_AREA_LIMIT, FREE_PLAN_PROJECT_LIMIT, USER_STATUS } from '@/lib/types';
 
 const AreasBoard = () => {
   const { t } = useTranslation('area');

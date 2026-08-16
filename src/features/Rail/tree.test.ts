@@ -1,6 +1,6 @@
+import { PROJECT_STATUS } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
 
-import { PROJECT_STATUS } from '@/lib/types';
 import { makeArea, makeProject } from '@/mocks/handlers';
 
 import { pruneClosedIds, selectOpenAreaIds, selectTreeAreas, selectTreeProjects } from './tree';

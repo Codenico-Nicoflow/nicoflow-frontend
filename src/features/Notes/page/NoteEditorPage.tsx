@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import type { TiptapDoc } from '@nicoflow/shared/types';
 import { ArrowLeft, FileX, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { AttachmentSection } from '@/features/Tasks/components/AttachmentSection/AttachmentSection';
 import { clearOpenNote, setOpenNote } from '@/lib/realtime/openNoteRegistry';
 import { useDeleteNoteMutation, useGetNoteQuery } from '@/lib/store';
-import type { TiptapDoc } from '@/lib/types';
 
 import { ConflictNotice, SaveStatus, SaveStatusIndicator, useNoteAutosave } from '../autosave';
 import { NoteEditor } from '../editor';

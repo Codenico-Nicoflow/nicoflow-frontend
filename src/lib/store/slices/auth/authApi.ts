@@ -1,6 +1,6 @@
+import { AUTH_API, type IUser } from '@nicoflow/shared/types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { AUTH_API, type IUser } from '@/lib/types';
 import { resolveTimeZone } from '@/lib/utils';
 
 import { baseQueryWithReauth } from '../baseQuery';

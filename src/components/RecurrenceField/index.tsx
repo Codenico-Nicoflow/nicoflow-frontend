@@ -1,3 +1,11 @@
+import {
+  MONTHDAY_LAST,
+  RECURRENCE_MAX_INTERVAL,
+  RECURRENCE_MIN_INTERVAL,
+  RECURRENCE_WEEKDAYS,
+  RecurrenceEnd,
+  RecurrenceFreq,
+} from '@nicoflow/shared/types';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Repeat, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,14 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import {
-  MONTHDAY_LAST,
-  RECURRENCE_MAX_INTERVAL,
-  RECURRENCE_MIN_INTERVAL,
-  RECURRENCE_WEEKDAYS,
-  RecurrenceEnd,
-  RecurrenceFreq,
-} from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import type { RecurrenceValue } from './types';

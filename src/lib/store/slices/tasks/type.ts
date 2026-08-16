@@ -1,4 +1,4 @@
-import type { ITask, TaskEnergy, TaskPriority, TaskStatus } from '@/lib/types';
+import type { ITask, TaskEnergy, TaskPriority, TaskStatus } from '@nicoflow/shared/types';
 
 /* Task API — list endpoints return { items, nextCursor } inside the data envelope. */
 export type GetTasksPage = { items: ITask[]; nextCursor: string };

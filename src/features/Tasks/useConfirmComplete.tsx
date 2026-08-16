@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
+import { type ITask, type TaskStatus } from '@nicoflow/shared/types';
 import { ListChecks } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog } from '@/components';
-import { type ITask, type TaskStatus } from '@/lib/types';
 
 import { needsCompletionConfirm } from './completionGuard';
 

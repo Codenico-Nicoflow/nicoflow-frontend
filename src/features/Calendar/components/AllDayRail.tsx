@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
+import type { ITask } from '@nicoflow/shared/types';
+import { TaskStatus } from '@nicoflow/shared/types';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import type { IGoogleCalendar, IGoogleEvent } from '@/lib/store';
-import type { ITask } from '@/lib/types';
-import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { MAX_ALL_DAY_ROWS } from '../data';

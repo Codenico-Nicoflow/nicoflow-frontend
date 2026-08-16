@@ -1,11 +1,11 @@
 import { renderComponent } from '__tests__/renderComponent';
+import type { ITask } from '@nicoflow/shared/types';
+import { TaskPriority, TaskStatus } from '@nicoflow/shared/types';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { IGoogleEvent } from '@/lib/store';
-import type { ITask } from '@/lib/types';
-import { TaskPriority, TaskStatus } from '@/lib/types';
 
 import HourGrid from './components/HourGrid';
 

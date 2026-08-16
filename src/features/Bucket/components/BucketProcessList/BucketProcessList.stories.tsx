@@ -1,9 +1,8 @@
 import { useState } from 'react';
 
+import { BUCKET_PROCESSING_OPTIONS, type ProcessingResult } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within } from 'storybook/test';
-
-import { BUCKET_PROCESSING_OPTIONS, type ProcessingResult } from '@/lib/types';
 
 import { BucketProcessList } from '.';
 

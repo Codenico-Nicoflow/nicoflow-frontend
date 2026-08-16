@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import type { TaskEnergy } from '@/lib/types';
+import type { TaskEnergy } from '@nicoflow/shared/types';
 
 // Chip state for Focus: the time budget (drives the query and gates the list)
 // and an optional energy preference (tunes ranking only). `available` undefined

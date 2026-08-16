@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { IProject } from '@nicoflow/shared/types';
 import { FolderKanban, FolderOpen, Star } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +30,6 @@ import {
   useGetProjectsQuery,
   useUpdateProjectMutation,
 } from '@/lib/store';
-import type { IProject } from '@/lib/types';
 import type { ProjectFormData } from '@/lib/utils';
 import {
   getApiErrorCode,

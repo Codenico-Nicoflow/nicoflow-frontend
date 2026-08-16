@@ -1,10 +1,9 @@
 import { renderComponent } from '__tests__/renderComponent';
+import type { TiptapDoc } from '@nicoflow/shared/types';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Editor } from '@tiptap/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-import type { TiptapDoc } from '@/lib/types';
 
 import { createNoteExtensions } from './extensions';
 import { TableControls } from './TableControls';

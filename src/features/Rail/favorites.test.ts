@@ -1,6 +1,5 @@
+import type { IProject } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
-
-import type { IProject } from '@/lib/types';
 
 import { canFavoriteMore, canToggleFavorite, MAX_FAVORITES, selectFavorites } from './favorites';
 

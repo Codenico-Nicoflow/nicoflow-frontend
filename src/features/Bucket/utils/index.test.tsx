@@ -1,7 +1,6 @@
+import { ProcessingResult } from '@nicoflow/shared/types';
 import { toast } from 'sonner';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { ProcessingResult } from '@/lib/types';
 
 import { buildProcessBucketDto, canProcessBucket, handleBucketProcess, parseBucketContent } from './index';
 

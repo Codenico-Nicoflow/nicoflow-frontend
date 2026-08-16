@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { USER_STATUS } from '@nicoflow/shared/types';
+
 import { useAppUser, useSubscribePushMutation, useUnsubscribePushMutation } from '@/lib/store';
-import { USER_STATUS } from '@/lib/types';
 
 import { enableDesktopNotifications } from '../desktop/useDesktopNotification';
 

@@ -1,7 +1,6 @@
+import type { ApiEnvelope, IHabit, IHabitDetail, IHabitSubject } from '@nicoflow/shared/types';
+import { HABIT_API } from '@nicoflow/shared/types';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
-import type { ApiEnvelope, IHabit, IHabitDetail, IHabitSubject } from '@/lib/types';
-import { HABIT_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 

@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 
+import { TaskStatus } from '@nicoflow/shared/types';
 import { useReducedMotion } from 'framer-motion';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 import { blockDensity } from '../blockDensity';

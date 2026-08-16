@@ -1,4 +1,4 @@
-import type { IRecurrenceRule, IRecurrenceStats, RecurrenceFreq } from '@/lib/types';
+import type { IRecurrenceRule, IRecurrenceStats, RecurrenceFreq } from '@nicoflow/shared/types';
 
 // The schedule half of a rule, shared by create and update. Kept separate from
 // the template half so RecurrenceField can own exactly this shape.

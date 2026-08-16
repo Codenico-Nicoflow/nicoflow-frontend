@@ -1,8 +1,7 @@
+import { ICON_IDS } from '@nicoflow/shared/types';
 import { z } from 'zod';
 
-import { ICON_IDS } from '@/lib/types';
-
-export { ICON_IDS, type IconId } from '@/lib/types';
+export { ICON_IDS, type IconId } from '@nicoflow/shared/types';
 
 // Validation messages are i18n KEYS (under the `common.validation` namespace),
 // not literal copy — FormMessage runs them through t() at render. This keeps the

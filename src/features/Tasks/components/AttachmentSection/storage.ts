@@ -1,4 +1,4 @@
-import type { IAttachment } from '@/lib/types';
+import type { IAttachment } from '@nicoflow/shared/types';
 
 // Per-user storage cap (SPEC §5): 100 MB across all attachments. The backend is
 // the authority — it reports the live cap via GET /attachments/usage and enforces

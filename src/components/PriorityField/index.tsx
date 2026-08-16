@@ -1,3 +1,4 @@
+import { TaskPriority } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { Flag } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
@@ -5,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TaskPriority } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface PriorityFieldProps<T extends FieldValues> {

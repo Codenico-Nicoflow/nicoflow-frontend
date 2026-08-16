@@ -1,9 +1,8 @@
 import { renderComponent } from '__tests__/renderComponent';
+import { RecurrenceFreq } from '@nicoflow/shared/types';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-
-import { RecurrenceFreq } from '@/lib/types';
 
 import { RecurrenceField } from './index';
 import type { RecurrenceValue } from './types';

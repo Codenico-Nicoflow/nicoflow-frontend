@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
+import type { IAttachment } from '@nicoflow/shared/types';
 import { Download, Loader2, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { useDeleteAttachmentMutation, useGetDownloadUrlMutation } from '@/lib/store';
-import type { IAttachment } from '@/lib/types';
 import { formatBytes, showErrorToast } from '@/lib/utils';
 
 import { iconForMime } from './attachmentIcon';

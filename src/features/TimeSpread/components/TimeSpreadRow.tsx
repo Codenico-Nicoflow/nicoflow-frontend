@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useMemo } from 'react';
 
+import { type ITask, TaskStatus } from '@nicoflow/shared/types';
+import { ActiveTab } from '@nicoflow/shared/types';
 import { format } from 'date-fns';
 import { CalendarClock, CalendarX, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -12,8 +14,6 @@ import { needsCompletionConfirm } from '@/features/Tasks/completionGuard';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
 import { useConfirmComplete } from '@/features/Tasks/useConfirmComplete';
 import { useScheduleTaskMutation, useUpdateTaskStatusMutation } from '@/lib/store';
-import { type ITask, TaskStatus } from '@/lib/types';
-import { ActiveTab } from '@/lib/types/interfaces';
 import { cn, showErrorToast } from '@/lib/utils';
 
 interface TimeSpreadRowProps {

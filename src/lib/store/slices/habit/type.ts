@@ -1,4 +1,4 @@
-import type { HabitPolarity, HabitScheduleKind } from '@/lib/types';
+import type { HabitPolarity, HabitScheduleKind } from '@nicoflow/shared/types';
 
 // POST /habits. Only `name` is truly required — subject, colour, polarity and
 // target all default server-side, so the minimal create is a name plus a

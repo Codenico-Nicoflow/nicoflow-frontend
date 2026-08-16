@@ -1,9 +1,9 @@
 import { server } from '__tests__/server';
+import { ProcessingResult } from '@nicoflow/shared/types';
 import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { ProcessingResult } from '@/lib/types';
 import { makeBucket } from '@/mocks/handlers';
 
 import authReducer from '../auth/authSlice';

@@ -1,3 +1,4 @@
+import { TaskStatus } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Circle, XCircle } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
@@ -5,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TaskStatus } from '@/lib/types';
 
 // `labelKey` points at a `task` namespace key resolved at render so the option
 // labels localize with the active language.

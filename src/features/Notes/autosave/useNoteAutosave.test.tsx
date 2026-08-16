@@ -1,12 +1,11 @@
 import { createMockStore } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
+import type { TiptapDoc } from '@nicoflow/shared/types';
 import { renderHook, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import type { ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-import type { TiptapDoc } from '@/lib/types';
 
 import { SaveStatus } from './types';
 import { useNoteAutosave } from './useNoteAutosave';

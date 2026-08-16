@@ -1,5 +1,10 @@
-import type { IRecurrenceRule, RecurrenceFreq } from '@/lib/types';
-import { MONTHDAY_LAST, RECURRENCE_MAX_INTERVAL, RECURRENCE_MIN_INTERVAL, RecurrenceFreq as Freq } from '@/lib/types';
+import type { IRecurrenceRule, RecurrenceFreq } from '@nicoflow/shared/types';
+import {
+  MONTHDAY_LAST,
+  RECURRENCE_MAX_INTERVAL,
+  RECURRENCE_MIN_INTERVAL,
+  RecurrenceFreq as Freq,
+} from '@nicoflow/shared/types';
 
 // Pure recurrence helpers: no React, no DOM, no i18next import. Keeps this file
 // import-clean for the E-033 shared-package extraction and reusable by the

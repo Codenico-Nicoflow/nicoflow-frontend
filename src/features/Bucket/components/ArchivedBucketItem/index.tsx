@@ -1,3 +1,4 @@
+import { type IBucket, ProcessingResult } from '@nicoflow/shared/types';
 import { ArrowUpRight, CheckSquare, FileText, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -5,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { AnimatedListItem, ListItemCard, Timestamp } from '@/components';
 import { Badge } from '@/components/ui/badge.tsx';
 import { ExpandableText } from '@/components/ui/expandable-text.tsx';
-import { type IBucket, ProcessingResult } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface ArchivedBucketItemProps {

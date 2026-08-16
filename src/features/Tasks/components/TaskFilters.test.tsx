@@ -1,10 +1,9 @@
 import { renderComponent } from '__tests__/renderComponent';
+import { ScheduleFilter, TaskEnergy } from '@nicoflow/shared/types';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-
-import { ScheduleFilter, TaskEnergy } from '@/lib/types';
 
 import { type TaskCounts } from '../filters';
 

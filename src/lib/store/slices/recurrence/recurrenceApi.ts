@@ -1,7 +1,6 @@
+import type { ApiEnvelope, IRecurrenceRule } from '@nicoflow/shared/types';
+import { RECURRENCE_API } from '@nicoflow/shared/types';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
-import type { ApiEnvelope, IRecurrenceRule } from '@/lib/types';
-import { RECURRENCE_API } from '@/lib/types';
 
 import { baseQueryWithReauth } from '../baseQuery';
 

@@ -1,7 +1,7 @@
+import type { ITask } from '@nicoflow/shared/types';
+import { TaskStatus } from '@nicoflow/shared/types';
 import { useTranslation } from 'react-i18next';
 
-import type { ITask } from '@/lib/types';
-import { TaskStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface MonthChipProps {

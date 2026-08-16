@@ -92,8 +92,7 @@ export const DueDateField = <T extends FieldValues>({
       .catch(() => {
         // Silent by design (AC3) — no toast, no chip, input stays usable.
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- parseNLPDate identity is stable per RTK Query
-  }, [debouncedText, mode, tz, i18n.language]);
+  }, [debouncedText, mode, tz, i18n.language, parseNLPDate]);
 
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}>

@@ -3,7 +3,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@nicoflow/shared": ["./packages/shared/src/index.ts"],
-      "@nicoflow/shared/types": ["./packages/shared/src/types/index.ts"]
+      "@nicoflow/shared/types": ["./packages/shared/src/types/index.ts"],
+      "@nicoflow/shared/utils": ["./packages/shared/src/utils/index.ts"]
     },
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",

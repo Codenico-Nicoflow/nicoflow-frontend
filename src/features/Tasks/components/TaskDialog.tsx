@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ITask } from '@nicoflow/shared/types';
+import { normalizeScheduleForFreq } from '@nicoflow/shared/utils';
 import { CheckSquare, Repeat } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +36,6 @@ import {
   taskSchema,
   ToastMessages,
 } from '@/lib/utils';
-import { normalizeScheduleForFreq } from '@/lib/utils/utils/recurrence';
 
 import { useConfirmComplete } from '../useConfirmComplete';
 

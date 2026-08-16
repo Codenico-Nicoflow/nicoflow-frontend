@@ -34,7 +34,6 @@ export type {
 } from './utils/schemas';
 
 // Utils exports
-export { formatBytes } from './utils/formatBytes';
 export { ICON_IMPORTS } from './utils/get-icons';
 export {
   capitalize,
@@ -54,6 +53,7 @@ export {
 export { ToastMessages } from './utils/messages';
 export type { UploadProgress, UploadToS3Args } from './utils/uploadToS3';
 export { UploadError, uploadToS3 } from './utils/uploadToS3';
+export { formatBytes } from '@nicoflow/shared/utils';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

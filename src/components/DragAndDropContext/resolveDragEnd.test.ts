@@ -1,7 +1,6 @@
+import type { AreaWithProjects } from '@nicoflow/shared/api';
 import type { IProject } from '@nicoflow/shared/types';
 import { describe, expect, it } from 'vitest';
-
-import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 
 import { areaDragId, projectDragId, resolveDragEnd } from './resolveDragEnd';
 

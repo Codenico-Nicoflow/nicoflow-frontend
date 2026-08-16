@@ -1,7 +1,6 @@
 import { arrayMove } from '@dnd-kit/sortable';
+import type { AreaWithProjects } from '@nicoflow/shared/api';
 import type { IProject } from '@nicoflow/shared/types';
-
-import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 
 // Draggable/droppable id conventions used across the board:
 //   project-{id}  — a ProjectRow (draggable + sortable)

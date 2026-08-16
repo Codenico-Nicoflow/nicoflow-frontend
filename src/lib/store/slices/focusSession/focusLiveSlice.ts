@@ -1,9 +1,8 @@
+import type { FocusLiveEvent } from '@nicoflow/shared/api';
 import type { IFocusSession } from '@nicoflow/shared/types';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { RootState } from '../../store';
-
-import type { FocusLiveEvent } from './type';
 
 export interface FocusLiveState {
   last: FocusLiveEvent | null;

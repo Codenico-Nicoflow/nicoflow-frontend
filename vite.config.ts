@@ -22,6 +22,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       '@nicoflow/shared/types': path.resolve(__dirname, './packages/shared/src/types/index.ts'),
       '@nicoflow/shared/utils': path.resolve(__dirname, './packages/shared/src/utils/index.ts'),
+      '@nicoflow/shared/api': path.resolve(__dirname, './packages/shared/src/api/index.ts'),
       '@nicoflow/shared': path.resolve(__dirname, './packages/shared/src/index.ts'),
       __tests__: path.resolve(__dirname, './__tests__'),
     },
@@ -52,7 +53,7 @@ export default defineConfig({
           name: 'unit',
           environment: 'jsdom',
           setupFiles: ['./__tests__/setup.ts'],
-          include: ['src/**/*.test.{ts,tsx}', '__tests__/**/*.test.{ts,tsx}'],
+          include: ['src/**/*.test.{ts,tsx}', '__tests__/**/*.test.{ts,tsx}', 'packages/**/*.test.{ts,tsx}'],
           exclude: ['node_modules', 'dist', 'e2e/**'],
           globals: true,
           typecheck: {

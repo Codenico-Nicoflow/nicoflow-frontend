@@ -1,1 +1,0 @@
-export { nlpApi } from './nlpApi';

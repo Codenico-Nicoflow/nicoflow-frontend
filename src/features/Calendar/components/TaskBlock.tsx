@@ -95,7 +95,7 @@ const TaskBlock = ({ layout, onSelect, onDragCommit, hasConflict, hourHeight = H
         width: `${width}%`,
       }}
       className={cn(
-        'absolute',
+        'pointer-events-auto absolute',
         // The capability is unchanged under reduced motion — only the easing of
         // the settle back to the committed position is dropped.
         !reduce && !isDragging && 'transition-[top,height] duration-150',

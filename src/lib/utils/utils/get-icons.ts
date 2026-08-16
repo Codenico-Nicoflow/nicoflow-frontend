@@ -1,6 +1,5 @@
+import type { IconId } from '@nicoflow/shared/types';
 import type { LucideIcon } from 'lucide-react';
-
-import type { IconId } from './schemas';
 
 export const ICON_IMPORTS: Record<IconId, () => Promise<{ default: LucideIcon }>> = {
   folder: () => import('lucide-react').then(m => ({ default: m.Folder })),

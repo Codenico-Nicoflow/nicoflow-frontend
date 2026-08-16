@@ -12,7 +12,7 @@ import {
   resetPasswordSchema,
   taskSchema,
   updateAreaSchema,
-} from './schemas';
+} from './index';
 
 describe('loginSchema', () => {
   it('parses valid credentials with an email identifier', () => {

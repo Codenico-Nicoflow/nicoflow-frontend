@@ -197,7 +197,7 @@ const HourGrid = ({
                     </div>
                   )}
 
-                  <div className="pointer-events-auto absolute inset-0">
+                  <div className="pointer-events-none absolute inset-0">
                     {layouts.map((layout, index) => (
                       <TaskBlock
                         key={layout.task.id}

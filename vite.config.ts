@@ -24,6 +24,7 @@ export default defineConfig({
       '@nicoflow/shared/utils': path.resolve(__dirname, './packages/shared/src/utils/index.ts'),
       '@nicoflow/shared/api': path.resolve(__dirname, './packages/shared/src/api/index.ts'),
       '@nicoflow/shared/schemas': path.resolve(__dirname, './packages/shared/src/schemas/index.ts'),
+      '@nicoflow/shared/i18n': path.resolve(__dirname, './packages/shared/src/i18n/index.ts'),
       '@nicoflow/shared': path.resolve(__dirname, './packages/shared/src/index.ts'),
       __tests__: path.resolve(__dirname, './__tests__'),
     },

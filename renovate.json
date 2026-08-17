@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["@nicoflow/shared"],
+      "groupName": "@nicoflow/shared",
+      "rangeStrategy": "bump",
+      "prPriority": 5,
+      "schedule": ["at any time"],
+      "commitMessagePrefix": "chore(deps):"
+    }
+  ]
+}

@@ -17,6 +17,45 @@ pnpm install
 pnpm dev        # → http://localhost:5173
 ```
 
+## Local dev against `nicoflow-shared`
+
+Normally `@nicoflow/shared` resolves to the published npm version (`package.json` dependency). To test unreleased edits without publishing, clone `nicoflow-shared` as a sibling of this repo:
+
+```
+Nicoflow/
+├── nicoflow-frontend/
+└── nicoflow-shared/
+```
+
+Then in `nicoflow-shared/`, build in watch mode so `dist/` stays current:
+
+```bash
+cd ../nicoflow-shared
+pnpm install
+pnpm dev            # tsup --watch → rebuilds dist/ on every save
+```
+
+In `nicoflow-frontend/package.json`, fill the (already-present, normally empty) `pnpm.overrides` block:
+
+```jsonc
+"pnpm": {
+  "overrides": {
+    "@nicoflow/shared": "file:../nicoflow-shared"
+  }
+}
+```
+
+Then:
+
+```bash
+pnpm install        # relinks @nicoflow/shared → the sibling checkout's dist/
+pnpm dev
+```
+
+Edits saved in `nicoflow-shared/src` rebuild via `tsup --watch` and Vite picks up the changed `dist/` files on the next HMR/reload — no publish step.
+
+⚠️ **Revert this before committing.** Set `overrides` back to `{}` and run `pnpm install` again so `pnpm-lock.yaml` re-resolves to the real published version. A committed `file:` override breaks CI (no sibling checkout exists there) and ships a dependency nobody else can install. `git diff package.json pnpm-lock.yaml` before every commit while doing local-link dev is the easiest way to catch a forgotten override.
+
 ## Commands
 
 ```bash

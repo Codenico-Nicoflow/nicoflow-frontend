@@ -1,4 +1,4 @@
-import type { Resources } from './locales/en';
+import type { Resources } from '@nicoflow/shared/i18n';
 
 // Make t('...') fully type-safe and autocompleted: keys are derived from the EN
 // resource shape (the source-of-record), so a typo'd or missing key is a

@@ -1,3 +1,4 @@
+import type { AreaWithProjects } from '@nicoflow/shared/api';
 import type {
   IArea,
   IBucket,
@@ -15,8 +16,6 @@ import type {
 } from '@nicoflow/shared/types';
 import { TaskEnergy, TaskPriority, TaskStatus } from '@nicoflow/shared/types';
 import { http, HttpResponse } from 'msw';
-
-import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 
 export const mockUser: IUser = {
   id: '1',

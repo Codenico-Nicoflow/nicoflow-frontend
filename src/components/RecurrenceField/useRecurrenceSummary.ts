@@ -1,7 +1,6 @@
+import type { SummarizableRule } from '@nicoflow/shared/utils';
+import { summarizeRecurrence } from '@nicoflow/shared/utils';
 import { useTranslation } from 'react-i18next';
-
-import type { SummarizableRule } from '@/lib/utils/utils/recurrence';
-import { summarizeRecurrence } from '@/lib/utils/utils/recurrence';
 
 // Renders the pure summary descriptor with the app's typed `t`. The key→string
 // step lives here rather than in the util so i18next's literal key types stay

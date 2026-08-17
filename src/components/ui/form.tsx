@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import type { Resources } from '@nicoflow/shared/i18n';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import {
@@ -16,7 +17,6 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { Label } from '@/components/ui/label';
-import type { Resources } from '@/lib/i18n/locales/en';
 import { cn } from '@/lib/utils';
 
 // Keys under common.validation, prefixed for the default-namespace t(). Schema

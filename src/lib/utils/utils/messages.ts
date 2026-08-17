@@ -1,4 +1,6 @@
-import enErrors from '@/lib/i18n/locales/en/errors.json';
+import { en } from '@nicoflow/shared/i18n';
+
+const enErrors = en.errors;
 
 // Toast message *keys*. Historically this object mapped each name to an English
 // string; it now maps each name to itself (the i18n key in the `errors`

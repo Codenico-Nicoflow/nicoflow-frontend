@@ -1,10 +1,7 @@
+import { en, he, ru } from '@nicoflow/shared/i18n';
 import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
-
-import { en } from './locales/en';
-import { he } from './locales/he';
-import { ru } from './locales/ru';
 
 export const SUPPORTED_LANGUAGES = ['en', 'he', 'ru'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];

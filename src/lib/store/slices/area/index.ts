@@ -1,1 +1,0 @@
-export { areaApi } from './areaApi';

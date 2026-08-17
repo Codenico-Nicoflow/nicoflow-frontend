@@ -1,1 +1,0 @@
-export { searchApi } from './searchApi';

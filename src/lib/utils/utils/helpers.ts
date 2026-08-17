@@ -1,7 +1,9 @@
+import { en } from '@nicoflow/shared/i18n';
 import { type FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import i18n from '@/lib/i18n';
-import enErrors from '@/lib/i18n/locales/en/errors.json';
+
+const enErrors = en.errors;
 
 // Keys of the `errors` namespace (success + error toast copy). Derived from the
 // EN source so it can never drift from the actual locale files.

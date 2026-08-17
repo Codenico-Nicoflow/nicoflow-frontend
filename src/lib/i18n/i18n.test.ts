@@ -64,9 +64,15 @@ describe('i18n configuration', () => {
 // English string to a Hebrew user), and a plural key missing Hebrew's `_two`
 // form (count=2 falls back and leaks English mid-sentence).
 describe('locale files', () => {
-  const en = import.meta.glob<Record<string, unknown>>('./locales/en/*.json', { eager: true });
-  const he = import.meta.glob<Record<string, unknown>>('./locales/he/*.json', { eager: true });
-  const ru = import.meta.glob<Record<string, unknown>>('./locales/ru/*.json', { eager: true });
+  const en = import.meta.glob<Record<string, unknown>>('../../../packages/shared/src/i18n/locales/en/*.json', {
+    eager: true,
+  });
+  const he = import.meta.glob<Record<string, unknown>>('../../../packages/shared/src/i18n/locales/he/*.json', {
+    eager: true,
+  });
+  const ru = import.meta.glob<Record<string, unknown>>('../../../packages/shared/src/i18n/locales/ru/*.json', {
+    eager: true,
+  });
 
   // Flatten a namespace object to dotted leaf paths.
   const leaves = (value: unknown, prefix = ''): string[] => {

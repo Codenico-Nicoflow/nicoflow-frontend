@@ -1,6 +1,5 @@
+import type { Resources } from '@nicoflow/shared/i18n';
 import { Bot, CalendarDays, Inbox, LayoutGrid, type LucideIcon, Repeat, Settings, Sun, Target } from 'lucide-react';
-
-import type { Resources } from '@/lib/i18n/locales/en';
 
 /** Keys available in the `nav` i18n namespace — keeps labelKey type-safe. */
 type NavKey = keyof Resources['nav'];

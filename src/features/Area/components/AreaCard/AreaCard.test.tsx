@@ -1,9 +1,8 @@
 import { renderComponent } from '__tests__/renderComponent';
+import type { AreaWithProjects } from '@nicoflow/shared/api';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-
-import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 
 import { AreaCard } from './index';
 

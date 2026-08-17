@@ -3,10 +3,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
-import { authApi } from './auth/authApi';
+import { authApi, taskApi } from '../store';
+
 import authReducer from './auth/authSlice';
 import rateLimitReducer from './rateLimit/rateLimitSlice';
-import { taskApi } from './tasks/taskApi';
 
 const toastError = vi.fn();
 vi.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => toastError(...args) } }));

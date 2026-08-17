@@ -1,7 +1,6 @@
+import type { AreaWithProjects } from '@nicoflow/shared/api';
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within } from 'storybook/test';
-
-import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 
 import { AreaCard } from '.';
 

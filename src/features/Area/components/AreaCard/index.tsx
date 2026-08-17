@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import type { AreaWithProjects } from '@nicoflow/shared/api';
 import type { IconId, IProject } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { GripVertical, Pencil, Plus, Trash2 } from 'lucide-react';
@@ -19,7 +20,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { AreaDialog } from '@/features/Area/components/AreaDialog';
 import { ProjectDeleteDialog, ProjectDialog, ProjectRow } from '@/features/Project';
 import { areaApi, invalidateApiTags, useDeleteAreaMutation } from '@/lib/store';
-import type { AreaWithProjects } from '@/lib/store/slices/area/type';
 import { cn, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 interface AreaCardProps {

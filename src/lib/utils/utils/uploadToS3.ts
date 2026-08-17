@@ -1,7 +1,8 @@
 // Direct browser → object-store upload via a presigned PUT. This lives outside
 // RTK Query on purpose: fetch can't report upload progress, so we drop to
-// XMLHttpRequest for its `upload.onprogress`. Framework-agnostic + import-clean
-// (no React / DOM-app coupling) so it survives the E-033 shared-package move.
+// XMLHttpRequest for its `upload.onprogress`. No React coupling, but
+// XMLHttpRequest/File are DOM-only globals unavailable on React Native without
+// a polyfill — stays web-local until a mobile upload adapter exists (NIC-1935).
 //
 // PUT, not POST: Cloudflare R2 (the staging/prod store) returns 501 for
 // presigned POST-policy form uploads (NIC-1679), so the backend hands out a

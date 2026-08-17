@@ -1,27 +1,67 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import {
+  createAiApi,
+  createAreaApi,
+  createAttachmentApi,
+  createAuthApi,
+  createBucketApi,
+  createFocusSessionApi,
+  createGoogleCalendarApi,
+  createHabitApi,
+  createNlpApi,
+  createNoteApi,
+  createNotificationApi,
+  createProjectApi,
+  createRecurrenceApi,
+  createSearchApi,
+  createSubtaskApi,
+  createTaskApi,
+} from '@nicoflow/shared/api';
+import { combineReducers, configureStore, type UnknownAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import { aiApi } from './slices/ai/aiApi';
-import { areaApi } from './slices/area/areaApi';
-import { attachmentApi } from './slices/attachment/attachmentApi';
-import { authApi } from './slices/auth/authApi';
-import authReducer, { clearAuth } from './slices/auth/authSlice';
-import { bucketApi } from './slices/bucket/bucketApi';
+import { resolveTimeZone } from '@/lib/utils';
+
+import authReducer, { clearAuth, setToken, setUser } from './slices/auth/authSlice';
+import { createBaseQueryWithReauth } from './slices/baseQuery';
 import focusLiveReducer from './slices/focusSession/focusLiveSlice';
-import { focusSessionApi } from './slices/focusSession/focusSessionApi';
-import { googleCalendarApi } from './slices/googleCalendar/googleCalendarApi';
-import { habitApi } from './slices/habit/habitApi';
-import { nlpApi } from './slices/nlp/nlpApi';
-import { noteApi } from './slices/note/noteApi';
-import { notificationApi } from './slices/notification/notificationApi';
-import { projectApi } from './slices/project/projectApi';
 import rateLimitReducer from './slices/rateLimit/rateLimitSlice';
-import { recurrenceApi } from './slices/recurrence/recurrenceApi';
-import { searchApi } from './slices/search/searchApi';
-import { subtaskApi } from './slices/subtasks/subtaskApi';
-import { taskApi } from './slices/tasks/taskApi';
+import { createWebTokenStorage } from './slices/tokenStorage';
+
+// webTokenStorage is constructed before the store exists, so its accessors are
+// late-bound: they close over `store` (assigned below, after configureStore())
+// rather than capturing a reference to it up front. Every RTK Query call fires
+// after configureStore() returns, so by the time any accessor actually runs
+// `store` is set — same ordering trick refreshSessionFromStore always relied on.
+const lateDispatch = (action: UnknownAction): void => void store.dispatch(action);
+
+export const webTokenStorage = createWebTokenStorage(() => store.getState(), lateDispatch);
+
+// Every createApi() slice now lives in @nicoflow/shared/api as a factory —
+// constructed here, once, with the web app's concrete baseQueryWithReauth
+// (built around webTokenStorage above). This is the one place platform-
+// specific auth storage meets the platform-agnostic slice definitions; the
+// factories themselves stay reusable from a future mobile app once it
+// supplies its own TokenStorage implementation.
+const baseQueryWithReauth = createBaseQueryWithReauth(webTokenStorage);
+
+export const authApi = createAuthApi(baseQueryWithReauth, { clearAuth, setToken, setUser }, resolveTimeZone);
+export const areaApi = createAreaApi(baseQueryWithReauth);
+export const projectApi = createProjectApi(baseQueryWithReauth, areaApi);
+export const taskApi = createTaskApi(baseQueryWithReauth);
+export const subtaskApi = createSubtaskApi(baseQueryWithReauth);
+export const bucketApi = createBucketApi(baseQueryWithReauth);
+export const searchApi = createSearchApi(baseQueryWithReauth);
+export const notificationApi = createNotificationApi(baseQueryWithReauth);
+export const attachmentApi = createAttachmentApi(baseQueryWithReauth);
+export const aiApi = createAiApi(baseQueryWithReauth);
+export const recurrenceApi = createRecurrenceApi(baseQueryWithReauth);
+export const focusSessionApi = createFocusSessionApi(baseQueryWithReauth);
+export const googleCalendarApi = createGoogleCalendarApi(baseQueryWithReauth);
+export const noteApi = createNoteApi(baseQueryWithReauth);
+export const habitApi = createHabitApi(baseQueryWithReauth);
+export const nlpApi = createNlpApi(baseQueryWithReauth);
 
 const apiReducerPaths = [
   authApi.reducerPath,

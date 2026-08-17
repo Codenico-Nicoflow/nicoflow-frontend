@@ -1,6 +1,45 @@
+import {
+  aiApi,
+  areaApi,
+  attachmentApi,
+  authApi,
+  bucketApi,
+  focusSessionApi,
+  googleCalendarApi,
+  habitApi,
+  nlpApi,
+  noteApi,
+  notificationApi,
+  projectApi,
+  recurrenceApi,
+  searchApi,
+  subtaskApi,
+  taskApi,
+} from './store';
+
 // Store exports
 export type { AppDispatch, RootState } from './store';
-export { persistor, store } from './store';
+export {
+  aiApi,
+  areaApi,
+  attachmentApi,
+  authApi,
+  bucketApi,
+  focusSessionApi,
+  googleCalendarApi,
+  habitApi,
+  nlpApi,
+  noteApi,
+  notificationApi,
+  persistor,
+  projectApi,
+  recurrenceApi,
+  searchApi,
+  store,
+  subtaskApi,
+  taskApi,
+  webTokenStorage,
+} from './store';
 
 // Hooks exports
 export { useAppDispatch, useAppSelector, useAppUser } from './hooks';
@@ -12,9 +51,8 @@ export { invalidateApiTags } from './utils/invalidateTags';
 // flight mutex). Used by the WebSocket hook on a 1008 close.
 export { refreshSessionFromStore } from './slices/baseQuery';
 
-// Auth exports
-export { authApi } from './slices/auth/authApi';
-export {
+// Auth exports — hooks are generated on the instance constructed in store.ts
+export const {
   useChangePasswordMutation,
   useForgotPasswordMutation,
   useGetCurrentUserQuery,
@@ -27,7 +65,7 @@ export {
   useResetPasswordMutation,
   useUpdateProfileMutation,
   useVerifyEmailMutation,
-} from './slices/auth/authApi';
+} = authApi;
 export { clearAuth, setToken, setUser } from './slices/auth/authSlice';
 export { selectUser } from './slices/auth/authSlice';
 export { selectIsLoading } from './slices/auth/authSlice';
@@ -38,28 +76,26 @@ export type {
   LoginRequest,
   RegisterRequest,
   ResetPasswordRequest,
-} from './slices/auth/type';
+} from '@nicoflow/shared/api';
 
 // Project exports
-export { projectApi } from './slices/project/projectApi';
-export {
+export const {
   useCreateProjectMutation,
   useDeleteProjectMutation,
   useGetProjectQuery,
   useGetProjectsQuery,
   useReorderProjectsMutation,
   useUpdateProjectMutation,
-} from './slices/project/projectApi';
+} = projectApi;
 export type {
   CreateProjectRequest,
   CreateProjectResponse,
   UpdateProjectRequest,
   UpdateProjectResponse,
-} from './slices/project/type';
+} from '@nicoflow/shared/api';
 
 // Area exports
-export { areaApi } from './slices/area/areaApi';
-export {
+export const {
   useCreateAreaMutation,
   useDeleteAreaMutation,
   useGetAreaQuery,
@@ -67,12 +103,16 @@ export {
   useGetAreasWithProjectsQuery,
   useReorderAreasMutation,
   useUpdateAreaMutation,
-} from './slices/area/areaApi';
-export type { CreateAreaRequest, CreateAreaResponse, UpdateAreaRequest, UpdateAreaResponse } from './slices/area/type';
+} = areaApi;
+export type {
+  CreateAreaRequest,
+  CreateAreaResponse,
+  UpdateAreaRequest,
+  UpdateAreaResponse,
+} from '@nicoflow/shared/api';
 
 // Task exports
-export { taskApi } from './slices/tasks/taskApi';
-export {
+export const {
   useCreateTaskMutation,
   useDeleteTaskMutation,
   useGetCalendarTasksQuery,
@@ -85,7 +125,7 @@ export {
   useScheduleTaskMutation,
   useUpdateTaskMutation,
   useUpdateTaskStatusMutation,
-} from './slices/tasks/taskApi';
+} = taskApi;
 export type {
   CreateTaskRequest,
   CreateTaskResponse,
@@ -96,27 +136,21 @@ export type {
   GetTimeSpreadResponse,
   UpdateTaskRequest,
   UpdateTaskResponse,
-} from './slices/tasks/type';
+} from '@nicoflow/shared/api';
 
 // Subtask exports
-export { subtaskApi } from './slices/subtasks/subtaskApi';
-export {
-  useCreateSubtaskMutation,
-  useDeleteSubtaskMutation,
-  useGetSubtasksQuery,
-  useUpdateSubtaskMutation,
-} from './slices/subtasks/subtaskApi';
+export const { useCreateSubtaskMutation, useDeleteSubtaskMutation, useGetSubtasksQuery, useUpdateSubtaskMutation } =
+  subtaskApi;
 
 // Bucket exports
-export { bucketApi } from './slices/bucket/bucketApi';
-export {
+export const {
   useCreateBucketMutation,
   useDeleteBucketMutation,
   useGetBucketQuery,
   useGetBucketsQuery,
   useProcessBucketMutation,
   useUpdateBucketMutation,
-} from './slices/bucket/bucketApi';
+} = bucketApi;
 export type {
   BucketResponse,
   BucketsResponse,
@@ -125,27 +159,25 @@ export type {
   ProcessBucketDto,
   TaskDetails,
   UpdateBucketDto,
-} from './slices/bucket/type';
+} from '@nicoflow/shared/api';
 
 // Rate-limit exports
 export type { RateLimitState } from './slices/rateLimit/rateLimitSlice';
 export { clearRateLimit, selectRateLimitRetryAt, setRateLimited } from './slices/rateLimit/rateLimitSlice';
 
 // Search exports
-export { searchApi } from './slices/search/searchApi';
-export { useSearchQuery } from './slices/search/searchApi';
-export type { IAreaResult, INoteResult, IProjectResult, ISearchResults, ITaskResult } from './slices/search/type';
+export const { useSearchQuery } = searchApi;
+export type { IAreaResult, INoteResult, IProjectResult, ISearchResults, ITaskResult } from '@nicoflow/shared/api';
 
 // Attachment exports
-export { attachmentApi } from './slices/attachment/attachmentApi';
-export {
+export const {
   useConfirmAttachmentMutation,
   useDeleteAttachmentMutation,
   useGetAttachmentsQuery,
   useGetDownloadUrlMutation,
   useGetStorageUsageQuery,
   useGetUploadUrlMutation,
-} from './slices/attachment/attachmentApi';
+} = attachmentApi;
 export type {
   ConfirmAttachmentRequest,
   ConfirmAttachmentResponse,
@@ -154,11 +186,10 @@ export type {
   GetDownloadUrlResponse,
   GetUploadUrlRequest,
   GetUploadUrlResponse,
-} from './slices/attachment/type';
+} from '@nicoflow/shared/api';
 
 // Recurrence exports (E-050)
-export { recurrenceApi } from './slices/recurrence/recurrenceApi';
-export {
+export const {
   useCreateRecurrenceRuleMutation,
   useDeleteRecurrenceRuleMutation,
   useGetRecurrenceRuleQuery,
@@ -166,7 +197,7 @@ export {
   useGetRecurrenceStatsQuery,
   usePauseRecurrenceRuleMutation,
   useUpdateRecurrenceRuleMutation,
-} from './slices/recurrence/recurrenceApi';
+} = recurrenceApi;
 export type {
   CreateRecurrenceRuleRequest,
   ListRecurrenceRulesRequest,
@@ -175,32 +206,25 @@ export type {
   RecurrenceSchedule,
   RecurrenceStatsResponse,
   UpdateRecurrenceRuleRequest,
-} from './slices/recurrence/type';
+} from '@nicoflow/shared/api';
 
 // Focus session exports (E-049)
 export { focusWsEvent, selectFocusLive } from './slices/focusSession/focusLiveSlice';
-export { focusSessionApi } from './slices/focusSession/focusSessionApi';
-export {
-  useCloseFocusSessionMutation,
-  useFocusHeartbeatMutation,
-  useOpenFocusSessionMutation,
-} from './slices/focusSession/focusSessionApi';
-export type { FocusLiveEvent, OpenFocusSessionRequest } from './slices/focusSession/type';
+export const { useCloseFocusSessionMutation, useFocusHeartbeatMutation, useOpenFocusSessionMutation } = focusSessionApi;
+export type { FocusLiveEvent, OpenFocusSessionRequest } from '@nicoflow/shared/api';
 
 // Note exports (E-053)
-export { noteApi } from './slices/note/noteApi';
-export {
+export const {
   useCreateNoteMutation,
   useDeleteNoteMutation,
   useGetNoteQuery,
   useGetNotesInfiniteQuery,
   useUpdateNoteMutation,
-} from './slices/note/noteApi';
-export type { CreateNoteRequest, ListNotesPage, ListNotesRequest, UpdateNoteRequest } from './slices/note/type';
+} = noteApi;
+export type { CreateNoteRequest, ListNotesPage, ListNotesRequest, UpdateNoteRequest } from '@nicoflow/shared/api';
 
 // Habit exports (E-055)
-export { habitApi } from './slices/habit/habitApi';
-export {
+export const {
   useArchiveHabitMutation,
   useCheckInMutation,
   useCreateHabitMutation,
@@ -212,17 +236,15 @@ export {
   useRestoreHabitMutation,
   useUndoCheckInMutation,
   useUpdateHabitMutation,
-} from './slices/habit/habitApi';
-export type { CheckInRequest, CreateHabitRequest, UndoCheckInRequest, UpdateHabitRequest } from './slices/habit/type';
+} = habitApi;
+export type { CheckInRequest, CreateHabitRequest, UndoCheckInRequest, UpdateHabitRequest } from '@nicoflow/shared/api';
 
 // NLP date-text parsing exports (NIC-1931/1932)
-export { nlpApi } from './slices/nlp/nlpApi';
-export { useParseNLPDateMutation } from './slices/nlp/nlpApi';
-export type { NLPDateLocale, ParseNLPDateRequest, ParseNLPDateResponse } from './slices/nlp/type';
+export const { useParseNLPDateMutation } = nlpApi;
+export type { NLPDateLocale, ParseNLPDateRequest, ParseNLPDateResponse } from '@nicoflow/shared/api';
 
 // Notification exports
-export { notificationApi } from './slices/notification/notificationApi';
-export {
+export const {
   useDeleteNotificationMutation,
   useGetNotificationsQuery,
   useGetPreferencesQuery,
@@ -232,7 +254,7 @@ export {
   useSubscribePushMutation,
   useUnsubscribePushMutation,
   useUpdatePreferencesMutation,
-} from './slices/notification/notificationApi';
+} = notificationApi;
 export type {
   GetNotificationsRequest,
   GetNotificationsResponse,
@@ -242,11 +264,10 @@ export type {
   UnreadCountResponse,
   UpdatePreferencesRequest,
   UpdatePreferencesResponse,
-} from './slices/notification/type';
+} from '@nicoflow/shared/api';
 
 // AI exports
-export { aiApi } from './slices/ai/aiApi';
-export {
+export const {
   useCreateAISessionMutation,
   useDeleteAISessionMutation,
   useGetAISessionQuery,
@@ -254,7 +275,7 @@ export {
   useGetAIUsageQuery,
   useGetSessionMessagesInfiniteQuery,
   useListPendingToolCallsQuery,
-} from './slices/ai/aiApi';
+} = aiApi;
 export type {
   CreateAISessionRequest,
   CreateAISessionResponse,
@@ -264,18 +285,17 @@ export type {
   GetSessionMessagesPage,
   GetSessionMessagesRequest,
   ListPendingToolCallsResponse,
-} from './slices/ai/type';
+} from '@nicoflow/shared/api';
 
 // Google Calendar overlay exports (E-052)
-export { googleCalendarApi } from './slices/googleCalendar/googleCalendarApi';
-export {
+export const {
   useDisconnectGoogleMutation,
   useGetGoogleCalendarsQuery,
   useGetGoogleConnectionQuery,
   useGetGoogleEventsQuery,
   useLazyGetGoogleAuthUrlQuery,
   useUpdateGoogleCalendarSelectionMutation,
-} from './slices/googleCalendar/googleCalendarApi';
+} = googleCalendarApi;
 export type {
   GetGoogleEventsRequest,
   GoogleConnectResponse,
@@ -284,5 +304,5 @@ export type {
   IGoogleCalendar,
   IGoogleConnection,
   IGoogleEvent,
-} from './slices/googleCalendar/type';
-export { MAX_SELECTED_CALENDARS } from './slices/googleCalendar/type';
+} from '@nicoflow/shared/api';
+export { MAX_SELECTED_CALENDARS } from '@nicoflow/shared/api';

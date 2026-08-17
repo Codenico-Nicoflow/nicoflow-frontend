@@ -1,8 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-export type { IconId } from './utils/schemas';
-export { ICON_IDS } from './utils/schemas';
 export {
   bucketSchema,
   changePasswordSchema,
@@ -16,7 +14,9 @@ export {
   resetPasswordSchema,
   taskSchema,
   updateAreaSchema,
-} from './utils/schemas';
+} from '@nicoflow/shared/schemas';
+export type { IconId } from '@nicoflow/shared/types';
+export { ICON_IDS } from '@nicoflow/shared/types';
 
 // Form data types
 export type {
@@ -31,10 +31,9 @@ export type {
   RegisterFormData,
   ResetPasswordFormData,
   TaskFormData,
-} from './utils/schemas';
+} from '@nicoflow/shared/schemas';
 
 // Utils exports
-export { formatBytes } from './utils/formatBytes';
 export { ICON_IMPORTS } from './utils/get-icons';
 export {
   capitalize,
@@ -54,6 +53,7 @@ export {
 export { ToastMessages } from './utils/messages';
 export type { UploadProgress, UploadToS3Args } from './utils/uploadToS3';
 export { UploadError, uploadToS3 } from './utils/uploadToS3';
+export { formatBytes } from '@nicoflow/shared/utils';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

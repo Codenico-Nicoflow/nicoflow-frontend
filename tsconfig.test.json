@@ -5,6 +5,11 @@
       "@/*": ["./src/*"],
       "@nicoflow/shared": ["./packages/shared/src/index.ts"],
       "@nicoflow/shared/types": ["./packages/shared/src/types/index.ts"],
+      "@nicoflow/shared/utils": ["./packages/shared/src/utils/index.ts"],
+      "@nicoflow/shared/api": ["./packages/shared/src/api/index.ts"],
+      "@nicoflow/shared/api/adapters": ["./packages/shared/src/api/adapters.ts"],
+      "@nicoflow/shared/schemas": ["./packages/shared/src/schemas/index.ts"],
+      "@nicoflow/shared/i18n": ["./packages/shared/src/i18n/index.ts"],
       "__tests__/*": ["./__tests__/*"]
     },
     "jsx": "react-jsx",

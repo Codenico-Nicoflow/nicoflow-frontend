@@ -1,12 +1,11 @@
+import type { GetTasksPage } from '@nicoflow/shared/api';
 import type { IUser } from '@nicoflow/shared/types';
 import { configureStore } from '@reduxjs/toolkit';
 import type { InfiniteData } from '@reduxjs/toolkit/query';
 import { describe, expect, it } from 'vitest';
 
 import { clearAuth, setUser } from './slices/auth/authSlice';
-import { taskApi } from './slices/tasks/taskApi';
-import type { GetTasksPage } from './slices/tasks/type';
-import { rootReducer } from './store';
+import { rootReducer, taskApi } from './store';
 
 const mockUser: IUser = {
   id: '1',

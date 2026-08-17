@@ -30,9 +30,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Type check packages/shared
-        run: pnpm exec tsc -p packages/shared/tsconfig.json --noEmit
-      - name: Type check web app
+      - name: Type check
         run: pnpm exec tsc -p tsconfig.app.json --noEmit && pnpm exec tsc -p tsconfig.test.json --noEmit
 
   test:

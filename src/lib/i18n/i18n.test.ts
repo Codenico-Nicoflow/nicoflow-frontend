@@ -1,3 +1,4 @@
+import { en, he, ru } from '@nicoflow/shared/i18n';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import i18n, { SUPPORTED_LANGUAGES } from '.';
@@ -59,21 +60,14 @@ describe('i18n configuration', () => {
   });
 });
 
-// Structural guards over the locale JSON itself. These catch the two ways a
-// translation silently regresses: a key added to en but not he/ru (renders the
-// English string to a Hebrew user), and a plural key missing Hebrew's `_two`
-// form (count=2 falls back and leaks English mid-sentence).
+// Structural guards over the locale resources themselves (imported from
+// @nicoflow/shared/i18n, not globbed off disk — the published package bundles
+// the JSON into its dist output, so there are no raw locale files inside this
+// repo to glob anymore). These catch the two ways a translation silently
+// regresses: a key added to en but not he/ru (renders the English string to a
+// Hebrew user), and a plural key missing Hebrew's `_two` form (count=2 falls
+// back and leaks English mid-sentence).
 describe('locale files', () => {
-  const en = import.meta.glob<Record<string, unknown>>('../../../packages/shared/src/i18n/locales/en/*.json', {
-    eager: true,
-  });
-  const he = import.meta.glob<Record<string, unknown>>('../../../packages/shared/src/i18n/locales/he/*.json', {
-    eager: true,
-  });
-  const ru = import.meta.glob<Record<string, unknown>>('../../../packages/shared/src/i18n/locales/ru/*.json', {
-    eager: true,
-  });
-
   // Flatten a namespace object to dotted leaf paths.
   const leaves = (value: unknown, prefix = ''): string[] => {
     if (value === null || typeof value !== 'object') return [prefix];
@@ -82,18 +76,18 @@ describe('locale files', () => {
     );
   };
 
-  const namespaces = (mod: Record<string, Record<string, unknown>>) =>
-    Object.fromEntries(
-      Object.entries(mod).map(([path, m]) => [path.split('/').pop() ?? path, leaves(m['default'] ?? m).sort()])
-    );
+  // en/he/ru are each { common, auth, area, project, ... } — one key per
+  // namespace, sorted dotted-leaf-path lists per namespace.
+  const namespaces = (resource: Record<string, unknown>) =>
+    Object.fromEntries(Object.entries(resource).map(([ns, value]) => [ns, leaves(value).sort()]));
 
   const enNs = namespaces(en);
 
   it.each([
     ['he', he],
     ['ru', ru],
-  ])('%s has every key en has, in every namespace', (_lang, mod) => {
-    const target = namespaces(mod as Record<string, Record<string, unknown>>);
+  ])('%s has every key en has, in every namespace', (_lang, resource) => {
+    const target = namespaces(resource);
     for (const [ns, keys] of Object.entries(enNs)) {
       const missing = keys.filter(k => !(target[ns] ?? []).includes(k));
       expect({ namespace: ns, missing }).toEqual({ namespace: ns, missing: [] });

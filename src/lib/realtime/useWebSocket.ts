@@ -22,11 +22,17 @@ import {
   useAppDispatch,
   useAppSelector,
   useAppUser,
+  webTokenStorage,
 } from '@/lib/store';
 
 import { attachmentOwnerId, focusSessionEvent, shouldSkipNoteRefetch, WS_EVENT_TAGS, type WsEvent } from './events';
 import { hasUnsavedEditsFor } from './openNoteRegistry';
+import { createWebWSLifecycleAdapter } from './wsLifecycle';
 import { buildWsUrl } from './wsUrl';
+
+// One adapter instance for the app's lifetime — document.visibilitychange is a
+// single global signal, no per-hook-instance state to isolate.
+const wsLifecycle = createWebWSLifecycleAdapter();
 
 // Reconnect backoff: 1 → 2 → 4 → 8 → 16 → 30s (capped). Reset to the first step on
 // a clean open, so a flaky connection that keeps dropping slows down but a genuine
@@ -169,7 +175,7 @@ export const useWebSocket = (): { paused: boolean } => {
         // reconnect. A second consecutive 1008 falls through to plain backoff.
         if (event.code === CLOSE_POLICY_VIOLATION && !refreshedForCloseRef.current) {
           refreshedForCloseRef.current = true;
-          const fresh = await refreshSessionFromStore(dispatch, store.getState);
+          const fresh = await refreshSessionFromStore(webTokenStorage, dispatch);
           if (closedRef.current) return;
           if (fresh) {
             connect();
@@ -195,8 +201,24 @@ export const useWebSocket = (): { paused: boolean } => {
 
     connect();
 
+    // A backgrounded tab that drops its connection sits out the full backoff —
+    // up to 30s — before trying again, since nothing was watching. Coming back
+    // to the foreground jumps straight to a reconnect attempt instead of making
+    // the user wait out whatever delay was left. No-ops if the socket is already
+    // open (healthy connections are never touched) or a connect is already
+    // in flight from the immediately-preceding backoff tick.
+    const unsubscribeForeground = wsLifecycle.onForeground(() => {
+      if (closedRef.current || socketRef.current) return;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      connect();
+    });
+
     return () => {
       closedRef.current = true;
+      unsubscribeForeground();
       if (timerRef.current) clearTimeout(timerRef.current);
       const socket = socketRef.current;
       socketRef.current = null;

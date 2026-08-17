@@ -4,7 +4,14 @@ import { AI_API } from '@nicoflow/shared/types';
 import { useStore } from 'react-redux';
 
 import type { RootState } from '@/lib/store';
-import { aiApi, invalidateApiTags, refreshSessionFromStore, taskApi, useAppDispatch } from '@/lib/store';
+import {
+  aiApi,
+  invalidateApiTags,
+  refreshSessionFromStore,
+  taskApi,
+  useAppDispatch,
+  webTokenStorage,
+} from '@/lib/store';
 
 import type { AIMessageView, AIToolName, PendingToolProposal } from '../types';
 
@@ -110,7 +117,7 @@ export const useAIStream = (): UseAIStream => {
 
       let response = await makeRequest(bearer);
       if (response.status === 401) {
-        const fresh = await refreshSessionFromStore(dispatch, store.getState);
+        const fresh = await refreshSessionFromStore(webTokenStorage, dispatch);
         if (fresh) response = await makeRequest(fresh);
       }
       return response;

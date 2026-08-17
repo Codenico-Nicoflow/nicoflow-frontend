@@ -1,10 +1,10 @@
 # CLAUDE.md — nicoflow-frontend
 
-> **Repo names:** GitHub remote = `nicoflow-frontend` · local clone folder = `nicoflow-monorepo`
+> **Repo names:** GitHub remote = `nicoflow-frontend` · local clone folder = `nicoflow-frontend` (the old "nicoflow-monorepo" folder name is retired — if you see it in older docs/history, it's the same repo).
 
 React 19 SPA for the Nicoflow task-management platform.
 
-> **Repo shape:** the **live app is `src/`** at the repo root (a single Vite SPA). The repo is _also_ set up as a pnpm workspace (`pnpm-workspace.yaml`, `apps/{web,mobile}`, `packages/{shared,store,types,constants,utils}`) — but those dirs are currently **empty scaffolding** prepared for the mobile phase (E-033, "extract `@nicoflow/shared`"). Don't delete the scaffolding; don't treat `apps/web` as the app — it isn't wired yet. The earlier "Standalone repo — not a monorepo" line was half-true: standalone today, workspace-ready for tomorrow.
+> **Repo shape:** the **live app is `src/`** at the repo root (a single Vite SPA). The repo is _also_ set up as a pnpm workspace (`pnpm-workspace.yaml`, `packages/*`) — a leftover from the original single-repo mobile plan, now superseded by a real 4-repo topology (see `../CLAUDE.md` §0/§2). `apps/{web,mobile}` is already gone. `packages/shared` **still exists here with the full original source and is still what the app imports** — the extraction to the standalone `nicoflow-shared` repo (published to npm) is done on the `nicoflow-shared` side, but the dependency swap back in this repo (repoint `package.json`/imports at the published package, delete this local copy) has not happened yet. Don't treat the `nicoflow-shared` repo's existence as proof this repo already consumes it — check `package.json` for an actual `"@nicoflow/shared"` npm dependency vs. a local path/workspace reference. The other `packages/*` dirs (`constants`, `store`, `types`, `utils`) are empty and unused — safe to ignore.
 
 > **Umbrella context:** this repo sits under `../CLAUDE.md` (the Nicoflow workspace root), which owns the **cross-repo contract** with the backend (`nicoflow-api`). Read it for the response envelope, auth handshake, base URLs, and known contract drift.
 

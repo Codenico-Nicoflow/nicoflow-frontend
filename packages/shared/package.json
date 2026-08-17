@@ -10,6 +10,7 @@
     "./types": "./src/types/index.ts",
     "./utils": "./src/utils/index.ts",
     "./api": "./src/api/index.ts",
+    "./api/adapters": "./src/api/adapters.ts",
     "./schemas": "./src/schemas/index.ts",
     "./i18n": "./src/i18n/index.ts"
   }

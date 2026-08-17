@@ -19,6 +19,9 @@ export { createTaskApi } from './tasks';
 // Shared base query type
 export type { ApiBaseQuery } from './area';
 
+// Platform adapters (token storage, WS lifecycle) — see adapters.ts
+export type { TokenStorage, WSLifecycleAdapter } from './adapters';
+
 // Cross-slice dependency types (auth needs its action creators injected;
 // project needs the constructed areaApi instance injected)
 export type { AuthActions } from './auth';

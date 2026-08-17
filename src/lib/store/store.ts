@@ -16,7 +16,7 @@ import {
   createSubtaskApi,
   createTaskApi,
 } from '@nicoflow/shared/api';
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore, type UnknownAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -24,16 +24,28 @@ import storage from 'redux-persist/lib/storage';
 import { resolveTimeZone } from '@/lib/utils';
 
 import authReducer, { clearAuth, setToken, setUser } from './slices/auth/authSlice';
-import { baseQueryWithReauth } from './slices/baseQuery';
+import { createBaseQueryWithReauth } from './slices/baseQuery';
 import focusLiveReducer from './slices/focusSession/focusLiveSlice';
 import rateLimitReducer from './slices/rateLimit/rateLimitSlice';
+import { createWebTokenStorage } from './slices/tokenStorage';
+
+// webTokenStorage is constructed before the store exists, so its accessors are
+// late-bound: they close over `store` (assigned below, after configureStore())
+// rather than capturing a reference to it up front. Every RTK Query call fires
+// after configureStore() returns, so by the time any accessor actually runs
+// `store` is set — same ordering trick refreshSessionFromStore always relied on.
+const lateDispatch = (action: UnknownAction): void => void store.dispatch(action);
+
+export const webTokenStorage = createWebTokenStorage(() => store.getState(), lateDispatch);
 
 // Every createApi() slice now lives in @nicoflow/shared/api as a factory —
 // constructed here, once, with the web app's concrete baseQueryWithReauth
-// (token storage, refresh-mutex, toast/redirect side effects). This is the
-// one place those two worlds meet; the factories themselves stay platform-
-// agnostic so the same slice definitions are reusable from a future mobile
-// app once it supplies its own base query (NIC-1939).
+// (built around webTokenStorage above). This is the one place platform-
+// specific auth storage meets the platform-agnostic slice definitions; the
+// factories themselves stay reusable from a future mobile app once it
+// supplies its own TokenStorage implementation.
+const baseQueryWithReauth = createBaseQueryWithReauth(webTokenStorage);
+
 export const authApi = createAuthApi(baseQueryWithReauth, { clearAuth, setToken, setUser }, resolveTimeZone);
 export const areaApi = createAreaApi(baseQueryWithReauth);
 export const projectApi = createProjectApi(baseQueryWithReauth, areaApi);

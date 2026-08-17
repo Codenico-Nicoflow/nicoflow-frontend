@@ -38,6 +38,7 @@ export {
   store,
   subtaskApi,
   taskApi,
+  webTokenStorage,
 } from './store';
 
 // Hooks exports

@@ -1,3 +1,4 @@
+import type { TokenStorage } from '@nicoflow/shared/api/adapters';
 import { AUTH_API } from '@nicoflow/shared/types';
 import type {
   BaseQueryApi,
@@ -12,9 +13,6 @@ import { toast } from 'sonner';
 
 import i18n from '@/lib/i18n';
 
-import type { AppDispatch, RootState } from '../store';
-
-import { clearAuth, setToken } from './auth/authSlice';
 import { setRateLimited } from './rateLimit/rateLimitSlice';
 
 // Single global mutex coordinating EVERY refresh-token call in the app — both
@@ -27,13 +25,6 @@ const authMutex = new Mutex();
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1',
   credentials: 'include',
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token;
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`);
-    }
-    return headers;
-  },
 });
 
 // Default seconds to wait if the server didn't send Retry-After (or the browser
@@ -109,18 +100,24 @@ const extractErrorCode = (error: unknown): string | undefined => {
   return readCode((error as { error?: unknown }).error) ?? readCode(error);
 };
 
-// refreshSession performs a single-flight refresh: if a refresh is already in
-// flight, callers await it and share its result instead of starting a second
-// one. On success it stores the new access token; on failure it clears auth.
-// Both SessionRestorer (on load) and baseQuery (on 401) call this, so the token
-// is only ever rotated by one request at a time.
 // Holds the in-flight refresh promise so every concurrent caller awaits the SAME
 // request and gets its real outcome — rather than firing a second /refresh-token
 // (which would send the now-rotated token and 401 via reuse-detection) or
-// guessing the result from store state after the fact.
+// guessing the result from store state after the fact. Module-scoped (not inside
+// the factory below) so it stays a true single global gate regardless of how many
+// times createAuthFlow's callers construct a baseQueryWithReauth instance.
 let inFlightRefresh: Promise<RefreshOutcome> | null = null;
 
-export const refreshSession = async (
+// refreshSession performs a single-flight refresh: if a refresh is already in
+// flight, callers await it and share its result instead of starting a second
+// one. On success it stores the new access token via tokenStorage; on failure
+// it clears auth via tokenStorage. Both SessionRestorer (on load) and
+// baseQuery (on 401) call this, so the token is only ever rotated by one
+// request at a time. tokenStorage is the only platform-specific seam — every
+// other line of this refresh/mutex/reuse-detection logic is unchanged from
+// before this was made platform-agnostic (see @nicoflow/shared/api/adapters).
+const refreshSession = async (
+  tokenStorage: TokenStorage,
   api: Pick<BaseQueryApi, 'dispatch' | 'getState' | 'signal' | 'abort' | 'endpoint' | 'extra' | 'type'>
 ): Promise<RefreshOutcome> => {
   // Single-flight: if a refresh is already running, await its actual result.
@@ -143,7 +140,7 @@ export const refreshSession = async (
       // blip doesn't log the user out.
       const code = extractErrorCode(refreshResult.error);
       if (code !== undefined && DEFINITIVE_AUTH_FAILURES.has(code)) {
-        api.dispatch(clearAuth());
+        await tokenStorage.clear();
       }
       return 'failed';
     }
@@ -156,7 +153,7 @@ export const refreshSession = async (
     if (!token) {
       return 'failed';
     }
-    api.dispatch(setToken(token));
+    tokenStorage.setAccessToken(token);
     return 'refreshed';
   });
 
@@ -174,72 +171,85 @@ export const refreshSession = async (
 // refreshes can race and replay the rotated token into backend reuse-detection.
 // Returns the fresh access token on success, or null on any failure.
 export const refreshSessionFromStore = async (
-  dispatch: AppDispatch,
-  getState: () => RootState
+  tokenStorage: TokenStorage,
+  dispatch: BaseQueryApi['dispatch']
 ): Promise<string | null> => {
   const controller = new AbortController();
-  const outcome = await refreshSession({
+  const outcome = await refreshSession(tokenStorage, {
     dispatch,
-    getState,
+    getState: () => ({}),
     signal: controller.signal,
     abort: (reason?: string) => controller.abort(reason),
     endpoint: 'refreshSessionFromStore',
     extra: undefined,
     type: 'query',
   });
-  return outcome === 'refreshed' ? getState().auth.token : null;
+  return outcome === 'refreshed' ? tokenStorage.getAccessToken() : null;
 };
 
-export const baseQueryWithReauth: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError,
-  object,
-  FetchBaseQueryMeta
-> = async (args, api, extraOptions) => {
-  // Never intercept refresh-token requests — would cause infinite loop.
-  const url = typeof args === 'string' ? args : args.url;
-  if (url === AUTH_API.REFRESH_TOKEN) {
-    return rawBaseQuery(args, api, extraOptions);
-  }
+// createBaseQueryWithReauth builds the app's base query around an injected
+// TokenStorage — web reads/writes the Redux `auth` slice; a future mobile app
+// would read/write expo-secure-store. Everything else (401 → mutex-guarded
+// refresh → retry, 429 handling, the pre-session-401 skip list) is unchanged.
+export const createBaseQueryWithReauth = (
+  tokenStorage: TokenStorage
+): BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, object, FetchBaseQueryMeta> => {
+  const authedRawBaseQuery: typeof rawBaseQuery = (args, api, extraOptions) => {
+    const token = tokenStorage.getAccessToken();
+    const withAuth =
+      typeof args === 'string'
+        ? token
+          ? { url: args, headers: { authorization: `Bearer ${token}` } }
+          : args
+        : { ...args, headers: token ? { ...args.headers, authorization: `Bearer ${token}` } : args.headers };
+    return rawBaseQuery(withAuth, api, extraOptions);
+  };
 
-  // These 401s are domain errors — running the reauth flow fires a spurious
-  // /refresh-token that swallows the real error (wrong-password login showed
-  // no feedback). Let the caller handle it.
-  if (PRE_SESSION_401_ENDPOINTS.has(url)) {
-    return rawBaseQuery(args, api, extraOptions);
-  }
-
-  // If a refresh is already in flight (e.g. SessionRestorer on load), wait for it
-  // so we don't send this request with a token that's about to be replaced.
-  if (inFlightRefresh) {
-    await inFlightRefresh;
-  }
-
-  let result = await rawBaseQuery(args, api, extraOptions);
-
-  if (result.error?.status === 429) {
-    handleRateLimit(api, result.meta);
-    return result;
-  }
-
-  if (result.error?.status === 401) {
-    const outcome = await refreshSession(api);
-    if (outcome === 'failed') {
-      // refreshSession clears auth only on a definitive failure. Redirect to
-      // sign-in only when the session was actually cleared — a transient refresh
-      // failure leaves the user logged in to retry, rather than bouncing them.
-      const stillAuthed = Boolean((api.getState() as RootState).auth.token);
-      if (!stillAuthed && typeof window !== 'undefined') {
-        window.location.href = '/sign-in';
-      }
-      return result;
+  return async (args, api, extraOptions) => {
+    // Never intercept refresh-token requests — would cause infinite loop.
+    const url = typeof args === 'string' ? args : args.url;
+    if (url === AUTH_API.REFRESH_TOKEN) {
+      return authedRawBaseQuery(args, api, extraOptions);
     }
-    result = await rawBaseQuery(args, api, extraOptions);
+
+    // These 401s are domain errors — running the reauth flow fires a spurious
+    // /refresh-token that swallows the real error (wrong-password login showed
+    // no feedback). Let the caller handle it.
+    if (PRE_SESSION_401_ENDPOINTS.has(url)) {
+      return authedRawBaseQuery(args, api, extraOptions);
+    }
+
+    // If a refresh is already in flight (e.g. SessionRestorer on load), wait for it
+    // so we don't send this request with a token that's about to be replaced.
+    if (inFlightRefresh) {
+      await inFlightRefresh;
+    }
+
+    let result = await authedRawBaseQuery(args, api, extraOptions);
+
     if (result.error?.status === 429) {
       handleRateLimit(api, result.meta);
+      return result;
     }
-  }
 
-  return result;
+    if (result.error?.status === 401) {
+      const outcome = await refreshSession(tokenStorage, api);
+      if (outcome === 'failed') {
+        // refreshSession clears auth only on a definitive failure. Redirect to
+        // sign-in only when the session was actually cleared — a transient refresh
+        // failure leaves the user logged in to retry, rather than bouncing them.
+        const stillAuthed = Boolean(tokenStorage.getAccessToken());
+        if (!stillAuthed && typeof window !== 'undefined') {
+          window.location.href = '/sign-in';
+        }
+        return result;
+      }
+      result = await authedRawBaseQuery(args, api, extraOptions);
+      if (result.error?.status === 429) {
+        handleRateLimit(api, result.meta);
+      }
+    }
+
+    return result;
+  };
 };

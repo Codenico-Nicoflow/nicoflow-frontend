@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
+import { OptionalBadge } from '@/components/OptionalBadge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -64,7 +65,10 @@ export const SubtaskAccordion = ({ taskId }: SubtaskAccordionProps) => {
 
   return (
     <div className="space-y-2" data-testid="subtask-accordion">
-      <p className="text-sm font-semibold text-foreground">{t('subtasks.title')}</p>
+      <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+        {t('subtasks.title')}
+        <OptionalBadge />
+      </p>
 
       {!isLoading && ordered.length === 0 && (
         <p className="text-sm text-muted-foreground" data-testid="subtask-empty">

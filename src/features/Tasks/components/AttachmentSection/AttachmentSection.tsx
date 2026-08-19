@@ -6,6 +6,7 @@ import { FileText, Loader2, Paperclip, RotateCw, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
+import { OptionalBadge } from '@/components/OptionalBadge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -157,7 +158,10 @@ export const AttachmentSection = ({ ownerType, ownerId }: AttachmentSectionProps
     <div className="space-y-3" data-testid="attachment-section">
       <div className="flex items-center gap-2">
         <Paperclip className="h-4 w-4 text-muted-foreground" aria-hidden />
-        <p className="text-sm font-semibold text-foreground">{t('attachments.title')}</p>
+        <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+          {t('attachments.title')}
+          <OptionalBadge />
+        </p>
       </div>
 
       {isPro && (

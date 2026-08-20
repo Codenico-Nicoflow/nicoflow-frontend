@@ -256,8 +256,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
             delay={0.15}
           />
 
-          {/* Status is only settable on existing tasks — new tasks default to active server-side. */}
-          {isEditMode && <StatusField control={form.control} optional delay={0.18} />}
+          {/* Status is only settable on existing tasks — new tasks default to active server-side.
+              Not "optional" in the missing-value sense (it always has a value, active by default),
+              so no Optional badge — same reasoning as Priority/Energy below. */}
+          {isEditMode && <StatusField control={form.control} delay={0.18} />}
 
           <DialogFieldGrid columns={2}>
             <PriorityField control={form.control} delay={0.2} />

@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import type { TaskCompleteCheckboxHandle } from '@/components';
 import { AnimatedListItem, ItemActionsMenu, ListItemCard, TaskCompleteCheckbox } from '@/components';
 import { useMarkTaskMissedMutation, useUpdateTaskStatusMutation } from '@/lib/store';
-import { cn, showErrorToast } from '@/lib/utils';
+import { cn, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 import { needsCompletionConfirm } from '../completionGuard';
 import { useConfirmComplete } from '../useConfirmComplete';
@@ -56,6 +56,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
       checkboxRef.current?.playCompleteAnimation();
       try {
         await updateTaskStatus({ id: task.id, status: next }).unwrap();
+        if (next === TaskStatus.DONE) showSuccessToast(ToastMessages.TASK_COMPLETED, toast);
       } catch (error) {
         showErrorToast(error, toast);
       }

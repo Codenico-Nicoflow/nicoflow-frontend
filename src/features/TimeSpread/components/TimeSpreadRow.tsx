@@ -14,7 +14,7 @@ import { needsCompletionConfirm } from '@/features/Tasks/completionGuard';
 import TaskBadges from '@/features/Tasks/components/TaskBadges';
 import { useConfirmComplete } from '@/features/Tasks/useConfirmComplete';
 import { useScheduleTaskMutation, useUpdateTaskStatusMutation } from '@/lib/store';
-import { cn, showErrorToast } from '@/lib/utils';
+import { cn, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 interface TimeSpreadRowProps {
   task: ITask;
@@ -65,9 +65,14 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
 
   const toggle = () => {
     const next = isCompleted ? TaskStatus.ACTIVE : TaskStatus.DONE;
-    guardComplete(task, next, () => {
+    guardComplete(task, next, async () => {
       checkboxRef.current?.playCompleteAnimation();
-      return run(updateStatus({ id: task.id, status: next }).unwrap());
+      try {
+        await updateStatus({ id: task.id, status: next }).unwrap();
+        if (next === TaskStatus.DONE) showSuccessToast(ToastMessages.TASK_COMPLETED, toast);
+      } catch (error) {
+        showErrorToast(error, toast);
+      }
     });
   };
 

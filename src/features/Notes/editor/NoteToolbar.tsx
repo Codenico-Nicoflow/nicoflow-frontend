@@ -5,6 +5,7 @@ import { useEditorState } from '@tiptap/react';
 import {
   Bold,
   CheckSquare,
+  ChevronRightSquare,
   Code,
   Heading1,
   Heading2,
@@ -56,6 +57,7 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
             isCodeBlock: instance.isActive('codeBlock'),
             isTable: instance.isActive('table'),
             isCallout: instance.isActive('noteCallout'),
+            isToggle: instance.isActive('noteToggle'),
             isLink: instance.isActive('link'),
             textColorToken: instance.getAttributes('noteTextColor').token as unknown,
             highlightToken: instance.getAttributes('noteHighlight').token as unknown,
@@ -141,6 +143,14 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
         label={t('toolbar.divider')}
         icon={Minus}
         onClick={() => editor.chain().focus().setHorizontalRule().run()}
+      />
+      <ToolbarButton
+        // Pending i18n (notes.json has no "toggle" key yet) — see NIC-1970 PR
+        // notes on avoiding another cross-repo publish round-trip for one label.
+        label="Insert toggle"
+        icon={ChevronRightSquare}
+        isActive={state.isToggle}
+        onClick={() => editor.chain().focus().setNoteToggle().run()}
       />
       <ToolbarButton label={t('toolbar.link')} icon={Link2} isActive={state.isLink} onClick={() => setLinkOpen(true)} />
       <ToolbarButton

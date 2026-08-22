@@ -7,6 +7,7 @@ import StarterKit from '@tiptap/starter-kit';
 
 import { NoteCallout } from './CalloutNode';
 import { NoteHighlight, NoteTextColor } from './colorMarks';
+import { NOTE_TOGGLE_NODES } from './ToggleNode';
 
 // The note schema (E-054). This list IS the security and scope boundary for the
 // feature: Tiptap parses through the schema, so anything not registered here is
@@ -78,5 +79,6 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
   NoteTextColor,
   NoteHighlight,
   NoteCallout,
+  ...NOTE_TOGGLE_NODES,
   Placeholder.configure({ placeholder }),
 ];

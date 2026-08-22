@@ -145,6 +145,7 @@ export const NoteEditorPage = () => {
         editable={!isConflicted && !contentError}
         onChange={(content: TiptapDoc) => save({ content })}
         onContentError={() => setContentError(true)}
+        noteId={note.id}
       />
 
       {contentError && (

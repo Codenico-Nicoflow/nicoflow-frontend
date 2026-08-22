@@ -1,6 +1,6 @@
 import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 
-import { AuthLayout, PrivateLayout } from '@/layout';
+import { AuthLayout, FullPageLayout, PrivateLayout } from '@/layout';
 import { useAppUser } from '@/lib/store';
 import {
   AIPage,
@@ -26,6 +26,13 @@ const PrivateRoutes = () => {
   return user ? <PrivateLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
 };
 
+const FullPageRoutes = () => {
+  const location = useLocation();
+  const user = useAppUser();
+
+  return user ? <FullPageLayout /> : <Navigate to="/sign-in" state={{ from: location }} replace />;
+};
+
 const AppRoutes = () => {
   const routes = [
     {
@@ -45,10 +52,14 @@ const AppRoutes = () => {
         { path: '/ai', element: <AIPage /> },
         { path: '/ai/:id', element: <AIPage /> },
         { path: '/projects/:projectId', element: <ProjectView /> },
-        { path: '/notes/:noteId', element: <NoteView /> },
         { path: '/settings', element: <Settings /> },
         { path: '/help-information', element: <HelpAndInformation /> },
       ],
+    },
+    {
+      path: '/',
+      element: <FullPageRoutes />,
+      children: [{ path: '/notes/:noteId', element: <NoteView /> }],
     },
     {
       path: '/',

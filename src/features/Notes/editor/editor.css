@@ -195,3 +195,15 @@ so
 .ProseMirror [data-note-callout] > div > p {
   margin: 0;
 }
+
+/* Toggle block (NIC-1970). The collapse is CSS-only, driven by the container's
+   persisted data-open attr — ProseMirror keeps owning the DOM for
+   noteToggleContent even while it's visually hidden, so the document stays
+   structurally intact (selectable/editable) whether expanded or not. */
+.ProseMirror [data-note-toggle][data-open='false'] > [data-note-toggle-content] {
+  display: none;
+}
+
+.ProseMirror [data-note-toggle-summary] {
+  margin: 0;
+}

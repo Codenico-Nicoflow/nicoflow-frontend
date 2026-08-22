@@ -219,9 +219,17 @@ export const {
   useDeleteNoteMutation,
   useGetNoteQuery,
   useGetNotesInfiniteQuery,
+  useLazySearchMentionsQuery,
   useUpdateNoteMutation,
 } = noteApi;
-export type { CreateNoteRequest, ListNotesPage, ListNotesRequest, UpdateNoteRequest } from '@nicoflow/shared/api';
+export type {
+  CreateNoteRequest,
+  IMentionResult,
+  ListNotesPage,
+  ListNotesRequest,
+  SearchMentionsRequest,
+  UpdateNoteRequest,
+} from '@nicoflow/shared/api';
 
 // Habit exports (E-055)
 export const {

@@ -457,3 +457,100 @@ describe('note text-color and highlight marks', () => {
     editor.destroy();
   });
 });
+
+describe('note callout and divider blocks', () => {
+  // AC1: a default-icon/color callout renders and accepts rich-text content.
+  it('inserts a callout with the default icon and color', () => {
+    const editor = makeEditor();
+
+    editor.commands.setNoteCallout();
+    const doc = editor.getJSON() as TiptapDoc;
+
+    expect(hasNodeType(doc, 'noteCallout')).toBe(true);
+    const callout = doc.content?.find(node => node.type === 'noteCallout');
+    expect(callout?.attrs?.icon).toBe('info');
+    expect(callout?.attrs?.colorToken).toBe('blue');
+    // Rich-text content: it's a paragraph the caret can type into, not opaque text.
+    expect(callout?.content?.[0]?.type).toBe('paragraph');
+
+    editor.destroy();
+  });
+
+  it('inserts a callout with a chosen icon and color', () => {
+    const editor = makeEditor();
+
+    editor.commands.setNoteCallout({ icon: 'warning', colorToken: 'amber' });
+    const doc = editor.getJSON() as TiptapDoc;
+    const callout = doc.content?.find(node => node.type === 'noteCallout');
+
+    expect(callout?.attrs?.icon).toBe('warning');
+    expect(callout?.attrs?.colorToken).toBe('amber');
+
+    editor.destroy();
+  });
+
+  // AC2: changing icon/color after insertion, then round-tripping through
+  // stored JSON (the save/reload path), keeps the change.
+  it('round-trips an updated callout icon and color through stored JSON', () => {
+    const editor = makeEditor();
+    editor.commands.setNoteCallout();
+
+    editor.commands.updateNoteCalloutAttrs({ icon: 'star', colorToken: 'green' });
+    const updated = editor.getJSON() as TiptapDoc;
+
+    const reloaded = makeEditor(updated);
+    const callout = (reloaded.getJSON() as TiptapDoc).content?.find(node => node.type === 'noteCallout');
+
+    expect(callout?.attrs?.icon).toBe('star');
+    expect(callout?.attrs?.colorToken).toBe('green');
+
+    editor.destroy();
+    reloaded.destroy();
+  });
+
+  // Same allowlist-at-the-parse-boundary posture as the color marks: a
+  // garbage icon or color token in stored HTML can't reach the DOM.
+  it('falls back to the default icon and color for an out-of-palette value parsed from stored HTML', () => {
+    const editor = makeEditor();
+
+    editor.commands.setContent('<div data-note-callout data-icon="skull" data-token="magenta"><p>text</p></div>');
+    const doc = editor.getJSON() as TiptapDoc;
+    const callout = doc.content?.find(node => node.type === 'noteCallout');
+
+    expect(callout?.attrs?.icon).toBe('info');
+    expect(callout?.attrs?.colorToken).toBe('blue');
+
+    editor.destroy();
+  });
+
+  // AC3: a divider renders as a horizontal rule and survives a reload.
+  it('inserts a divider between blocks', () => {
+    const editor = makeEditor();
+    editor.commands.setContent('<p>before</p>');
+
+    editor.commands.setHorizontalRule();
+    editor.commands.insertContent('<p>after</p>');
+    const doc = editor.getJSON() as TiptapDoc;
+
+    expect(hasNodeType(doc, 'horizontalRule')).toBe(true);
+
+    editor.destroy();
+  });
+
+  it('round-trips a divider through stored JSON', () => {
+    const stored: TiptapDoc = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'before' }] },
+        { type: 'horizontalRule' },
+        { type: 'paragraph', content: [{ type: 'text', text: 'after' }] },
+      ],
+    };
+
+    const editor = makeEditor(stored);
+
+    expect(hasNodeType(editor.getJSON() as TiptapDoc, 'horizontalRule')).toBe(true);
+
+    editor.destroy();
+  });
+});

@@ -5,6 +5,7 @@ import TaskList from '@tiptap/extension-task-list';
 import type { Extensions } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
+import { NoteCallout } from './CalloutNode';
 import { NoteHighlight, NoteTextColor } from './colorMarks';
 
 // The note schema (E-054). This list IS the security and scope boundary for the
@@ -76,5 +77,6 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
   TaskList,
   NoteTextColor,
   NoteHighlight,
+  NoteCallout,
   Placeholder.configure({ placeholder }),
 ];

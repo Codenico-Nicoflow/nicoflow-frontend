@@ -164,3 +164,34 @@ so
 .ProseMirror [data-note-highlight][data-token='purple'] {
   background-color: var(--note-highlight-purple);
 }
+
+/* Callout block (NIC-1969) — reuses the same --note-highlight-* tokens as the
+   highlight mark for its background tint rather than a third palette. */
+.ProseMirror [data-note-callout][data-token='gray'] {
+  background-color: var(--note-highlight-gray);
+}
+.ProseMirror [data-note-callout][data-token='red'] {
+  background-color: var(--note-highlight-red);
+}
+.ProseMirror [data-note-callout][data-token='orange'] {
+  background-color: var(--note-highlight-orange);
+}
+.ProseMirror [data-note-callout][data-token='amber'] {
+  background-color: var(--note-highlight-amber);
+}
+.ProseMirror [data-note-callout][data-token='green'] {
+  background-color: var(--note-highlight-green);
+}
+.ProseMirror [data-note-callout][data-token='teal'] {
+  background-color: var(--note-highlight-teal);
+}
+.ProseMirror [data-note-callout][data-token='blue'] {
+  background-color: var(--note-highlight-blue);
+}
+.ProseMirror [data-note-callout][data-token='purple'] {
+  background-color: var(--note-highlight-purple);
+}
+
+.ProseMirror [data-note-callout] > div > p {
+  margin: 0;
+}

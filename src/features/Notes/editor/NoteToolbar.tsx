@@ -14,6 +14,8 @@ import {
   Link2Off,
   List,
   ListOrdered,
+  MessageSquareQuote,
+  Minus,
   Table,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +55,7 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
             isTaskList: instance.isActive('taskList'),
             isCodeBlock: instance.isActive('codeBlock'),
             isTable: instance.isActive('table'),
+            isCallout: instance.isActive('noteCallout'),
             isLink: instance.isActive('link'),
             textColorToken: instance.getAttributes('noteTextColor').token as unknown,
             highlightToken: instance.getAttributes('noteHighlight').token as unknown,
@@ -127,6 +130,17 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
         icon={Table}
         isActive={state.isTable}
         onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+      />
+      <ToolbarButton
+        label={t('toolbar.callout')}
+        icon={MessageSquareQuote}
+        isActive={state.isCallout}
+        onClick={() => editor.chain().focus().setNoteCallout().run()}
+      />
+      <ToolbarButton
+        label={t('toolbar.divider')}
+        icon={Minus}
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
       />
       <ToolbarButton label={t('toolbar.link')} icon={Link2} isActive={state.isLink} onClick={() => setLinkOpen(true)} />
       <ToolbarButton

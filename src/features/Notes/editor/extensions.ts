@@ -7,6 +7,8 @@ import StarterKit from '@tiptap/starter-kit';
 
 import { NoteCallout } from './CalloutNode';
 import { NoteHighlight, NoteTextColor } from './colorMarks';
+import { NoteDateMention } from './DateMentionNode';
+import { createNoteMentionExtension } from './NoteMentionNode';
 import { NOTE_TOGGLE_NODES } from './ToggleNode';
 
 // The note schema (E-054). This list IS the security and scope boundary for the
@@ -46,9 +48,14 @@ export const openLinkFromEvent = (event: MouseEvent): boolean => {
 
 export type NoteEditorExtensionOptions = {
   placeholder: string;
+  // The currently-open note's id, so @-mention typeahead excludes it from its
+  // own results (AC4) — a note can't usefully mention itself. Optional so the
+  // many existing test/story call sites that construct an editor with no
+  // notion of "the open note" keep working unchanged.
+  excludeNoteId?: string;
 };
 
-export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions): Extensions => [
+export const createNoteExtensions = ({ placeholder, excludeNoteId }: NoteEditorExtensionOptions): Extensions => [
   StarterKit.configure({
     // Link ships INSIDE StarterKit in Tiptap v3 — configuring a separate
     // @tiptap/extension-link alongside it registers the mark twice and warns.
@@ -80,5 +87,7 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
   NoteHighlight,
   NoteCallout,
   ...NOTE_TOGGLE_NODES,
+  NoteDateMention,
+  createNoteMentionExtension({ excludeNoteId }),
   Placeholder.configure({ placeholder }),
 ];

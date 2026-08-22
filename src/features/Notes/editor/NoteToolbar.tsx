@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ColorPicker } from './ColorPicker';
 import { isNoteColorToken } from './colorTokens';
+import { DatePickerControl } from './DatePickerControl';
 import { LinkDialog } from './LinkDialog';
 import { TableControls } from './TableControls';
 import { ToolbarButton } from './ToolbarButton';
@@ -58,6 +59,7 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
             isTable: instance.isActive('table'),
             isCallout: instance.isActive('noteCallout'),
             isToggle: instance.isActive('noteToggle'),
+            isDateMention: instance.isActive('noteDateMention'),
             isLink: instance.isActive('link'),
             textColorToken: instance.getAttributes('noteTextColor').token as unknown,
             highlightToken: instance.getAttributes('noteHighlight').token as unknown,
@@ -159,6 +161,8 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
         disabled={!state.isLink}
         onClick={() => editor.chain().focus().unsetLink().run()}
       />
+
+      <DatePickerControl editor={editor} isActive={state.isDateMention} />
 
       <ColorPicker
         editor={editor}

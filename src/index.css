@@ -138,6 +138,30 @@
   --toast-warning-border: #d97706;
   --toast-error-bg: #fef2f2;
   --toast-error-border: #dc2626;
+
+  /* Notes editor — text-color + highlight marks (NIC-1968). One curated palette,
+     8 tokens, each used as a foreground color (--note-text-*) and a background
+     color (--note-highlight-*). Every value here is checked against --background
+     / --foreground at 4.5:1 (WCAG AA) in both themes — see
+     src/features/Notes/editor/colorTokens.contrast.test.ts. Change a hex here,
+     re-run that test. */
+  --note-text-gray: #475569;
+  --note-text-red: #b91c1c;
+  --note-text-orange: #c2410c;
+  --note-text-amber: #a16207;
+  --note-text-green: #15803d;
+  --note-text-teal: #0f766e;
+  --note-text-blue: #1d4ed8;
+  --note-text-purple: #7e22ce;
+
+  --note-highlight-gray: #e2e8f0;
+  --note-highlight-red: #fecaca;
+  --note-highlight-orange: #fed7aa;
+  --note-highlight-amber: #fde68a;
+  --note-highlight-green: #bbf7d0;
+  --note-highlight-teal: #99f6e4;
+  --note-highlight-blue: #bfdbfe;
+  --note-highlight-purple: #e9d5ff;
 }
 
 /* ── Dark mode — Indigo + Slate ─────────────────────────────────────────────── */
@@ -193,6 +217,26 @@
   --toast-warning-border: #f59e0b;
   --toast-error-bg: #1f0d0d;
   --toast-error-border: #ef4444;
+
+  /* Notes editor — dark variants of the same 8 tokens. See the :root block for
+     the contrast-testing note. */
+  --note-text-gray: #cbd5e1;
+  --note-text-red: #fca5a5;
+  --note-text-orange: #fdba74;
+  --note-text-amber: #fcd34d;
+  --note-text-green: #86efac;
+  --note-text-teal: #5eead4;
+  --note-text-blue: #93c5fd;
+  --note-text-purple: #d8b4fe;
+
+  --note-highlight-gray: #334155;
+  --note-highlight-red: #7f1d1d;
+  --note-highlight-orange: #7c2d12;
+  --note-highlight-amber: #78350f;
+  --note-highlight-green: #14532d;
+  --note-highlight-teal: #134e4a;
+  --note-highlight-blue: #1e3a8a;
+  --note-highlight-purple: #581c87;
 }
 
 @layer base {

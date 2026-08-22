@@ -716,3 +716,55 @@ describe('note date-mention node (NIC-1971)', () => {
     editor.destroy();
   });
 });
+
+describe('note @mention node (NIC-1972)', () => {
+  // AC1/AC2: inserting a mention stores noteId + a title snapshot, so the
+  // chip never needs a fetch just to render its own label.
+  it('inserts a note mention with noteId and titleSnapshot', () => {
+    const editor = makeEditor();
+
+    editor.commands.setNoteMention({ noteId: 'n2', titleSnapshot: 'Roadmap' });
+    const doc = editor.getJSON() as TiptapDoc;
+
+    expect(hasNodeType(doc, 'noteMention')).toBe(true);
+    const mention = doc.content?.flatMap(node => node.content ?? []).find(node => node.type === 'noteMention');
+    expect(mention?.attrs?.noteId).toBe('n2');
+    expect(mention?.attrs?.titleSnapshot).toBe('Roadmap');
+
+    editor.destroy();
+  });
+
+  it('round-trips a note mention through stored JSON', () => {
+    const stored: TiptapDoc = {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'See ' },
+            { type: 'noteMention', attrs: { noteId: 'n3', titleSnapshot: 'Weekly review' } },
+          ],
+        },
+      ],
+    };
+
+    const editor = makeEditor(stored);
+    const doc = editor.getJSON() as TiptapDoc;
+    const mention = doc.content?.[0]?.content?.find(node => node.type === 'noteMention');
+
+    expect(mention?.attrs?.noteId).toBe('n3');
+    expect(mention?.attrs?.titleSnapshot).toBe('Weekly review');
+
+    editor.destroy();
+  });
+
+  it('registers noteMention as an inline atomic node', () => {
+    const editor = makeEditor();
+    const nodeSpec = editor.schema.nodes.noteMention?.spec;
+
+    expect(nodeSpec?.inline).toBe(true);
+    expect(nodeSpec?.atom).toBe(true);
+
+    editor.destroy();
+  });
+});

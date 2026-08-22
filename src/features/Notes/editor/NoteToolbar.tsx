@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { ColorPicker } from './ColorPicker';
+import { isNoteColorToken } from './colorTokens';
 import { LinkDialog } from './LinkDialog';
 import { TableControls } from './TableControls';
 import { ToolbarButton } from './ToolbarButton';
@@ -52,6 +54,8 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
             isCodeBlock: instance.isActive('codeBlock'),
             isTable: instance.isActive('table'),
             isLink: instance.isActive('link'),
+            textColorToken: instance.getAttributes('noteTextColor').token as unknown,
+            highlightToken: instance.getAttributes('noteHighlight').token as unknown,
           }
         : null,
   });
@@ -130,6 +134,17 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
         icon={Link2Off}
         disabled={!state.isLink}
         onClick={() => editor.chain().focus().unsetLink().run()}
+      />
+
+      <ColorPicker
+        editor={editor}
+        variant="text"
+        activeToken={isNoteColorToken(state.textColorToken) ? state.textColorToken : null}
+      />
+      <ColorPicker
+        editor={editor}
+        variant="highlight"
+        activeToken={isNoteColorToken(state.highlightToken) ? state.highlightToken : null}
       />
 
       {(state.isTable || isTableMenuOpen) && (

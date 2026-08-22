@@ -361,3 +361,99 @@ describe('note editor commands', () => {
     editor.destroy();
   });
 });
+
+describe('note text-color and highlight marks', () => {
+  const withSelectedText = (editor: Editor) => {
+    editor.commands.setContent('<p>colored text</p>');
+    editor.commands.setTextSelection({ from: 1, to: 13 });
+  };
+
+  // AC1: applying a swatch stores the token name, not a computed color — that's
+  // what lets the same mark re-resolve to a different hex per theme (AC4) with
+  // no re-render logic; the CSS attribute selectors in editor.css do the rest.
+  it('applies a text-color token to selected text', () => {
+    const editor = makeEditor();
+    withSelectedText(editor);
+
+    editor.commands.setNoteTextColor('amber');
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor');
+
+    expect(marks).toHaveLength(1);
+    expect(marks[0]?.attrs?.token).toBe('amber');
+
+    editor.destroy();
+  });
+
+  it('applies a highlight token to selected text', () => {
+    const editor = makeEditor();
+    withSelectedText(editor);
+
+    editor.commands.setNoteHighlight('teal');
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteHighlight');
+
+    expect(marks).toHaveLength(1);
+    expect(marks[0]?.attrs?.token).toBe('teal');
+
+    editor.destroy();
+  });
+
+  // AC2: the two marks are independent — applying one never displaces the other.
+  it('coexists with an existing text-color mark when a highlight is applied', () => {
+    const editor = makeEditor();
+    withSelectedText(editor);
+
+    editor.commands.setNoteTextColor('blue');
+    editor.commands.setNoteHighlight('green');
+    const doc = editor.getJSON() as TiptapDoc;
+
+    expect(collectMarks(doc, 'noteTextColor')[0]?.attrs?.token).toBe('blue');
+    expect(collectMarks(doc, 'noteHighlight')[0]?.attrs?.token).toBe('green');
+
+    editor.destroy();
+  });
+
+  it('clears a text-color mark via unsetNoteTextColor', () => {
+    const editor = makeEditor();
+    withSelectedText(editor);
+    editor.commands.setNoteTextColor('red');
+
+    editor.commands.unsetNoteTextColor();
+
+    expect(collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor')).toHaveLength(0);
+
+    editor.destroy();
+  });
+
+  // The allowlist is enforced at the parse boundary (parseHTML), same posture
+  // as the link mark's protocol allowlist — an out-of-palette token can never
+  // reach the DOM as a raw attribute value.
+  it('drops an out-of-palette token when parsed from stored HTML', () => {
+    const editor = makeEditor();
+
+    editor.commands.setContent('<p><span data-note-text-color data-token="magenta">x</span></p>');
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor');
+
+    expect(marks[0]?.attrs?.token ?? null).toBeNull();
+
+    editor.destroy();
+  });
+
+  it('round-trips a text-color token through stored JSON', () => {
+    const stored: TiptapDoc = {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: 'hi', marks: [{ type: 'noteTextColor', attrs: { token: 'purple' } }] }],
+        },
+      ],
+    };
+
+    const editor = makeEditor(stored);
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor');
+
+    expect(marks[0]?.attrs?.token).toBe('purple');
+
+    editor.destroy();
+  });
+});

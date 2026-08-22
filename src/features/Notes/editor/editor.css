@@ -94,3 +94,73 @@
   color: var(--muted-foreground);
   text-decoration: line-through;
 }
+
+/* Text-color + highlight marks (NIC-1968). The mark stores a token name in
+   `data-token`; the actual color is one of the --note-text-*/
+--note-highlight-* custom properties (src/index.css),
+so
+  a
+  theme
+  toggle
+  re-resolves
+  every
+  existing
+  mark
+  for
+  free
+  —
+  no
+  JS
+  re-render
+  needed.
+  */
+  .ProseMirror
+  [data-note-text-color][data-token='gray'] {
+  color: var(--note-text-gray);
+}
+.ProseMirror [data-note-text-color][data-token='red'] {
+  color: var(--note-text-red);
+}
+.ProseMirror [data-note-text-color][data-token='orange'] {
+  color: var(--note-text-orange);
+}
+.ProseMirror [data-note-text-color][data-token='amber'] {
+  color: var(--note-text-amber);
+}
+.ProseMirror [data-note-text-color][data-token='green'] {
+  color: var(--note-text-green);
+}
+.ProseMirror [data-note-text-color][data-token='teal'] {
+  color: var(--note-text-teal);
+}
+.ProseMirror [data-note-text-color][data-token='blue'] {
+  color: var(--note-text-blue);
+}
+.ProseMirror [data-note-text-color][data-token='purple'] {
+  color: var(--note-text-purple);
+}
+
+.ProseMirror [data-note-highlight][data-token='gray'] {
+  background-color: var(--note-highlight-gray);
+}
+.ProseMirror [data-note-highlight][data-token='red'] {
+  background-color: var(--note-highlight-red);
+}
+.ProseMirror [data-note-highlight][data-token='orange'] {
+  background-color: var(--note-highlight-orange);
+}
+.ProseMirror [data-note-highlight][data-token='amber'] {
+  background-color: var(--note-highlight-amber);
+}
+.ProseMirror [data-note-highlight][data-token='green'] {
+  background-color: var(--note-highlight-green);
+}
+.ProseMirror [data-note-highlight][data-token='teal'] {
+  background-color: var(--note-highlight-teal);
+}
+.ProseMirror [data-note-highlight][data-token='blue'] {
+  background-color: var(--note-highlight-blue);
+}
+.ProseMirror [data-note-highlight][data-token='purple'] {
+  background-color: var(--note-highlight-purple);
+}

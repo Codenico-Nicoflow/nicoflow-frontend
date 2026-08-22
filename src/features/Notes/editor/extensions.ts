@@ -5,6 +5,8 @@ import TaskList from '@tiptap/extension-task-list';
 import type { Extensions } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
+import { NoteHighlight, NoteTextColor } from './colorMarks';
+
 // The note schema (E-054). This list IS the security and scope boundary for the
 // feature: Tiptap parses through the schema, so anything not registered here is
 // dropped rather than rendered. Nothing in the note render path uses
@@ -72,5 +74,7 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
   // indent/outdent interaction this editor doesn't otherwise expose.
   TaskItem.configure({ nested: false }),
   TaskList,
+  NoteTextColor,
+  NoteHighlight,
   Placeholder.configure({ placeholder }),
 ];

@@ -16,19 +16,21 @@ export interface NoteEditorProps {
   editable?: boolean;
   /** Fires when stored JSON can't be parsed, so the page can stop autosaving over it. */
   onContentError?: () => void;
+  /** The currently-open note's id, so @-mention typeahead excludes it from its own results (NIC-1972 AC4). */
+  noteId?: string;
 }
 
 // The editor surface. Content flows in as TiptapDoc JSON and out as TiptapDoc
 // JSON — there is no HTML round-trip and no dangerouslySetInnerHTML anywhere in
 // this path. Rendering goes through the schema (see extensions.ts), which is
 // what contains anything unexpected in a stored document.
-export const NoteEditor = ({ content, onChange, editable = true, onContentError }: NoteEditorProps) => {
+export const NoteEditor = ({ content, onChange, editable = true, onContentError, noteId }: NoteEditorProps) => {
   const { t } = useTranslation('notes');
   const labelId = useId();
 
   const editor = useEditor(
     {
-      extensions: createNoteExtensions({ placeholder: t('editor.placeholder') }),
+      extensions: createNoteExtensions({ placeholder: t('editor.placeholder'), excludeNoteId: noteId }),
       content: withEditableBody(content),
       editable,
       // ProseMirror rejects a document ATOMICALLY: one unrecognized node or mark

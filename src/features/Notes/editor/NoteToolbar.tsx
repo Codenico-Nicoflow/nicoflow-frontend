@@ -5,6 +5,7 @@ import { useEditorState } from '@tiptap/react';
 import {
   Bold,
   CheckSquare,
+  ChevronRightSquare,
   Code,
   Heading1,
   Heading2,
@@ -14,12 +15,15 @@ import {
   Link2Off,
   List,
   ListOrdered,
+  MessageSquareQuote,
+  Minus,
   Table,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { ColorPicker } from './ColorPicker';
 import { isNoteColorToken } from './colorTokens';
+import { DatePickerControl } from './DatePickerControl';
 import { LinkDialog } from './LinkDialog';
 import { TableControls } from './TableControls';
 import { ToolbarButton } from './ToolbarButton';
@@ -53,6 +57,9 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
             isTaskList: instance.isActive('taskList'),
             isCodeBlock: instance.isActive('codeBlock'),
             isTable: instance.isActive('table'),
+            isCallout: instance.isActive('noteCallout'),
+            isToggle: instance.isActive('noteToggle'),
+            isDateMention: instance.isActive('noteDateMention'),
             isLink: instance.isActive('link'),
             textColorToken: instance.getAttributes('noteTextColor').token as unknown,
             highlightToken: instance.getAttributes('noteHighlight').token as unknown,
@@ -128,6 +135,25 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
         isActive={state.isTable}
         onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
       />
+      <ToolbarButton
+        label={t('toolbar.callout')}
+        icon={MessageSquareQuote}
+        isActive={state.isCallout}
+        onClick={() => editor.chain().focus().setNoteCallout().run()}
+      />
+      <ToolbarButton
+        label={t('toolbar.divider')}
+        icon={Minus}
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+      />
+      <ToolbarButton
+        // Pending i18n (notes.json has no "toggle" key yet) — see NIC-1970 PR
+        // notes on avoiding another cross-repo publish round-trip for one label.
+        label="Insert toggle"
+        icon={ChevronRightSquare}
+        isActive={state.isToggle}
+        onClick={() => editor.chain().focus().setNoteToggle().run()}
+      />
       <ToolbarButton label={t('toolbar.link')} icon={Link2} isActive={state.isLink} onClick={() => setLinkOpen(true)} />
       <ToolbarButton
         label={t('toolbar.unlink')}
@@ -135,6 +161,8 @@ export const NoteToolbar = ({ editor }: NoteToolbarProps) => {
         disabled={!state.isLink}
         onClick={() => editor.chain().focus().unsetLink().run()}
       />
+
+      <DatePickerControl editor={editor} isActive={state.isDateMention} />
 
       <ColorPicker
         editor={editor}

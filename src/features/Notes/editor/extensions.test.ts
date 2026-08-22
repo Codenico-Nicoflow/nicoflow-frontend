@@ -302,6 +302,45 @@ describe('note editor commands', () => {
     editor.destroy();
   });
 
+  it('enables column resizing on the table extension', () => {
+    const editor = makeEditor();
+
+    expect(editor.extensionManager.extensions.find(ext => ext.name === 'table')?.options.resizable).toBe(true);
+
+    editor.destroy();
+  });
+
+  // colwidth is how a resized column's width survives a save/reload round trip
+  // — it lives on the tableCell/tableHeader attrs and travels inside the stored
+  // content JSON, no separate persistence path.
+  it('round-trips a resized column width through stored JSON', () => {
+    const stored: TiptapDoc = {
+      type: 'doc',
+      content: [
+        {
+          type: 'table',
+          content: [
+            {
+              type: 'tableRow',
+              content: [
+                { type: 'tableCell', attrs: { colwidth: [240] }, content: [{ type: 'paragraph' }] },
+                { type: 'tableCell', attrs: { colwidth: null }, content: [{ type: 'paragraph' }] },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const editor = makeEditor(stored);
+    const doc = editor.getJSON() as TiptapDoc;
+    const cells = doc.content?.[0]?.content?.[0]?.content;
+
+    expect(cells?.[0]?.attrs?.colwidth).toEqual([240]);
+
+    editor.destroy();
+  });
+
   it('converts a paragraph to a checklist', () => {
     withSelectedParagraph(editor => editor.commands.toggleTaskList(), 'taskList');
   });

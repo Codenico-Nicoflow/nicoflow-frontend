@@ -65,7 +65,9 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
       openOnClick: 'whenNotEditable',
     },
   }),
-  TableKit,
+  TableKit.configure({
+    table: { resizable: true },
+  }),
   // Not nestable — flat checklists are the product ask; nesting adds an
   // indent/outdent interaction this editor doesn't otherwise expose.
   TaskItem.configure({ nested: false }),

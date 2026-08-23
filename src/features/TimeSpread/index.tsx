@@ -3,17 +3,27 @@ import { useMemo, useState } from 'react';
 import type { ITask } from '@nicoflow/shared/types';
 import { ActiveTab } from '@nicoflow/shared/types';
 import { format } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { EmptyState } from '@/components';
+import { Button } from '@/components/ui/button';
 import { HabitTodayStrip } from '@/features/Habits';
 import { TaskDialog, TasksLoadingState } from '@/features/Tasks';
 import { useGetTimeSpreadQuery } from '@/lib/store';
 
+import TimeSpreadCombinedView from './components/TimeSpreadCombinedView';
 import TimeSpreadList from './components/TimeSpreadList';
 import TimeSpreadTabs from './components/TimeSpreadTabs';
-import { groupByDay } from './utils';
+import ViewModeToggle, { type ViewMode } from './components/ViewModeToggle';
+import { activeTabToScheduledFor, groupByDay } from './utils';
+
+const VIEW_MODE_STORAGE_KEY = 'nicoflow-timespread-view';
+
+const readStoredViewMode = (): ViewMode => {
+  const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+  return stored === 'combined' ? 'combined' : 'tabs';
+};
 
 interface TimeSpreadViewProps {
   activeTab: (typeof ActiveTab)[keyof typeof ActiveTab];
@@ -25,22 +35,26 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
 
   const [editTask, setEditTask] = useState<ITask | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>(readStoredViewMode);
 
   const handleEdit = (task: ITask) => {
     setEditTask(task);
     setIsDialogOpen(true);
   };
 
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+  };
+
   const flat =
     activeTab === ActiveTab.TODAY ? data?.today : activeTab === ActiveTab.TOMORROW ? data?.tomorrow : undefined;
-  const weekGroups = useMemo(
-    () => (activeTab === ActiveTab.WEEK ? groupByDay(data?.thisWeek ?? []) : []),
-    [activeTab, data?.thisWeek]
-  );
+  const weekGroups = useMemo(() => groupByDay(data?.thisWeek ?? []), [data?.thisWeek]);
 
   const isEmpty = activeTab === ActiveTab.WEEK ? weekGroups.length === 0 : (flat?.length ?? 0) === 0;
 
-  const content = isLoading ? (
+  const tabContent = isLoading ? (
     <div data-testid="timespread-loading">
       <TasksLoadingState />
     </div>
@@ -68,22 +82,51 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
     </div>
   );
 
+  const content = isLoading ? (
+    <div data-testid="timespread-loading">
+      <TasksLoadingState />
+    </div>
+  ) : viewMode === 'combined' ? (
+    <TimeSpreadCombinedView
+      today={data?.today ?? []}
+      tomorrow={data?.tomorrow ?? []}
+      weekGroups={weekGroups}
+      onEdit={handleEdit}
+    />
+  ) : (
+    tabContent
+  );
+
   return (
     <div className="p-4 sm:p-6">
       <div className="space-y-6">
         <div className="space-y-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('timeSpread.title')}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">{t('timeSpread.subtitle')}</p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('timeSpread.title')}</h1>
+              <p className="text-sm sm:text-base text-muted-foreground mt-1">{t('timeSpread.subtitle')}</p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setIsCreateOpen(true)}
+              data-testid="timespread-create-task"
+              aria-label={t('timeSpread.createFabLabel')}
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              {t('timeSpread.createFabLabel')}
+            </Button>
           </div>
-          <TimeSpreadTabs active={activeTab} />
+          <div className="flex items-center justify-between gap-4">
+            {viewMode === 'tabs' ? <TimeSpreadTabs active={activeTab} /> : <div />}
+            <ViewModeToggle mode={viewMode} onChange={handleViewModeChange} />
+          </div>
         </div>
 
         {/* Above the task list, and only on Today: the habit ritual is three
             taps and five seconds, so below a twenty-task list it is never seen.
             The other tabs are about future work, where a habit has nothing to
             say yet. */}
-        {activeTab === ActiveTab.TODAY ? <HabitTodayStrip /> : null}
+        {activeTab === ActiveTab.TODAY && viewMode === 'tabs' ? <HabitTodayStrip /> : null}
 
         {content}
       </div>
@@ -93,6 +136,11 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
         onOpenChange={setIsDialogOpen}
         task={editTask}
         projectId={editTask?.projectId ?? ''}
+      />
+      <TaskDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        initialScheduledFor={activeTabToScheduledFor(activeTab)}
       />
     </div>
   );

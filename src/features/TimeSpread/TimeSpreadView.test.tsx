@@ -144,6 +144,46 @@ describe('TimeSpreadView', () => {
     const list = await screen.findByTestId('timespread-list');
     expect(within(list).getByText('Scoped')).toBeInTheDocument();
   });
+
+  it('switching to the combined view shows today and tomorrow at once', async () => {
+    server.use(
+      http.get(`${API}/time-spread`, () =>
+        HttpResponse.json(
+          env({
+            today: [makeTask({ id: 't1', title: 'Today task' })],
+            tomorrow: [makeTask({ id: 't2', title: 'Tomorrow task' })],
+            thisWeek: [],
+          })
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TimeSpreadView activeTab="today" />);
+
+    await waitFor(() => expect(screen.getByText('Today task')).toBeInTheDocument());
+    await user.click(screen.getByTestId('timespread-viewmode-combined'));
+
+    await waitFor(() => expect(screen.getByTestId('timespread-combined')).toBeInTheDocument());
+    expect(screen.getByText('Today task')).toBeInTheDocument();
+    expect(screen.getByText('Tomorrow task')).toBeInTheDocument();
+  });
+
+  it('the create button opens a task dialog with a project picker', async () => {
+    server.use(
+      http.get(`${API}/time-spread`, () => HttpResponse.json(env({ today: [], tomorrow: [], thisWeek: [] }))),
+      http.get(`${API}/projects`, () =>
+        HttpResponse.json(env({ items: [{ id: 'p1', name: 'Launch', areaId: 'a1' }], nextCursor: null }))
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TimeSpreadView activeTab="today" />);
+
+    await user.click(screen.getByTestId('timespread-create-task'));
+
+    await waitFor(() => expect(screen.getByText('Launch')).toBeInTheDocument());
+  });
 });
 
 describe('TimeSpreadView — graceful downgrade', () => {

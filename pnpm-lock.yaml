@@ -27,8 +27,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.64.0(react@19.1.0))
       '@nicoflow/shared':
-        specifier: ^0.6.1
-        version: 0.6.1(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)
+        specifier: ^0.7.0
+        version: 0.7.0(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.1.0(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -107,6 +107,9 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.29.2
         version: 3.29.2
+      '@tiptap/suggestion':
+        specifier: 3.29.2
+        version: 3.29.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.29.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2)
       async-mutex:
         specifier: ^0.5.0
         version: 0.5.0
@@ -881,8 +884,8 @@ packages:
   '@neoconfetti/react@1.0.0':
     resolution: {integrity: sha512-klcSooChXXOzIm+SE5IISIAn3bYzYfPjbX7D7HoqZL84oAfgREeSg5vSIaSFH+DaGzzvImTyWe1OyrJ67vik4A==}
 
-  '@nicoflow/shared@0.6.1':
-    resolution: {integrity: sha512-yj5ThWNDK4khnWH0plRlnMpwq2uz6Y42lHnAduhHpzbHtkwdXK+kNUXstx47myQ5wZPv/KyWTijxgqI2UcVkxw==}
+  '@nicoflow/shared@0.7.0':
+    resolution: {integrity: sha512-VOW9pQku54C1a0hjAowpjSYIvXFq2vFNBzUX8ZxxO6NT/fghXWSjNLDrMc0qyuzJv3C6bQ9KL5wZx+/zWEhCuA==}
     peerDependencies:
       '@reduxjs/toolkit': ^2.9.0
       react: '>=18'
@@ -2214,6 +2217,13 @@ packages:
 
   '@tiptap/starter-kit@3.29.2':
     resolution: {integrity: sha512-oTu0tysiqk4zgjEtxRHjAQgxUKaAevZwueOWwSWubHdokqp7SpcbE5n9USJv89HKuTUDm3GjnQH6q8HNn/2DsA==}
+
+  '@tiptap/suggestion@3.29.2':
+    resolution: {integrity: sha512-ZEhRm0gnRCwCScR9IrnIBhm9sr6U8vpR9oeznYk3hiedZ48zsgohqvgoIYpWcwYWrT2Pb0NrfhCT8IuSzdJHzQ==}
+    peerDependencies:
+      '@floating-ui/dom': ^1.0.0
+      '@tiptap/core': 3.29.2
+      '@tiptap/pm': 3.29.2
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -5968,7 +5978,7 @@ snapshots:
 
   '@neoconfetti/react@1.0.0': {}
 
-  '@nicoflow/shared@0.6.1(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)':
+  '@nicoflow/shared@0.7.0(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)':
     dependencies:
       '@reduxjs/toolkit': 2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)
       react: 19.1.0
@@ -7182,6 +7192,12 @@ snapshots:
       '@tiptap/extension-text': 3.29.2(@tiptap/core@3.29.2(@tiptap/pm@3.29.2))
       '@tiptap/extension-underline': 3.29.2(@tiptap/core@3.29.2(@tiptap/pm@3.29.2))
       '@tiptap/extensions': 3.29.2(@tiptap/core@3.29.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2)
+      '@tiptap/pm': 3.29.2
+
+  '@tiptap/suggestion@3.29.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.29.2(@tiptap/pm@3.29.2))(@tiptap/pm@3.29.2)':
+    dependencies:
+      '@floating-ui/dom': 1.7.4
+      '@tiptap/core': 3.29.2(@tiptap/pm@3.29.2)
       '@tiptap/pm': 3.29.2
 
   '@tybys/wasm-util@0.10.1':

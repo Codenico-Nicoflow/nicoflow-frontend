@@ -5,6 +5,12 @@ import TaskList from '@tiptap/extension-task-list';
 import type { Extensions } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
+import { NoteCallout } from './CalloutNode';
+import { NoteHighlight, NoteTextColor } from './colorMarks';
+import { NoteDateMention } from './DateMentionNode';
+import { createNoteMentionExtension } from './NoteMentionNode';
+import { NOTE_TOGGLE_NODES } from './ToggleNode';
+
 // The note schema (E-054). This list IS the security and scope boundary for the
 // feature: Tiptap parses through the schema, so anything not registered here is
 // dropped rather than rendered. Nothing in the note render path uses
@@ -42,9 +48,14 @@ export const openLinkFromEvent = (event: MouseEvent): boolean => {
 
 export type NoteEditorExtensionOptions = {
   placeholder: string;
+  // The currently-open note's id, so @-mention typeahead excludes it from its
+  // own results (AC4) — a note can't usefully mention itself. Optional so the
+  // many existing test/story call sites that construct an editor with no
+  // notion of "the open note" keep working unchanged.
+  excludeNoteId?: string;
 };
 
-export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions): Extensions => [
+export const createNoteExtensions = ({ placeholder, excludeNoteId }: NoteEditorExtensionOptions): Extensions => [
   StarterKit.configure({
     // Link ships INSIDE StarterKit in Tiptap v3 — configuring a separate
     // @tiptap/extension-link alongside it registers the mark twice and warns.
@@ -65,10 +76,18 @@ export const createNoteExtensions = ({ placeholder }: NoteEditorExtensionOptions
       openOnClick: 'whenNotEditable',
     },
   }),
-  TableKit,
+  TableKit.configure({
+    table: { resizable: true },
+  }),
   // Not nestable — flat checklists are the product ask; nesting adds an
   // indent/outdent interaction this editor doesn't otherwise expose.
   TaskItem.configure({ nested: false }),
   TaskList,
+  NoteTextColor,
+  NoteHighlight,
+  NoteCallout,
+  ...NOTE_TOGGLE_NODES,
+  NoteDateMention,
+  createNoteMentionExtension({ excludeNoteId }),
   Placeholder.configure({ placeholder }),
 ];

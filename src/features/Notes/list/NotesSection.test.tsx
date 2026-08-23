@@ -68,6 +68,18 @@ describe('NotesSection list', () => {
     expect(within(rows[1]!).getByText('Older')).toBeInTheDocument();
   });
 
+  it('navigates to the full-page route when a note row is clicked', async () => {
+    listReturns([note({ id: 'n1', title: 'Meeting minutes' })]);
+    const user = userEvent.setup();
+
+    renderComponent(<NotesSection projectId="p1" />);
+
+    await waitFor(() => expect(screen.getByText('Meeting minutes')).toBeInTheDocument());
+    await user.click(screen.getByTestId('note-row-n1'));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/notes/n1');
+  });
+
   it('falls back to placeholder copy for an untitled or empty note', async () => {
     listReturns([note({ title: '', excerpt: '' })]);
 

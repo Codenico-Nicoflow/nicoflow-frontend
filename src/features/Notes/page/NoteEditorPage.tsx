@@ -16,6 +16,7 @@ import { useDeleteNoteMutation, useGetNoteQuery } from '@/lib/store';
 import { ConflictNotice, SaveStatus, SaveStatusIndicator, useNoteAutosave } from '../autosave';
 import { NoteEditor } from '../editor';
 
+import { BacklinksPanel } from './BacklinksPanel';
 import { NoteEditorSkeleton } from './NoteEditorSkeleton';
 
 // The page that assembles the feature: scalar fetch → title + Tiptap body →
@@ -157,6 +158,8 @@ export const NoteEditorPage = () => {
       {/* Owner-parameterised — the same panel the task dialog uses, with
           ownerType "note". Writes stay Pro-gated; reads and deletes are open. */}
       <AttachmentSection ownerType="note" ownerId={note.id} />
+
+      <BacklinksPanel noteId={note.id} />
 
       <ConfirmDialog
         open={deleteOpen}

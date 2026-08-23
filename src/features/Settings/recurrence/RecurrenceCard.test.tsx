@@ -136,6 +136,41 @@ describe('RecurrenceCard', () => {
     await waitFor(() => expect(body).toEqual({ paused: true }));
   });
 
+  it('paginates rules 5 per page and steps forward/back', async () => {
+    const rules = Array.from({ length: 7 }, (_, i) => makeRule({ id: `r${i + 1}`, title: `Rule ${i + 1}` }));
+    listReturns(rules);
+    statsReturns();
+    const user = userEvent.setup();
+    renderComponent(<RecurrenceCard />, {
+      store: createMockStore({ auth: { user: makeUser({ status: 'premium' }), token: 't', isLoading: false } }),
+    });
+
+    expect(await screen.findByTestId('recurrence-rule-r1')).toBeInTheDocument();
+    expect(screen.getByTestId('recurrence-rule-r5')).toBeInTheDocument();
+    expect(screen.queryByTestId('recurrence-rule-r6')).not.toBeInTheDocument();
+    expect(screen.getByTestId('recurrence-pager-prev')).toBeDisabled();
+
+    await user.click(screen.getByTestId('recurrence-pager-next'));
+
+    expect(await screen.findByTestId('recurrence-rule-r6')).toBeInTheDocument();
+    expect(screen.getByTestId('recurrence-rule-r7')).toBeInTheDocument();
+    expect(screen.queryByTestId('recurrence-rule-r1')).not.toBeInTheDocument();
+    expect(screen.getByTestId('recurrence-pager-next')).toBeDisabled();
+
+    await user.click(screen.getByTestId('recurrence-pager-prev'));
+
+    expect(await screen.findByTestId('recurrence-rule-r1')).toBeInTheDocument();
+  });
+
+  it('hides the pager entirely when everything fits on one page', async () => {
+    listReturns([makeRule()]);
+    statsReturns();
+    renderComponent(<RecurrenceCard />);
+
+    expect(await screen.findByTestId('recurrence-rule-r1')).toBeInTheDocument();
+    expect(screen.queryByTestId('recurrence-pager')).not.toBeInTheDocument();
+  });
+
   it('asks for confirmation before ending a series', async () => {
     listReturns([makeRule()]);
     statsReturns();

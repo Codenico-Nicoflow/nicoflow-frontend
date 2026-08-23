@@ -18,6 +18,7 @@ export { ItemActionsMenu } from './ItemActionsMenu';
 export { LanguageSwitcher } from './LanguageSwitcher';
 export { LazyIcon } from './LazyIcon';
 export { ListItemCard } from './ListItemCard';
+export { ListPager } from './ListPager';
 export { LoadingOverlayProvider, useLoadingOverlay } from './LoadingOverlayProvider';
 export { Logo } from './Logo';
 export { ModeToggle } from './ModeToggle';

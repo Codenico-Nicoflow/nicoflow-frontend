@@ -6,7 +6,7 @@ import { Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import { ConfirmDialog } from '@/components';
+import { ConfirmDialog, ListPager } from '@/components';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useIsPro } from '@/hooks';
@@ -19,6 +19,8 @@ import { showErrorToast } from '@/lib/utils';
 
 import { RecurrenceRuleRow } from './RecurrenceRuleRow';
 
+const RULES_PER_PAGE = 5;
+
 // Where the 3-rule free limit becomes legible and occurrence history is
 // reachable. Deliberately a Settings card, not a NAV_DESTINATIONS slot —
 // recurrence is a property of tasks, not a fourth pillar of the app.
@@ -30,9 +32,13 @@ export const RecurrenceCard = () => {
   const [deleteRule, { isLoading: isDeleting }] = useDeleteRecurrenceRuleMutation();
 
   const [pendingDelete, setPendingDelete] = useState<IRecurrenceRule | null>(null);
+  const [page, setPage] = useState(1);
 
   const rules = data?.items ?? [];
   const isMutating = isPausing || isDeleting;
+  const pageCount = Math.max(1, Math.ceil(rules.length / RULES_PER_PAGE));
+  const safePage = Math.min(page, pageCount);
+  const pagedRules = rules.slice((safePage - 1) * RULES_PER_PAGE, safePage * RULES_PER_PAGE);
 
   const handlePauseToggle = async (rule: IRecurrenceRule) => {
     try {
@@ -77,7 +83,7 @@ export const RecurrenceCard = () => {
           </div>
         ) : (
           <>
-            {rules.map(rule => (
+            {pagedRules.map(rule => (
               <RecurrenceRuleRow
                 key={rule.id}
                 rule={rule}
@@ -86,6 +92,7 @@ export const RecurrenceCard = () => {
                 isMutating={isMutating}
               />
             ))}
+            <ListPager page={safePage} pageCount={pageCount} onPageChange={setPage} data-testid="recurrence-pager" />
             {!isPro && rules.length >= FREE_PLAN_RULE_LIMIT && (
               <p className="text-xs text-muted-foreground" data-testid="recurrence-limit-hint">
                 {t('settings.limitReached', { limit: FREE_PLAN_RULE_LIMIT })}

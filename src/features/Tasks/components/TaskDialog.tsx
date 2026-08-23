@@ -78,9 +78,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
   // time, because the generic "plan limit" reads as "too many tasks" and sends
   // the user hunting for the wrong thing to delete.
   const [planLimitHit, setPlanLimitHit] = useState<'generic' | 'timedScheduling' | null>(null);
-  // null = an ordinary task. Non-null turns the create into a rule create, which
-  // materializes instance #1 server-side. Editing a rule happens in Settings, so
-  // this is create-only — an existing task's series is not re-editable here.
+  // null = an ordinary task/no change. Non-null always creates a NEW rule via
+  // createRule, materializing instance #1 server-side — including on edit,
+  // where it deliberately does not mutate any rule the task already belongs
+  // to (that's still Settings' job). Saving recurrence from here just starts
+  // a fresh series from this task forward.
   const [recurrence, setRecurrence] = useState<RecurrenceValue | null>(null);
   const [projectMissing, setProjectMissing] = useState(false);
 
@@ -147,18 +149,21 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
 
   // Only compare form-backed fields; server-only keys (id, createdAt…) would
   // otherwise always read as "changed" and leave save perpetually enabled.
-  const hasChanges = hasFormChanges(isEditMode, task, watchedValues, [
-    'title',
-    'notes',
-    'status',
-    'priority',
-    'energy',
-    'rollsOver',
-    'scheduledFor',
-    'scheduledTime',
-    'estimatedMinutes',
-    'url',
-  ]);
+  // Recurrence isn't form-backed, so it's OR'd in separately — turning it on
+  // is itself the change, even if nothing else on the form moved.
+  const hasChanges =
+    hasFormChanges(isEditMode, task, watchedValues, [
+      'title',
+      'notes',
+      'status',
+      'priority',
+      'energy',
+      'rollsOver',
+      'scheduledFor',
+      'scheduledTime',
+      'estimatedMinutes',
+      'url',
+    ]) || !!recurrence;
 
   // Saving an edit that flips status to done is the same completion the list
   // checkbox performs, so it asks the same question when subtasks are open.
@@ -183,7 +188,21 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
     }
 
     try {
-      if (isEditMode) {
+      if (isEditMode && recurrence) {
+        // A repeating edit starts a NEW rule from this task forward rather than
+        // mutating any rule the task already belongs to — same createRule call
+        // as create-mode, just reachable from here too.
+        await createRule({
+          projectId: (task.projectId ?? effectiveProjectId) as string,
+          title: data.title,
+          priority: data.priority,
+          energy: data.energy,
+          notes: data.notes ?? undefined,
+          estimatedMinutes: data.estimatedMinutes ?? undefined,
+          ...normalizeScheduleForFreq(recurrence),
+        }).unwrap();
+        showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
+      } else if (isEditMode) {
         await updateTask({
           id: task.id,
           ...data,
@@ -320,9 +339,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
             />
           </div>
 
-          {/* Repeating is a create-time choice: an existing series is managed
-              from Settings, so the section is hidden in edit mode. */}
-          {!isEditMode && <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />}
+          {/* Turning this on for an existing task starts a NEW series from here
+              forward — it never edits the rule the task already belongs to.
+              Managing/pausing an existing rule stays in Settings. */}
+          <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />
 
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />

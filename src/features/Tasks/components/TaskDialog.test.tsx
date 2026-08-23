@@ -178,4 +178,43 @@ describe('TaskDialog — edit mode', () => {
     await user.click(within(screen.getByTestId('subtask-row-sub-1')).getByTestId('subtask-delete-sub-1'));
     await waitFor(() => expect(deleted).toBe(true));
   });
+
+  it('shows the recurrence field in edit mode', async () => {
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([])))
+    );
+
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={task} />);
+
+    expect(await screen.findByTestId('recurrence-toggle')).toBeInTheDocument();
+  });
+
+  it('saving recurrence on edit calls createRecurrenceRule, not a plain task update', async () => {
+    let createRuleBody: Record<string, unknown> | undefined;
+    let taskPatched = false;
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.post(`${API}/projects/project-1/recurrence-rules`, async ({ request }) => {
+        createRuleBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope({ id: 'rule-1', ...createRuleBody }), { status: 201 });
+      }),
+      http.patch(`${API}/tasks/task-9`, () => {
+        taskPatched = true;
+        return HttpResponse.json(envelope(task));
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={task} />);
+
+    await screen.findByTestId('recurrence-toggle');
+    await user.click(screen.getByTestId('recurrence-toggle'));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    expect(createRuleBody).toMatchObject({ title: 'Existing task' });
+    expect(taskPatched).toBe(false);
+  });
 });

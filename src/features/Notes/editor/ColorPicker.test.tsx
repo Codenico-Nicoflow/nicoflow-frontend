@@ -45,17 +45,17 @@ describe('ColorPicker', () => {
   it('applies a text-color token when a swatch is clicked', async () => {
     const user = await openPicker('text');
 
-    await user.click(screen.getByTestId('note-text-color-amber'));
+    await user.click(screen.getByTestId('note-text-color-yellow'));
 
-    expect(editor.isActive('noteTextColor', { token: 'amber' })).toBe(true);
+    expect(editor.isActive('textColor', { color: 'yellow' })).toBe(true);
   });
 
   it('applies a highlight token when a swatch is clicked', async () => {
     const user = await openPicker('highlight');
 
-    await user.click(screen.getByTestId('note-highlight-color-teal'));
+    await user.click(screen.getByTestId('note-highlight-color-brown'));
 
-    expect(editor.isActive('noteHighlight', { token: 'teal' })).toBe(true);
+    expect(editor.isActive('highlight', { color: 'brown' })).toBe(true);
   });
 
   it('clears the mark when Default is clicked', async () => {
@@ -64,6 +64,6 @@ describe('ColorPicker', () => {
 
     await user.click(screen.getByTestId('note-text-color-default'));
 
-    expect(editor.isActive('noteTextColor')).toBe(false);
+    expect(editor.isActive('textColor')).toBe(false);
   });
 });

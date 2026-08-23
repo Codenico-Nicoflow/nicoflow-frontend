@@ -32,7 +32,7 @@ const docWithMention: TiptapDoc = {
       type: 'paragraph',
       content: [
         { type: 'text', text: 'Renewal is due ' },
-        { type: 'noteDateMention', attrs: { date: '2026-09-15' } },
+        { type: 'dateMention', attrs: { date: '2026-09-15' } },
         { type: 'text', text: ' — check with billing before then.' },
       ],
     },

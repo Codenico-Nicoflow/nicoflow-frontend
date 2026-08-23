@@ -375,11 +375,11 @@ describe('note text-color and highlight marks', () => {
     const editor = makeEditor();
     withSelectedText(editor);
 
-    editor.commands.setNoteTextColor('amber');
-    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor');
+    editor.commands.setNoteTextColor('yellow');
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'textColor');
 
     expect(marks).toHaveLength(1);
-    expect(marks[0]?.attrs?.token).toBe('amber');
+    expect(marks[0]?.attrs?.color).toBe('yellow');
 
     editor.destroy();
   });
@@ -388,11 +388,11 @@ describe('note text-color and highlight marks', () => {
     const editor = makeEditor();
     withSelectedText(editor);
 
-    editor.commands.setNoteHighlight('teal');
-    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteHighlight');
+    editor.commands.setNoteHighlight('brown');
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'highlight');
 
     expect(marks).toHaveLength(1);
-    expect(marks[0]?.attrs?.token).toBe('teal');
+    expect(marks[0]?.attrs?.color).toBe('brown');
 
     editor.destroy();
   });
@@ -406,8 +406,8 @@ describe('note text-color and highlight marks', () => {
     editor.commands.setNoteHighlight('green');
     const doc = editor.getJSON() as TiptapDoc;
 
-    expect(collectMarks(doc, 'noteTextColor')[0]?.attrs?.token).toBe('blue');
-    expect(collectMarks(doc, 'noteHighlight')[0]?.attrs?.token).toBe('green');
+    expect(collectMarks(doc, 'textColor')[0]?.attrs?.color).toBe('blue');
+    expect(collectMarks(doc, 'highlight')[0]?.attrs?.color).toBe('green');
 
     editor.destroy();
   });
@@ -419,7 +419,7 @@ describe('note text-color and highlight marks', () => {
 
     editor.commands.unsetNoteTextColor();
 
-    expect(collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor')).toHaveLength(0);
+    expect(collectMarks(editor.getJSON() as TiptapDoc, 'textColor')).toHaveLength(0);
 
     editor.destroy();
   });
@@ -431,9 +431,9 @@ describe('note text-color and highlight marks', () => {
     const editor = makeEditor();
 
     editor.commands.setContent('<p><span data-note-text-color data-token="magenta">x</span></p>');
-    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor');
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'textColor');
 
-    expect(marks[0]?.attrs?.token ?? null).toBeNull();
+    expect(marks[0]?.attrs?.color ?? null).toBeNull();
 
     editor.destroy();
   });
@@ -444,15 +444,15 @@ describe('note text-color and highlight marks', () => {
       content: [
         {
           type: 'paragraph',
-          content: [{ type: 'text', text: 'hi', marks: [{ type: 'noteTextColor', attrs: { token: 'purple' } }] }],
+          content: [{ type: 'text', text: 'hi', marks: [{ type: 'textColor', attrs: { color: 'purple' } }] }],
         },
       ],
     };
 
     const editor = makeEditor(stored);
-    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'noteTextColor');
+    const marks = collectMarks(editor.getJSON() as TiptapDoc, 'textColor');
 
-    expect(marks[0]?.attrs?.token).toBe('purple');
+    expect(marks[0]?.attrs?.color).toBe('purple');
 
     editor.destroy();
   });
@@ -466,8 +466,8 @@ describe('note callout and divider blocks', () => {
     editor.commands.setNoteCallout();
     const doc = editor.getJSON() as TiptapDoc;
 
-    expect(hasNodeType(doc, 'noteCallout')).toBe(true);
-    const callout = doc.content?.find(node => node.type === 'noteCallout');
+    expect(hasNodeType(doc, 'callout')).toBe(true);
+    const callout = doc.content?.find(node => node.type === 'callout');
     expect(callout?.attrs?.icon).toBe('info');
     expect(callout?.attrs?.colorToken).toBe('blue');
     // Rich-text content: it's a paragraph the caret can type into, not opaque text.
@@ -479,12 +479,12 @@ describe('note callout and divider blocks', () => {
   it('inserts a callout with a chosen icon and color', () => {
     const editor = makeEditor();
 
-    editor.commands.setNoteCallout({ icon: 'warning', colorToken: 'amber' });
+    editor.commands.setNoteCallout({ icon: 'warning', colorToken: 'yellow' });
     const doc = editor.getJSON() as TiptapDoc;
-    const callout = doc.content?.find(node => node.type === 'noteCallout');
+    const callout = doc.content?.find(node => node.type === 'callout');
 
     expect(callout?.attrs?.icon).toBe('warning');
-    expect(callout?.attrs?.colorToken).toBe('amber');
+    expect(callout?.attrs?.colorToken).toBe('yellow');
 
     editor.destroy();
   });
@@ -499,7 +499,7 @@ describe('note callout and divider blocks', () => {
     const updated = editor.getJSON() as TiptapDoc;
 
     const reloaded = makeEditor(updated);
-    const callout = (reloaded.getJSON() as TiptapDoc).content?.find(node => node.type === 'noteCallout');
+    const callout = (reloaded.getJSON() as TiptapDoc).content?.find(node => node.type === 'callout');
 
     expect(callout?.attrs?.icon).toBe('star');
     expect(callout?.attrs?.colorToken).toBe('green');
@@ -515,7 +515,7 @@ describe('note callout and divider blocks', () => {
 
     editor.commands.setContent('<div data-note-callout data-icon="skull" data-token="magenta"><p>text</p></div>');
     const doc = editor.getJSON() as TiptapDoc;
-    const callout = doc.content?.find(node => node.type === 'noteCallout');
+    const callout = doc.content?.find(node => node.type === 'callout');
 
     expect(callout?.attrs?.icon).toBe('info');
     expect(callout?.attrs?.colorToken).toBe('blue');
@@ -555,118 +555,6 @@ describe('note callout and divider blocks', () => {
   });
 });
 
-// AC3: Quote/blockquote coverage was pre-verified as already present via
-// StarterKit — `schema.nodes.blockquote` is asserted in "registers the
-// formatting nodes and marks the toolbar exposes" above. No changes were
-// needed for this story; this is not a duplicate check, just a pointer for
-// anyone reading NIC-1970's tests looking for AC3 coverage.
-
-describe('note toggle block', () => {
-  // AC1: a toggle renders with an editable summary and a content area that
-  // can hold nested blocks.
-  it('inserts a toggle with an empty summary and a paragraph in its content', () => {
-    const editor = makeEditor();
-
-    editor.commands.setNoteToggle();
-    const doc = editor.getJSON() as TiptapDoc;
-    const toggle = doc.content?.find(node => node.type === 'noteToggle');
-
-    expect(toggle).toBeDefined();
-    expect(toggle?.attrs?.open).toBe(true);
-    expect(toggle?.content?.[0]?.type).toBe('noteToggleSummary');
-    expect(toggle?.content?.[1]?.type).toBe('noteToggleContent');
-    expect(toggle?.content?.[1]?.content?.[0]?.type).toBe('paragraph');
-
-    editor.destroy();
-  });
-
-  it('accepts nested block content inside the toggle body', () => {
-    const stored: TiptapDoc = {
-      type: 'doc',
-      content: [
-        {
-          type: 'noteToggle',
-          attrs: { open: true },
-          content: [
-            { type: 'noteToggleSummary', content: [{ type: 'text', text: 'Details' }] },
-            {
-              type: 'noteToggleContent',
-              content: [
-                { type: 'paragraph', content: [{ type: 'text', text: 'first' }] },
-                { type: 'bulletList', content: [{ type: 'listItem', content: [{ type: 'paragraph' }] }] },
-              ],
-            },
-          ],
-        },
-      ],
-    };
-
-    const editor = makeEditor(stored);
-    const doc = editor.getJSON() as TiptapDoc;
-
-    expect(hasNodeType(doc, 'bulletList')).toBe(true);
-    expect(editor.getText()).toContain('Details');
-    expect(editor.getText()).toContain('first');
-
-    editor.destroy();
-  });
-
-  // AC2: collapsed state is stored on the node's `open` attr, not local
-  // component state — reloading from the stored JSON (a fresh editor
-  // instance, same as a page reload rehydrating from the scalar) keeps it
-  // collapsed.
-  it('keeps a toggle collapsed after a save/reload round trip', () => {
-    const stored: TiptapDoc = {
-      type: 'doc',
-      content: [
-        {
-          type: 'noteToggle',
-          attrs: { open: false },
-          content: [
-            { type: 'noteToggleSummary', content: [{ type: 'text', text: 'Collapsed' }] },
-            {
-              type: 'noteToggleContent',
-              content: [{ type: 'paragraph', content: [{ type: 'text', text: 'hidden' }] }],
-            },
-          ],
-        },
-      ],
-    };
-
-    const editor = makeEditor(stored);
-    const reloaded = makeEditor(editor.getJSON() as TiptapDoc);
-    const toggle = (reloaded.getJSON() as TiptapDoc).content?.find(node => node.type === 'noteToggle');
-
-    expect(toggle?.attrs?.open).toBe(false);
-
-    editor.destroy();
-    reloaded.destroy();
-  });
-
-  it('toggling open persists through a subsequent round trip', () => {
-    const editor = makeEditor();
-    editor.commands.setNoteToggle();
-
-    const doc = editor.getJSON() as TiptapDoc;
-    const togglePos = doc.content?.findIndex(node => node.type === 'noteToggle') ?? -1;
-    expect(togglePos).toBeGreaterThanOrEqual(0);
-
-    // Flip the attr the same way the NodeView's collapse button does
-    // (updateAttributes on the container node) rather than reaching into
-    // ProseMirror transactions directly.
-    editor.commands.updateAttributes('noteToggle', { open: false });
-    const collapsed = editor.getJSON() as TiptapDoc;
-    const reloaded = makeEditor(collapsed);
-
-    expect((reloaded.getJSON() as TiptapDoc).content?.find(node => node.type === 'noteToggle')?.attrs?.open).toBe(
-      false
-    );
-
-    editor.destroy();
-    reloaded.destroy();
-  });
-});
-
 describe('note date-mention node (NIC-1971)', () => {
   // AC2: inserting a date mention stores it as an inline atomic node with the
   // ISO date attr — display-only, no Task/Calendar linkage in v1.
@@ -676,8 +564,8 @@ describe('note date-mention node (NIC-1971)', () => {
     editor.commands.setNoteDateMention('2026-08-21');
     const doc = editor.getJSON() as TiptapDoc;
 
-    expect(hasNodeType(doc, 'noteDateMention')).toBe(true);
-    const mention = doc.content?.flatMap(node => node.content ?? []).find(node => node.type === 'noteDateMention');
+    expect(hasNodeType(doc, 'dateMention')).toBe(true);
+    const mention = doc.content?.flatMap(node => node.content ?? []).find(node => node.type === 'dateMention');
     expect(mention?.attrs?.date).toBe('2026-08-21');
 
     editor.destroy();
@@ -691,7 +579,7 @@ describe('note date-mention node (NIC-1971)', () => {
           type: 'paragraph',
           content: [
             { type: 'text', text: 'Follow up on ' },
-            { type: 'noteDateMention', attrs: { date: '2026-09-01' } },
+            { type: 'dateMention', attrs: { date: '2026-09-01' } },
           ],
         },
       ],
@@ -699,16 +587,16 @@ describe('note date-mention node (NIC-1971)', () => {
 
     const editor = makeEditor(stored);
     const doc = editor.getJSON() as TiptapDoc;
-    const mention = doc.content?.[0]?.content?.find(node => node.type === 'noteDateMention');
+    const mention = doc.content?.[0]?.content?.find(node => node.type === 'dateMention');
 
     expect(mention?.attrs?.date).toBe('2026-09-01');
 
     editor.destroy();
   });
 
-  it('registers noteDateMention as an inline atomic node', () => {
+  it('registers dateMention as an inline atomic node', () => {
     const editor = makeEditor();
-    const nodeSpec = editor.schema.nodes.noteDateMention?.spec;
+    const nodeSpec = editor.schema.nodes.dateMention?.spec;
 
     expect(nodeSpec?.inline).toBe(true);
     expect(nodeSpec?.atom).toBe(true);

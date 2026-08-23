@@ -5,56 +5,74 @@ import { describe, expect, it } from 'vitest';
 // pure, fast unit test — if you change a value in index.css, update it here
 // too and re-run. This is the hard gate NIC-1968 calls for: every token is
 // checked against WCAG AA (4.5:1), not eyeballed.
+//
+// Token set (gray/brown/orange/yellow/green/blue/purple/pink/red) is dictated
+// by the backend's allowlist (nicoflow-api content.go `swatchTokens`) — do
+// not rename or add a token here without updating that allowlist first.
 
 const BACKGROUND = { light: '#f8fafc', dark: '#0b1120' };
 const FOREGROUND = { light: '#0f172a', dark: '#e2e8f0' };
 
-export const NOTE_TEXT_COLOR_TOKENS = ['gray', 'red', 'orange', 'amber', 'green', 'teal', 'blue', 'purple'] as const;
+export const NOTE_TEXT_COLOR_TOKENS = [
+  'gray',
+  'brown',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'purple',
+  'pink',
+  'red',
+] as const;
 export type NoteColorToken = (typeof NOTE_TEXT_COLOR_TOKENS)[number];
 
 const TEXT_COLOR_HEX: Record<'light' | 'dark', Record<NoteColorToken, string>> = {
   light: {
     gray: '#475569',
-    red: '#b91c1c',
+    brown: '#78350f',
     orange: '#c2410c',
-    amber: '#a16207',
+    yellow: '#854d0e',
     green: '#15803d',
-    teal: '#0f766e',
     blue: '#1d4ed8',
     purple: '#7e22ce',
+    pink: '#be185d',
+    red: '#b91c1c',
   },
   dark: {
     gray: '#cbd5e1',
-    red: '#fca5a5',
+    brown: '#e7b98a',
     orange: '#fdba74',
-    amber: '#fcd34d',
+    yellow: '#fde047',
     green: '#86efac',
-    teal: '#5eead4',
     blue: '#93c5fd',
     purple: '#d8b4fe',
+    pink: '#f9a8d4',
+    red: '#fca5a5',
   },
 };
 
 const HIGHLIGHT_HEX: Record<'light' | 'dark', Record<NoteColorToken, string>> = {
   light: {
     gray: '#e2e8f0',
-    red: '#fecaca',
+    brown: '#fde9d0',
     orange: '#fed7aa',
-    amber: '#fde68a',
+    yellow: '#fef9c3',
     green: '#bbf7d0',
-    teal: '#99f6e4',
     blue: '#bfdbfe',
     purple: '#e9d5ff',
+    pink: '#fce7f3',
+    red: '#fecaca',
   },
   dark: {
     gray: '#334155',
-    red: '#7f1d1d',
+    brown: '#78350f',
     orange: '#7c2d12',
-    amber: '#78350f',
+    yellow: '#713f12',
     green: '#14532d',
-    teal: '#134e4a',
     blue: '#1e3a8a',
     purple: '#581c87',
+    pink: '#831843',
+    red: '#7f1d1d',
   },
 };
 

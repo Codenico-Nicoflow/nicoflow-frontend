@@ -93,7 +93,9 @@ const CalloutView = ({ node, updateAttributes }: NodeViewProps) => {
 };
 
 export const NoteCallout = Node.create({
-  name: 'noteCallout',
+  // Node type name is dictated by the backend's content allowlist
+  // (nicoflow-api content.go `allowedNodes`) — must stay "callout".
+  name: 'callout',
   group: 'block',
   content: 'block+',
   defining: true,

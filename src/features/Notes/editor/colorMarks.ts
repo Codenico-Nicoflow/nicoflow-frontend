@@ -4,20 +4,25 @@ import { isNoteColorToken, type NoteColorToken } from './colorTokens';
 
 // Two independent marks, textColor and highlight — a note can have both on the
 // same run of text (AC2), same as bold + italic can coexist. Each stores a
-// TOKEN NAME, never a computed color: `data-token` on the DOM, resolved to a
-// real hex via a CSS custom property in src/index.css. A garbage/unknown
-// token attribute is coerced to null rather than trusted through to a class or
-// inline style — the allowlist is enforced at the parse boundary, same
-// defensive posture as the link mark's protocol allowlist.
+// TOKEN NAME as its `color` attr — never a computed color — resolved to a real
+// hex via a CSS custom property in src/index.css (rendered on the DOM as
+// `data-token`, an internal styling hook unrelated to the stored attr name).
+// A garbage/unknown value is coerced to null rather than trusted through to a
+// class or inline style — the allowlist is enforced at the parse boundary,
+// same defensive posture as the link mark's protocol allowlist.
+//
+// Mark name ("textColor"/"highlight") and the attr key ("color") are dictated
+// by the backend's content validator (nicoflow-api content.go) — renaming
+// either without updating the backend allowlist breaks every save.
 const parseToken = (value: string | null): NoteColorToken | null => (isNoteColorToken(value) ? value : null);
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
-    noteTextColor: {
+    textColor: {
       setNoteTextColor: (token: NoteColorToken) => ReturnType;
       unsetNoteTextColor: () => ReturnType;
     };
-    noteHighlight: {
+    highlight: {
       setNoteHighlight: (token: NoteColorToken) => ReturnType;
       unsetNoteHighlight: () => ReturnType;
     };
@@ -25,15 +30,15 @@ declare module '@tiptap/core' {
 }
 
 export const NoteTextColor = Mark.create({
-  name: 'noteTextColor',
+  name: 'textColor',
 
   addAttributes() {
     return {
-      token: {
+      color: {
         default: null,
         parseHTML: element => parseToken(element.getAttribute('data-token')),
         renderHTML: attributes => {
-          const token = parseToken(attributes.token as string | null);
+          const token = parseToken(attributes.color as string | null);
           return token ? { 'data-token': token } : {};
         },
       },
@@ -53,7 +58,7 @@ export const NoteTextColor = Mark.create({
       setNoteTextColor:
         (token: NoteColorToken) =>
         ({ commands }) =>
-          commands.setMark(this.name, { token }),
+          commands.setMark(this.name, { color: token }),
       unsetNoteTextColor:
         () =>
         ({ commands }) =>
@@ -63,15 +68,15 @@ export const NoteTextColor = Mark.create({
 });
 
 export const NoteHighlight = Mark.create({
-  name: 'noteHighlight',
+  name: 'highlight',
 
   addAttributes() {
     return {
-      token: {
+      color: {
         default: null,
         parseHTML: element => parseToken(element.getAttribute('data-token')),
         renderHTML: attributes => {
-          const token = parseToken(attributes.token as string | null);
+          const token = parseToken(attributes.color as string | null);
           return token ? { 'data-token': token } : {};
         },
       },
@@ -91,7 +96,7 @@ export const NoteHighlight = Mark.create({
       setNoteHighlight:
         (token: NoteColorToken) =>
         ({ commands }) =>
-          commands.setMark(this.name, { token }),
+          commands.setMark(this.name, { color: token }),
       unsetNoteHighlight:
         () =>
         ({ commands }) =>

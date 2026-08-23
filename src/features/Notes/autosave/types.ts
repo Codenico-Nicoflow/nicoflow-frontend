@@ -18,6 +18,7 @@ export const SaveStatus = {
 
 export type SaveStatusValue = (typeof SaveStatus)[keyof typeof SaveStatus];
 
-// ~1.5s: long enough that ordinary typing doesn't generate a request per word,
-// short enough that a user who tabs away has almost certainly been saved.
-export const AUTOSAVE_DEBOUNCE_MS = 1500;
+// ~3s: long enough that active editing (typing, several toolbar clicks in a
+// row) doesn't fire a save mid-thought, short enough that a user who tabs
+// away has almost certainly been saved.
+export const AUTOSAVE_DEBOUNCE_MS = 3000;

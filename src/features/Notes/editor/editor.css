@@ -2,9 +2,20 @@
    table for *reading*, where borders are optional; while editing, a 3x3 table
    with no cell borders is invisible and reads as "the button did nothing". */
 
+/* prosemirror-tables' resize plugin sets an explicit pixel width per column
+   (colgroup col style) once a column is dragged — that overrides the table's
+   own `width: 100%` outright, so a resized table can grow past the editor's
+   right edge with nothing to stop it. The wrapper scrolls horizontally
+   instead of letting the table blow out the page; this is also the standard
+   prosemirror-tables pattern (their own demo wraps every table this way). */
+.ProseMirror .tableWrapper {
+  margin: 1em 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 .ProseMirror table {
   border-collapse: collapse;
-  margin: 1em 0;
   overflow: hidden;
   table-layout: fixed;
   width: 100%;
@@ -18,6 +29,28 @@
   vertical-align: top;
 }
 
+/* Column drag-to-resize (prosemirror-tables, enabled via `resizable: true` in
+   extensions.ts). The plugin renders the handle as a bare unstyled div
+   (class="column-resize-handle") — Tiptap's own docs say as much ("the class
+   does not inject visual styles"). Without this, `resizable: true` is
+   functionally on but the handle is a few invisible, ungrabbable pixels wide;
+   the feature reads as broken even though the config is correct. */
+.ProseMirror .column-resize-handle {
+  background-color: var(--ring);
+  bottom: -2px;
+  cursor: col-resize;
+  pointer-events: auto;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 4px;
+  z-index: 20;
+}
+
+.ProseMirror.resize-cursor {
+  cursor: col-resize;
+}
+
 .ProseMirror table th {
   background-color: var(--muted);
   font-weight: 600;
@@ -28,6 +61,25 @@
    to double height. */
 .ProseMirror table td > p,
 .ProseMirror table th > p {
+  margin: 0;
+}
+
+/* A block inside a cell can be turned into any heading level (the toolbar
+   doesn't restrict block type by container) — `prose h1`/`h2`/`h3` are sized
+   and margined for a document body, not a table cell, so a cell heading
+   otherwise blows the row out to several times normal height and reads as
+   "layout is broken". Cells get one flat text size regardless of heading
+   level; only weight distinguishes them, matching what a spreadsheet-style
+   header actually needs. */
+.ProseMirror table td h1,
+.ProseMirror table td h2,
+.ProseMirror table td h3,
+.ProseMirror table th h1,
+.ProseMirror table th h2,
+.ProseMirror table th h3 {
+  font-size: inherit;
+  font-weight: 600;
+  line-height: inherit;
   margin: 0;
 }
 
@@ -95,43 +147,26 @@
   text-decoration: line-through;
 }
 
-/* Text-color + highlight marks (NIC-1968). The mark stores a token name in
-   `data-token`; the actual color is one of the --note-text-*/
---note-highlight-* custom properties (src/index.css),
-so
-  a
-  theme
-  toggle
-  re-resolves
-  every
-  existing
-  mark
-  for
-  free
-  —
-  no
-  JS
-  re-render
-  needed.
-  */
-  .ProseMirror
-  [data-note-text-color][data-token='gray'] {
+/* Text-color + highlight marks (NIC-1968). The mark stores a token name
+   (attrs.color) rendered as data-token on the DOM; the actual color is one
+   of the note-text/note-highlight custom properties (src/index.css), so a
+   theme toggle re-resolves every existing mark for free — no JS re-render
+   needed. Token set must match the backend allowlist exactly
+   (nicoflow-api content.go swatchTokens) — see colorTokens.ts. */
+.ProseMirror [data-note-text-color][data-token='gray'] {
   color: var(--note-text-gray);
 }
-.ProseMirror [data-note-text-color][data-token='red'] {
-  color: var(--note-text-red);
+.ProseMirror [data-note-text-color][data-token='brown'] {
+  color: var(--note-text-brown);
 }
 .ProseMirror [data-note-text-color][data-token='orange'] {
   color: var(--note-text-orange);
 }
-.ProseMirror [data-note-text-color][data-token='amber'] {
-  color: var(--note-text-amber);
+.ProseMirror [data-note-text-color][data-token='yellow'] {
+  color: var(--note-text-yellow);
 }
 .ProseMirror [data-note-text-color][data-token='green'] {
   color: var(--note-text-green);
-}
-.ProseMirror [data-note-text-color][data-token='teal'] {
-  color: var(--note-text-teal);
 }
 .ProseMirror [data-note-text-color][data-token='blue'] {
   color: var(--note-text-blue);
@@ -139,24 +174,27 @@ so
 .ProseMirror [data-note-text-color][data-token='purple'] {
   color: var(--note-text-purple);
 }
+.ProseMirror [data-note-text-color][data-token='pink'] {
+  color: var(--note-text-pink);
+}
+.ProseMirror [data-note-text-color][data-token='red'] {
+  color: var(--note-text-red);
+}
 
 .ProseMirror [data-note-highlight][data-token='gray'] {
   background-color: var(--note-highlight-gray);
 }
-.ProseMirror [data-note-highlight][data-token='red'] {
-  background-color: var(--note-highlight-red);
+.ProseMirror [data-note-highlight][data-token='brown'] {
+  background-color: var(--note-highlight-brown);
 }
 .ProseMirror [data-note-highlight][data-token='orange'] {
   background-color: var(--note-highlight-orange);
 }
-.ProseMirror [data-note-highlight][data-token='amber'] {
-  background-color: var(--note-highlight-amber);
+.ProseMirror [data-note-highlight][data-token='yellow'] {
+  background-color: var(--note-highlight-yellow);
 }
 .ProseMirror [data-note-highlight][data-token='green'] {
   background-color: var(--note-highlight-green);
-}
-.ProseMirror [data-note-highlight][data-token='teal'] {
-  background-color: var(--note-highlight-teal);
 }
 .ProseMirror [data-note-highlight][data-token='blue'] {
   background-color: var(--note-highlight-blue);
@@ -164,26 +202,29 @@ so
 .ProseMirror [data-note-highlight][data-token='purple'] {
   background-color: var(--note-highlight-purple);
 }
+.ProseMirror [data-note-highlight][data-token='pink'] {
+  background-color: var(--note-highlight-pink);
+}
+.ProseMirror [data-note-highlight][data-token='red'] {
+  background-color: var(--note-highlight-red);
+}
 
 /* Callout block (NIC-1969) — reuses the same --note-highlight-* tokens as the
    highlight mark for its background tint rather than a third palette. */
 .ProseMirror [data-note-callout][data-token='gray'] {
   background-color: var(--note-highlight-gray);
 }
-.ProseMirror [data-note-callout][data-token='red'] {
-  background-color: var(--note-highlight-red);
+.ProseMirror [data-note-callout][data-token='brown'] {
+  background-color: var(--note-highlight-brown);
 }
 .ProseMirror [data-note-callout][data-token='orange'] {
   background-color: var(--note-highlight-orange);
 }
-.ProseMirror [data-note-callout][data-token='amber'] {
-  background-color: var(--note-highlight-amber);
+.ProseMirror [data-note-callout][data-token='yellow'] {
+  background-color: var(--note-highlight-yellow);
 }
 .ProseMirror [data-note-callout][data-token='green'] {
   background-color: var(--note-highlight-green);
-}
-.ProseMirror [data-note-callout][data-token='teal'] {
-  background-color: var(--note-highlight-teal);
 }
 .ProseMirror [data-note-callout][data-token='blue'] {
   background-color: var(--note-highlight-blue);
@@ -191,19 +232,13 @@ so
 .ProseMirror [data-note-callout][data-token='purple'] {
   background-color: var(--note-highlight-purple);
 }
+.ProseMirror [data-note-callout][data-token='pink'] {
+  background-color: var(--note-highlight-pink);
+}
+.ProseMirror [data-note-callout][data-token='red'] {
+  background-color: var(--note-highlight-red);
+}
 
 .ProseMirror [data-note-callout] > div > p {
-  margin: 0;
-}
-
-/* Toggle block (NIC-1970). The collapse is CSS-only, driven by the container's
-   persisted data-open attr — ProseMirror keeps owning the DOM for
-   noteToggleContent even while it's visually hidden, so the document stays
-   structurally intact (selectable/editable) whether expanded or not. */
-.ProseMirror [data-note-toggle][data-open='false'] > [data-note-toggle-content] {
-  display: none;
-}
-
-.ProseMirror [data-note-toggle-summary] {
   margin: 0;
 }

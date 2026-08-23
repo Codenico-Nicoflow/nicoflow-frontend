@@ -43,7 +43,7 @@ export const NoteEditor = ({ content, onChange, editable = true, onContentError,
       onUpdate: ({ editor: instance }) => onChange?.(instance.getJSON() as TiptapDoc),
       editorProps: {
         attributes: {
-          class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[12rem] px-4 py-3',
+          class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[60vh] px-4 py-3',
           role: 'textbox',
           'aria-multiline': 'true',
           'aria-labelledby': labelId,
@@ -53,7 +53,13 @@ export const NoteEditor = ({ content, onChange, editable = true, onContentError,
         handleDOMEvents: { click: (_view, event) => openLinkFromEvent(event) },
       },
     },
-    [editable]
+    // `content` is read only at construction by Tiptap's useEditor — it is
+    // NOT reactive. Without noteId here, navigating from one note to another
+    // (e.g. clicking a @-mention chip) reuses the same editor instance and
+    // keeps rendering the PREVIOUS note's document, since only `editable`
+    // ever changed. Including noteId forces a fresh editor (fresh content,
+    // fresh excludeNoteId) whenever the note being viewed changes.
+    [editable, noteId]
   );
 
   return (

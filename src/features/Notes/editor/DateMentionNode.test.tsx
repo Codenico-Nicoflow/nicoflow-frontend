@@ -14,7 +14,7 @@ const docWithMention: TiptapDoc = {
       type: 'paragraph',
       content: [
         { type: 'text', text: 'Follow up ' },
-        { type: 'noteDateMention', attrs: { date: '2026-08-21' } },
+        { type: 'dateMention', attrs: { date: '2026-08-21' } },
       ],
     },
   ],
@@ -43,8 +43,8 @@ describe('parseISODateLocal', () => {
 });
 
 describe('note date-mention extension registration', () => {
-  it('registers the noteDateMention node used by DateMentionNode', () => {
+  it('registers the dateMention node used by DateMentionNode', () => {
     const extensions = createNoteExtensions({ placeholder: '' });
-    expect(extensions.some(ext => ext.name === 'noteDateMention')).toBe(true);
+    expect(extensions.some(ext => ext.name === 'dateMention')).toBe(true);
   });
 });

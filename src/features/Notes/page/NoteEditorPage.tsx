@@ -99,7 +99,7 @@ export const NoteEditorPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 sm:p-6" data-testid="note-editor-page">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4 sm:p-6" data-testid="note-editor-page">
       <div className="flex items-center justify-between gap-2">
         <Button variant="ghost" size="sm" onClick={handleBack} data-testid="note-back">
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />

@@ -3,7 +3,22 @@
 // `--note-text-*`/`--note-highlight-*` CSS custom property (src/index.css),
 // resolved per theme at render time. That's what makes a light/dark toggle
 // re-tint existing marks for free, with no JS re-render logic (AC4).
-export const NOTE_COLOR_TOKENS = ['gray', 'red', 'orange', 'amber', 'green', 'teal', 'blue', 'purple'] as const;
+//
+// This exact set of 9 (plus "default") is dictated by the backend's allowlist
+// (nicoflow-api internal/domain/note/content.go `swatchTokens`) — the server
+// rejects any other value with an "unrecognized color" error. Do not add or
+// rename a token here without updating the backend allowlist first.
+export const NOTE_COLOR_TOKENS = [
+  'gray',
+  'brown',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'purple',
+  'pink',
+  'red',
+] as const;
 export type NoteColorToken = (typeof NOTE_COLOR_TOKENS)[number];
 
 export const isNoteColorToken = (value: unknown): value is NoteColorToken =>

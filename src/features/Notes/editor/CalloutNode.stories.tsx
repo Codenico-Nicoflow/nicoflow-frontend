@@ -31,13 +31,13 @@ const docWithBlocks: TiptapDoc = {
   content: [
     { type: 'paragraph', content: [{ type: 'text', text: 'Notes on the migration plan.' }] },
     {
-      type: 'noteCallout',
-      attrs: { icon: 'warning', colorToken: 'amber' },
+      type: 'callout',
+      attrs: { icon: 'warning', colorToken: 'yellow' },
       content: [{ type: 'paragraph', content: [{ type: 'text', text: 'This step is irreversible once started.' }] }],
     },
     { type: 'horizontalRule' },
     {
-      type: 'noteCallout',
+      type: 'callout',
       attrs: { icon: 'idea', colorToken: 'blue' },
       content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Consider a feature flag for rollback.' }] }],
     },

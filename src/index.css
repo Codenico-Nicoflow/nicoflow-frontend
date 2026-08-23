@@ -139,29 +139,33 @@
   --toast-error-bg: #fef2f2;
   --toast-error-border: #dc2626;
 
-  /* Notes editor — text-color + highlight marks (NIC-1968). One curated palette,
-     8 tokens, each used as a foreground color (--note-text-*) and a background
-     color (--note-highlight-*). Every value here is checked against --background
+  /* Notes editor — text-color + highlight marks (NIC-1968). Token set (9 —
+     gray/brown/orange/yellow/green/blue/purple/pink/red) is dictated by the
+     backend's allowlist (nicoflow-api content.go `swatchTokens`), each used as
+     a foreground color (--note-text-*) and a background color
+     (--note-highlight-*). Every value here is checked against --background
      / --foreground at 4.5:1 (WCAG AA) in both themes — see
      src/features/Notes/editor/colorTokens.contrast.test.ts. Change a hex here,
      re-run that test. */
   --note-text-gray: #475569;
-  --note-text-red: #b91c1c;
+  --note-text-brown: #78350f;
   --note-text-orange: #c2410c;
-  --note-text-amber: #a16207;
+  --note-text-yellow: #854d0e;
   --note-text-green: #15803d;
-  --note-text-teal: #0f766e;
   --note-text-blue: #1d4ed8;
   --note-text-purple: #7e22ce;
+  --note-text-pink: #be185d;
+  --note-text-red: #b91c1c;
 
   --note-highlight-gray: #e2e8f0;
-  --note-highlight-red: #fecaca;
+  --note-highlight-brown: #fde9d0;
   --note-highlight-orange: #fed7aa;
-  --note-highlight-amber: #fde68a;
+  --note-highlight-yellow: #fef9c3;
   --note-highlight-green: #bbf7d0;
-  --note-highlight-teal: #99f6e4;
   --note-highlight-blue: #bfdbfe;
   --note-highlight-purple: #e9d5ff;
+  --note-highlight-pink: #fce7f3;
+  --note-highlight-red: #fecaca;
 }
 
 /* ── Dark mode — Indigo + Slate ─────────────────────────────────────────────── */
@@ -218,25 +222,27 @@
   --toast-error-bg: #1f0d0d;
   --toast-error-border: #ef4444;
 
-  /* Notes editor — dark variants of the same 8 tokens. See the :root block for
+  /* Notes editor — dark variants of the same 9 tokens. See the :root block for
      the contrast-testing note. */
   --note-text-gray: #cbd5e1;
-  --note-text-red: #fca5a5;
+  --note-text-brown: #e7b98a;
   --note-text-orange: #fdba74;
-  --note-text-amber: #fcd34d;
+  --note-text-yellow: #fde047;
   --note-text-green: #86efac;
-  --note-text-teal: #5eead4;
   --note-text-blue: #93c5fd;
   --note-text-purple: #d8b4fe;
+  --note-text-pink: #f9a8d4;
+  --note-text-red: #fca5a5;
 
   --note-highlight-gray: #334155;
-  --note-highlight-red: #7f1d1d;
+  --note-highlight-brown: #78350f;
   --note-highlight-orange: #7c2d12;
-  --note-highlight-amber: #78350f;
+  --note-highlight-yellow: #713f12;
   --note-highlight-green: #14532d;
-  --note-highlight-teal: #134e4a;
   --note-highlight-blue: #1e3a8a;
   --note-highlight-purple: #581c87;
+  --note-highlight-pink: #831843;
+  --note-highlight-red: #7f1d1d;
 }
 
 @layer base {

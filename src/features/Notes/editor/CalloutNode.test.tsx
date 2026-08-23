@@ -11,7 +11,7 @@ const docWithCallout: TiptapDoc = {
   type: 'doc',
   content: [
     {
-      type: 'noteCallout',
+      type: 'callout',
       attrs: { icon: 'info', colorToken: 'blue' },
       content: [{ type: 'paragraph', content: [{ type: 'text', text: 'hello' }] }],
     },
@@ -40,7 +40,7 @@ describe('CalloutNode', () => {
     await user.click(screen.getByTestId('note-callout-color-trigger'));
 
     expect(screen.queryByRole('textbox', { name: /color/i })).not.toBeInTheDocument();
-    for (const token of ['gray', 'red', 'orange', 'amber', 'green', 'teal', 'blue', 'purple']) {
+    for (const token of ['gray', 'brown', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'red']) {
       expect(screen.getByTestId(`note-callout-color-${token}`)).toBeInTheDocument();
     }
   });
@@ -60,8 +60,8 @@ describe('CalloutNode', () => {
 // Guards against createNoteExtensions ever dropping the node this component
 // depends on.
 describe('note callout extension registration', () => {
-  it('registers the noteCallout node used by CalloutNode', () => {
+  it('registers the callout node used by CalloutNode', () => {
     const extensions = createNoteExtensions({ placeholder: '' });
-    expect(extensions.some(ext => ext.name === 'noteCallout')).toBe(true);
+    expect(extensions.some(ext => ext.name === 'callout')).toBe(true);
   });
 });

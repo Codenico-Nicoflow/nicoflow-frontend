@@ -1,4 +1,4 @@
-import type { ITask } from '@nicoflow/shared/types';
+import type { ActiveTab, ITask } from '@nicoflow/shared/types';
 import { addDays, format, isSameDay, parseISO } from 'date-fns';
 
 export interface DayGroup {
@@ -30,4 +30,16 @@ export const groupByDay = (tasks: ITask[], today: Date = new Date()): DayGroup[]
     }
   }
   return groups;
+};
+
+// The scheduledFor date a task created from Time Spread should pre-fill.
+// Week has no single day, so it defaults 2 days out — inside the 7-day window
+// but past "tomorrow", which already has its own tab. Mirrors nicoflow-mobile's
+// segments.ts segmentToScheduledFor.
+export const activeTabToScheduledFor = (
+  activeTab: (typeof ActiveTab)[keyof typeof ActiveTab],
+  today: Date = new Date()
+): string => {
+  const offset = activeTab === 'tomorrow' ? 1 : activeTab === 'week' ? 2 : 0;
+  return format(addDays(today, offset), 'yyyy-MM-dd');
 };

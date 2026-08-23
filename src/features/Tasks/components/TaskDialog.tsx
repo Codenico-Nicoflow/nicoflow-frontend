@@ -26,7 +26,13 @@ import {
   UrlField,
 } from '@/components';
 import { Form } from '@/components/ui/form';
-import { useCreateRecurrenceRuleMutation, useCreateTaskMutation, useUpdateTaskMutation } from '@/lib/store';
+import { BucketProjectSelector } from '@/features/Bucket/components/BucketProjectSelector';
+import {
+  useCreateRecurrenceRuleMutation,
+  useCreateTaskMutation,
+  useGetProjectsQuery,
+  useUpdateTaskMutation,
+} from '@/lib/store';
 import type { TaskFormData } from '@/lib/utils';
 import {
   getApiErrorCode,
@@ -46,17 +52,26 @@ interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: ITask;
-  projectId: string;
+  /** Omit when creating from a project-less surface (e.g. Time Spread) — the dialog then shows a project picker. */
+  projectId?: string;
+  /** Pre-fills the scheduling block on create; ignored once a project picker replaces it with a chosen project's own default. */
+  initialScheduledFor?: string;
   onSuccess?: () => void;
 }
 
-const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDialogProps) => {
+const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, onSuccess }: TaskDialogProps) => {
   const { t } = useTranslation('task');
   const isEditMode = !!task;
+  const needsProjectPicker = !isEditMode && !projectId;
 
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
   const [createRule, { isLoading: isRuleLoading }] = useCreateRecurrenceRuleMutation();
+  const { data: projectsData, isLoading: isLoadingProjects } = useGetProjectsQuery(undefined, {
+    skip: !needsProjectPicker,
+  });
+  const projects = projectsData?.items ?? [];
+  const [pickedProjectId, setPickedProjectId] = useState<string | undefined>(undefined);
   const { guardComplete, confirmDialog } = useConfirmComplete();
 
   // Which limit the server refused. A timed-scheduling 403 gets copy naming the
@@ -67,6 +82,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   // materializes instance #1 server-side. Editing a rule happens in Settings, so
   // this is create-only — an existing task's series is not re-editable here.
   const [recurrence, setRecurrence] = useState<RecurrenceValue | null>(null);
+  const [projectMissing, setProjectMissing] = useState(false);
 
   const form = useForm<TaskFormData>({
     defaultValues: {
@@ -76,7 +92,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
       priority: task?.priority || 'low',
       energy: task?.energy || 'medium',
       rollsOver: task?.rollsOver ?? true,
-      scheduledFor: task?.scheduledFor ?? undefined,
+      scheduledFor: task?.scheduledFor ?? initialScheduledFor,
       scheduledTime: task?.scheduledTime ?? undefined,
       estimatedMinutes: task?.estimatedMinutes || undefined,
       url: task?.url || '',
@@ -98,6 +114,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
   useEffect(() => {
     setPlanLimitHit(null);
     setRecurrence(null);
+    setPickedProjectId(undefined);
+    setProjectMissing(false);
     if (task) {
       form.reset({
         title: task.title,
@@ -119,13 +137,13 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         priority: 'low',
         energy: 'medium',
         rollsOver: true,
-        scheduledFor: undefined,
+        scheduledFor: initialScheduledFor,
         scheduledTime: undefined,
         estimatedMinutes: undefined,
         url: '',
       });
     }
-  }, [task, form, open]);
+  }, [task, form, open, initialScheduledFor]);
 
   // Only compare form-backed fields; server-only keys (id, createdAt…) would
   // otherwise always read as "changed" and leave save perpetually enabled.
@@ -158,6 +176,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
 
   const submit = async (data: TaskFormData) => {
     setPlanLimitHit(null);
+    const effectiveProjectId = projectId ?? pickedProjectId;
+    if (!isEditMode && !effectiveProjectId) {
+      setProjectMissing(true);
+      return;
+    }
 
     try {
       if (isEditMode) {
@@ -177,7 +200,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         // A repeating task is created as a rule; the backend stamps instance #1
         // from this same template inside the same transaction.
         await createRule({
-          projectId,
+          projectId: effectiveProjectId as string,
           title: data.title,
           priority: data.priority,
           energy: data.energy,
@@ -188,7 +211,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
       } else {
         await createTask({
-          projectId,
+          projectId: effectiveProjectId as string,
           title: data.title,
           priority: data.priority,
           energy: data.energy,
@@ -236,6 +259,21 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, onSuccess }: TaskDial
             <PlanLimitAlert
               message={planLimitHit === 'timedScheduling' ? t('calendar.timedSchedulingLocked') : undefined}
             />
+          )}
+
+          {needsProjectPicker && (
+            <div className="space-y-1">
+              <BucketProjectSelector
+                selectedProjectId={pickedProjectId}
+                setSelectedProjectId={id => {
+                  setPickedProjectId(id);
+                  setProjectMissing(false);
+                }}
+                projects={projects}
+                isLoading={isLoadingProjects}
+              />
+              {projectMissing && <p className="text-sm text-destructive">{t('dialog.projectPlaceholder')}</p>}
+            </div>
           )}
 
           <NameField

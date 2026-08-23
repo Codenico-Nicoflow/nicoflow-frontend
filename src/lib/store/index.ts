@@ -217,6 +217,7 @@ export type { FocusLiveEvent, OpenFocusSessionRequest } from '@nicoflow/shared/a
 export const {
   useCreateNoteMutation,
   useDeleteNoteMutation,
+  useGetBacklinksQuery,
   useGetNoteQuery,
   useGetNotesInfiniteQuery,
   useLazySearchMentionsQuery,

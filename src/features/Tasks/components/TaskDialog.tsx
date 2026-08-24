@@ -51,14 +51,6 @@ import { useConfirmComplete } from '../useConfirmComplete';
 import { AttachmentSection, StagedAttachmentPicker } from './AttachmentSection';
 import { SubtaskAccordion } from './SubtaskAccordion';
 
-// PATCH /v1/tasks/:id accepts an optional projectId for reassignment (backend
-// work landing in parallel on feature/task-project-reassignment). @nicoflow/shared
-// 0.8.4's UpdateTaskRequest doesn't carry it yet — widen locally until the shared
-// package publishes the field, then delete this and pass projectId straight through.
-type UpdateTaskRequestWithProject = Parameters<ReturnType<typeof useUpdateTaskMutation>[0]>[0] & {
-  projectId?: string;
-};
-
 interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -271,7 +263,7 @@ const TaskDialog = ({
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
       } else if (isEditMode) {
-        const updatePayload: UpdateTaskRequestWithProject = {
+        const updatePayload: Parameters<ReturnType<typeof useUpdateTaskMutation>[0]>[0] = {
           id: task.id,
           ...data,
           energy: data.energy,

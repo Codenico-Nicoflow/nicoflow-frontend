@@ -44,9 +44,11 @@ interface TasksSectionProps {
   onAddTask?: () => void;
   /** False when a surrounding tab already names this section. */
   showHeading?: boolean;
+  /** When set (from a notification deep-link), auto-opens this task's detail dialog once the list loads. */
+  initialTaskId?: string;
 }
 
-const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSectionProps) => {
+const TasksSection = ({ projectId, onAddTask, showHeading = true, initialTaskId }: TasksSectionProps) => {
   const { t } = useTranslation('task');
   // Infinite query — each page is 50 tasks. Filters are still applied
   // client-side over all loaded pages.
@@ -108,6 +110,22 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true }: TasksSection
       setIsTaskDialogOpen(true);
     }
   }, [editTaskIdFromNav, location.key, tasks, isLoadingTasks]);
+
+  // Notification deep-link: auto-open the task dialog once the list resolves.
+  // Guard with a ref so this fires at most once per mount — re-renders after the
+  // user closes the dialog must not reopen it.
+  const deepLinkHandled = useRef(false);
+  useEffect(() => {
+    if (!initialTaskId || isLoadingTasks || deepLinkHandled.current) return;
+    const task = tasks.find(t => t.id === initialTaskId);
+    if (task) {
+      deepLinkHandled.current = true;
+      setSelectedTask(task);
+      setIsTaskDialogOpen(true);
+    }
+    // If the task isn't in the loaded pages (deleted, wrong project, etc.) we
+    // do nothing — no error, no retry.
+  }, [initialTaskId, tasks, isLoadingTasks]);
 
   // Counts only reflect loaded pages once a project exceeds one page (accepted tradeoff).
   const taskCounts = useMemo(() => countTasks(tasks), [tasks]);

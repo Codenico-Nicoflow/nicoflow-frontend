@@ -189,4 +189,35 @@ describe('TasksSection', () => {
     await user.click(screen.getByRole('button', { name: 'go' }));
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument());
   });
+
+  it('auto-opens the task dialog when initialTaskId matches a loaded task', async () => {
+    mountList();
+    server.use(http.get(`${API}/tasks/a/subtasks`, () => HttpResponse.json(items([]))));
+
+    renderComponent(<TasksSection projectId="p1" initialTaskId="a" />);
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument());
+  });
+
+  it('does not open the dialog when initialTaskId is not in the loaded list', async () => {
+    mountList();
+    renderComponent(<TasksSection projectId="p1" initialTaskId="does-not-exist" />);
+
+    await waitFor(() => expect(screen.getByText('Active deep task')).toBeInTheDocument());
+    expect(screen.queryByRole('heading', { name: 'Edit Task' })).not.toBeInTheDocument();
+  });
+
+  it('does not reopen the dialog after the user closes it', async () => {
+    mountList();
+    server.use(http.get(`${API}/tasks/a/subtasks`, () => HttpResponse.json(items([]))));
+
+    const user = userEvent.setup();
+    renderComponent(<TasksSection projectId="p1" initialTaskId="a" />);
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument());
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('heading', { name: 'Edit Task' })).not.toBeInTheDocument());
+    // Trigger a re-render by some state — dialog must stay closed.
+    expect(screen.queryByRole('heading', { name: 'Edit Task' })).not.toBeInTheDocument();
+  });
 });

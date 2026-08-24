@@ -1,13 +1,13 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { toast } from 'sonner';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FORM_DIALOG_SUBMIT_BUTTON } from '@/lib/test_ids';
-import { makeSubtask, makeTask } from '@/mocks/handlers';
+import { makeSubtask, makeTask, makeUser } from '@/mocks/handlers';
 
 import TaskDialog from './TaskDialog';
 
@@ -15,10 +15,23 @@ vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
+// uploadToS3 is raw XHR outside RTK Query — mocked at the module seam, same as
+// AttachmentSection's own tests. The real transport has its own unit test.
+const uploadToS3 = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/utils', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/lib/utils')>();
+  return { ...actual, uploadToS3 };
+});
+
 const envelope = <T,>(data: T) => ({ data, error: null });
 const items = <T,>(list: T[]) => ({ data: { items: list }, error: null });
 
 const API = 'http://localhost:8080/v1';
+
+const proStore = () => createMockStore({ auth: { user: makeUser({ status: 'premium' }) } });
+const freeStore = () => createMockStore({ auth: { user: makeUser({ status: 'regular' }) } });
+
+afterEach(() => uploadToS3.mockReset());
 
 describe('TaskDialog — create mode', () => {
   it('creates a task with energy + soft scheduledFor and posts to the project', async () => {
@@ -265,5 +278,132 @@ describe('TaskDialog — edit mode', () => {
     await waitFor(() => expect(toast.success).toHaveBeenCalled());
     expect(createRuleBody).toMatchObject({ title: 'Existing task' });
     expect(taskPatched).toBe(false);
+  });
+});
+
+describe('TaskDialog — create mode staged attachments', () => {
+  const pdf = (name: string) => new File(['data'], name, { type: 'application/pdf' });
+
+  it('renders the staged attachment picker in create mode', () => {
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" />, { store: freeStore() });
+    expect(screen.getByTestId('staged-attachment-picker')).toBeInTheDocument();
+  });
+
+  it('shows the locked Pro-gate state for a free-plan user, blocking file selection', () => {
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" />, { store: freeStore() });
+
+    expect(screen.getByTestId('attachment-pro-gate')).toBeInTheDocument();
+    expect(screen.queryByTestId('upload-zone')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('upload-zone-input')).not.toBeInTheDocument();
+  });
+
+  it('lets a Pro user stage a file locally without uploading it yet', async () => {
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" />, { store: proStore() });
+
+    expect(screen.getByTestId('upload-zone')).toBeInTheDocument();
+    const input = screen.getByTestId('upload-zone-input');
+    await user.upload(input, pdf('spec.pdf'));
+
+    expect(await screen.findByTestId('staged-file-0')).toHaveTextContent('spec.pdf');
+    expect(uploadToS3).not.toHaveBeenCalled();
+  });
+
+  it('uploads staged files with the new task id as ownerId after a successful create', async () => {
+    uploadToS3.mockResolvedValue(undefined);
+    let uploadUrlBody: Record<string, unknown> | undefined;
+    let confirmBody: Record<string, unknown> | undefined;
+
+    server.use(
+      http.post(`${API}/projects/project-1/tasks`, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope(makeTask({ id: 'new-task-1', title: body.title as string })), {
+          status: 201,
+        });
+      }),
+      http.post(`${API}/attachments/upload-url`, async ({ request }) => {
+        uploadUrlBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(
+          envelope({ url: 'https://s3.test', headers: { 'Content-Type': 'application/pdf' }, s3Key: 's3/k' })
+        );
+      }),
+      http.post(`${API}/attachments`, async ({ request }) => {
+        confirmBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(
+          envelope({
+            id: 'att-1',
+            ownerType: 'task',
+            ownerId: 'new-task-1',
+            fileName: 'spec.pdf',
+            fileSize: 4,
+            mimeType: 'application/pdf',
+            createdAt: '2026-08-24T00:00:00Z',
+          }),
+          { status: 201 }
+        );
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" />, { store: proStore() });
+
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'Write spec');
+    await user.upload(screen.getByTestId('upload-zone-input'), pdf('spec.pdf'));
+    await screen.findByTestId('staged-file-0');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(confirmBody).toMatchObject({ s3Key: 's3/k', fileName: 'spec.pdf' }));
+    expect(uploadUrlBody).toMatchObject({ ownerType: 'task', ownerId: 'new-task-1', fileName: 'spec.pdf' });
+  });
+
+  it('leaves staged files intact when task creation itself fails', async () => {
+    server.use(
+      http.post(`${API}/projects/project-1/tasks`, () =>
+        HttpResponse.json({ data: null, error: { code: 'INTERNAL', message: 'boom' } }, { status: 500 })
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" />, { store: proStore() });
+
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'Retry me');
+    await user.upload(screen.getByTestId('upload-zone-input'), pdf('spec.pdf'));
+    await screen.findByTestId('staged-file-0');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalled());
+    expect(screen.getByTestId('staged-file-0')).toHaveTextContent('spec.pdf');
+    expect(uploadToS3).not.toHaveBeenCalled();
+  });
+
+  it('closes the dialog and toasts per failed file when creation succeeds but an upload fails', async () => {
+    uploadToS3.mockRejectedValue(new Error('network error'));
+    const onOpenChange = vi.fn();
+
+    server.use(
+      http.post(`${API}/projects/project-1/tasks`, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope(makeTask({ id: 'new-task-2', title: body.title as string })), {
+          status: 201,
+        });
+      }),
+      http.post(`${API}/attachments/upload-url`, () =>
+        HttpResponse.json(
+          envelope({ url: 'https://s3.test', headers: { 'Content-Type': 'application/pdf' }, s3Key: 's3/k' })
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={onOpenChange} projectId="project-1" />, { store: proStore() });
+
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'Task with broken upload');
+    await user.upload(screen.getByTestId('upload-zone-input'), pdf('broken.pdf'));
+    await screen.findByTestId('staged-file-0');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('broken.pdf')));
   });
 });

@@ -28,9 +28,11 @@ import {
 import { Form } from '@/components/ui/form';
 import { BucketProjectSelector } from '@/features/Bucket/components/BucketProjectSelector';
 import {
+  useConfirmAttachmentMutation,
   useCreateRecurrenceRuleMutation,
   useCreateTaskMutation,
   useGetProjectsQuery,
+  useGetUploadUrlMutation,
   useUpdateTaskMutation,
 } from '@/lib/store';
 import type { TaskFormData } from '@/lib/utils';
@@ -41,11 +43,12 @@ import {
   showSuccessToast,
   taskSchema,
   ToastMessages,
+  uploadToS3,
 } from '@/lib/utils';
 
 import { useConfirmComplete } from '../useConfirmComplete';
 
-import { AttachmentSection } from './AttachmentSection';
+import { AttachmentSection, StagedAttachmentPicker } from './AttachmentSection';
 import { SubtaskAccordion } from './SubtaskAccordion';
 
 // PATCH /v1/tasks/:id accepts an optional projectId for reassignment (backend
@@ -78,6 +81,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
   const [createRule, { isLoading: isRuleLoading }] = useCreateRecurrenceRuleMutation();
+  const [getUploadUrl] = useGetUploadUrlMutation();
+  const [confirmAttachment] = useConfirmAttachmentMutation();
   const { data: projectsData, isLoading: isLoadingProjects } = useGetProjectsQuery(undefined, {
     skip: !showProjectPicker,
   });
@@ -96,6 +101,10 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
   // a fresh series from this task forward.
   const [recurrence, setRecurrence] = useState<RecurrenceValue | null>(null);
   const [projectMissing, setProjectMissing] = useState(false);
+  // Create-mode only: files staged locally before the task exists. Uploaded
+  // for real right after a successful createTask, then dropped — never used
+  // once in edit mode, where AttachmentSection owns the real ownerId.
+  const [stagedFiles, setStagedFiles] = useState<File[]>([]);
 
   const form = useForm<TaskFormData>({
     defaultValues: {
@@ -129,6 +138,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
     setRecurrence(null);
     setPickedProjectId(task ? task.projectId : undefined);
     setProjectMissing(false);
+    setStagedFiles([]);
     if (task) {
       form.reset({
         title: task.title,
@@ -194,6 +204,27 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
     return submit(data);
   };
 
+  // Fires after the task already exists — a failure here never touches the
+  // task itself, it only reports which files didn't make it across so the
+  // user knows to retry from the task's edit view.
+  const uploadStagedFiles = async (taskId: string, files: File[]) => {
+    for (const file of files) {
+      try {
+        const { url, headers, s3Key } = await getUploadUrl({
+          ownerType: 'task',
+          ownerId: taskId,
+          fileName: file.name,
+          mimeType: file.type,
+          fileSize: file.size,
+        }).unwrap();
+        await uploadToS3({ url, headers, file });
+        await confirmAttachment({ s3Key, fileName: file.name }).unwrap();
+      } catch {
+        toast.error(t('attachments.uploadFailed', { name: file.name }));
+      }
+    }
+  };
+
   const submit = async (data: TaskFormData) => {
     setPlanLimitHit(null);
     const effectiveProjectId = projectId ?? pickedProjectId;
@@ -248,7 +279,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
       } else {
-        await createTask({
+        const created = await createTask({
           projectId: effectiveProjectId as string,
           title: data.title,
           priority: data.priority,
@@ -261,6 +292,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
           url: data.url || '',
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
+        // Task creation is the success signal — staged-file upload failures
+        // never block or roll it back, they just surface their own toasts.
+        if (stagedFiles.length > 0) {
+          void uploadStagedFiles(created.id, stagedFiles);
+        }
       }
       onOpenChange(false);
       onSuccess?.();
@@ -368,6 +404,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
 
           {isEditMode && task && <SubtaskAccordion taskId={task.id} />}
           {isEditMode && task && <AttachmentSection ownerType="task" ownerId={task.id} />}
+          {!isEditMode && <StagedAttachmentPicker files={stagedFiles} onChange={setStagedFiles} />}
         </div>
       </Form>
       {confirmDialog}

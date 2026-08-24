@@ -67,10 +67,32 @@ interface TaskDialogProps {
   projectId?: string;
   /** Pre-fills the scheduling block on create; ignored once a project picker replaces it with a chosen project's own default. */
   initialScheduledFor?: string;
+  /** Pre-fills the title on create (e.g. a bucket item's captured content). Ignored in edit mode. */
+  initialTitle?: string;
+  /** Pre-fills notes on create (e.g. a bucket item's captured content). Ignored in edit mode. */
+  initialNotes?: string;
   onSuccess?: () => void;
+  /**
+   * Create-mode only. When supplied, replaces the normal `useCreateTaskMutation`
+   * call — the caller owns the request, success toast, and error handling.
+   * Used by bucket-processing, whose endpoint atomically creates the task AND
+   * marks the inbox item processed in one call; a plain createTask here would
+   * either double-create the task or leave the bucket item unprocessed.
+   */
+  onCreateSubmit?: (data: TaskFormData, projectId: string) => Promise<void>;
 }
 
-const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, onSuccess }: TaskDialogProps) => {
+const TaskDialog = ({
+  open,
+  onOpenChange,
+  task,
+  projectId,
+  initialScheduledFor,
+  initialTitle,
+  initialNotes,
+  onSuccess,
+  onCreateSubmit,
+}: TaskDialogProps) => {
   const { t } = useTranslation('task');
   const isEditMode = !!task;
   const needsProjectPicker = !isEditMode && !projectId;
@@ -108,8 +130,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
 
   const form = useForm<TaskFormData>({
     defaultValues: {
-      title: task?.title || '',
-      notes: task?.notes || '',
+      title: task?.title || initialTitle || '',
+      notes: task?.notes || initialNotes || '',
       status: task?.status || 'active',
       priority: task?.priority || 'low',
       energy: task?.energy || 'medium',
@@ -154,8 +176,8 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
       });
     } else {
       form.reset({
-        title: '',
-        notes: '',
+        title: initialTitle || '',
+        notes: initialNotes || '',
         status: 'active',
         priority: 'low',
         energy: 'medium',
@@ -166,7 +188,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
         url: '',
       });
     }
-  }, [task, form, open, initialScheduledFor]);
+  }, [task, form, open, initialScheduledFor, initialTitle, initialNotes]);
 
   // Only compare form-backed fields; server-only keys (id, createdAt…) would
   // otherwise always read as "changed" and leave save perpetually enabled.
@@ -278,6 +300,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
           ...normalizeScheduleForFreq(recurrence),
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
+      } else if (onCreateSubmit) {
+        // Delegated create — the caller's endpoint does its own create (and any
+        // side effect, e.g. marking a bucket item processed) and owns success
+        // toasting; this dialog only closes and clears staged files.
+        await onCreateSubmit(data, effectiveProjectId as string);
       } else {
         const created = await createTask({
           projectId: effectiveProjectId as string,
@@ -379,11 +406,13 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
           </DialogFieldGrid>
 
           {/* Scheduling: a single soft intention (scheduledFor); rollsOver (default
-              on) carries a passed task to Today — off, it quietly drops off. Never overdue. */}
+              on) carries a passed task to Today — off, it quietly drops off. Never overdue.
+              scheduledTime is omitted for a delegated create (e.g. bucket processing) —
+              that contract doesn't accept it. */}
           <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
             <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
             <ScheduledForField control={form.control} delay={0.27} />
-            <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />
+            {!onCreateSubmit && <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />}
             <CheckboxField
               control={form.control}
               fieldName="rollsOver"
@@ -396,15 +425,16 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
 
           {/* Turning this on for an existing task starts a NEW series from here
               forward — it never edits the rule the task already belongs to.
-              Managing/pausing an existing rule stays in Settings. */}
-          <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />
+              Managing/pausing an existing rule stays in Settings. Not offered on
+              a delegated create — the bucket-process contract has no recurrence. */}
+          {!onCreateSubmit && <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />}
 
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />
 
           {isEditMode && task && <SubtaskAccordion taskId={task.id} />}
           {isEditMode && task && <AttachmentSection ownerType="task" ownerId={task.id} />}
-          {!isEditMode && <StagedAttachmentPicker files={stagedFiles} onChange={setStagedFiles} />}
+          {!isEditMode && !onCreateSubmit && <StagedAttachmentPicker files={stagedFiles} onChange={setStagedFiles} />}
         </div>
       </Form>
       {confirmDialog}

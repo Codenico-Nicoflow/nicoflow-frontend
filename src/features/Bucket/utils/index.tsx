@@ -28,8 +28,10 @@ export const canProcessBucket = (
   hasProjects: boolean
 ): boolean => {
   switch (selectedType) {
+    // The project itself is picked inside TaskDialog once this step continues
+    // there — this gate only needs to know a project exists at all.
     case ProcessingResult.TASK:
-      return hasProjects && !!selectedProjectId;
+      return hasProjects;
     case ProcessingResult.TRASH:
       return true;
     // A note needs a project for the same reason a task does — the backend

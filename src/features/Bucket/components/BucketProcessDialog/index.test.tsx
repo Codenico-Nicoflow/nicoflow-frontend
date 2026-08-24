@@ -19,12 +19,29 @@ const withOneProject = () =>
     )
   );
 
-describe('BucketProcessDialog pre-fill (parseBucketContent)', () => {
+// Choosing "Task" (the default type) and continuing swaps this dialog out for
+// TaskDialog in create mode — TaskDialog owns the fields from here on.
+const continueToTaskDialog = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+};
+
+// TaskDialog always shows its own project picker on a project-less create —
+// bucket processing never pins one via `projectId`, since the item could file
+// into any project.
+const pickTaskDialogProject = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+  await user.click(screen.getByTestId('select-trigger'));
+  await user.click(await screen.findByRole('option', { name }));
+};
+
+describe('BucketProcessDialog task delegation (opens TaskDialog)', () => {
   it('pre-fills the task title from the first line and notes from the rest', async () => {
     withOneProject();
     const bucket = makeBucket({ id: 'b1', content: 'Buy milk\nfrom the corner shop' });
+    const user = userEvent.setup();
 
     renderComponent(<BucketProcessDialog bucket={bucket} open onOpenChange={() => {}} />);
+    await screen.findByText(/buy milk/i);
+    await continueToTaskDialog(user);
 
     await waitFor(() => {
       expect(screen.getByTestId('name-input')).toHaveValue('Buy milk');
@@ -35,33 +52,42 @@ describe('BucketProcessDialog pre-fill (parseBucketContent)', () => {
   it('pre-fills only the title when the content is a single line', async () => {
     withOneProject();
     const bucket = makeBucket({ id: 'b2', content: 'Call the dentist' });
+    const user = userEvent.setup();
 
     renderComponent(<BucketProcessDialog bucket={bucket} open onOpenChange={() => {}} />);
+    await screen.findByText(/call the dentist/i);
+    await continueToTaskDialog(user);
 
     await waitFor(() => {
       expect(screen.getByTestId('name-input')).toHaveValue('Call the dentist');
     });
     expect(screen.getByTestId('description-textarea')).toHaveValue('');
   });
-});
 
-describe('BucketProcessDialog scheduling', () => {
-  it('sends the picked scheduledFor with the rest of the task details', async () => {
+  it('sends the picked scheduledFor with the rest of the task details, and marks the bucket item processed', async () => {
     withOneProject();
     let body: { taskDetails?: { scheduledFor?: string; energy?: string; rollsOver?: boolean } } | undefined;
     server.use(
       http.post(`${API}/bucket/b3/process`, async ({ request }) => {
         body = (await request.json()) as typeof body;
-        return HttpResponse.json({ data: makeBucket({ id: 'b3' }), error: null });
+        return HttpResponse.json({ data: makeBucket({ id: 'b3', createdTaskId: 't1' }), error: null });
       })
     );
 
     const user = userEvent.setup();
+    const onOpenChange = vi.fn();
     renderComponent(
-      <BucketProcessDialog bucket={makeBucket({ id: 'b3', content: 'Book flights' })} open onOpenChange={() => {}} />
+      <BucketProcessDialog
+        bucket={makeBucket({ id: 'b3', content: 'Book flights' })}
+        open
+        onOpenChange={onOpenChange}
+      />
     );
 
+    await screen.findByText(/book flights/i);
+    await continueToTaskDialog(user);
     await waitFor(() => expect(screen.getByTestId('name-input')).toHaveValue('Book flights'));
+    await pickTaskDialogProject(user, 'Inbox project');
 
     // Past days are disabled, so pick the last selectable cell — the day button
     // inside the gridcell is what actually commits the date.
@@ -77,6 +103,40 @@ describe('BucketProcessDialog scheduling', () => {
     // rendered but silently dropped before.
     expect(body?.taskDetails?.energy).toBe('medium');
     expect(body?.taskDetails?.rollsOver).toBe(true);
+    // Task creation and marking the bucket item processed happen in the same
+    // POST /bucket/:id/process call — success closes the whole flow.
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+  });
+
+  it('surfaces a plan-limit error inline on TaskDialog without closing the flow', async () => {
+    withOneProject();
+    server.use(
+      http.post(`${API}/bucket/b1/process`, () =>
+        HttpResponse.json(
+          { data: null, error: { code: 'PLAN_LIMIT_EXCEEDED', message: 'plan limit exceeded' } },
+          { status: 403 }
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    renderComponent(
+      <BucketProcessDialog
+        bucket={makeBucket({ id: 'b1', content: 'Blocked task' })}
+        open
+        onOpenChange={onOpenChange}
+      />
+    );
+
+    await screen.findByText(/blocked task/i);
+    await continueToTaskDialog(user);
+    await waitFor(() => expect(screen.getByTestId('name-input')).toHaveValue('Blocked task'));
+    await pickTaskDialogProject(user, 'Inbox project');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await screen.findByTestId('plan-limit-alert');
+    expect(onOpenChange).not.toHaveBeenCalledWith(false);
   });
 });
 

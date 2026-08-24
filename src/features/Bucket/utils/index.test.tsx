@@ -42,10 +42,13 @@ describe('parseBucketContent', () => {
 });
 
 describe('canProcessBucket', () => {
-  it('allows TASK only when a project exists and is selected', () => {
+  // The project itself is picked inside TaskDialog once TASK continues there,
+  // so this gate only needs a project to exist at all — not one selected yet.
+  it('allows TASK whenever a project exists, regardless of a pre-selected one', () => {
     expect(canProcessBucket(ProcessingResult.TASK, 'p1', true)).toBe(true);
-    expect(canProcessBucket(ProcessingResult.TASK, undefined, true)).toBe(false);
+    expect(canProcessBucket(ProcessingResult.TASK, undefined, true)).toBe(true);
     expect(canProcessBucket(ProcessingResult.TASK, 'p1', false)).toBe(false);
+    expect(canProcessBucket(ProcessingResult.TASK, undefined, false)).toBe(false);
   });
 
   it('always allows TRASH, and allows NOTE only with a project', () => {

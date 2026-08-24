@@ -63,7 +63,7 @@ const TaskBadges = ({ task }: TaskBadgesProps) => {
           times they set as Pro — stripping them would delete real user data —
           so the label stays and only the ability to change it is gated. */}
       {task.scheduledTime && (
-        <Badge variant="outline" className="text-xs font-medium" data-testid={`task-time-${task.id}`}>
+        <Badge variant="default" className="text-xs font-medium" data-testid={`task-time-${task.id}`}>
           <AlarmClock className="h-3 w-3 me-1.5" aria-hidden />
           {task.scheduledTime}
         </Badge>

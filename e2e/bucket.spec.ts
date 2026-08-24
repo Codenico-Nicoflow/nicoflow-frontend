@@ -29,12 +29,18 @@ test.describe('@core Bucket capture & process (live)', () => {
       await expect(item).toBeVisible();
 
       // Open the item menu → Process → the process dialog (Task is the default
-      // type, and the first project is auto-selected) → submit.
+      // type) → Continue swaps in TaskDialog (full field parity, delegated —
+      // see BucketProcessDialog) → submit there creates the task atomically
+      // and marks the bucket item processed.
       await item.click();
       await page.getByRole('menuitem', { name: /process/i }).click();
-      const dialog = page.getByTestId('form-dialog-content');
-      await expect(dialog).toBeVisible();
-      await dialog.getByTestId('form-dialog-submit-button').click();
+      const typeDialog = page.getByTestId('form-dialog-content');
+      await expect(typeDialog).toBeVisible();
+      await typeDialog.getByTestId('form-dialog-submit-button').click();
+
+      const taskDialog = page.getByTestId('form-dialog-content');
+      await expect(taskDialog).toBeVisible();
+      await taskDialog.getByTestId('form-dialog-submit-button').click();
 
       // Processed → it disappears from the inbox list.
       await expect(item).toHaveCount(0);

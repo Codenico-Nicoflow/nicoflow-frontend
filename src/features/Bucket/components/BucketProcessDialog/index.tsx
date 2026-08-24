@@ -1,33 +1,23 @@
 import { useEffect, useState } from 'react';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { BUCKET_PROCESSING_OPTIONS, type IBucket, ProcessingResult } from '@nicoflow/shared/types';
-import { AlertCircle, CheckSquare, Repeat } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { AlertCircle, CheckSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
 
-import {
-  CheckboxField,
-  DescriptionField,
-  DialogFieldGrid,
-  EnergyField,
-  EstimatedTimeField,
-  FormDialog,
-  NameField,
-  PriorityField,
-  ScheduledForField,
-  UrlField,
-} from '@/components';
+import type { RecurrenceValue } from '@/components';
+import { FormDialog } from '@/components';
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
-import { Form } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { TaskDialog } from '@/features/Tasks';
+import type { ProcessBucketDto, TaskDetails } from '@/lib/store';
 import { invalidateApiTags, noteApi, taskApi, useGetProjectsQuery, useProcessBucketMutation } from '@/lib/store';
-import { type TaskFormData, taskSchema } from '@/lib/utils';
+import { showSuccessToast, type TaskFormData, ToastMessages } from '@/lib/utils';
 
-import { canProcessBucket, getDefaultTaskFormValues, handleBucketProcess } from '../../utils';
+import { canProcessBucket, handleBucketProcess, parseBucketContent } from '../../utils';
 import { captureToDoc, NOTE_TITLE_MAX, truncateNoteTitle } from '../../utils/noteDraft';
 import { BucketProcessList } from '../BucketProcessList';
 import { BucketProjectSelector } from '../BucketProjectSelector';
@@ -48,19 +38,12 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined);
   const [noteTitle, setNoteTitle] = useState('');
   const [noteBody, setNoteBody] = useState('');
-
-  const form = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema),
-    defaultValues: getDefaultTaskFormValues(),
-  });
+  // The Task path delegates to TaskDialog for full field parity (recurrence,
+  // scheduledTime, attachments). Picking "Task" opens it in place of this dialog.
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
 
   useEffect(() => {
     if (bucket && open) {
-      const defaultValues = getDefaultTaskFormValues(bucket.content);
-      form.reset(defaultValues);
-
-      // Title is truncated here, not at submit, so the field shows exactly what
-      // will be saved: capture allows 500 chars, a note title caps at 255.
       setNoteTitle(truncateNoteTitle(bucket.content));
       setNoteBody(bucket.content);
 
@@ -69,10 +52,22 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bucket, open, form, projectsData, selectedProjectId]);
+  }, [bucket, open, projectsData, selectedProjectId]);
 
-  const onSubmit = async (data: TaskFormData) => {
+  useEffect(() => {
+    if (!open) {
+      setTaskDialogOpen(false);
+    }
+  }, [open]);
+
+  const onSubmit = async (data?: TaskFormData) => {
     if (!bucket) return;
+
+    if (selectedType === ProcessingResult.TASK) {
+      setTaskDialogOpen(true);
+      return;
+    }
+
     // handleBucketProcess owns the success/error toasts — don't toast again here.
     try {
       await handleBucketProcess({
@@ -87,7 +82,6 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
         processBucketMutation: args => processBucket(args).unwrap(),
         onSuccess: () => {
           onOpenChange(false);
-          form.reset();
           // The processed item leaves the inbox and, for a note, the project's
           // notes list gains a row — both caches have to move.
           invalidateApiTags(dispatch, taskApi, ['Task']);
@@ -102,16 +96,90 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
   };
 
   const handleSubmit = () => {
-    // Only the task path runs the task schema; note and trash carry their own
-    // (or no) fields, so validating the task form would block them.
-    if (selectedType === ProcessingResult.TASK) {
-      form.handleSubmit(onSubmit)();
-    } else {
-      onSubmit(form.getValues());
+    void onSubmit();
+  };
+
+  // Bucket-processing creates the task and marks the item processed in one
+  // atomic backend call (POST /bucket/:id/process) — there is no endpoint to
+  // link an already-created task back to an inbox item. So this can't call
+  // useCreateTaskMutation like TaskDialog normally does; it must go through
+  // useProcessBucketMutation directly via the onCreateSubmit override.
+  // Errors are rethrown, not toasted here — TaskDialog's own catch turns
+  // PLAN_LIMIT_EXCEEDED into its inline alert and everything else into a
+  // toast; toasting here too would double them up.
+  //
+  // Returns { taskId } so TaskDialog can upload any staged attachments to the
+  // newly created task (IBucket.createdTaskId carries the id).
+  const handleTaskCreateSubmit = async (
+    data: TaskFormData,
+    projectId: string,
+    recurrence: RecurrenceValue | null
+  ): Promise<{ taskId: string } | void> => {
+    if (!bucket) return;
+
+    const taskDetails: TaskDetails = {
+      title: data.title,
+      notes: data.notes || undefined,
+      priority: data.priority,
+      energy: data.energy,
+      rollsOver: data.rollsOver,
+      scheduledFor: data.scheduledFor || undefined,
+      scheduledTime: data.scheduledTime || undefined,
+      estimatedMinutes: data.estimatedMinutes || undefined,
+      url: data.url || undefined,
+    };
+
+    if (recurrence) {
+      taskDetails.recurrence = {
+        freq: recurrence.freq,
+        interval: recurrence.interval,
+        byWeekday: recurrence.byWeekday,
+        byMonthday: recurrence.byMonthday ?? undefined,
+        startDate: recurrence.startDate,
+        endDate: recurrence.endDate ?? undefined,
+      };
+    }
+
+    const dto: ProcessBucketDto = {
+      processingResult: ProcessingResult.TASK,
+      projectId,
+      taskDetails,
+    };
+
+    const created = await processBucket({
+      id: bucket.id,
+      data: dto,
+    }).unwrap();
+
+    showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
+    invalidateApiTags(dispatch, taskApi, ['Task']);
+    setTaskDialogOpen(false);
+    onOpenChange(false);
+
+    if (created.createdTaskId) {
+      return { taskId: created.createdTaskId };
     }
   };
 
   const canSubmit = canProcessBucket(selectedType, selectedProjectId, projects.length > 0);
+
+  if (taskDialogOpen) {
+    const { title, notes } = parseBucketContent(bucket?.content ?? '');
+    return (
+      <TaskDialog
+        open={taskDialogOpen}
+        onOpenChange={openState => {
+          setTaskDialogOpen(openState);
+          if (!openState) onOpenChange(false);
+        }}
+        // A task title caps at 255 like a note title; capture allows 500, so a
+        // pathological single-line capture needs the same truncation NOTE gets.
+        initialTitle={truncateNoteTitle(title)}
+        initialNotes={notes}
+        onCreateSubmit={handleTaskCreateSubmit}
+      />
+    );
+  }
 
   return (
     <FormDialog
@@ -136,71 +204,11 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
         setSelectedType={setSelectedType}
       />
 
-      {selectedType === ProcessingResult.TASK && (
-        <>
-          {!projects.length ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{t('bucket:processDialog.noProjects')}</AlertDescription>
-            </Alert>
-          ) : (
-            <Form {...form}>
-              <div className="space-y-4">
-                <BucketProjectSelector
-                  selectedProjectId={selectedProjectId}
-                  setSelectedProjectId={setSelectedProjectId}
-                  projects={projects}
-                  isLoading={isLoadingProjects}
-                />
-
-                <NameField
-                  control={form.control}
-                  fieldName="title"
-                  label={t('bucket:processDialog.taskNameLabel')}
-                  icon={CheckSquare}
-                  placeholder={t('bucket:processDialog.taskNamePlaceholder')}
-                  delay={0.1}
-                />
-                <DescriptionField
-                  control={form.control}
-                  fieldName="notes"
-                  label={t('bucket:processDialog.descriptionLabel')}
-                  placeholder={t('bucket:processDialog.descriptionPlaceholder')}
-                  minHeight="100px"
-                  optional
-                  delay={0.15}
-                />
-
-                <DialogFieldGrid columns={2}>
-                  <PriorityField control={form.control} delay={0.2} />
-                  <EnergyField control={form.control} delay={0.22} />
-                </DialogFieldGrid>
-
-                {/* Mirrors TaskDialog's scheduling block minus scheduledTime, which
-                    is Pro-gated and not part of the process contract. */}
-                <div
-                  className="space-y-3 rounded-lg border border-border/60 p-3"
-                  data-testid="process-scheduling-block"
-                >
-                  <p className="text-sm font-semibold text-foreground">{t('task:dialog.schedulingTitle')}</p>
-                  <ScheduledForField control={form.control} delay={0.24} />
-                  <CheckboxField
-                    control={form.control}
-                    fieldName="rollsOver"
-                    icon={Repeat}
-                    label={t('task:dialog.rollsOverLabel')}
-                    description={t('task:dialog.rollsOverDescription')}
-                    delay={0.25}
-                  />
-                </div>
-
-                <EstimatedTimeField control={form.control} optional delay={0.3} />
-
-                <UrlField control={form.control} delay={0.35} optional />
-              </div>
-            </Form>
-          )}
-        </>
+      {selectedType === ProcessingResult.TASK && !projects.length && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{t('bucket:processDialog.noProjects')}</AlertDescription>
+        </Alert>
       )}
 
       {selectedType === ProcessingResult.TRASH && (

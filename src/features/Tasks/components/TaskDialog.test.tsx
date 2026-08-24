@@ -281,6 +281,117 @@ describe('TaskDialog — edit mode', () => {
   });
 });
 
+describe('TaskDialog — delegated create (onCreateSubmit)', () => {
+  const withProject = () =>
+    server.use(http.get(`${API}/projects`, () => HttpResponse.json(items([{ id: 'p1', name: 'My Project' }]))));
+
+  it('shows scheduledTime, recurrence, and attachments fields in delegated-create mode', async () => {
+    withProject();
+    const onCreateSubmit = vi.fn().mockResolvedValue(undefined);
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} onCreateSubmit={onCreateSubmit} />, {
+      store: proStore(),
+    });
+
+    // The project picker is visible (no projectId → needsProjectPicker) — wait for it.
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toBeInTheDocument());
+    expect(screen.getByTestId('scheduling-block')).toBeInTheDocument();
+    expect(screen.getByTestId('scheduled-time-input')).toBeInTheDocument();
+    expect(screen.getByTestId('recurrence-toggle')).toBeInTheDocument();
+    expect(screen.getByTestId('staged-attachment-picker')).toBeInTheDocument();
+  });
+
+  it('passes recurrence as the third argument to onCreateSubmit', async () => {
+    withProject();
+    const onCreateSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} onCreateSubmit={onCreateSubmit} />, {
+      store: proStore(),
+    });
+
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toBeInTheDocument());
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'Recurring task');
+    await user.click(screen.getByTestId('recurrence-toggle'));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(onCreateSubmit).toHaveBeenCalled());
+    const [, , passedRecurrence] = onCreateSubmit.mock.calls[0] as [unknown, unknown, { freq: string } | null];
+    expect(passedRecurrence).not.toBeNull();
+    expect(passedRecurrence?.freq).toBeDefined();
+  });
+
+  it('uploads staged files using the taskId returned by onCreateSubmit', async () => {
+    withProject();
+    uploadToS3.mockResolvedValue(undefined);
+    const onCreateSubmit = vi.fn().mockResolvedValue({ taskId: 'delegated-task-1' });
+    let uploadUrlBody: Record<string, unknown> | undefined;
+
+    server.use(
+      http.post(`${API}/attachments/upload-url`, async ({ request }) => {
+        uploadUrlBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(
+          envelope({ url: 'https://s3.test', headers: { 'Content-Type': 'application/pdf' }, s3Key: 's3/k' })
+        );
+      }),
+      http.post(`${API}/attachments`, () =>
+        HttpResponse.json(
+          envelope({
+            id: 'att-2',
+            ownerType: 'task',
+            ownerId: 'delegated-task-1',
+            fileName: 'brief.pdf',
+            fileSize: 4,
+            mimeType: 'application/pdf',
+            createdAt: '2026-08-24T00:00:00Z',
+          }),
+          { status: 201 }
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} onCreateSubmit={onCreateSubmit} />, {
+      store: proStore(),
+    });
+
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toBeInTheDocument());
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'Delegated task');
+    await user.upload(
+      screen.getByTestId('upload-zone-input'),
+      new File(['data'], 'brief.pdf', { type: 'application/pdf' })
+    );
+    await screen.findByTestId('staged-file-0');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(onCreateSubmit).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(uploadUrlBody).toMatchObject({ ownerType: 'task', ownerId: 'delegated-task-1', fileName: 'brief.pdf' })
+    );
+  });
+
+  it('skips staged-file upload when onCreateSubmit returns void', async () => {
+    withProject();
+    const onCreateSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} onCreateSubmit={onCreateSubmit} />, {
+      store: proStore(),
+    });
+
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toBeInTheDocument());
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'No upload');
+    await user.upload(
+      screen.getByTestId('upload-zone-input'),
+      new File(['data'], 'skip.pdf', { type: 'application/pdf' })
+    );
+    await screen.findByTestId('staged-file-0');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(onCreateSubmit).toHaveBeenCalled());
+    expect(uploadToS3).not.toHaveBeenCalled();
+  });
+});
+
 describe('TaskDialog — create mode staged attachments', () => {
   const pdf = (name: string) => new File(['data'], name, { type: 'application/pdf' });
 

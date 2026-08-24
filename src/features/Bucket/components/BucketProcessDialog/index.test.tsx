@@ -1,14 +1,23 @@
-import { renderComponent } from '__tests__/renderComponent';
+import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 
 import { FORM_DIALOG_SUBMIT_BUTTON } from '@/lib/test_ids';
-import { makeBucket } from '@/mocks/handlers';
+import { makeBucket, makeUser } from '@/mocks/handlers';
 
 import { BucketProcessDialog } from './index';
+
+// uploadToS3 is raw XHR outside RTK Query — mocked at the module seam.
+const uploadToS3 = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/utils', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/lib/utils')>();
+  return { ...actual, uploadToS3 };
+});
+
+const proStore = () => createMockStore({ auth: { user: makeUser({ status: 'premium' }) } });
 
 const API = 'http://localhost:8080/v1';
 
@@ -137,6 +146,143 @@ describe('BucketProcessDialog task delegation (opens TaskDialog)', () => {
 
     await screen.findByTestId('plan-limit-alert');
     expect(onOpenChange).not.toHaveBeenCalledWith(false);
+  });
+
+  it('shows the scheduledTime input and recurrence toggle in delegated-create mode', async () => {
+    withOneProject();
+    const user = userEvent.setup();
+
+    renderComponent(
+      <BucketProcessDialog bucket={makeBucket({ id: 'b1', content: 'Timed task' })} open onOpenChange={() => {}} />
+    );
+    await screen.findByText(/timed task/i);
+    await continueToTaskDialog(user);
+
+    await waitFor(() => expect(screen.getByTestId('scheduling-block')).toBeInTheDocument());
+    expect(screen.getByTestId('scheduled-time-input')).toBeInTheDocument();
+    expect(screen.getByTestId('recurrence-toggle')).toBeInTheDocument();
+    expect(screen.getByTestId('staged-attachment-picker')).toBeInTheDocument();
+  });
+
+  it('sends scheduledTime through to processBucket when set', async () => {
+    withOneProject();
+    let body: { taskDetails?: { scheduledFor?: string; scheduledTime?: string } } | undefined;
+    server.use(
+      http.post(`${API}/bucket/b5/process`, async ({ request }) => {
+        body = (await request.json()) as typeof body;
+        return HttpResponse.json({ data: makeBucket({ id: 'b5', createdTaskId: 't5' }), error: null });
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(
+      <BucketProcessDialog bucket={makeBucket({ id: 'b5', content: 'Stand-up' })} open onOpenChange={() => {}} />
+    );
+
+    await screen.findByText(/stand-up/i);
+    await continueToTaskDialog(user);
+    await waitFor(() => expect(screen.getByTestId('name-input')).toHaveValue('Stand-up'));
+    await pickTaskDialogProject(user, 'Inbox project');
+
+    // Pick a scheduled date so the time input becomes active.
+    await user.click(screen.getByTestId('scheduled-for-trigger'));
+    const cells = within(screen.getByTestId('scheduled-for-calendar'))
+      .getAllByRole('gridcell')
+      .filter(cell => cell.getAttribute('aria-disabled') !== 'true' && cell.textContent);
+    await user.click(within(cells[cells.length - 1]!).getByRole('button'));
+
+    fireEvent.change(screen.getByTestId('scheduled-time-input'), { target: { value: '14:00' } });
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(body?.taskDetails?.scheduledTime).toBe('14:00'));
+  });
+
+  it('sends recurrence through to processBucket when set', async () => {
+    withOneProject();
+    let body: { taskDetails?: { recurrence?: { freq: string } } } | undefined;
+    server.use(
+      http.post(`${API}/bucket/b6/process`, async ({ request }) => {
+        body = (await request.json()) as typeof body;
+        return HttpResponse.json({ data: makeBucket({ id: 'b6', createdTaskId: 't6' }), error: null });
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(
+      <BucketProcessDialog bucket={makeBucket({ id: 'b6', content: 'Daily standup' })} open onOpenChange={() => {}} />
+    );
+
+    await screen.findByText(/daily standup/i);
+    await continueToTaskDialog(user);
+    await waitFor(() => expect(screen.getByTestId('name-input')).toHaveValue('Daily standup'));
+    await pickTaskDialogProject(user, 'Inbox project');
+
+    await user.click(screen.getByTestId('recurrence-toggle'));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(body?.taskDetails?.recurrence?.freq).toBeDefined());
+  });
+
+  it('uploads staged files using the createdTaskId from processBucket response', async () => {
+    withOneProject();
+    uploadToS3.mockResolvedValue(undefined);
+    let uploadUrlBody: Record<string, unknown> | undefined;
+
+    server.use(
+      http.post(`${API}/bucket/b7/process`, () =>
+        HttpResponse.json({ data: makeBucket({ id: 'b7', createdTaskId: 'task-from-bucket' }), error: null })
+      ),
+      http.post(`${API}/attachments/upload-url`, async ({ request }) => {
+        uploadUrlBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({
+          data: { url: 'https://s3.test', headers: { 'Content-Type': 'application/pdf' }, s3Key: 's3/k' },
+          error: null,
+        });
+      }),
+      http.post(`${API}/attachments`, () =>
+        HttpResponse.json(
+          {
+            data: {
+              id: 'att-3',
+              ownerType: 'task',
+              ownerId: 'task-from-bucket',
+              fileName: 'file.pdf',
+              fileSize: 4,
+              mimeType: 'application/pdf',
+              createdAt: '2026-08-24T00:00:00Z',
+            },
+            error: null,
+          },
+          { status: 201 }
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(
+      <BucketProcessDialog
+        bucket={makeBucket({ id: 'b7', content: 'With attachment' })}
+        open
+        onOpenChange={() => {}}
+      />,
+      { store: proStore() }
+    );
+
+    await screen.findByText(/with attachment/i);
+    await continueToTaskDialog(user);
+    await waitFor(() => expect(screen.getByTestId('name-input')).toHaveValue('With attachment'));
+    await pickTaskDialogProject(user, 'Inbox project');
+
+    await user.upload(
+      screen.getByTestId('upload-zone-input'),
+      new File(['data'], 'file.pdf', { type: 'application/pdf' })
+    );
+    await screen.findByTestId('staged-file-0');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() =>
+      expect(uploadUrlBody).toMatchObject({ ownerType: 'task', ownerId: 'task-from-bucket', fileName: 'file.pdf' })
+    );
   });
 });
 

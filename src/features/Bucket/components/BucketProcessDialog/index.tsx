@@ -6,12 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
+import type { RecurrenceValue } from '@/components';
 import { FormDialog } from '@/components';
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { TaskDialog } from '@/features/Tasks';
+import type { ProcessBucketDto, TaskDetails } from '@/lib/store';
 import { invalidateApiTags, noteApi, taskApi, useGetProjectsQuery, useProcessBucketMutation } from '@/lib/store';
 import { showSuccessToast, type TaskFormData, ToastMessages } from '@/lib/utils';
 
@@ -19,6 +21,25 @@ import { canProcessBucket, handleBucketProcess, parseBucketContent } from '../..
 import { captureToDoc, NOTE_TITLE_MAX, truncateNoteTitle } from '../../utils/noteDraft';
 import { BucketProcessList } from '../BucketProcessList';
 import { BucketProjectSelector } from '../BucketProjectSelector';
+
+// POST /v1/bucket/:id/process taskDetails gained scheduledTime and recurrence
+// fields in nicoflow-api PR #174 (and nicoflow-shared PR #63 — not yet published
+// to npm). Widen TaskDetails locally until @nicoflow/shared ships the update,
+// then drop this shim and import directly from '@/lib/store'.
+type TaskDetailsWithSchedule = TaskDetails & {
+  scheduledTime?: string;
+  recurrence?: {
+    freq: string;
+    interval: number;
+    byWeekday?: number[];
+    byMonthday?: number | null;
+    startDate: string;
+    endDate?: string | null;
+  };
+};
+type ProcessBucketDtoWithSchedule = Omit<ProcessBucketDto, 'taskDetails'> & {
+  taskDetails?: TaskDetailsWithSchedule;
+};
 
 interface BucketProcessDialogProps {
   bucket: IBucket | null;
@@ -36,10 +57,8 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined);
   const [noteTitle, setNoteTitle] = useState('');
   const [noteBody, setNoteBody] = useState('');
-  // The Task path delegates its fields to TaskDialog (full parity: recurrence,
-  // attachments, scheduledTime aren't offered by the process contract, so
-  // TaskDialog itself suppresses them via onCreateSubmit). Picking "Task" opens
-  // it in place of this dialog rather than nesting a second Radix dialog.
+  // The Task path delegates to TaskDialog for full field parity (recurrence,
+  // scheduledTime, attachments). Picking "Task" opens it in place of this dialog.
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -107,29 +126,58 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
   // Errors are rethrown, not toasted here — TaskDialog's own catch turns
   // PLAN_LIMIT_EXCEEDED into its inline alert and everything else into a
   // toast; toasting here too would double them up.
-  const handleTaskCreateSubmit = async (data: TaskFormData, projectId: string) => {
+  //
+  // Returns { taskId } so TaskDialog can upload any staged attachments to the
+  // newly created task (IBucket.createdTaskId carries the id).
+  const handleTaskCreateSubmit = async (
+    data: TaskFormData,
+    projectId: string,
+    recurrence: RecurrenceValue | null
+  ): Promise<{ taskId: string } | void> => {
     if (!bucket) return;
-    await processBucket({
+
+    const taskDetails: TaskDetailsWithSchedule = {
+      title: data.title,
+      notes: data.notes || undefined,
+      priority: data.priority,
+      energy: data.energy,
+      rollsOver: data.rollsOver,
+      scheduledFor: data.scheduledFor || undefined,
+      scheduledTime: data.scheduledTime || undefined,
+      estimatedMinutes: data.estimatedMinutes || undefined,
+      url: data.url || undefined,
+    };
+
+    if (recurrence) {
+      taskDetails.recurrence = {
+        freq: recurrence.freq,
+        interval: recurrence.interval,
+        byWeekday: recurrence.byWeekday,
+        byMonthday: recurrence.byMonthday ?? undefined,
+        startDate: recurrence.startDate,
+        endDate: recurrence.endDate ?? undefined,
+      };
+    }
+
+    const dto: ProcessBucketDtoWithSchedule = {
+      processingResult: ProcessingResult.TASK,
+      projectId,
+      taskDetails,
+    };
+
+    const created = await processBucket({
       id: bucket.id,
-      data: {
-        processingResult: ProcessingResult.TASK,
-        projectId,
-        taskDetails: {
-          title: data.title,
-          notes: data.notes || undefined,
-          priority: data.priority,
-          energy: data.energy,
-          rollsOver: data.rollsOver,
-          scheduledFor: data.scheduledFor || undefined,
-          estimatedMinutes: data.estimatedMinutes || undefined,
-          url: data.url || undefined,
-        },
-      },
+      data: dto as ProcessBucketDto,
     }).unwrap();
+
     showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);
     invalidateApiTags(dispatch, taskApi, ['Task']);
     setTaskDialogOpen(false);
     onOpenChange(false);
+
+    if (created.createdTaskId) {
+      return { taskId: created.createdTaskId };
+    }
   };
 
   const canSubmit = canProcessBucket(selectedType, selectedProjectId, projects.length > 0);

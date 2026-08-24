@@ -70,8 +70,21 @@ interface TaskDialogProps {
    * Used by bucket-processing, whose endpoint atomically creates the task AND
    * marks the inbox item processed in one call; a plain createTask here would
    * either double-create the task or leave the bucket item unprocessed.
+   *
+   * Returns `{ taskId }` so this dialog can upload any staged attachments after
+   * the caller's endpoint succeeds. Returning `void` (or a bucket item with no
+   * `createdTaskId`) is safe — staged files are skipped, not lost.
+   *
+   * The third param carries the active recurrence value so the caller can send
+   * it to an endpoint that handles recurrence natively (e.g. bucket-process),
+   * rather than falling back to a separate `createRule` call that this dialog
+   * cannot make when `onCreateSubmit` is set.
    */
-  onCreateSubmit?: (data: TaskFormData, projectId: string) => Promise<void>;
+  onCreateSubmit?: (
+    data: TaskFormData,
+    projectId: string,
+    recurrence: RecurrenceValue | null
+  ) => Promise<{ taskId: string } | void>;
 }
 
 const TaskDialog = ({
@@ -288,6 +301,17 @@ const TaskDialog = ({
         }
         await updateTask(updatePayload).unwrap();
         showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
+      } else if (onCreateSubmit) {
+        // Delegated create — the caller's endpoint does its own create (and any
+        // side effect, e.g. marking a bucket item processed) and owns success
+        // toasting. Recurrence is passed through so the caller can send it to
+        // an endpoint that handles it natively (bucket-process) instead of
+        // falling back to a separate createRule call. If the caller returns a
+        // taskId, we upload any staged files against it.
+        const result = await onCreateSubmit(data, effectiveProjectId as string, recurrence);
+        if (result?.taskId && stagedFiles.length > 0) {
+          void uploadStagedFiles(result.taskId, stagedFiles);
+        }
       } else if (recurrence) {
         // A repeating task is created as a rule; the backend stamps instance #1
         // from this same template inside the same transaction.
@@ -301,11 +325,6 @@ const TaskDialog = ({
           ...normalizeScheduleForFreq(recurrence),
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
-      } else if (onCreateSubmit) {
-        // Delegated create — the caller's endpoint does its own create (and any
-        // side effect, e.g. marking a bucket item processed) and owns success
-        // toasting; this dialog only closes and clears staged files.
-        await onCreateSubmit(data, effectiveProjectId as string);
       } else {
         const created = await createTask({
           projectId: effectiveProjectId as string,
@@ -406,14 +425,12 @@ const TaskDialog = ({
             <EnergyField control={form.control} delay={0.22} />
           </DialogFieldGrid>
 
-          {/* Scheduling: a single soft intention (scheduledFor); rollsOver (default
-              on) carries a passed task to Today — off, it quietly drops off. Never overdue.
-              scheduledTime is omitted for a delegated create (e.g. bucket processing) —
-              that contract doesn't accept it. */}
+          {/* Scheduling: soft date intention + optional time-of-day (Pro-only).
+              rollsOver (default on) carries a missed task to Today. */}
           <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
             <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
             <ScheduledForField control={form.control} delay={0.27} />
-            {!onCreateSubmit && <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />}
+            <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />
             <CheckboxField
               control={form.control}
               fieldName="rollsOver"
@@ -424,18 +441,16 @@ const TaskDialog = ({
             />
           </div>
 
-          {/* Turning this on for an existing task starts a NEW series from here
-              forward — it never edits the rule the task already belongs to.
-              Managing/pausing an existing rule stays in Settings. Not offered on
-              a delegated create — the bucket-process contract has no recurrence. */}
-          {!onCreateSubmit && <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />}
+          {/* Turning this on starts a NEW series from here forward — for an edit,
+              it never edits the rule the task already belongs to (that's Settings' job). */}
+          <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />
 
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />
 
           {isEditMode && task && <SubtaskAccordion taskId={task.id} />}
           {isEditMode && task && <AttachmentSection ownerType="task" ownerId={task.id} />}
-          {!isEditMode && !onCreateSubmit && <StagedAttachmentPicker files={stagedFiles} onChange={setStagedFiles} />}
+          {!isEditMode && <StagedAttachmentPicker files={stagedFiles} onChange={setStagedFiles} />}
         </div>
       </Form>
       {confirmDialog}

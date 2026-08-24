@@ -30,7 +30,7 @@ export const Default: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText('Project *')).toBeInTheDocument();
+    await expect(canvas.getByText('Project')).toBeInTheDocument();
     await userEvent.click(canvas.getByRole('combobox'));
   },
 };

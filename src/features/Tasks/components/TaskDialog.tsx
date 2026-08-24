@@ -182,6 +182,15 @@ const TaskDialog = ({
     }
   }, [task, form, open, initialScheduledFor, initialTitle, initialNotes]);
 
+  // Project-less create (bucket-process delegation) had no picker before this
+  // dialog took over the field — it auto-selected the user's first project so
+  // processing was a single click. Preserve that default here.
+  useEffect(() => {
+    if (needsProjectPicker && !pickedProjectId && projects.length > 0) {
+      setPickedProjectId(projects[0]?.id);
+    }
+  }, [needsProjectPicker, pickedProjectId, projects]);
+
   // Only compare form-backed fields; server-only keys (id, createdAt…) would
   // otherwise always read as "changed" and leave save perpetually enabled.
   // Recurrence isn't form-backed, so it's OR'd in separately — turning it on

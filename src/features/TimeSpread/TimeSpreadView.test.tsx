@@ -182,7 +182,14 @@ describe('TimeSpreadView', () => {
 
     await user.click(screen.getByTestId('timespread-create-task'));
 
-    await waitFor(() => expect(screen.getByText('Launch')).toBeInTheDocument());
+    // Project auto-selects to the user's only project. Radix's native
+    // <select> fallback mirrors the chosen option's text as a hidden
+    // <option>, so "Launch" legitimately appears twice within the project
+    // field's own container — assert on the visible combobox value span.
+    const projectLabel = await screen.findByText('Project');
+    await waitFor(() =>
+      expect(within(projectLabel.parentElement!).getByTestId('select-value')).toHaveTextContent('Launch')
+    );
   });
 });
 

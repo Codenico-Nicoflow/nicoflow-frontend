@@ -190,6 +190,55 @@ describe('TaskDialog — edit mode', () => {
     expect(await screen.findByTestId('recurrence-toggle')).toBeInTheDocument();
   });
 
+  it('shows the project picker pre-selected with the task current project', async () => {
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.get(`${API}/projects`, () =>
+        HttpResponse.json(
+          items([
+            { id: 'project-1', name: 'Current Project' },
+            { id: 'project-2', name: 'Other Project' },
+          ])
+        )
+      )
+    );
+
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={task} />);
+
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toHaveTextContent('Current Project'));
+  });
+
+  it('reassigns the project and saves projectId in the update payload', async () => {
+    let patchBody: Record<string, unknown> | undefined;
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.get(`${API}/projects`, () =>
+        HttpResponse.json(
+          items([
+            { id: 'project-1', name: 'Current Project' },
+            { id: 'project-2', name: 'Other Project' },
+          ])
+        )
+      ),
+      http.patch(`${API}/tasks/task-9`, async ({ request }) => {
+        patchBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope({ ...task, ...patchBody }));
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={task} />);
+
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toHaveTextContent('Current Project'));
+    await user.click(screen.getByTestId('select-trigger'));
+    await user.click(await screen.findByRole('option', { name: 'Other Project' }));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(patchBody).toMatchObject({ projectId: 'project-2' }));
+  });
+
   it('saving recurrence on edit calls createRecurrenceRule, not a plain task update', async () => {
     let createRuleBody: Record<string, unknown> | undefined;
     let taskPatched = false;

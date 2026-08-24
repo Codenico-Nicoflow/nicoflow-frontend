@@ -48,6 +48,14 @@ import { useConfirmComplete } from '../useConfirmComplete';
 import { AttachmentSection } from './AttachmentSection';
 import { SubtaskAccordion } from './SubtaskAccordion';
 
+// PATCH /v1/tasks/:id accepts an optional projectId for reassignment (backend
+// work landing in parallel on feature/task-project-reassignment). @nicoflow/shared
+// 0.8.4's UpdateTaskRequest doesn't carry it yet — widen locally until the shared
+// package publishes the field, then delete this and pass projectId straight through.
+type UpdateTaskRequestWithProject = Parameters<ReturnType<typeof useUpdateTaskMutation>[0]>[0] & {
+  projectId?: string;
+};
+
 interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -63,12 +71,15 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
   const { t } = useTranslation('task');
   const isEditMode = !!task;
   const needsProjectPicker = !isEditMode && !projectId;
+  // Edit mode always shows the picker too — reassignment is a switch between
+  // existing projects, never an "unassign" (a task always belongs to a project).
+  const showProjectPicker = needsProjectPicker || isEditMode;
 
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
   const [createRule, { isLoading: isRuleLoading }] = useCreateRecurrenceRuleMutation();
   const { data: projectsData, isLoading: isLoadingProjects } = useGetProjectsQuery(undefined, {
-    skip: !needsProjectPicker,
+    skip: !showProjectPicker,
   });
   const projects = projectsData?.items ?? [];
   const [pickedProjectId, setPickedProjectId] = useState<string | undefined>(undefined);
@@ -116,7 +127,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
   useEffect(() => {
     setPlanLimitHit(null);
     setRecurrence(null);
-    setPickedProjectId(undefined);
+    setPickedProjectId(task ? task.projectId : undefined);
     setProjectMissing(false);
     if (task) {
       form.reset({
@@ -150,7 +161,9 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
   // Only compare form-backed fields; server-only keys (id, createdAt…) would
   // otherwise always read as "changed" and leave save perpetually enabled.
   // Recurrence isn't form-backed, so it's OR'd in separately — turning it on
-  // is itself the change, even if nothing else on the form moved.
+  // is itself the change, even if nothing else on the form moved. projectId
+  // isn't form-backed either (it's the picker's own state), so it's OR'd in too.
+  const projectChanged = isEditMode && !!task && !!pickedProjectId && pickedProjectId !== task.projectId;
   const hasChanges =
     hasFormChanges(isEditMode, task, watchedValues, [
       'title',
@@ -163,7 +176,9 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
       'scheduledTime',
       'estimatedMinutes',
       'url',
-    ]) || !!recurrence;
+    ]) ||
+    !!recurrence ||
+    projectChanged;
 
   // Saving an edit that flips status to done is the same completion the list
   // checkbox performs, so it asks the same question when subtasks are open.
@@ -203,7 +218,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
       } else if (isEditMode) {
-        await updateTask({
+        const updatePayload: UpdateTaskRequestWithProject = {
           id: task.id,
           ...data,
           energy: data.energy,
@@ -213,7 +228,11 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
               ? null
               : (data.estimatedMinutes ?? null),
           url: data.url || '',
-        }).unwrap();
+        };
+        if (projectChanged) {
+          updatePayload.projectId = pickedProjectId;
+        }
+        await updateTask(updatePayload).unwrap();
         showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
       } else if (recurrence) {
         // A repeating task is created as a rule; the backend stamps instance #1
@@ -280,7 +299,7 @@ const TaskDialog = ({ open, onOpenChange, task, projectId, initialScheduledFor, 
             />
           )}
 
-          {needsProjectPicker && (
+          {showProjectPicker && (
             <div className="space-y-1">
               <BucketProjectSelector
                 selectedProjectId={pickedProjectId}

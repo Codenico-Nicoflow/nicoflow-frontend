@@ -1,22 +1,27 @@
 import { renderComponent } from '__tests__/renderComponent';
 import type { INotification } from '@nicoflow/shared/types';
+import { categoryForType } from '@nicoflow/shared/types';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import { NotificationRow } from './NotificationRow';
 
-const makeNotification = (overrides: Partial<INotification> = {}): INotification => ({
-  id: 'n1',
-  type: 'task_due_soon',
-  title: 'Task due soon',
-  body: 'This task is scheduled soon.',
-  metadata: {},
-  isRead: false,
-  readAt: null,
-  createdAt: new Date().toISOString(),
-  ...overrides,
-});
+const makeNotification = (overrides: Partial<INotification> = {}): INotification => {
+  const type = overrides.type ?? 'task_due_soon';
+  return {
+    id: 'n1',
+    type,
+    category: categoryForType(type),
+    title: 'Task due soon',
+    body: 'This task is scheduled soon.',
+    metadata: {},
+    isRead: false,
+    readAt: null,
+    createdAt: new Date().toISOString(),
+    ...overrides,
+  };
+};
 
 const renderRow = (n: INotification, onMarkRead = vi.fn(), onDismiss = vi.fn()) =>
   renderComponent(<NotificationRow notification={n} onMarkRead={onMarkRead} onDismiss={onDismiss} />);

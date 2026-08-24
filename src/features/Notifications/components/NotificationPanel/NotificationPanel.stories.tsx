@@ -1,4 +1,5 @@
 import type { INotification } from '@nicoflow/shared/types';
+import { categoryForType } from '@nicoflow/shared/types';
 import type { Meta, StoryObj } from '@storybook/react';
 import { delay, http, HttpResponse } from 'msw';
 
@@ -9,17 +10,21 @@ import { NotificationPanel } from './index';
 
 const API = 'http://localhost:8080/v1';
 
-const makeNotification = (o: Partial<INotification> = {}): INotification => ({
-  id: 'n1',
-  type: 'task_due_soon',
-  title: 'Task due soon',
-  body: 'Buy milk',
-  metadata: {},
-  isRead: false,
-  readAt: null,
-  createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  ...o,
-});
+const makeNotification = (o: Partial<INotification> = {}): INotification => {
+  const type = o.type ?? 'task_due_soon';
+  return {
+    id: 'n1',
+    type,
+    category: categoryForType(type),
+    title: 'Task due soon',
+    body: 'Buy milk',
+    metadata: {},
+    isRead: false,
+    readAt: null,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    ...o,
+  };
+};
 
 const listHandler = (items: INotification[], withDelay = false) =>
   http.get(`${API}/notifications`, async () => {

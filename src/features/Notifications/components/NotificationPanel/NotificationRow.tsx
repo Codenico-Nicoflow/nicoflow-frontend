@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Timestamp } from '@/components';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
 import { cn } from '@/lib/utils';
+import { PROJECT_TAB_PARAM, PROJECT_TASK_PARAM } from '@/pages/project/tabs';
 
 import { categoryForType, iconForType, NotificationCategory, styleForCategory } from '../../notificationTypes';
 
@@ -19,18 +20,25 @@ export interface NotificationRowProps {
 
 // Resolve a navigation target for reminder/celebration rows.
 // Returns null for summary/system categories (those expand in-place instead).
+//
+// When metadata carries both entityId (task) and projectId we build a URL that
+// navigates to the project page, forces the tasks tab, and carries the task id
+// so TasksSection can auto-open the detail dialog on arrival.
 const resolveEntityPath = (notification: INotification): string | null => {
   const category = categoryForType(notification.type);
   if (category !== NotificationCategory.REMINDER && category !== NotificationCategory.CELEBRATION) {
     return null;
   }
-  const meta = notification.metadata as Record<string, unknown>;
-  // task_completed carries both taskId and projectId; navigate to the project page.
+  const meta = notification.metadata;
   const projectId = typeof meta.projectId === 'string' ? meta.projectId : null;
-  if (projectId) {
-    return `/projects/${projectId}`;
+  if (!projectId) return null;
+
+  const entityId = typeof meta.entityId === 'string' ? meta.entityId : null;
+  const entityType = typeof meta.entityType === 'string' ? meta.entityType : null;
+  if (entityId && entityType === 'task') {
+    return `/projects/${projectId}?${PROJECT_TAB_PARAM}=tasks&${PROJECT_TASK_PARAM}=${entityId}`;
   }
-  return null;
+  return `/projects/${projectId}`;
 };
 
 // One notification. Unread rows carry a left accent bar and full-weight text; read

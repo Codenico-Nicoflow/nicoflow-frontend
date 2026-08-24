@@ -1,12 +1,12 @@
 import { renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { mockProject } from '@/mocks/handlers';
+import { makeTask, mockProject } from '@/mocks/handlers';
 
 import ProjectView from './ProjectView';
 
@@ -88,5 +88,34 @@ describe('ProjectView tabs', () => {
 
     await screen.findByTestId('project-tab-notes');
     expect(screen.queryByRole('heading', { name: 'Notes' })).not.toBeInTheDocument();
+  });
+});
+
+describe('ProjectView task deep-link', () => {
+  const API = 'http://localhost:8080/v1';
+  const items = <T,>(list: T[]) => ({ data: { items: list, nextCursor: '' }, error: null });
+
+  beforeEach(() => {
+    server.use(
+      http.get(PROJECT_URL, () => HttpResponse.json(envelope(mockProject))),
+      http.get(`${API}/projects/project-1/tasks`, () =>
+        HttpResponse.json(items([makeTask({ id: 'task-99', title: 'Deep-link task' })]))
+      ),
+      http.get(`${API}/tasks/task-99/subtasks`, () => HttpResponse.json(items([])))
+    );
+  });
+
+  it('forces the tasks tab when ?task= is present', async () => {
+    renderAt('?tab=notes&task=task-99');
+
+    // Even though ?tab=notes is in the URL, the tasks tab must be active.
+    expect(await screen.findByTestId('project-tab-tasks')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId('project-tab-notes')).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('auto-opens the task dialog when the task is loaded', async () => {
+    renderAt('?task=task-99');
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument());
   });
 });

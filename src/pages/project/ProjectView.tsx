@@ -15,7 +15,7 @@ import { ProjectDeleteDialog, ProjectDialog, ProjectHeader, ProjectLoadingState 
 import { TasksSection } from '@/features/Tasks';
 import { useGetNotesInfiniteQuery, useGetProjectQuery, useGetTasksInfiniteQuery } from '@/lib/store';
 
-import { parseProjectTab, PROJECT_TAB, PROJECT_TAB_PARAM } from './tabs';
+import { parseProjectTab, PROJECT_TAB, PROJECT_TAB_PARAM, PROJECT_TASK_PARAM } from './tabs';
 
 const ProjectView = () => {
   const { t } = useTranslation('project');
@@ -33,7 +33,9 @@ const ProjectView = () => {
   const notes = notesData?.pages.flatMap(p => p.items) ?? [];
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = parseProjectTab(searchParams.get(PROJECT_TAB_PARAM));
+  const initialTaskId = searchParams.get(PROJECT_TASK_PARAM) ?? undefined;
+  // A task deep-link always lands on the tasks tab regardless of ?tab=.
+  const tab = initialTaskId ? PROJECT_TAB.TASKS : parseProjectTab(searchParams.get(PROJECT_TAB_PARAM));
   // replace, not push: switching tabs shouldn't bury the previous page under a
   // history entry per click.
   const setTab = (next: string) => {
@@ -123,7 +125,7 @@ const ProjectView = () => {
           {/* Both panels stay mounted: switching tabs shouldn't refetch a list
               the client already holds, or drop an in-progress task filter. */}
           <TabsContent value={PROJECT_TAB.TASKS} className="mt-6" forceMount hidden={tab !== PROJECT_TAB.TASKS}>
-            <TasksSection projectId={project.id} showHeading={false} />
+            <TasksSection projectId={project.id} showHeading={false} initialTaskId={initialTaskId} />
           </TabsContent>
 
           <TabsContent value={PROJECT_TAB.NOTES} className="mt-6" forceMount hidden={tab !== PROJECT_TAB.NOTES}>

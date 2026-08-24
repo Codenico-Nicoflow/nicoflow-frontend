@@ -100,4 +100,25 @@ describe('NotificationRow', () => {
     const row = screen.getByTestId('notification-row');
     expect(row).toHaveAttribute('data-category', 'summary');
   });
+
+  it('reminder with entityId + projectId in metadata is navigable', () => {
+    renderRow(
+      makeNotification({
+        type: 'task_due_soon',
+        metadata: { entityType: 'task', entityId: 't1', projectId: 'p1' },
+      })
+    );
+    expect(screen.getByTestId('notification-row')).toHaveAttribute('role', 'button');
+  });
+
+  it('reminder with only projectId (no entityId) is still navigable', () => {
+    renderRow(
+      makeNotification({
+        type: 'task_due_soon',
+        metadata: { projectId: 'p1' },
+      })
+    );
+    // projectId present but no entityId → navigates to /projects/:id (no task param).
+    expect(screen.getByTestId('notification-row')).toHaveAttribute('role', 'button');
+  });
 });

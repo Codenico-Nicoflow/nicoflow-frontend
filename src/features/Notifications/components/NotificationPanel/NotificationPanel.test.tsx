@@ -1,6 +1,7 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
 import { server } from '__tests__/server';
 import type { INotification, IUser } from '@nicoflow/shared/types';
+import { categoryForType } from '@nicoflow/shared/types';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -28,17 +29,21 @@ const makeUser = (status: IUser['status']): IUser => ({
 const proStore = () => createMockStore({ auth: { user: makeUser('premium'), token: 't' } });
 const freeStore = () => createMockStore({ auth: { user: makeUser('regular'), token: 't' } });
 
-const makeNotification = (o: Partial<INotification> = {}): INotification => ({
-  id: 'n1',
-  type: 'task_due_soon',
-  title: 'Buy milk',
-  body: 'This task is scheduled soon.',
-  metadata: {},
-  isRead: false,
-  readAt: null,
-  createdAt: new Date().toISOString(),
-  ...o,
-});
+const makeNotification = (o: Partial<INotification> = {}): INotification => {
+  const type = o.type ?? 'task_due_soon';
+  return {
+    id: 'n1',
+    type,
+    category: categoryForType(type),
+    title: 'Buy milk',
+    body: 'This task is scheduled soon.',
+    metadata: {},
+    isRead: false,
+    readAt: null,
+    createdAt: new Date().toISOString(),
+    ...o,
+  };
+};
 
 const renderPanel = (open = true, store?: ReturnType<typeof createMockStore>) =>
   renderComponent(

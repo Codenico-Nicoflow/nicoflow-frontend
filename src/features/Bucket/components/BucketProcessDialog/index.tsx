@@ -22,25 +22,6 @@ import { captureToDoc, NOTE_TITLE_MAX, truncateNoteTitle } from '../../utils/not
 import { BucketProcessList } from '../BucketProcessList';
 import { BucketProjectSelector } from '../BucketProjectSelector';
 
-// POST /v1/bucket/:id/process taskDetails gained scheduledTime and recurrence
-// fields in nicoflow-api PR #174 (and nicoflow-shared PR #63 — not yet published
-// to npm). Widen TaskDetails locally until @nicoflow/shared ships the update,
-// then drop this shim and import directly from '@/lib/store'.
-type TaskDetailsWithSchedule = TaskDetails & {
-  scheduledTime?: string;
-  recurrence?: {
-    freq: string;
-    interval: number;
-    byWeekday?: number[];
-    byMonthday?: number | null;
-    startDate: string;
-    endDate?: string | null;
-  };
-};
-type ProcessBucketDtoWithSchedule = Omit<ProcessBucketDto, 'taskDetails'> & {
-  taskDetails?: TaskDetailsWithSchedule;
-};
-
 interface BucketProcessDialogProps {
   bucket: IBucket | null;
   open: boolean;
@@ -136,7 +117,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
   ): Promise<{ taskId: string } | void> => {
     if (!bucket) return;
 
-    const taskDetails: TaskDetailsWithSchedule = {
+    const taskDetails: TaskDetails = {
       title: data.title,
       notes: data.notes || undefined,
       priority: data.priority,
@@ -159,7 +140,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
       };
     }
 
-    const dto: ProcessBucketDtoWithSchedule = {
+    const dto: ProcessBucketDto = {
       processingResult: ProcessingResult.TASK,
       projectId,
       taskDetails,
@@ -167,7 +148,7 @@ export const BucketProcessDialog = ({ bucket, open, onOpenChange }: BucketProces
 
     const created = await processBucket({
       id: bucket.id,
-      data: dto as ProcessBucketDto,
+      data: dto,
     }).unwrap();
 
     showSuccessToast(ToastMessages.BUCKET_PROCESSED_TASK, toast);

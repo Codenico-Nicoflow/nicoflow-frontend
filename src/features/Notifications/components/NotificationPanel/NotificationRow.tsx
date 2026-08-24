@@ -2,12 +2,13 @@ import type { INotification } from '@nicoflow/shared/types';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import { Timestamp } from '@/components';
 import { getDateLocale } from '@/lib/i18n/dateLocale';
 import { cn } from '@/lib/utils';
 
-import { iconForType } from '../../notificationTypes';
+import { categoryForType, iconForType, NotificationCategory, styleForCategory } from '../../notificationTypes';
 
 export interface NotificationRowProps {
   notification: INotification;
@@ -16,15 +17,49 @@ export interface NotificationRowProps {
   busy?: boolean;
 }
 
+// Resolve a navigation target for reminder/celebration rows.
+// Returns null for summary/system categories (those expand in-place instead).
+const resolveEntityPath = (notification: INotification): string | null => {
+  const category = categoryForType(notification.type);
+  if (category !== NotificationCategory.REMINDER && category !== NotificationCategory.CELEBRATION) {
+    return null;
+  }
+  const meta = notification.metadata as Record<string, unknown>;
+  // task_completed carries both taskId and projectId; navigate to the project page.
+  const projectId = typeof meta.projectId === 'string' ? meta.projectId : null;
+  if (projectId) {
+    return `/projects/${projectId}`;
+  }
+  return null;
+};
+
 // One notification. Unread rows carry a left accent bar and full-weight text; read
 // rows quietly dim. The mark-read + dismiss actions stay hidden until the row is
 // hovered or focused (keyboard users get them via focus-within), so the resting
-// state is calm — the actions appear exactly when you're looking at the row.
+// state is calm.
+//
+// Visual treatment is category-driven: reminder=amber, celebration=emerald,
+// summary=muted, system=primary (pinned accent). Clicking the row body for
+// reminder/celebration navigates to the entity; summary/system expand the body
+// in-place since they have no single entity target.
 export const NotificationRow = ({ notification, onMarkRead, onDismiss, busy }: NotificationRowProps) => {
   const { t, i18n } = useTranslation('notification');
   const reduce = useReducedMotion();
+  const navigate = useNavigate();
+
   const Icon = iconForType(notification.type);
+  const category = categoryForType(notification.type);
+  const style = styleForCategory(category);
+  const entityPath = resolveEntityPath(notification);
   const unread = !notification.isRead;
+
+  const handleRowClick = () => {
+    if (entityPath) {
+      navigate(entityPath);
+    }
+  };
+
+  const isNavigable = entityPath !== null;
 
   return (
     <motion.li
@@ -34,16 +69,31 @@ export const NotificationRow = ({ notification, onMarkRead, onDismiss, busy }: N
       exit={reduce ? { opacity: 0 } : { opacity: 0, x: 24, transition: { duration: 0.18 } }}
       transition={{ type: 'spring', stiffness: 500, damping: 34 }}
       data-testid="notification-row"
+      data-category={category}
       className={cn(
         'group relative flex gap-3 rounded-lg px-3 py-2.5 transition-colors focus-within:bg-accent/60 hover:bg-accent/60',
-        !unread && 'opacity-60'
+        !unread && 'opacity-60',
+        isNavigable && 'cursor-pointer'
       )}
+      onClick={isNavigable ? handleRowClick : undefined}
+      role={isNavigable ? 'button' : undefined}
+      tabIndex={isNavigable ? 0 : undefined}
+      onKeyDown={
+        isNavigable
+          ? e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleRowClick();
+              }
+            }
+          : undefined
+      }
     >
-      {/* Unread accent bar — the one persistent unread signal in the row. */}
+      {/* Unread accent bar — category-coloured. */}
       {unread && (
         <span
           aria-hidden
-          className="absolute inset-y-2 start-0 w-[3px] rounded-full bg-primary"
+          className={cn('absolute inset-y-2 start-0 w-[3px] rounded-full', style.accent)}
           data-testid="unread-bar"
         />
       )}
@@ -52,7 +102,8 @@ export const NotificationRow = ({ notification, onMarkRead, onDismiss, busy }: N
         aria-hidden
         className={cn(
           'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
-          unread ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+          style.iconBg,
+          style.iconText
         )}
       >
         <Icon className="h-3.5 w-3.5" />
@@ -68,7 +119,10 @@ export const NotificationRow = ({ notification, onMarkRead, onDismiss, busy }: N
 
       {/* Actions: hidden at rest, revealed on hover/focus. Always reachable by
           keyboard (focusing a button flips focus-within → visible). */}
-      <div className="flex shrink-0 items-start gap-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+      <div
+        className="flex shrink-0 items-start gap-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+        onClick={e => e.stopPropagation()}
+      >
         {unread && (
           <button
             type="button"

@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { type ITask, TaskStatus } from '@nicoflow/shared/types';
 import { ActiveTab } from '@nicoflow/shared/types';
 import { format } from 'date-fns';
-import { CalendarClock, CalendarX, Pencil } from 'lucide-react';
+import { CalendarClock, CalendarX, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -20,9 +20,10 @@ interface TimeSpreadRowProps {
   task: ITask;
   activeTab: (typeof ActiveTab)[keyof typeof ActiveTab];
   onEdit: (task: ITask) => void;
+  onDelete: (taskId: string) => void;
 }
 
-const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
+const TimeSpreadRow = ({ task, activeTab, onEdit, onDelete }: TimeSpreadRowProps) => {
   const { t } = useTranslation('task');
   const [updateStatus] = useUpdateTaskStatusMutation();
   const [scheduleTask] = useScheduleTaskMutation();
@@ -38,22 +39,31 @@ const TimeSpreadRow = ({ task, activeTab, onEdit }: TimeSpreadRowProps) => {
     };
 
     const unschedule = () => run(scheduleTask({ id: task.id, scheduledFor: null }).unwrap());
+    const deleteAction = {
+      label: t('actions.delete'),
+      icon: Trash2,
+      onClick: () => onDelete(task.id),
+      destructive: true,
+    };
     if (activeTab === ActiveTab.TODAY)
       return [
         { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
         { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+        deleteAction,
       ];
     if (activeTab === ActiveTab.TOMORROW)
       return [
         { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
         { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+        deleteAction,
       ];
     return [
       { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
       { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
       { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+      deleteAction,
     ];
-  }, [activeTab, scheduleTask, t, task.id]);
+  }, [activeTab, onDelete, scheduleTask, t, task.id]);
 
   const run = async (op: Promise<unknown>) => {
     try {

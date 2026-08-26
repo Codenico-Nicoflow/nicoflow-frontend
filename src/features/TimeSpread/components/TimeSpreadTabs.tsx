@@ -32,7 +32,7 @@ const TimeSpreadTabs = ({ active }: { active: Bucket }) => {
             aria-selected={isActive}
             data-testid={`timespread-tab-${bucket}`}
             className={cn(
-              'flex-1 rounded-md px-3 py-1.5 text-center text-xs sm:text-sm font-medium transition-colors',
+              'flex-1 whitespace-nowrap rounded-md px-2 py-1.5 text-center text-xs sm:px-3 sm:text-sm font-medium transition-colors',
               isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >

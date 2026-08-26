@@ -14,11 +14,12 @@ interface Props {
   tomorrow: ITask[];
   weekGroups: DayGroup[];
   onEdit: (task: ITask) => void;
+  onDelete: (taskId: string) => void;
 }
 
 // Every section renders even when empty — an empty section reads as "clear",
 // while a missing one reads as "did this load?".
-const TimeSpreadCombinedView = ({ today, tomorrow, weekGroups, onEdit }: Props) => {
+const TimeSpreadCombinedView = ({ today, tomorrow, weekGroups, onEdit, onDelete }: Props) => {
   const { t } = useTranslation('task');
 
   return (
@@ -28,7 +29,7 @@ const TimeSpreadCombinedView = ({ today, tomorrow, weekGroups, onEdit }: Props) 
           {t('timeSpread.today.title')}
         </h2>
         {today.length > 0 ? (
-          <TimeSpreadList tasks={today} activeTab={ActiveTab.TODAY} onEdit={onEdit} />
+          <TimeSpreadList tasks={today} activeTab={ActiveTab.TODAY} onEdit={onEdit} onDelete={onDelete} />
         ) : (
           <p className="text-sm text-muted-foreground">{t('timeSpread.today.emptyTitle')}</p>
         )}
@@ -41,7 +42,7 @@ const TimeSpreadCombinedView = ({ today, tomorrow, weekGroups, onEdit }: Props) 
           {t('timeSpread.tomorrow.title')}
         </h2>
         {tomorrow.length > 0 ? (
-          <TimeSpreadList tasks={tomorrow} activeTab={ActiveTab.TOMORROW} onEdit={onEdit} />
+          <TimeSpreadList tasks={tomorrow} activeTab={ActiveTab.TOMORROW} onEdit={onEdit} onDelete={onDelete} />
         ) : (
           <p className="text-sm text-muted-foreground">{t('timeSpread.tomorrow.emptyTitle')}</p>
         )}
@@ -58,7 +59,7 @@ const TimeSpreadCombinedView = ({ today, tomorrow, weekGroups, onEdit }: Props) 
             {weekGroups.map(group => (
               <div key={group.key} data-testid={`timespread-day-${group.key}`} className="space-y-2">
                 <h3 className="text-xs font-medium text-muted-foreground">{format(group.date, 'EEEE, MMM d')}</h3>
-                <TimeSpreadList tasks={group.tasks} activeTab={ActiveTab.WEEK} onEdit={onEdit} />
+                <TimeSpreadList tasks={group.tasks} activeTab={ActiveTab.WEEK} onEdit={onEdit} onDelete={onDelete} />
               </div>
             ))}
           </div>

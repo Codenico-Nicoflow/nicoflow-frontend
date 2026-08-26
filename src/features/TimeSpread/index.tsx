@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components';
 import { Button } from '@/components/ui/button';
 import { HabitTodayStrip } from '@/features/Habits';
-import { TaskDialog, TasksLoadingState } from '@/features/Tasks';
+import { TaskDeleteDialog, TaskDialog, TasksLoadingState } from '@/features/Tasks';
 import { useGetTimeSpreadQuery } from '@/lib/store';
 
 import TimeSpreadCombinedView from './components/TimeSpreadCombinedView';
@@ -37,10 +37,21 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(readStoredViewMode);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const handleEdit = (task: ITask) => {
     setEditTask(task);
     setIsDialogOpen(true);
+  };
+
+  const allTasks = [...(data?.today ?? []), ...(data?.tomorrow ?? []), ...(data?.thisWeek ?? [])];
+  const handleDelete = (taskId: string) => {
+    const task = allTasks.find(t => t.id === taskId);
+    if (task) {
+      setTaskToDelete({ id: taskId, name: task.title });
+      setIsDeleteDialogOpen(true);
+    }
   };
 
   const handleViewModeChange = (mode: ViewMode) => {
@@ -72,13 +83,13 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             {format(group.date, 'EEEE, MMM d')}
           </h2>
-          <TimeSpreadList tasks={group.tasks} activeTab={activeTab} onEdit={handleEdit} />
+          <TimeSpreadList tasks={group.tasks} activeTab={activeTab} onEdit={handleEdit} onDelete={handleDelete} />
         </section>
       ))}
     </div>
   ) : (
     <div data-testid="timespread-list">
-      <TimeSpreadList tasks={flat ?? []} activeTab={activeTab} onEdit={handleEdit} />
+      <TimeSpreadList tasks={flat ?? []} activeTab={activeTab} onEdit={handleEdit} onDelete={handleDelete} />
     </div>
   );
 
@@ -92,6 +103,7 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
       tomorrow={data?.tomorrow ?? []}
       weekGroups={weekGroups}
       onEdit={handleEdit}
+      onDelete={handleDelete}
     />
   ) : (
     tabContent
@@ -116,9 +128,9 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
               {t('timeSpread.createFabLabel')}
             </Button>
           </div>
-          <div className="flex items-center justify-between gap-4">
-            {viewMode === 'tabs' ? <TimeSpreadTabs active={activeTab} /> : <div />}
-            <ViewModeToggle mode={viewMode} onChange={handleViewModeChange} />
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            {viewMode === 'tabs' ? <TimeSpreadTabs active={activeTab} /> : <div className="hidden sm:block" />}
+            <ViewModeToggle mode={viewMode} onChange={handleViewModeChange} className="self-end sm:self-auto" />
           </div>
         </div>
 
@@ -142,6 +154,15 @@ const TimeSpreadView = ({ activeTab }: TimeSpreadViewProps) => {
         onOpenChange={setIsCreateOpen}
         initialScheduledFor={activeTabToScheduledFor(activeTab)}
       />
+
+      {taskToDelete && (
+        <TaskDeleteDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          taskName={taskToDelete.name}
+          taskId={taskToDelete.id}
+        />
+      )}
     </div>
   );
 };

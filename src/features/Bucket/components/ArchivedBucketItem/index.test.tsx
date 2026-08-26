@@ -31,6 +31,17 @@ describe('ArchivedBucketItem', () => {
     expect(screen.getByTestId('bucket-view-created')).toHaveAttribute('href', '/notes/note-1');
   });
 
+  it('links "view what this became" to the task deep-link route when createdTaskId is set', () => {
+    renderComponent(
+      <ArchivedBucketItem
+        bucket={bucket({ processingResult: ProcessingResult.TASK, createdTaskId: 'task-1', projectId: 'proj-1' })}
+        index={0}
+      />
+    );
+
+    expect(screen.getByTestId('bucket-view-created')).toHaveAttribute('href', '/projects/proj-1?task=task-1');
+  });
+
   it('renders no link when the bucket item was trashed', () => {
     renderComponent(<ArchivedBucketItem bucket={bucket({ processingResult: ProcessingResult.TRASH })} index={0} />);
 

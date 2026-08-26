@@ -7,6 +7,7 @@ import { AnimatedListItem, ListItemCard, Timestamp } from '@/components';
 import { Badge } from '@/components/ui/badge.tsx';
 import { ExpandableText } from '@/components/ui/expandable-text.tsx';
 import { cn } from '@/lib/utils';
+import { PROJECT_TASK_PARAM } from '@/pages/project/tabs';
 
 interface ArchivedBucketItemProps {
   bucket: IBucket;
@@ -43,7 +44,7 @@ export const ArchivedBucketItem = ({ bucket, index }: ArchivedBucketItemProps) =
   const destination = bucket.createdNoteId
     ? `/notes/${bucket.createdNoteId}`
     : bucket.createdTaskId && bucket.projectId
-      ? `/projects/${bucket.projectId}`
+      ? `/projects/${bucket.projectId}?${PROJECT_TASK_PARAM}=${bucket.createdTaskId}`
       : null;
 
   return (

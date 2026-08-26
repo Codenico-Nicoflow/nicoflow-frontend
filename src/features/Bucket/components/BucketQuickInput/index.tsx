@@ -11,6 +11,8 @@ import { useCreateBucketMutation } from '@/lib/store';
 import { type BucketFormData, bucketSchema, showErrorToast } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
+const BUCKET_CONTENT_MAX_LENGTH = 500;
+
 interface BucketQuickInputProps {
   onSuccess?: () => void;
   placeholder?: string;
@@ -28,6 +30,7 @@ export const BucketQuickInput = ({ onSuccess, placeholder, compact = false }: Bu
       content: '',
     },
   });
+  const contentLength = form.watch('content')?.length ?? 0;
 
   const onSubmit = async (data: BucketFormData) => {
     try {
@@ -67,29 +70,31 @@ export const BucketQuickInput = ({ onSuccess, placeholder, compact = false }: Bu
                   )}
                   onKeyDown={handleKeyDown}
                   rows={compact ? 2 : 3}
+                  maxLength={BUCKET_CONTENT_MAX_LENGTH}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          disabled={isLoading || !form.watch('content')}
-          className={cn('w-full sm:w-auto', compact && 'h-9 text-sm')}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="me-2 h-4 w-4 animate-spin" />
-              {t('quickInput.submitting')}
-            </>
-          ) : (
-            <>
-              <Inbox className="me-2 h-4 w-4" />
-              {t('quickInput.submit')}
-            </>
-          )}
-        </Button>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {contentLength}/{BUCKET_CONTENT_MAX_LENGTH}
+          </span>
+          <Button type="submit" disabled={isLoading || !form.watch('content')} className={cn(compact && 'h-9 text-sm')}>
+            {isLoading ? (
+              <>
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                {t('quickInput.submitting')}
+              </>
+            ) : (
+              <>
+                <Inbox className="me-2 h-4 w-4" />
+                {t('quickInput.submit')}
+              </>
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

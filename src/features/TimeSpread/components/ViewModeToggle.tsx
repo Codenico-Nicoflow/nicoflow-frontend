@@ -10,12 +10,20 @@ const OPTIONS: { mode: ViewMode; icon: typeof LayoutList }[] = [
   { mode: 'combined', icon: Rows3 },
 ];
 
-const ViewModeToggle = ({ mode, onChange }: { mode: ViewMode; onChange: (mode: ViewMode) => void }) => {
+const ViewModeToggle = ({
+  mode,
+  onChange,
+  className,
+}: {
+  mode: ViewMode;
+  onChange: (mode: ViewMode) => void;
+  className?: string;
+}) => {
   const { t } = useTranslation('task');
 
   return (
     <div
-      className="flex items-center gap-1 rounded-lg bg-muted p-1"
+      className={cn('flex items-center gap-1 rounded-lg bg-muted p-1', className)}
       role="radiogroup"
       aria-label={t('timeSpread.viewModeLabel')}
     >

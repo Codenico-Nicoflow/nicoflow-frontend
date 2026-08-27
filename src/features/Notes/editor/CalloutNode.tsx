@@ -29,6 +29,14 @@ declare module '@tiptap/core' {
   }
 }
 
+// Redesign (post-NIC-1969 feedback): the icon was a blind click-to-cycle
+// through 8 options — no way to see what's coming next or jump straight to
+// one. It's now a picker grid, the same interaction shape as the color swatch
+// already used. The color trigger grew from a 16px dot (easy to miss/mistake
+// for decoration) to a labeled swatch button. A colored left accent bar is
+// added alongside the background tint — Notion/Confluence-style — because the
+// tint alone reads as "plain gray" at the default blue token's low saturation
+// (this is what screenshots flagged as "the box looks untinted").
 const CalloutView = ({ node, updateAttributes }: NodeViewProps) => {
   const icon = parseIcon(node.attrs.icon as string | null);
   const colorToken = parseColor(node.attrs.colorToken as string | null);
@@ -38,23 +46,48 @@ const CalloutView = ({ node, updateAttributes }: NodeViewProps) => {
     <NodeViewWrapper
       data-note-callout=""
       data-token={colorToken}
+      data-icon={icon}
       data-testid="note-callout"
-      className="my-2 flex gap-2 rounded-md border border-border p-3"
+      className="my-2 flex gap-3 rounded-lg border-l-4 p-3"
+      style={{ borderLeftColor: `var(--note-text-${colorToken})` }}
     >
-      <button
-        type="button"
-        contentEditable={false}
-        aria-label="Callout icon"
-        data-testid="note-callout-icon-trigger"
-        className="shrink-0"
-        onClick={() => {
-          const currentIndex = NOTE_CALLOUT_ICONS.indexOf(icon);
-          const next = NOTE_CALLOUT_ICONS[(currentIndex + 1) % NOTE_CALLOUT_ICONS.length];
-          updateAttributes({ icon: next });
-        }}
-      >
-        <Icon className="h-5 w-5" aria-hidden="true" />
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            contentEditable={false}
+            aria-label="Callout icon"
+            data-testid="note-callout-icon-trigger"
+            className="hover:bg-background/60 shrink-0 self-start rounded-md p-1 transition-colors"
+          >
+            <Icon className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-auto p-2">
+          <div className="grid grid-cols-4 gap-1" role="group" aria-label="Callout icon">
+            {NOTE_CALLOUT_ICONS.map(iconOption => {
+              const OptionIcon = CALLOUT_ICON_COMPONENTS[iconOption];
+              return (
+                <button
+                  key={iconOption}
+                  type="button"
+                  contentEditable={false}
+                  aria-label={iconOption}
+                  aria-pressed={icon === iconOption}
+                  onClick={() => updateAttributes({ icon: iconOption })}
+                  data-testid={`note-callout-icon-${iconOption}`}
+                  className={cn(
+                    'hover:bg-accent flex h-8 w-8 items-center justify-center rounded-md',
+                    icon === iconOption && 'bg-accent ring-ring ring-2'
+                  )}
+                >
+                  <OptionIcon className="h-4 w-4" aria-hidden="true" />
+                </button>
+              );
+            })}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <NodeViewContent className="min-w-0 flex-1" />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -63,9 +96,14 @@ const CalloutView = ({ node, updateAttributes }: NodeViewProps) => {
             contentEditable={false}
             aria-label="Callout color"
             data-testid="note-callout-color-trigger"
-            className="border-border h-4 w-4 shrink-0 self-start rounded-full border"
-            style={{ backgroundColor: `var(--note-highlight-${colorToken})` }}
-          />
+            className="hover:bg-background/60 flex shrink-0 items-center gap-1.5 self-start rounded-md p-1 transition-colors"
+          >
+            <span
+              className="border-border h-4 w-4 rounded-full border"
+              style={{ backgroundColor: `var(--note-highlight-${colorToken})` }}
+              aria-hidden="true"
+            />
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-auto p-2">
           <div className="grid grid-cols-4 gap-1.5" role="group" aria-label="Callout color">

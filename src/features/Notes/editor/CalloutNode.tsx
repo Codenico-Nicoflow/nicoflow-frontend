@@ -88,7 +88,7 @@ const CalloutView = ({ node, updateAttributes }: NodeViewProps) => {
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
-      <NodeViewContent className="min-w-0 flex-1" />
+      <NodeViewContent className="min-w-0 flex-1 [&_p]:my-0" />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

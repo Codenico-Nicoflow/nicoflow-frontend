@@ -20,9 +20,20 @@ interface RecurrenceRuleRowProps {
   onPauseToggle: (rule: IRecurrenceRule) => void;
   onDelete: (rule: IRecurrenceRule) => void;
   isMutating: boolean;
+  // True when this rule is over the free plan's cap (left over from a Pro
+  // downgrade) — read-only server-side except for delete. Resuming a paused
+  // rule is blocked here to match; pausing and deleting stay available since
+  // both only shrink what fires.
+  readOnly?: boolean;
 }
 
-export const RecurrenceRuleRow = ({ rule, onPauseToggle, onDelete, isMutating }: RecurrenceRuleRowProps) => {
+export const RecurrenceRuleRow = ({
+  rule,
+  onPauseToggle,
+  onDelete,
+  isMutating,
+  readOnly = false,
+}: RecurrenceRuleRowProps) => {
   const { t } = useTranslation(['recurrence', 'common']);
   const renderSummary = useRecurrenceSummary();
   const { data: stats, isLoading: statsLoading } = useGetRecurrenceStatsQuery(rule.id);
@@ -40,6 +51,11 @@ export const RecurrenceRuleRow = ({ rule, onPauseToggle, onDelete, isMutating }:
             {rule.paused && (
               <Badge variant="secondary" className="text-xs">
                 {t('recurrence:badge.paused')}
+              </Badge>
+            )}
+            {readOnly && (
+              <Badge variant="outline" className="text-xs" data-testid={`recurrence-readonly-${rule.id}`}>
+                {t('recurrence:badge.readOnly')}
               </Badge>
             )}
           </div>
@@ -65,7 +81,11 @@ export const RecurrenceRuleRow = ({ rule, onPauseToggle, onDelete, isMutating }:
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onPauseToggle(rule)}>
+            <DropdownMenuItem
+              onClick={() => onPauseToggle(rule)}
+              disabled={readOnly && rule.paused}
+              data-testid={`recurrence-pause-toggle-${rule.id}`}
+            >
               {rule.paused ? <Play className="me-2 h-4 w-4" /> : <Pause className="me-2 h-4 w-4" />}
               {rule.paused ? t('recurrence:settings.resume') : t('recurrence:settings.pause')}
             </DropdownMenuItem>

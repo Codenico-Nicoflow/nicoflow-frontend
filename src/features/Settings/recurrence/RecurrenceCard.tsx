@@ -40,6 +40,12 @@ export const RecurrenceCard = () => {
   const safePage = Math.min(page, pageCount);
   const pagedRules = rules.slice((safePage - 1) * RULES_PER_PAGE, safePage * RULES_PER_PAGE);
 
+  // The list arrives newest-first (server ORDER BY created_at DESC), but a
+  // graceful downgrade keeps the OLDEST N rules editable — so the read-only
+  // set is whatever falls outside the last FREE_PLAN_RULE_LIMIT entries here,
+  // mirroring the backend's IsWithinFreeLimit ranking exactly.
+  const readOnlyRuleIds = isPro ? new Set<string>() : new Set(rules.slice(FREE_PLAN_RULE_LIMIT).map(r => r.id));
+
   const handlePauseToggle = async (rule: IRecurrenceRule) => {
     try {
       await pauseRule({ id: rule.id, paused: !rule.paused }).unwrap();
@@ -90,13 +96,27 @@ export const RecurrenceCard = () => {
                 onPauseToggle={handlePauseToggle}
                 onDelete={setPendingDelete}
                 isMutating={isMutating}
+                // Deleting an over-cap rule is always allowed (it only shrinks
+                // the set); resuming one isn't, since that's un-pausing a rule
+                // the free plan wouldn't let the user create today. Renaming/
+                // rescheduling isn't reachable from this row at all — that's
+                // TaskDialog's job, which reads the same rule via
+                // useGetRecurrenceRuleQuery and hits the server-side gate.
+                readOnly={readOnlyRuleIds.has(rule.id)}
               />
             ))}
             <ListPager page={safePage} pageCount={pageCount} onPageChange={setPage} data-testid="recurrence-pager" />
-            {!isPro && rules.length >= FREE_PLAN_RULE_LIMIT && (
-              <p className="text-xs text-muted-foreground" data-testid="recurrence-limit-hint">
-                {t('settings.limitReached', { limit: FREE_PLAN_RULE_LIMIT })}
+            {readOnlyRuleIds.size > 0 ? (
+              <p className="text-xs text-muted-foreground" data-testid="recurrence-readonly-hint">
+                {t('settings.readOnlyHint', { limit: FREE_PLAN_RULE_LIMIT })}
               </p>
+            ) : (
+              !isPro &&
+              rules.length >= FREE_PLAN_RULE_LIMIT && (
+                <p className="text-xs text-muted-foreground" data-testid="recurrence-limit-hint">
+                  {t('settings.limitReached', { limit: FREE_PLAN_RULE_LIMIT })}
+                </p>
+              )
             )}
           </>
         )}

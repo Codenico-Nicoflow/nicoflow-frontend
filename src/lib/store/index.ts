@@ -190,6 +190,7 @@ export type {
 
 // Recurrence exports (E-050)
 export const {
+  useConvertTaskToRecurringMutation,
   useCreateRecurrenceRuleMutation,
   useDeleteRecurrenceRuleMutation,
   useGetRecurrenceRuleQuery,
@@ -199,6 +200,7 @@ export const {
   useUpdateRecurrenceRuleMutation,
 } = recurrenceApi;
 export type {
+  ConvertToRecurringRequest,
   CreateRecurrenceRuleRequest,
   ListRecurrenceRulesRequest,
   ListRecurrenceRulesResponse,

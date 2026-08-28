@@ -29,10 +29,14 @@ import { Form } from '@/components/ui/form';
 import { BucketProjectSelector } from '@/features/Bucket/components/BucketProjectSelector';
 import {
   useConfirmAttachmentMutation,
+  useConvertTaskToRecurringMutation,
   useCreateRecurrenceRuleMutation,
   useCreateTaskMutation,
+  useDeleteRecurrenceRuleMutation,
   useGetProjectsQuery,
+  useGetRecurrenceRuleQuery,
   useGetUploadUrlMutation,
+  useUpdateRecurrenceRuleMutation,
   useUpdateTaskMutation,
 } from '@/lib/store';
 import type { TaskFormData } from '@/lib/utils';
@@ -107,7 +111,17 @@ const TaskDialog = ({
 
   const [createTask, { isLoading: isCreateLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdateLoading }] = useUpdateTaskMutation();
-  const [createRule, { isLoading: isRuleLoading }] = useCreateRecurrenceRuleMutation();
+  const [createRule, { isLoading: isCreateRuleLoading }] = useCreateRecurrenceRuleMutation();
+  const [convertTask, { isLoading: isConvertLoading }] = useConvertTaskToRecurringMutation();
+  const [updateRule, { isLoading: isUpdateRuleLoading }] = useUpdateRecurrenceRuleMutation();
+  const [deleteRule, { isLoading: isDeleteRuleLoading }] = useDeleteRecurrenceRuleMutation();
+  const isRuleLoading = isCreateRuleLoading || isConvertLoading || isUpdateRuleLoading || isDeleteRuleLoading;
+  // The task's own rule, if it has one — loaded so edit mode can show the real
+  // schedule instead of always opening with "not repeating".
+  const existingRuleId = task?.recurrenceRuleId ?? undefined;
+  const { data: existingRule, isFetching: isLoadingRule } = useGetRecurrenceRuleQuery(existingRuleId as string, {
+    skip: !existingRuleId,
+  });
   const [getUploadUrl] = useGetUploadUrlMutation();
   const [confirmAttachment] = useConfirmAttachmentMutation();
   const { data: projectsData, isLoading: isLoadingProjects } = useGetProjectsQuery(undefined, {
@@ -121,12 +135,16 @@ const TaskDialog = ({
   // time, because the generic "plan limit" reads as "too many tasks" and sends
   // the user hunting for the wrong thing to delete.
   const [planLimitHit, setPlanLimitHit] = useState<'generic' | 'timedScheduling' | null>(null);
-  // null = an ordinary task/no change. Non-null always creates a NEW rule via
-  // createRule, materializing instance #1 server-side — including on edit,
-  // where it deliberately does not mutate any rule the task already belongs
-  // to (that's still Settings' job). Saving recurrence from here just starts
-  // a fresh series from this task forward.
+  // null = not repeating. In edit mode this is seeded from the task's own rule
+  // (see the effect below) so the field reflects reality instead of always
+  // opening closed. Whether saving this creates a new rule or updates the
+  // existing one is decided at submit time by whether `existingRuleId` is set.
   const [recurrence, setRecurrence] = useState<RecurrenceValue | null>(null);
+  // Whether the user actually touched the recurrence field this session — as
+  // opposed to it merely being pre-filled from the task's existing rule.
+  // hasChanges and the submit branch both need this: loading an existing rule
+  // into the field must not itself count as a change or trigger a rule write.
+  const [recurrenceDirty, setRecurrenceDirty] = useState(false);
   const [projectMissing, setProjectMissing] = useState(false);
   // Create-mode only: files staged locally before the task exists. Uploaded
   // for real right after a successful createTask, then dropped — never used
@@ -160,9 +178,19 @@ const TaskDialog = ({
     }
   }, [hasScheduledDate, form]);
 
+  // Recurrence owns the time-of-day once it's on (stamped onto every
+  // occurrence) — clear the task-level one so it can't ride along stale into
+  // an update payload that also isn't sent while a rule mutation is in play.
+  useEffect(() => {
+    if (recurrence && form.getValues('scheduledTime')) {
+      form.setValue('scheduledTime', null, { shouldDirty: true });
+    }
+  }, [recurrence, form]);
+
   useEffect(() => {
     setPlanLimitHit(null);
     setRecurrence(null);
+    setRecurrenceDirty(false);
     setPickedProjectId(task ? task.projectId : undefined);
     setProjectMissing(false);
     setStagedFiles([]);
@@ -195,6 +223,46 @@ const TaskDialog = ({
     }
   }, [task, form, open, initialScheduledFor, initialTitle, initialNotes]);
 
+  // Seed the field from the task's own rule once it loads. Guarded by
+  // recurrenceDirty so a background refetch (WS invalidation, refocus) never
+  // clobbers an edit the user is mid-way through making.
+  //
+  // `open` is a dependency on purpose, even though nothing in the body reads
+  // it: the OTHER reset effect above (keyed on `task`/`open`) always wins the
+  // race and blanks `recurrence` to null right as the dialog opens/closes —
+  // but if `existingRule`/`existingRuleId`/`recurrenceDirty` all happen to
+  // hold the exact same values as they did the last time this dialog was open
+  // (the common case: same task, cache already warm, user never touched the
+  // toggle), none of THIS effect's own deps change on reopen, so it never
+  // re-runs and the reset's `null` is never overwritten. Cancel a recurring
+  // task's edit dialog, reopen it, and the toggle shows off despite the task
+  // still being recurring. Depending on `open` forces a reseed on every open.
+  useEffect(() => {
+    if (!open || !isEditMode || recurrenceDirty) return;
+    if (!existingRuleId) {
+      // No rule on this task — never seed from existingRule here even if the
+      // query briefly still holds a previous task's cached rule mid-transition
+      // (this dialog instance is reused across different tasks as `task`
+      // changes, and the skipped query's `data` can lag one render behind its
+      // own `skip` flag flipping true).
+      setRecurrence(null);
+      return;
+    }
+    // Guards against the same staleness in the other direction: only accept
+    // existingRule once it's actually the rule for THIS task's existingRuleId.
+    if (existingRule && existingRule.id === existingRuleId) {
+      setRecurrence({
+        freq: existingRule.freq,
+        interval: existingRule.interval,
+        byWeekday: existingRule.byWeekday,
+        byMonthday: existingRule.byMonthday ?? null,
+        startDate: existingRule.startDate,
+        endDate: existingRule.endDate ?? null,
+        scheduledTime: existingRule.scheduledTime ?? null,
+      });
+    }
+  }, [open, isEditMode, existingRule, existingRuleId, recurrenceDirty]);
+
   // Project-less create (bucket-process delegation) had no picker before this
   // dialog took over the field — it auto-selected the user's first project so
   // processing was a single click. Preserve that default here.
@@ -223,7 +291,7 @@ const TaskDialog = ({
       'estimatedMinutes',
       'url',
     ]) ||
-    !!recurrence ||
+    recurrenceDirty ||
     projectChanged;
 
   // Saving an edit that flips status to done is the same completion the list
@@ -270,12 +338,12 @@ const TaskDialog = ({
     }
 
     try {
-      if (isEditMode && recurrence) {
-        // A repeating edit starts a NEW rule from this task forward rather than
-        // mutating any rule the task already belongs to — same createRule call
-        // as create-mode, just reachable from here too.
-        await createRule({
-          projectId: (task.projectId ?? effectiveProjectId) as string,
+      if (isEditMode && recurrenceDirty && recurrence && existingRuleId) {
+        // Task already belongs to a rule and the user changed the schedule —
+        // update that rule in place. Non-schedule fields (title/priority/etc.)
+        // are also patched here so they don't drift from the task's own edit.
+        await updateRule({
+          id: existingRuleId,
           title: data.title,
           priority: data.priority,
           energy: data.energy,
@@ -283,7 +351,28 @@ const TaskDialog = ({
           estimatedMinutes: data.estimatedMinutes ?? undefined,
           ...normalizeScheduleForFreq(recurrence),
         }).unwrap();
-        showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
+        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
+      } else if (isEditMode && recurrenceDirty && recurrence && !existingRuleId) {
+        // Turning a plain task into a repeating one: the SAME task row becomes
+        // instance #1, in place — never a second task. Template fields are
+        // sent for type parity with createRule, but the server ignores them
+        // and reads the task's own current values instead, so it can't drift.
+        await convertTask({
+          taskId: task.id,
+          title: data.title,
+          priority: data.priority,
+          energy: data.energy,
+          notes: data.notes ?? undefined,
+          estimatedMinutes: data.estimatedMinutes ?? undefined,
+          ...normalizeScheduleForFreq(recurrence),
+        }).unwrap();
+        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
+      } else if (isEditMode && recurrenceDirty && !recurrence && existingRuleId) {
+        // Toggled recurrence off on a task that had a rule — end the series.
+        // This task instance itself (and its history) is untouched; only the
+        // rule and its still-pending successor are removed.
+        await deleteRule(existingRuleId).unwrap();
+        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
       } else if (isEditMode) {
         const updatePayload: Parameters<ReturnType<typeof useUpdateTaskMutation>[0]>[0] = {
           id: task.id,
@@ -298,6 +387,18 @@ const TaskDialog = ({
         };
         if (projectChanged) {
           updatePayload.projectId = pickedProjectId;
+        }
+        // scheduledFor stays editable per-instance even on a recurring task
+        // (editing an instance never propagates back to the rule — SPEC §3).
+        // scheduledTime does not: ScheduledTimeField is hidden while
+        // recurrence is on, so its form value is always null/stale here.
+        // Without this guard, saving ANY other field on a recurring task
+        // (title, priority, status…) would silently wipe the time the rule
+        // stamped onto this occurrence, since this branch only fires when
+        // recurrenceDirty is false — i.e. nothing about recurrence changed,
+        // so the existing time must survive untouched.
+        if (existingRuleId) {
+          delete updatePayload.scheduledTime;
         }
         await updateTask(updatePayload).unwrap();
         showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
@@ -426,11 +527,14 @@ const TaskDialog = ({
           </DialogFieldGrid>
 
           {/* Scheduling: soft date intention + optional time-of-day (Pro-only).
-              rollsOver (default on) carries a missed task to Today. */}
+              rollsOver (default on) carries a missed task to Today. The
+              time-of-day input is hidden while recurrence is on — the rule's
+              own scheduledTime is the one that's stamped on every occurrence,
+              and showing both invited setting one and submitting the other. */}
           <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
             <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
             <ScheduledForField control={form.control} delay={0.27} />
-            <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />
+            {!recurrence && <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />}
             <CheckboxField
               control={form.control}
               fieldName="rollsOver"
@@ -441,9 +545,18 @@ const TaskDialog = ({
             />
           </div>
 
-          {/* Turning this on starts a NEW series from here forward — for an edit,
-              it never edits the rule the task already belongs to (that's Settings' job). */}
-          <RecurrenceField value={recurrence} onChange={setRecurrence} disabled={isRuleLoading} />
+          {/* Editing an already-repeating task loads its real rule (see the
+              effect above) rather than always opening closed. Turning it off
+              ends that rule; turning it on for a plain task starts a new one —
+              see the submit branches for exactly which mutation each case fires. */}
+          <RecurrenceField
+            value={recurrence}
+            onChange={next => {
+              setRecurrence(next);
+              setRecurrenceDirty(true);
+            }}
+            disabled={isRuleLoading || isLoadingRule}
+          />
 
           <EstimatedTimeField control={form.control} optional delay={0.3} />
           <UrlField control={form.control} delay={0.35} optional />

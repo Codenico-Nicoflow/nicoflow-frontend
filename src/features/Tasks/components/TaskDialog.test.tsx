@@ -252,15 +252,20 @@ describe('TaskDialog — edit mode', () => {
     await waitFor(() => expect(patchBody).toMatchObject({ projectId: 'project-2' }));
   });
 
-  it('saving recurrence on edit calls createRecurrenceRule, not a plain task update', async () => {
-    let createRuleBody: Record<string, unknown> | undefined;
+  it('saving recurrence on edit for a plain task calls convertTaskToRecurring in place, never createRecurrenceRule', async () => {
+    let convertBody: Record<string, unknown> | undefined;
+    let ruleCreated = false;
     let taskPatched = false;
     server.use(
       http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
       http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
-      http.post(`${API}/projects/project-1/recurrence-rules`, async ({ request }) => {
-        createRuleBody = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json(envelope({ id: 'rule-1', ...createRuleBody }), { status: 201 });
+      http.post(`${API}/tasks/task-9/convert-to-recurring`, async ({ request }) => {
+        convertBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope({ id: 'rule-1', ...convertBody }), { status: 201 });
+      }),
+      http.post(`${API}/projects/project-1/recurrence-rules`, () => {
+        ruleCreated = true;
+        return HttpResponse.json(envelope({ id: 'rule-2' }), { status: 201 });
       }),
       http.patch(`${API}/tasks/task-9`, () => {
         taskPatched = true;
@@ -276,8 +281,115 @@ describe('TaskDialog — edit mode', () => {
     await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
 
     await waitFor(() => expect(toast.success).toHaveBeenCalled());
-    expect(createRuleBody).toMatchObject({ title: 'Existing task' });
+    expect(convertBody).toMatchObject({ title: 'Existing task' });
+    expect(convertBody).not.toHaveProperty('taskId');
+    expect(ruleCreated).toBe(false);
     expect(taskPatched).toBe(false);
+  });
+
+  // Regression: this dialog instance is never unmounted between opens (only
+  // `open` toggles) — closing (Cancel or Save) and reopening it for the same
+  // recurring task used to leave the Repeats toggle showing OFF, because the
+  // reset effect that blanks `recurrence` on close/open shares no dependency
+  // with the seeding effect that reads it back from the cached rule query, so
+  // nothing forced the seed to re-run on the second open.
+  it('reopening a recurring task after closing the dialog still shows Repeats on', async () => {
+    const recurringTask = makeTask({ id: 'task-recurring', title: 'Recurring task', recurrenceRuleId: 'rule-1' });
+    const rule = {
+      id: 'rule-1',
+      projectId: 'project-1',
+      title: 'Recurring task',
+      notes: null,
+      priority: 'medium',
+      energy: 'medium',
+      estimatedMinutes: null,
+      scheduledTime: null,
+      freq: 'weekly',
+      interval: 1,
+      byWeekday: [1],
+      byMonthday: null,
+      startDate: '2026-01-05',
+      endDate: null,
+      nextOccurrence: '2026-01-12',
+      paused: false,
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    };
+    server.use(
+      http.get(`${API}/tasks/task-recurring/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.get(`${API}/recurrence-rules/rule-1`, () => HttpResponse.json(envelope(rule)))
+    );
+
+    const onOpenChange = vi.fn();
+    const { rerender } = renderComponent(
+      <TaskDialog open onOpenChange={onOpenChange} projectId="project-1" task={recurringTask} />
+    );
+
+    await waitFor(() => expect(screen.getByTestId('recurrence-toggle')).toHaveAttribute('aria-checked', 'true'));
+
+    // Close (Cancel), then reopen — same component instance, same task.
+    const user = userEvent.setup();
+    await user.click(screen.getByTestId('form-dialog-cancel-button'));
+    rerender(<TaskDialog open={false} onOpenChange={onOpenChange} projectId="project-1" task={recurringTask} />);
+    rerender(<TaskDialog open onOpenChange={onOpenChange} projectId="project-1" task={recurringTask} />);
+
+    await waitFor(() => expect(screen.getByTestId('recurrence-toggle')).toHaveAttribute('aria-checked', 'true'));
+  });
+
+  // Regression: ScheduledTimeField is hidden while recurrence is on, so its
+  // form value is always empty for a recurring task. Saving ANY other field
+  // (title, priority…) through the plain updateTask path used to send that
+  // empty value along and silently wipe the time the rule had stamped onto
+  // this occurrence — even though nothing about the schedule changed.
+  it('saving an unrelated field on a recurring task never wipes its stamped scheduledTime', async () => {
+    const recurringTask = makeTask({
+      id: 'task-recurring-2',
+      title: 'Recurring task',
+      recurrenceRuleId: 'rule-2',
+      scheduledTime: '14:30',
+    });
+    const rule = {
+      id: 'rule-2',
+      projectId: 'project-1',
+      title: 'Recurring task',
+      notes: null,
+      priority: 'medium',
+      energy: 'medium',
+      estimatedMinutes: null,
+      scheduledTime: '14:30',
+      freq: 'weekly',
+      interval: 1,
+      byWeekday: [1],
+      byMonthday: null,
+      startDate: '2026-01-05',
+      endDate: null,
+      nextOccurrence: '2026-01-12',
+      paused: false,
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    };
+    let patchBody: Record<string, unknown> | undefined;
+    server.use(
+      http.get(`${API}/tasks/task-recurring-2/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.get(`${API}/recurrence-rules/rule-2`, () => HttpResponse.json(envelope(rule))),
+      http.patch(`${API}/tasks/task-recurring-2`, async ({ request }) => {
+        patchBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope(recurringTask));
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={recurringTask} />);
+
+    await waitFor(() => expect(screen.getByTestId('recurrence-toggle')).toHaveAttribute('aria-checked', 'true'));
+    await user.clear(screen.getByPlaceholderText('Enter task name'));
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'Recurring task renamed');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(patchBody).toBeDefined());
+    expect(patchBody).not.toHaveProperty('scheduledTime');
   });
 });
 

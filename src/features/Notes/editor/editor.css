@@ -127,9 +127,23 @@
   gap: 0.5rem;
 }
 
+/* The checkbox's own line-box is taller than its visual glyph (browser
+   default), so centering the label against the li's cross-axis (align-items:
+   center) would pull it below the text baseline on multi-line items. Instead
+   the label's height is pinned to exactly one inherited line (1lh — the
+   paragraph's actual computed line-height, not a guessed em value) and
+   centers the checkbox within just that line — stable regardless of how much
+   text follows or what the prose plugin's line-height resolves to. */
 .ProseMirror ul[data-type='taskList'] li > label {
-  margin-top: 0.3em;
+  align-items: center;
+  display: flex;
+  height: 1lh;
   user-select: none;
+}
+
+.ProseMirror ul[data-type='taskList'] li > label input[type='checkbox'] {
+  display: block;
+  margin: 0;
 }
 
 .ProseMirror ul[data-type='taskList'] li > div {

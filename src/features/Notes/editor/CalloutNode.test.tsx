@@ -19,17 +19,27 @@ const docWithCallout: TiptapDoc = {
 };
 
 describe('CalloutNode', () => {
-  it('cycles the icon when the icon button is clicked', async () => {
+  it('exposes an icon picker grid via the icon trigger, no blind cycling', async () => {
     const user = userEvent.setup();
     renderComponent(<NoteEditor content={docWithCallout} />);
 
     await waitFor(() => expect(screen.getByTestId('note-callout-icon-trigger')).toBeInTheDocument());
     await user.click(screen.getByTestId('note-callout-icon-trigger'));
 
-    // Cycling from "info" lands on the next entry in NOTE_CALLOUT_ICONS
-    // ("warning") — asserted indirectly via the callout still being present
-    // and interactive rather than reaching into the editor's internal schema.
-    expect(screen.getByTestId('note-callout')).toBeInTheDocument();
+    for (const iconName of ['info', 'warning', 'success', 'idea', 'star', 'note', 'flag', 'question']) {
+      expect(screen.getByTestId(`note-callout-icon-${iconName}`)).toBeInTheDocument();
+    }
+  });
+
+  it('changes the callout icon when an icon option is clicked', async () => {
+    const user = userEvent.setup();
+    renderComponent(<NoteEditor content={docWithCallout} />);
+
+    await waitFor(() => expect(screen.getByTestId('note-callout-icon-trigger')).toBeInTheDocument());
+    await user.click(screen.getByTestId('note-callout-icon-trigger'));
+    await user.click(screen.getByTestId('note-callout-icon-warning'));
+
+    expect(screen.getByTestId('note-callout')).toHaveAttribute('data-icon', 'warning');
   });
 
   it('exposes a color-swatch grid via the color trigger, no free-text input', async () => {

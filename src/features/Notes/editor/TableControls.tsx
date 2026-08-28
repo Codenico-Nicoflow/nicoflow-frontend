@@ -68,10 +68,19 @@ export const TableControls = ({ editor, open, onOpenChange }: TableControlsProps
 
       <DropdownMenu open={open} onOpenChange={onOpenChange}>
         <DropdownMenuTrigger asChild>
-          <Button type="button" variant="ghost" size="sm" className="h-8 gap-1 px-2" data-testid="note-table-menu">
+          {/* Tinted rather than plain ghost — this trigger only exists while
+              the caret is inside a table, so it needs to read as "options for
+              THIS element" at a glance, not just another toolbar button. */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1 border border-primary/30 bg-primary/10 px-2 text-primary hover:bg-primary/20 hover:text-primary dark:border-primary/40 dark:bg-primary/15 dark:text-primary"
+            data-testid="note-table-menu"
+          >
             <TableIcon className="h-4 w-4" aria-hidden="true" />
             {t('toolbar.tableGroup')}
-            <ChevronDown className="h-3 w-3 opacity-60" aria-hidden="true" />
+            <ChevronDown className="h-3 w-3 opacity-70" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
 

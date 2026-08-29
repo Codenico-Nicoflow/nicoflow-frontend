@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { isActive, OVERFLOW_DESTINATIONS, PRIMARY_DESTINATIONS } from '@/features/Rail/data';
 import { useIsPro } from '@/hooks';
+import { useGetBucketsQuery, useGetTimeSpreadQuery } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
 import { BottomNavItem } from './BottomNavItem';
@@ -16,6 +17,19 @@ export const BottomNav = () => {
   const { t } = useTranslation('nav');
   const isPro = useIsPro();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // Same source as Rail: Today's count is what's scheduled for today, Inbox's
+  // is unprocessed captures.
+  const { data: timeSpread } = useGetTimeSpreadQuery();
+  const todayCount = timeSpread?.today.length ?? 0;
+  const { data: buckets } = useGetBucketsQuery();
+  const inboxCount = buckets?.items.filter(b => !b.processedAt).length ?? 0;
+
+  const badgeFor = (id: string) => {
+    if (id === 'today') return todayCount;
+    if (id === 'inbox') return inboxCount;
+    return undefined;
+  };
 
   // Without this the user loses all sense of place while on Focus or AI, since
   // neither has a cell of its own.
@@ -29,7 +43,13 @@ export const BottomNav = () => {
       className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-border/60 bg-background pb-[env(safe-area-inset-bottom)]"
     >
       {PRIMARY_DESTINATIONS.map(dest => (
-        <BottomNavItem key={dest.to} dest={dest} active={isActive(pathname, dest)} locked={dest.proOnly && !isPro} />
+        <BottomNavItem
+          key={dest.to}
+          dest={dest}
+          active={isActive(pathname, dest)}
+          locked={dest.proOnly && !isPro}
+          badge={badgeFor(dest.id)}
+        />
       ))}
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>

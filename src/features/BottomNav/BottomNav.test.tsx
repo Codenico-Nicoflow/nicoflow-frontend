@@ -1,10 +1,12 @@
 import { createMockStore, renderComponent } from '__tests__/renderComponent';
+import { server } from '__tests__/server';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
 import { NAV_DESTINATIONS, OVERFLOW_DESTINATIONS, PRIMARY_DESTINATIONS } from '@/features/Rail/data';
-import { makeUser } from '@/mocks/handlers';
+import { makeBucket, makeTask, makeUser } from '@/mocks/handlers';
 
 import { BottomNav } from './index';
 
@@ -130,5 +132,71 @@ describe('BottomNav', () => {
     renderComponent(<BottomNav />, { initialRoute: '/areas' });
 
     expect(screen.getByRole('navigation')).toHaveClass('pb-[env(safe-area-inset-bottom)]');
+  });
+
+  describe('badges', () => {
+    it('shows the unprocessed-bucket count on Inbox and the today-scheduled count on Today', async () => {
+      server.use(
+        http.get('http://localhost:8080/v1/bucket', () =>
+          HttpResponse.json({
+            data: { items: [makeBucket({ id: 'b1' }), makeBucket({ id: 'b2' }), makeBucket({ id: 'b3' })] },
+            error: null,
+          })
+        ),
+        http.get('http://localhost:8080/v1/time-spread', () =>
+          HttpResponse.json({
+            data: { today: [makeTask({ id: 't1' }), makeTask({ id: 't2' })], tomorrow: [], thisWeek: [] },
+            error: null,
+          })
+        )
+      );
+
+      renderComponent(<BottomNav />, { initialRoute: '/quick-access/today' });
+
+      await waitFor(() => expect(screen.getByTestId('bottomnav-inbox-badge')).toHaveTextContent('3'));
+      expect(screen.getByTestId('bottomnav-today-badge')).toHaveTextContent('2');
+    });
+
+    it('caps the badge at 9+', async () => {
+      server.use(
+        http.get('http://localhost:8080/v1/bucket', () =>
+          HttpResponse.json({
+            data: { items: Array.from({ length: 12 }, (_, i) => makeBucket({ id: `b${i}` })) },
+            error: null,
+          })
+        )
+      );
+
+      renderComponent(<BottomNav />, { initialRoute: '/quick-access/today' });
+
+      await waitFor(() => expect(screen.getByTestId('bottomnav-inbox-badge')).toHaveTextContent('9+'));
+    });
+
+    it('hides the badge when the count is zero', () => {
+      renderComponent(<BottomNav />, { initialRoute: '/quick-access/today' });
+
+      expect(screen.queryByTestId('bottomnav-inbox-badge')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('bottomnav-today-badge')).not.toBeInTheDocument();
+    });
+
+    it('excludes already-processed buckets from the Inbox count', async () => {
+      server.use(
+        http.get('http://localhost:8080/v1/bucket', () =>
+          HttpResponse.json({
+            data: {
+              items: [
+                makeBucket({ id: 'b1', processedAt: null }),
+                makeBucket({ id: 'b2', processedAt: '2026-01-01T00:00:00Z' }),
+              ],
+            },
+            error: null,
+          })
+        )
+      );
+
+      renderComponent(<BottomNav />, { initialRoute: '/quick-access/today' });
+
+      await waitFor(() => expect(screen.getByTestId('bottomnav-inbox-badge')).toHaveTextContent('1'));
+    });
   });
 });

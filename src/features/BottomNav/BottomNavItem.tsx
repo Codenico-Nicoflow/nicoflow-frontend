@@ -13,9 +13,12 @@ type BottomNavItemProps = {
   /** Sheet rows are a labelled list; bar cells stack the label under the icon. */
   variant?: 'cell' | 'row';
   onNavigate?: () => void;
+  /** Matches Rail's badge exactly (pill, 9+ cap) — only rendered when > 0. */
+  badge?: number;
 };
 
-export const BottomNavItem = ({ dest, active, locked, variant = 'cell', onNavigate }: BottomNavItemProps) => {
+export const BottomNavItem = ({ dest, active, locked, variant = 'cell', onNavigate, badge }: BottomNavItemProps) => {
+  const showBadge = badge !== undefined && badge > 0;
   const { t } = useTranslation('nav');
   const { t: tTask } = useTranslation('task');
   const label = t(dest.labelKey);
@@ -52,6 +55,14 @@ export const BottomNavItem = ({ dest, active, locked, variant = 'cell', onNaviga
             aria-hidden
             data-testid={`bottomnav-${dest.id}-lock`}
           />
+        )}
+        {showBadge && (
+          <span
+            data-testid={`bottomnav-${dest.id}-badge`}
+            className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
+          >
+            {badge > 9 ? '9+' : badge}
+          </span>
         )}
       </span>
       <span className={cn(!isRow && 'max-w-full truncate')}>{label}</span>

@@ -1,6 +1,6 @@
 import { TaskStatus } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, XCircle } from 'lucide-react';
+import { CheckCircle, CheckCircle2, Circle, XCircle } from 'lucide-react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -46,7 +46,7 @@ export const StatusField = <T extends FieldValues>({
                 data-testid={testId ? `${testId}-status-label` : 'status-label'}
                 className="text-sm font-semibold text-foreground flex items-center gap-2"
               >
-                <Circle className="h-4 w-4" />
+                <CheckCircle className="h-4 w-4" />
                 {resolvedLabel}
                 {optional && (
                   <span className="text-xs text-muted-foreground font-normal">{t('common:fields.optional')}</span>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { type Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -26,7 +26,7 @@ export const ProjectAreaField = ({ control }: ProjectAreaFieldProps) => {
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
+              <LayoutGrid className="h-4 w-4" />
               {t('areaField.label')}
             </FormLabel>
             <Select onValueChange={field.onChange} value={field.value ?? ''} disabled={isLoading}>

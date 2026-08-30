@@ -3,6 +3,8 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
+import { recurrenceExtensionsEn, recurrenceExtensionsHe, recurrenceExtensionsRu } from './recurrenceExtensions';
+
 export const SUPPORTED_LANGUAGES = ['en', 'he', 'ru'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
@@ -40,11 +42,15 @@ const applyDocumentDirection = (lng: string) => {
   document.documentElement.dir = i18n.dir(lng);
 };
 
+const mergedEn = { ...en, recurrence: { ...en.recurrence, ...recurrenceExtensionsEn } };
+const mergedHe = { ...he, recurrence: { ...he.recurrence, ...recurrenceExtensionsHe } };
+const mergedRu = { ...ru, recurrence: { ...ru.recurrence, ...recurrenceExtensionsRu } };
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en, he, ru },
+    resources: { en: mergedEn, he: mergedHe, ru: mergedRu },
     supportedLngs: SUPPORTED_LANGUAGES,
     fallbackLng: 'en',
     ns: NAMESPACES,

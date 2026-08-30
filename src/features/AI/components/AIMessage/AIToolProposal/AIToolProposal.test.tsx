@@ -112,4 +112,56 @@ describe('AIToolProposal', () => {
     );
     expect(screen.getByTestId('tool-proposal-headline')).toHaveTextContent('Create "Draft outline" in Launch Campaign');
   });
+
+  it('renders correct headline for new recurring tool', () => {
+    renderComponent(
+      <AIToolProposal
+        {...defaultProps}
+        toolName="setup_recurring_task"
+        input={{ title: 'Daily standup', freq: 'daily', interval: 1 }}
+      />
+    );
+    expect(screen.getByTestId('tool-proposal-headline')).toHaveTextContent('Set up recurring task "Daily standup"');
+  });
+
+  it('renders correct headline for create_note', () => {
+    renderComponent(<AIToolProposal {...defaultProps} toolName="create_note" input={{ title: 'Meeting notes' }} />);
+    expect(screen.getByTestId('tool-proposal-headline')).toHaveTextContent('Create note "Meeting notes"');
+  });
+
+  it('renders the Tiptap note preview when create_note input has a blocks array', () => {
+    renderComponent(
+      <AIToolProposal
+        {...defaultProps}
+        toolName="create_note"
+        input={{
+          projectId: 'p-1',
+          title: 'Meeting Notes',
+          blocks: [
+            { kind: 'heading', text: 'Agenda', level: 1 },
+            { kind: 'bulletList', items: ['Discuss budget', 'Plan roadmap'] },
+          ],
+          reason: 'You asked for a note.',
+        }}
+      />
+    );
+    expect(screen.getByLabelText('Note preview')).toBeInTheDocument();
+  });
+
+  it('does not render a note preview when create_note input has no blocks', () => {
+    renderComponent(<AIToolProposal {...defaultProps} toolName="create_note" input={{ title: 'No blocks here' }} />);
+    expect(screen.queryByLabelText('Note preview')).not.toBeInTheDocument();
+  });
+
+  it('renders a fallback headline for an unrecognized tool name', () => {
+    renderComponent(
+      // Cast so TS accepts the unknown name without a type error
+      <AIToolProposal
+        {...defaultProps}
+        toolName={'unknown_future_tool' as Parameters<typeof AIToolProposal>[0]['toolName']}
+        input={{}}
+      />
+    );
+    expect(screen.getByTestId('tool-proposal-headline')).toHaveTextContent('Apply:');
+  });
 });

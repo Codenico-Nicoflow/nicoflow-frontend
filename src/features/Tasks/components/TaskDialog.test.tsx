@@ -287,6 +287,30 @@ describe('TaskDialog — edit mode', () => {
     expect(taskPatched).toBe(false);
   });
 
+  it('shows inline plan-limit alert (no toast) when convert-to-recurring hits PLAN_LIMIT_EXCEEDED', async () => {
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.post(`${API}/tasks/task-9/convert-to-recurring`, () =>
+        HttpResponse.json(
+          { data: null, error: { code: 'PLAN_LIMIT_EXCEEDED', message: 'recurrence rules limit reached' } },
+          { status: 403 }
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={task} />);
+
+    await screen.findByTestId('recurrence-toggle');
+    await user.click(screen.getByTestId('recurrence-toggle'));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await waitFor(() => expect(screen.getByTestId('plan-limit-alert')).toBeInTheDocument());
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
   // Regression: this dialog instance is never unmounted between opens (only
   // `open` toggles) — closing (Cancel or Save) and reopening it for the same
   // recurring task used to leave the Repeats toggle showing OFF, because the
@@ -388,8 +412,60 @@ describe('TaskDialog — edit mode', () => {
     await user.type(screen.getByPlaceholderText('Enter task name'), 'Recurring task renamed');
     await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
 
+    // Editing a recurring task opens EditScopeDialog — choose "this occurrence" to proceed.
+    await screen.findByTestId('edit-scope-dialog');
+    await user.click(screen.getByTestId('edit-scope-occurrence'));
+
     await waitFor(() => expect(patchBody).toBeDefined());
     expect(patchBody).not.toHaveProperty('scheduledTime');
+  });
+
+  it('editing a recurring task title shows EditScopeDialog instead of saving immediately', async () => {
+    const recurringTask = makeTask({ id: 'task-scope-check', title: 'Recurring task', recurrenceRuleId: 'rule-sc' });
+    const rule = {
+      id: 'rule-sc',
+      projectId: 'project-1',
+      title: 'Recurring task',
+      notes: null,
+      priority: 'medium',
+      energy: 'medium',
+      estimatedMinutes: null,
+      scheduledTime: null,
+      freq: 'daily',
+      interval: 1,
+      byWeekday: null,
+      byMonthday: null,
+      startDate: '2026-01-01',
+      endDate: null,
+      nextOccurrence: '2026-01-02',
+      paused: false,
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    };
+    let patched = false;
+    server.use(
+      http.get(`${API}/tasks/task-scope-check/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.get(`${API}/recurrence-rules/rule-sc`, () => HttpResponse.json(envelope(rule))),
+      http.patch(`${API}/tasks/task-scope-check`, () => {
+        patched = true;
+        return HttpResponse.json(envelope(recurringTask));
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={recurringTask} />);
+
+    await waitFor(() => expect(screen.getByTestId('recurrence-toggle')).toHaveAttribute('aria-checked', 'true'));
+    await user.clear(screen.getByPlaceholderText('Enter task name'));
+    await user.type(screen.getByPlaceholderText('Enter task name'), 'New title');
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    // Dialog must appear — no immediate save.
+    expect(await screen.findByTestId('edit-scope-dialog')).toBeInTheDocument();
+    expect(patched).toBe(false);
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
   });
 });
 

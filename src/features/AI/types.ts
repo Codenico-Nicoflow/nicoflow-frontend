@@ -2,7 +2,7 @@
 // tracking). The wire view types (AIMessageView, AISessionView, AIUsageView,
 // AIPendingToolCall, AIToolName, …) moved to @nicoflow/shared/api under
 // NIC-1936 — re-exported here for callers that still import from this module.
-import type { AIToolName, AIUsageView } from '@nicoflow/shared/api';
+import type { AIToolName as SharedAIToolName, AIUsageView } from '@nicoflow/shared/api';
 
 export type {
   AIMessageRole,
@@ -10,10 +10,26 @@ export type {
   AIPendingToolCall,
   AISessionDetailView,
   AISessionView,
-  AIToolName,
   AIUsageScope,
   AIUsageView,
 } from '@nicoflow/shared/api';
+
+// NIC-1998: 11 new tool names added by the backend. Extended here locally until
+// the next @nicoflow/shared release picks them up into the union.
+export type NewAIToolName =
+  | 'setup_recurring_task'
+  | 'adjust_recurring_task'
+  | 'pause_recurring_task'
+  | 'end_recurring_series'
+  | 'create_note'
+  | 'create_area'
+  | 'create_project'
+  | 'update_project'
+  | 'add_subtask'
+  | 'complete_subtask'
+  | 'process_bucket_item';
+
+export type AIToolName = SharedAIToolName | NewAIToolName;
 
 // Streaming send-message events (POST /ai/sessions/:id/messages, SSE over POST —
 // NIC-1684). Each SSE frame is a `data: <json>` line; exactly one terminal event

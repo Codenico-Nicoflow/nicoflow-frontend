@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { type ITask, TaskStatus } from '@nicoflow/shared/types';
-import { Ban, CalendarX, Edit, Trash2 } from 'lucide-react';
+import { Ban, CalendarX, Edit, SkipForward, Trash2, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -11,6 +11,7 @@ import { useMarkTaskMissedMutation, useUpdateTaskStatusMutation } from '@/lib/st
 import { cn, showErrorToast, showSuccessToast, ToastMessages } from '@/lib/utils';
 
 import { needsCompletionConfirm } from '../completionGuard';
+import { useTaskRecurrenceActions } from '../hooks/useTaskRecurrenceActions';
 import { useConfirmComplete } from '../useConfirmComplete';
 
 import TaskBadges from './TaskBadges';
@@ -28,9 +29,11 @@ interface TaskItemProps {
 
 const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }: TaskItemProps) => {
   const { t } = useTranslation('task');
+  const { t: tRec } = useTranslation('recurrence');
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const [markTaskMissed] = useMarkTaskMissedMutation();
   const { guardComplete, confirmDialog } = useConfirmComplete();
+  const { isRecurringInstance, skip, endSeries, dialogs: recurrenceDialogs } = useTaskRecurrenceActions(task);
   const checkboxRef = React.useRef<TaskCompleteCheckboxHandle>(null);
   const isCompleted = task.status === TaskStatus.DONE;
   // Mirrors the backend's own mark-missed guard (today-or-past, active,
@@ -91,6 +94,25 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
   // Gate fires only on completing with open subtasks — never on uncompleting.
   const willDefer = needsCompletionConfirm(task, TaskStatus.DONE) && !isCompleted;
 
+  // For recurring instances: replace the single "Delete" item with two specific
+  // actions. Non-recurring tasks keep the plain "Delete" which delegates to the
+  // parent's onDelete handler (which opens TaskDeleteDialog).
+  const deleteActions = isRecurringInstance
+    ? [
+        {
+          label: tRec('actions.skipOccurrence'),
+          icon: SkipForward,
+          onClick: skip,
+        },
+        {
+          label: tRec('actions.endSeries'),
+          icon: XCircle,
+          onClick: endSeries,
+          destructive: true as const,
+        },
+      ]
+    : [{ label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true as const }];
+
   return (
     <AnimatedListItem index={index}>
       <ListItemCard
@@ -150,7 +172,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
                 ...(canMarkMissed
                   ? [{ label: t('actions.markMissed'), icon: CalendarX, onClick: () => void handleMarkMissed() }]
                   : []),
-                { label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true },
+                ...deleteActions,
               ]}
             />
             <TaskCompleteCheckbox
@@ -166,6 +188,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
         </div>
       </ListItemCard>
       {confirmDialog}
+      {recurrenceDialogs}
     </AnimatedListItem>
   );
 };

@@ -66,5 +66,71 @@ export const toolInputToSummary = (
       const project = projectNames?.[projectId] ?? projectId;
       return { headline: `Create "${title}" in ${project}`, reason };
     }
+
+    case 'setup_recurring_task': {
+      const title = getString(input, 'title') ?? 'Untitled';
+      return { headline: `Set up recurring task "${title}"`, reason };
+    }
+
+    case 'adjust_recurring_task': {
+      const taskId = getString(input, 'taskId') ?? '';
+      const title = taskTitles?.[taskId] ?? taskId;
+      return { headline: `Adjust recurring schedule for "${title}"`, reason };
+    }
+
+    case 'pause_recurring_task': {
+      const taskId = getString(input, 'taskId') ?? '';
+      const title = taskTitles?.[taskId] ?? taskId;
+      return { headline: `Pause recurring task "${title}"`, reason };
+    }
+
+    case 'end_recurring_series': {
+      const taskId = getString(input, 'taskId') ?? '';
+      const title = taskTitles?.[taskId] ?? taskId;
+      return { headline: `End recurring series for "${title}"`, reason };
+    }
+
+    case 'create_note': {
+      const title = getString(input, 'title') ?? 'Untitled note';
+      return { headline: `Create note "${title}"`, reason };
+    }
+
+    case 'create_area': {
+      const name = getString(input, 'name') ?? 'Untitled';
+      return { headline: `Create area "${name}"`, reason };
+    }
+
+    case 'create_project': {
+      const name = getString(input, 'name') ?? 'Untitled';
+      return { headline: `Create project "${name}"`, reason };
+    }
+
+    case 'update_project': {
+      const projectId = getString(input, 'projectId') ?? '';
+      const project = projectNames?.[projectId] ?? projectId;
+      return { headline: `Update project "${project}"`, reason };
+    }
+
+    case 'add_subtask': {
+      const taskId = getString(input, 'taskId') ?? '';
+      const title = taskTitles?.[taskId] ?? taskId;
+      const subtask = getString(input, 'title') ?? getString(input, 'subtaskTitle') ?? 'subtask';
+      return { headline: `Add subtask "${subtask}" to "${title}"`, reason };
+    }
+
+    case 'complete_subtask': {
+      const subtask = getString(input, 'title') ?? getString(input, 'subtaskTitle') ?? 'subtask';
+      return { headline: `Complete subtask "${subtask}"`, reason };
+    }
+
+    case 'process_bucket_item': {
+      const result = getString(input, 'result') ?? getString(input, 'processingResult') ?? 'process';
+      return { headline: `Process inbox item as ${result}`, reason };
+    }
+
+    default: {
+      // Unknown tools: surface the raw name rather than silently dropping them.
+      return { headline: `Apply: ${toolName}`, reason };
+    }
   }
 };

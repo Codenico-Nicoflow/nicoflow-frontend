@@ -1,3 +1,4 @@
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -7,6 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import type { AIToolName, ToolProposalStatus } from '@/features/AI/types';
 
 import { toolInputToSummary } from './formatters';
+import { VARIANT_REGISTRY } from './variants';
 
 export interface AIToolProposalProps {
   toolUseId: string;
@@ -37,6 +39,7 @@ export const AIToolProposal = ({
   projectNames,
 }: AIToolProposalProps) => {
   const { t } = useTranslation('ai');
+  const prefersReduced = useReducedMotion();
   const { headline, reason } = toolInputToSummary(toolName, input, taskTitles, projectNames);
 
   const isExecuting = status === 'executing';
@@ -44,13 +47,26 @@ export const AIToolProposal = ({
   const isRejected = status === 'rejected';
   const isError = status === 'error';
 
+  const VariantBody = VARIANT_REGISTRY[toolName];
+
+  const transitionProps = prefersReduced ? { duration: 0 } : { type: 'spring' as const, stiffness: 260, damping: 22 };
+
   const renderFooter = () => {
     if (isDone) {
       return (
-        <Badge variant="secondary" className="gap-1.5" data-testid="tool-proposal-applied">
-          <CheckCircle2 className="size-3.5" aria-hidden />
-          {t('toolProposal.applied')}
-        </Badge>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key="done"
+            initial={prefersReduced ? false : { opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={transitionProps}
+          >
+            <Badge variant="secondary" className="gap-1.5" data-testid="tool-proposal-applied">
+              <CheckCircle2 className="size-3.5" aria-hidden />
+              {t('toolProposal.applied')}
+            </Badge>
+          </motion.div>
+        </AnimatePresence>
       );
     }
 
@@ -86,7 +102,17 @@ export const AIToolProposal = ({
             onClick={() => onConfirm(toolUseId)}
             data-testid="tool-proposal-confirm"
           >
-            {isExecuting && <Loader2 className="me-1.5 size-3.5 animate-spin" aria-hidden />}
+            {isExecuting && (
+              <motion.span
+                key="spinner"
+                initial={prefersReduced ? false : { opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                transition={{ duration: prefersReduced ? 0 : 0.15 }}
+                className="me-1.5 inline-flex"
+              >
+                <Loader2 className="size-3.5 animate-spin" aria-hidden />
+              </motion.span>
+            )}
             {isExecuting ? t('toolProposal.executing') : t('toolProposal.confirm')}
           </Button>
           <Button
@@ -111,11 +137,14 @@ export const AIToolProposal = ({
         </CardTitle>
       </CardHeader>
 
-      {reason && (
-        <CardContent className="py-2">
-          <p className="text-muted-foreground text-sm" data-testid="tool-proposal-reason">
-            {reason}
-          </p>
+      {(reason || VariantBody) && (
+        <CardContent className="py-2 space-y-2">
+          {reason && (
+            <p className="text-muted-foreground text-sm" data-testid="tool-proposal-reason">
+              {reason}
+            </p>
+          )}
+          {VariantBody && <VariantBody input={input} taskTitles={taskTitles} projectNames={projectNames} />}
         </CardContent>
       )}
 

@@ -90,4 +90,72 @@ describe('toolInputToSummary', () => {
       expect(() => toolInputToSummary('create_task', 'bad')).not.toThrow();
     });
   });
+
+  describe('new recurring / area / project / subtask / bucket tools', () => {
+    it('setup_recurring_task uses title from input', () => {
+      const { headline } = toolInputToSummary('setup_recurring_task', { title: 'Daily standup' });
+      expect(headline).toBe('Set up recurring task "Daily standup"');
+    });
+
+    it('adjust_recurring_task resolves taskId via lookup map', () => {
+      const { headline } = toolInputToSummary(
+        'adjust_recurring_task',
+        { taskId: 'task-1' },
+        { 'task-1': 'Morning run' }
+      );
+      expect(headline).toBe('Adjust recurring schedule for "Morning run"');
+    });
+
+    it('end_recurring_series resolves taskId via lookup map', () => {
+      const { headline } = toolInputToSummary(
+        'end_recurring_series',
+        { taskId: 'task-2' },
+        { 'task-2': 'Weekly review' }
+      );
+      expect(headline).toBe('End recurring series for "Weekly review"');
+    });
+
+    it('create_note uses title from input', () => {
+      const { headline } = toolInputToSummary('create_note', { title: 'Meeting notes' });
+      expect(headline).toBe('Create note "Meeting notes"');
+    });
+
+    it('create_area uses name from input', () => {
+      const { headline } = toolInputToSummary('create_area', { name: 'Personal' });
+      expect(headline).toBe('Create area "Personal"');
+    });
+
+    it('create_project uses name from input', () => {
+      const { headline } = toolInputToSummary('create_project', { name: 'Website redesign' });
+      expect(headline).toBe('Create project "Website redesign"');
+    });
+
+    it('update_project resolves projectId via lookup map', () => {
+      const { headline } = toolInputToSummary('update_project', { projectId: 'proj-2' }, undefined, {
+        'proj-2': 'Q4 OKRs',
+      });
+      expect(headline).toBe('Update project "Q4 OKRs"');
+    });
+
+    it('add_subtask shows subtask title and parent task', () => {
+      const { headline } = toolInputToSummary(
+        'add_subtask',
+        { taskId: 'task-1', title: 'Write tests' },
+        { 'task-1': 'Ship feature' }
+      );
+      expect(headline).toContain('Write tests');
+      expect(headline).toContain('Ship feature');
+    });
+
+    it('process_bucket_item shows processing result', () => {
+      const { headline } = toolInputToSummary('process_bucket_item', { result: 'task' });
+      expect(headline).toContain('task');
+    });
+
+    it('unknown future tool falls back to "Apply: <name>"', () => {
+      // Cast to bypass TS exhaustiveness — simulates a future tool from the backend.
+      const { headline } = toolInputToSummary('future_unknown_tool' as Parameters<typeof toolInputToSummary>[0], {});
+      expect(headline).toContain('future_unknown_tool');
+    });
+  });
 });

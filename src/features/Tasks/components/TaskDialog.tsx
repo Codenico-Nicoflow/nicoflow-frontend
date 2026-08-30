@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ITask } from '@nicoflow/shared/types';
@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import type { RecurrenceValue } from '@/components';
 import {
   CheckboxField,
+  ConfirmDialog,
   DescriptionField,
   DialogFieldGrid,
   EnergyField,
@@ -53,6 +54,7 @@ import {
 import { useConfirmComplete } from '../useConfirmComplete';
 
 import { AttachmentSection, StagedAttachmentPicker } from './AttachmentSection';
+import { type EditScope, EditScopeDialog } from './EditScopeDialog';
 import { SubtaskAccordion } from './SubtaskAccordion';
 
 interface TaskDialogProps {
@@ -103,6 +105,7 @@ const TaskDialog = ({
   onCreateSubmit,
 }: TaskDialogProps) => {
   const { t } = useTranslation('task');
+  const { t: tRec } = useTranslation('recurrence');
   const isEditMode = !!task;
   const needsProjectPicker = !isEditMode && !projectId;
   // Edit mode always shows the picker too — reassignment is a switch between
@@ -127,7 +130,7 @@ const TaskDialog = ({
   const { data: projectsData, isLoading: isLoadingProjects } = useGetProjectsQuery(undefined, {
     skip: !showProjectPicker,
   });
-  const projects = projectsData?.items ?? [];
+  const projects = useMemo(() => projectsData?.items ?? [], [projectsData]);
   const [pickedProjectId, setPickedProjectId] = useState<string | undefined>(undefined);
   const { guardComplete, confirmDialog } = useConfirmComplete();
 
@@ -150,6 +153,15 @@ const TaskDialog = ({
   // for real right after a successful createTask, then dropped — never used
   // once in edit mode, where AttachmentSection owns the real ownerId.
   const [stagedFiles, setStagedFiles] = useState<File[]>([]);
+
+  // EditScopeDialog: open when editing a task that already has a rule and any
+  // field changed (not just recurrence fields). Holds pending form data so the
+  // scope dialog can carry it through.
+  const [editScopeOpen, setEditScopeOpen] = useState(false);
+  const pendingSubmitDataRef = useRef<TaskFormData | null>(null);
+
+  // EndSeries confirm: when user toggles recurrence OFF on a task that has a rule.
+  const [endSeriesConfirmOpen, setEndSeriesConfirmOpen] = useState(false);
 
   const form = useForm<TaskFormData>({
     defaultValues: {
@@ -194,6 +206,9 @@ const TaskDialog = ({
     setPickedProjectId(task ? task.projectId : undefined);
     setProjectMissing(false);
     setStagedFiles([]);
+    setEditScopeOpen(false);
+    setEndSeriesConfirmOpen(false);
+    pendingSubmitDataRef.current = null;
     if (task) {
       form.reset({
         title: task.title,
@@ -329,19 +344,13 @@ const TaskDialog = ({
     }
   };
 
-  const submit = async (data: TaskFormData) => {
+  // Executes the actual update after a scope has been chosen (occurrence | series).
+  const applyEdit = async (data: TaskFormData, scope: EditScope | null) => {
     setPlanLimitHit(null);
-    const effectiveProjectId = projectId ?? pickedProjectId;
-    if (!isEditMode && !effectiveProjectId) {
-      setProjectMissing(true);
-      return;
-    }
 
     try {
-      if (isEditMode && recurrenceDirty && recurrence && existingRuleId) {
-        // Task already belongs to a rule and the user changed the schedule —
-        // update that rule in place. Non-schedule fields (title/priority/etc.)
-        // are also patched here so they don't drift from the task's own edit.
+      if (scope === 'series' && existingRuleId && recurrence) {
+        // Series edit: update the rule template (also re-stamps the live instance).
         await updateRule({
           id: existingRuleId,
           title: data.title,
@@ -351,31 +360,10 @@ const TaskDialog = ({
           estimatedMinutes: data.estimatedMinutes ?? undefined,
           ...normalizeScheduleForFreq(recurrence),
         }).unwrap();
-        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
-      } else if (isEditMode && recurrenceDirty && recurrence && !existingRuleId) {
-        // Turning a plain task into a repeating one: the SAME task row becomes
-        // instance #1, in place — never a second task. Template fields are
-        // sent for type parity with createRule, but the server ignores them
-        // and reads the task's own current values instead, so it can't drift.
-        await convertTask({
-          taskId: task.id,
-          title: data.title,
-          priority: data.priority,
-          energy: data.energy,
-          notes: data.notes ?? undefined,
-          estimatedMinutes: data.estimatedMinutes ?? undefined,
-          ...normalizeScheduleForFreq(recurrence),
-        }).unwrap();
-        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
-      } else if (isEditMode && recurrenceDirty && !recurrence && existingRuleId) {
-        // Toggled recurrence off on a task that had a rule — end the series.
-        // This task instance itself (and its history) is untouched; only the
-        // rule and its still-pending successor are removed.
-        await deleteRule(existingRuleId).unwrap();
-        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
-      } else if (isEditMode) {
+      } else {
+        // Occurrence edit (or no-recurrence task): plain per-instance PATCH.
         const updatePayload: Parameters<ReturnType<typeof useUpdateTaskMutation>[0]>[0] = {
-          id: task.id,
+          id: task!.id,
           ...data,
           energy: data.energy,
           rollsOver: data.rollsOver,
@@ -401,21 +389,102 @@ const TaskDialog = ({
           delete updatePayload.scheduledTime;
         }
         await updateTask(updatePayload).unwrap();
-        showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
-      } else if (onCreateSubmit) {
-        // Delegated create — the caller's endpoint does its own create (and any
-        // side effect, e.g. marking a bucket item processed) and owns success
-        // toasting. Recurrence is passed through so the caller can send it to
-        // an endpoint that handles it natively (bucket-process) instead of
-        // falling back to a separate createRule call. If the caller returns a
-        // taskId, we upload any staged files against it.
+      }
+      showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (error) {
+      if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
+        const submittedTime = data.scheduledTime || recurrence?.scheduledTime;
+        setPlanLimitHit(submittedTime ? 'timedScheduling' : 'generic');
+        return;
+      }
+      showErrorToast(error, toast);
+    }
+  };
+
+  const handleEditScopeChosen = async (scope: EditScope) => {
+    setEditScopeOpen(false);
+    const data = pendingSubmitDataRef.current;
+    if (!data) return;
+    await applyEdit(data, scope);
+  };
+
+  const handleEndSeriesConfirm = async () => {
+    if (!existingRuleId) return;
+    try {
+      await deleteRule(existingRuleId).unwrap();
+      toast.success(tRec('toast.seriesEnded'));
+      setEndSeriesConfirmOpen(false);
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (error) {
+      showErrorToast(error, toast);
+    }
+  };
+
+  const submit = async (data: TaskFormData) => {
+    setPlanLimitHit(null);
+    const effectiveProjectId = projectId ?? pickedProjectId;
+    if (!isEditMode && !effectiveProjectId) {
+      setProjectMissing(true);
+      return;
+    }
+
+    // --- Edit-mode branching ---
+    if (isEditMode) {
+      // Case: toggle recurrence OFF on an existing rule → end the series.
+      if (recurrenceDirty && !recurrence && existingRuleId) {
+        setEndSeriesConfirmOpen(true);
+        return;
+      }
+
+      // Case: convert plain task to recurring → direct convert, no scope choice.
+      if (recurrenceDirty && recurrence && !existingRuleId) {
+        try {
+          await convertTask({
+            taskId: task!.id,
+            title: data.title,
+            priority: data.priority,
+            energy: data.energy,
+            notes: data.notes ?? undefined,
+            estimatedMinutes: data.estimatedMinutes ?? undefined,
+            ...normalizeScheduleForFreq(recurrence),
+          }).unwrap();
+          showSuccessToast(ToastMessages.TASK_UPDATED_SUCCESSFULLY, toast);
+          onOpenChange(false);
+          onSuccess?.();
+        } catch (error) {
+          if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
+            const submittedTime = data.scheduledTime || recurrence?.scheduledTime;
+            setPlanLimitHit(submittedTime ? 'timedScheduling' : 'generic');
+            return;
+          }
+          showErrorToast(error, toast);
+        }
+        return;
+      }
+
+      // Case: recurring task, any field changed → ask occurrence vs series.
+      if (existingRuleId && hasChanges) {
+        pendingSubmitDataRef.current = data;
+        setEditScopeOpen(true);
+        return;
+      }
+
+      // Case: non-recurring task with no recurrence change.
+      await applyEdit(data, null);
+      return;
+    }
+
+    // --- Create-mode branching ---
+    try {
+      if (onCreateSubmit) {
         const result = await onCreateSubmit(data, effectiveProjectId as string, recurrence);
         if (result?.taskId && stagedFiles.length > 0) {
           void uploadStagedFiles(result.taskId, stagedFiles);
         }
       } else if (recurrence) {
-        // A repeating task is created as a rule; the backend stamps instance #1
-        // from this same template inside the same transaction.
         await createRule({
           projectId: effectiveProjectId as string,
           title: data.title,
@@ -440,8 +509,6 @@ const TaskDialog = ({
           url: data.url || '',
         }).unwrap();
         showSuccessToast(ToastMessages.TASK_CREATED_SUCCESSFULLY, toast);
-        // Task creation is the success signal — staged-file upload failures
-        // never block or roll it back, they just surface their own toasts.
         if (stagedFiles.length > 0) {
           void uploadStagedFiles(created.id, stagedFiles);
         }
@@ -449,11 +516,7 @@ const TaskDialog = ({
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
-      // A plan-limit 403 becomes an inline upgrade CTA, not a generic error toast.
       if (getApiErrorCode(error) === 'PLAN_LIMIT_EXCEEDED') {
-        // Only a submitted time can have tripped the timed-scheduling gate — on
-        // either the task or the recurrence rule; any other 403 on this form is a
-        // task/project/rule count.
         const submittedTime = data.scheduledTime || recurrence?.scheduledTime;
         setPlanLimitHit(submittedTime ? 'timedScheduling' : 'generic');
         return;
@@ -463,111 +526,135 @@ const TaskDialog = ({
   };
 
   return (
-    <FormDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={isEditMode ? t('dialog.editTitle') : t('dialog.createTitle')}
-      description={isEditMode ? t('dialog.editDescription') : t('dialog.createDescription')}
-      icon={CheckSquare}
-      isEditMode={isEditMode}
-      isLoading={isCreateLoading || isUpdateLoading || isRuleLoading}
-      hasChanges={hasChanges}
-      onSubmit={form.handleSubmit(onSubmit)}
-      maxWidth="xl"
-    >
-      <Form {...form}>
-        <div className="space-y-4">
-          {planLimitHit && (
-            <PlanLimitAlert
-              message={planLimitHit === 'timedScheduling' ? t('calendar.timedSchedulingLocked') : undefined}
-            />
-          )}
-
-          {showProjectPicker && (
-            <div className="space-y-1">
-              <BucketProjectSelector
-                selectedProjectId={pickedProjectId}
-                setSelectedProjectId={id => {
-                  setPickedProjectId(id);
-                  setProjectMissing(false);
-                }}
-                projects={projects}
-                isLoading={isLoadingProjects}
+    <>
+      <FormDialog
+        open={open}
+        onOpenChange={onOpenChange}
+        title={isEditMode ? t('dialog.editTitle') : t('dialog.createTitle')}
+        description={isEditMode ? t('dialog.editDescription') : t('dialog.createDescription')}
+        icon={CheckSquare}
+        isEditMode={isEditMode}
+        isLoading={isCreateLoading || isUpdateLoading || isRuleLoading}
+        hasChanges={hasChanges}
+        onSubmit={form.handleSubmit(onSubmit)}
+        maxWidth="xl"
+      >
+        <Form {...form}>
+          <div className="space-y-4">
+            {planLimitHit && (
+              <PlanLimitAlert
+                message={planLimitHit === 'timedScheduling' ? t('calendar.timedSchedulingLocked') : undefined}
               />
-              {projectMissing && <p className="text-sm text-destructive">{t('dialog.projectPlaceholder')}</p>}
-            </div>
-          )}
+            )}
 
-          <NameField
-            control={form.control}
-            fieldName="title"
-            label={t('dialog.taskNameLabel')}
-            icon={CheckSquare}
-            placeholder={t('dialog.taskNamePlaceholder')}
-            delay={0.1}
-          />
-          <DescriptionField
-            control={form.control}
-            fieldName="notes"
-            label={t('dialog.descriptionLabel')}
-            placeholder={t('dialog.descriptionPlaceholder')}
-            minHeight="100px"
-            optional
-            delay={0.15}
-          />
+            {showProjectPicker && (
+              <div className="space-y-1">
+                <BucketProjectSelector
+                  selectedProjectId={pickedProjectId}
+                  setSelectedProjectId={id => {
+                    setPickedProjectId(id);
+                    setProjectMissing(false);
+                  }}
+                  projects={projects}
+                  isLoading={isLoadingProjects}
+                />
+                {projectMissing && <p className="text-sm text-destructive">{t('dialog.projectPlaceholder')}</p>}
+              </div>
+            )}
 
-          {/* Status is only settable on existing tasks — new tasks default to active server-side.
-              Not "optional" in the missing-value sense (it always has a value, active by default),
-              so no Optional badge — same reasoning as Priority/Energy below. */}
-          {isEditMode && <StatusField control={form.control} delay={0.18} />}
-
-          <DialogFieldGrid columns={2}>
-            <PriorityField control={form.control} delay={0.2} />
-            <EnergyField control={form.control} delay={0.22} />
-          </DialogFieldGrid>
-
-          {/* Scheduling: soft date intention + optional time-of-day (Pro-only).
-              rollsOver (default on) carries a missed task to Today. The
-              time-of-day input is hidden while recurrence is on — the rule's
-              own scheduledTime is the one that's stamped on every occurrence,
-              and showing both invited setting one and submitting the other. */}
-          <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
-            <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
-            <ScheduledForField control={form.control} delay={0.27} />
-            {!recurrence && <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />}
-            <CheckboxField
+            <NameField
               control={form.control}
-              fieldName="rollsOver"
-              icon={Repeat}
-              label={t('dialog.rollsOverLabel')}
-              description={t('dialog.rollsOverDescription')}
-              delay={0.29}
+              fieldName="title"
+              label={t('dialog.taskNameLabel')}
+              icon={CheckSquare}
+              placeholder={t('dialog.taskNamePlaceholder')}
+              delay={0.1}
             />
+            <DescriptionField
+              control={form.control}
+              fieldName="notes"
+              label={t('dialog.descriptionLabel')}
+              placeholder={t('dialog.descriptionPlaceholder')}
+              minHeight="100px"
+              optional
+              delay={0.15}
+            />
+
+            {/* Status is only settable on existing tasks — new tasks default to active server-side. */}
+            {isEditMode && <StatusField control={form.control} delay={0.18} />}
+
+            <DialogFieldGrid columns={2}>
+              <PriorityField control={form.control} delay={0.2} />
+              <EnergyField control={form.control} delay={0.22} />
+            </DialogFieldGrid>
+
+            {/* Scheduling: soft date intention + optional time-of-day (Pro-only).
+                rollsOver (default on) carries a missed task to Today. The
+                time-of-day input is hidden while recurrence is on — the rule's
+                own scheduledTime is the one that's stamped on every occurrence,
+                and showing both invited setting one and submitting the other. */}
+            <div className="space-y-3 rounded-lg border border-border/60 p-3" data-testid="scheduling-block">
+              <p className="text-sm font-semibold text-foreground">{t('dialog.schedulingTitle')}</p>
+              <ScheduledForField control={form.control} delay={0.27} />
+              {!recurrence && <ScheduledTimeField control={form.control} delay={0.28} disabled={!hasScheduledDate} />}
+              <CheckboxField
+                control={form.control}
+                fieldName="rollsOver"
+                icon={Repeat}
+                label={t('dialog.rollsOverLabel')}
+                description={t('dialog.rollsOverDescription')}
+                delay={0.29}
+              />
+            </div>
+
+            {/* Editing an already-repeating task loads its real rule (see the
+                effect above) rather than always opening closed. Turning it off
+                triggers the end-series confirm; turning it on for a plain task
+                starts a new one — see the submit branches for which mutation fires. */}
+            <RecurrenceField
+              value={recurrence}
+              onChange={next => {
+                setRecurrence(next);
+                setRecurrenceDirty(true);
+              }}
+              disabled={isRuleLoading || isLoadingRule}
+            />
+
+            <EstimatedTimeField control={form.control} optional delay={0.3} />
+            <UrlField control={form.control} delay={0.35} optional />
+
+            {isEditMode && task && <SubtaskAccordion taskId={task.id} />}
+            {isEditMode && task && <AttachmentSection ownerType="task" ownerId={task.id} />}
+            {!isEditMode && <StagedAttachmentPicker files={stagedFiles} onChange={setStagedFiles} />}
           </div>
+        </Form>
+        {confirmDialog}
+      </FormDialog>
 
-          {/* Editing an already-repeating task loads its real rule (see the
-              effect above) rather than always opening closed. Turning it off
-              ends that rule; turning it on for a plain task starts a new one —
-              see the submit branches for exactly which mutation each case fires. */}
-          <RecurrenceField
-            value={recurrence}
-            onChange={next => {
-              setRecurrence(next);
-              setRecurrenceDirty(true);
-            }}
-            disabled={isRuleLoading || isLoadingRule}
-          />
+      <EditScopeDialog
+        open={editScopeOpen}
+        onOpenChange={open => {
+          setEditScopeOpen(open);
+          if (!open) pendingSubmitDataRef.current = null;
+        }}
+        onChoose={scope => void handleEditScopeChosen(scope)}
+        isLoading={isUpdateLoading || isUpdateRuleLoading}
+      />
 
-          <EstimatedTimeField control={form.control} optional delay={0.3} />
-          <UrlField control={form.control} delay={0.35} optional />
-
-          {isEditMode && task && <SubtaskAccordion taskId={task.id} />}
-          {isEditMode && task && <AttachmentSection ownerType="task" ownerId={task.id} />}
-          {!isEditMode && <StagedAttachmentPicker files={stagedFiles} onChange={setStagedFiles} />}
-        </div>
-      </Form>
-      {confirmDialog}
-    </FormDialog>
+      <ConfirmDialog
+        open={endSeriesConfirmOpen}
+        onOpenChange={setEndSeriesConfirmOpen}
+        title={tRec('endSeries.title')}
+        description={tRec('endSeries.description')}
+        confirmLabel={tRec('endSeries.confirmLabel')}
+        cancelLabel={tRec('endSeries.cancelLabel')}
+        variant="danger"
+        destructive
+        isLoading={isDeleteRuleLoading}
+        onConfirm={() => void handleEndSeriesConfirm()}
+        data-testid="task-dialog-end-series-confirm"
+      />
+    </>
   );
 };
 

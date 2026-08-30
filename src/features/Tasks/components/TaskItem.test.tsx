@@ -197,4 +197,28 @@ describe('TaskItem', () => {
 
     await waitFor(() => expect(patchedStatus).toBe('cancelled'));
   });
+
+  it('shows Skip and End-series menu items instead of Delete when recurrenceRuleId is set', async () => {
+    const recurringTask = makeTask({ id: 't-rec', recurrenceRuleId: 'rule-1' });
+    const user = userEvent.setup();
+    renderComponent(<TaskItem task={recurringTask} index={0} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('item-actions-menu-trigger'));
+
+    expect(await screen.findByText(/skip this occurrence/i)).toBeInTheDocument();
+    expect(screen.getByText(/end series/i)).toBeInTheDocument();
+    expect(screen.queryByText(/delete task/i)).not.toBeInTheDocument();
+  });
+
+  it('shows plain Delete (not Skip/End-series) when recurrenceRuleId is absent', async () => {
+    const plainTask = makeTask({ id: 't-plain' });
+    const user = userEvent.setup();
+    renderComponent(<TaskItem task={plainTask} index={0} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    await user.click(screen.getByTestId('item-actions-menu-trigger'));
+
+    expect(await screen.findByText(/delete task/i)).toBeInTheDocument();
+    expect(screen.queryByText(/skip this occurrence/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/end series/i)).not.toBeInTheDocument();
+  });
 });

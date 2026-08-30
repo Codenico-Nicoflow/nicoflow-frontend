@@ -16,6 +16,7 @@ import {
   createSubtaskApi,
   createTaskApi,
 } from '@nicoflow/shared/api';
+import type { ITask } from '@nicoflow/shared/types';
 import { combineReducers, configureStore, type UnknownAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
@@ -50,6 +51,20 @@ export const authApi = createAuthApi(baseQueryWithReauth, { clearAuth, setToken,
 export const areaApi = createAreaApi(baseQueryWithReauth);
 export const projectApi = createProjectApi(baseQueryWithReauth, areaApi);
 export const taskApi = createTaskApi(baseQueryWithReauth);
+
+// skipTaskOccurrence — POST /tasks/:id/skip (NIC-1997/1998).
+// Not yet in the published @nicoflow/shared factory, injected here until the
+// next shared-pkg release adds it to createTaskApi.
+export const extendedTaskApi = taskApi.injectEndpoints({
+  endpoints: builder => ({
+    skipTaskOccurrence: builder.mutation<ITask, string>({
+      query: id => ({ url: `/tasks/${id}/skip`, method: 'POST' }),
+      transformResponse: (raw: { data: ITask; error: null }) => raw.data,
+      invalidatesTags: (_result, _err, id) => [{ type: 'Task' as const, id }, 'Task'],
+    }),
+  }),
+});
+
 export const subtaskApi = createSubtaskApi(baseQueryWithReauth);
 export const bucketApi = createBucketApi(baseQueryWithReauth);
 export const searchApi = createSearchApi(baseQueryWithReauth);

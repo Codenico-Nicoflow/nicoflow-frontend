@@ -4,6 +4,7 @@ import {
   attachmentApi,
   authApi,
   bucketApi,
+  extendedTaskApi,
   focusSessionApi,
   googleCalendarApi,
   habitApi,
@@ -25,6 +26,7 @@ export {
   attachmentApi,
   authApi,
   bucketApi,
+  extendedTaskApi,
   focusSessionApi,
   googleCalendarApi,
   habitApi,
@@ -126,6 +128,9 @@ export const {
   useUpdateTaskMutation,
   useUpdateTaskStatusMutation,
 } = taskApi;
+
+// skipTaskOccurrence — injected endpoint (NIC-1997/1998), not yet in shared factory.
+export const { useSkipTaskOccurrenceMutation } = extendedTaskApi;
 export type {
   CreateTaskRequest,
   CreateTaskResponse,

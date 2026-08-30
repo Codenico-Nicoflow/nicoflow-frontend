@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { TiptapDoc } from '@nicoflow/shared/types';
-import { ArrowLeft, FileX, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileX, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -124,22 +124,37 @@ export const NoteEditorPage = () => {
 
       {isConflicted && <ConflictNotice onReload={() => window.location.reload()} />}
 
-      <Input
-        value={title}
-        aria-label={t('page.titleLabel')}
-        placeholder={t('page.titlePlaceholder')}
-        maxLength={255}
-        disabled={isConflicted || contentError}
-        onChange={event => {
-          const next = event.target.value;
-          setTitle(next);
-          // The server rejects a blank title (422), so an emptied field is kept
-          // local until the user types something savable.
-          if (next.trim() !== '') save({ title: next });
-        }}
-        className="h-auto border-0 px-0 text-2xl font-semibold shadow-none focus-visible:ring-0"
-        data-testid="note-title"
-      />
+      {/* A faint always-on pencil is the discoverability fix over a pure
+          hover-only affordance — a first-time user has no reason to hover a
+          field that looks like a plain heading, so the cue can't be
+          hover-gated itself. It brightens with the same hover/focus state as
+          the field's own tint so the two read as one control. The row is an
+          inline-flex, not a full-width block: the underline/tint must hug the
+          text, not stretch to the container edge with the pencil stranded
+          far past a short title. */}
+      <div className="group focus-within:bg-accent/40 hover:bg-accent/40 -ml-2 inline-flex max-w-full items-center gap-1 rounded-md border-b-2 border-transparent px-2 py-1 transition-colors focus-within:border-ring">
+        <Input
+          value={title}
+          aria-label={t('page.titleLabel')}
+          placeholder={t('page.titlePlaceholder')}
+          maxLength={255}
+          disabled={isConflicted || contentError}
+          onChange={event => {
+            const next = event.target.value;
+            setTitle(next);
+            // The server rejects a blank title (422), so an emptied field is kept
+            // local until the user types something savable.
+            if (next.trim() !== '') save({ title: next });
+          }}
+          size={Math.max(title.length, t('page.titlePlaceholder').length, 1)}
+          className="h-auto min-w-0 rounded-none border-0 bg-transparent p-0 text-3xl font-bold shadow-none focus-visible:ring-0"
+          data-testid="note-title"
+        />
+        <Pencil
+          className="text-muted-foreground/40 group-hover:text-muted-foreground group-focus-within:text-muted-foreground h-4 w-4 shrink-0 transition-colors"
+          aria-hidden="true"
+        />
+      </div>
 
       <NoteEditor
         content={note.content}

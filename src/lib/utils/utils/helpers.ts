@@ -81,17 +81,48 @@ export function getApiErrorCode(err: unknown): string | undefined {
   return undefined;
 }
 
+// Extracts the human-readable message from the backend error envelope.
+// Used as a verbatim fallback when the error code has no i18n translation.
+export function getApiErrorMessage(err: unknown): string | undefined {
+  if (err === null || typeof err !== 'object') return undefined;
+
+  const obj = err as Record<string, unknown>;
+
+  // Shape 1: unwrapped envelope { error: { message } }
+  if (typeof obj['error'] === 'object' && obj['error'] !== null) {
+    const inner = obj['error'] as Record<string, unknown>;
+    if (typeof inner['message'] === 'string') return inner['message'];
+  }
+
+  // Shape 2: FetchBaseQueryError { status, data: { error: { message } } }
+  if ('status' in obj && typeof obj['data'] === 'object' && obj['data'] !== null) {
+    const data = obj['data'] as Record<string, unknown>;
+    if (typeof data['error'] === 'object' && data['error'] !== null) {
+      const inner = data['error'] as Record<string, unknown>;
+      if (typeof inner['message'] === 'string') return inner['message'];
+    }
+  }
+
+  return undefined;
+}
+
 // All toast copy lives in the `errors` i18n namespace, keyed by the backend
 // error code (e.g. 'PLAN_LIMIT_EXCEEDED') and success-message key (e.g.
 // 'PROJECT_CREATED'). Resolving through `i18n.t` (not the React hook — these are
 // plain functions called from thunks/handlers) localizes every toast in the
 // active language, and re-resolves on each call so a language switch takes
-// effect immediately. An unknown code falls back to the generic error.
+// effect immediately.
 export function showErrorToast(err: unknown, toast: Toast) {
   const code = getApiErrorCode(err);
-  // An unknown/unmapped code falls back to the generic error message.
-  const text = code && isErrorMessageKey(code) ? resolveErrorMessage(code) : resolveErrorMessage('GENERAL_ERROR');
-  toast.error(text);
+  if (code && isErrorMessageKey(code)) {
+    toast.error(resolveErrorMessage(code));
+    return;
+  }
+  // Show the backend's message verbatim for unmapped codes (new error codes
+  // land here before a shared i18n release). Only fall back to GENERAL_ERROR
+  // if the envelope carries no message at all.
+  const verbatim = getApiErrorMessage(err);
+  toast.error(verbatim ?? resolveErrorMessage('GENERAL_ERROR'));
 }
 
 export function showSuccessToast(msg: string, toast: Toast) {

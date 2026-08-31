@@ -4,6 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
 import { recurrenceExtensionsEn, recurrenceExtensionsHe, recurrenceExtensionsRu } from './recurrenceExtensions';
+import { taskExtensionsEn, taskExtensionsHe, taskExtensionsRu } from './taskExtensions';
 
 export const SUPPORTED_LANGUAGES = ['en', 'he', 'ru'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -42,9 +43,21 @@ const applyDocumentDirection = (lng: string) => {
   document.documentElement.dir = i18n.dir(lng);
 };
 
-const mergedEn = { ...en, recurrence: { ...en.recurrence, ...recurrenceExtensionsEn } };
-const mergedHe = { ...he, recurrence: { ...he.recurrence, ...recurrenceExtensionsHe } };
-const mergedRu = { ...ru, recurrence: { ...ru.recurrence, ...recurrenceExtensionsRu } };
+const mergedEn = {
+  ...en,
+  recurrence: { ...en.recurrence, ...recurrenceExtensionsEn },
+  task: { ...en.task, calendar: { ...en.task.calendar, ...taskExtensionsEn.calendar } },
+};
+const mergedHe = {
+  ...he,
+  recurrence: { ...he.recurrence, ...recurrenceExtensionsHe },
+  task: { ...he.task, calendar: { ...he.task.calendar, ...taskExtensionsHe.calendar } },
+};
+const mergedRu = {
+  ...ru,
+  recurrence: { ...ru.recurrence, ...recurrenceExtensionsRu },
+  task: { ...ru.task, calendar: { ...ru.task.calendar, ...taskExtensionsRu.calendar } },
+};
 
 i18n
   .use(LanguageDetector)

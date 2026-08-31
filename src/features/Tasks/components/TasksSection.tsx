@@ -10,7 +10,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { type ITask, ScheduleFilter, type TaskEnergy } from '@nicoflow/shared/types';
+import { type ITask, ScheduleFilter, type TaskEnergy, TaskStatus } from '@nicoflow/shared/types';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
@@ -59,11 +59,29 @@ const TasksSection = ({ projectId, onAddTask, showHeading = true, initialTaskId 
     hasNextPage,
     fetchNextPage,
   } = useGetTasksInfiniteQuery({ projectId });
+  // The default (no-status) fetch above deliberately excludes done tasks and
+  // any recurring occurrence retired as skipped/missed/paused (backend
+  // taskquery.go) — otherwise years of occurrence history would bury the
+  // working view. That means the Done and Cancelled tabs, which filter this
+  // same array client-side, would show nothing for exactly the rows this
+  // fix is about. Two extra one-shot fetches (first page only, same 50-item
+  // cap as everywhen else in this file) backfill just those two statuses so
+  // every tab keeps working off one shared array — the "pin a task under its
+  // old tab until the filter changes" behavior below depends on that.
+  const { data: doneTasksData } = useGetTasksInfiniteQuery({ projectId, status: TaskStatus.DONE });
+  const { data: cancelledTasksData } = useGetTasksInfiniteQuery({ projectId, status: TaskStatus.CANCELLED });
   const [reorderTask] = useReorderTaskMutation();
 
   // Flatten all loaded pages into a single array for rendering and filter logic.
   // Filter counts only reflect loaded pages once a project exceeds one page.
-  const tasks = useMemo(() => tasksData?.pages.flatMap(p => p.items) ?? [], [tasksData]);
+  const tasks = useMemo(() => {
+    const defaultItems = tasksData?.pages.flatMap(p => p.items) ?? [];
+    const doneItems = doneTasksData?.pages[0]?.items ?? [];
+    const cancelledItems = cancelledTasksData?.pages[0]?.items ?? [];
+    const merged = new Map<string, ITask>();
+    for (const task of [...defaultItems, ...doneItems, ...cancelledItems]) merged.set(task.id, task);
+    return [...merged.values()];
+  }, [tasksData, doneTasksData, cancelledTasksData]);
 
   const { sentinelRef } = useInfiniteScrollSentinel({
     hasMore: !!hasNextPage,

@@ -102,8 +102,13 @@ describe('showErrorToast', () => {
     expect(mockToast.error).toHaveBeenCalledWith('Too many requests. Please wait a moment and try again.');
   });
 
-  it('falls back to GENERAL_ERROR for unknown code in envelope', () => {
-    showErrorToast({ error: { code: 'TOTALLY_UNKNOWN', message: '?' } }, mockToast);
+  it('shows verbatim backend message for unknown code when envelope carries one', () => {
+    showErrorToast({ error: { code: 'TOTALLY_UNKNOWN', message: 'Custom backend error' } }, mockToast);
+    expect(mockToast.error).toHaveBeenCalledWith('Custom backend error');
+  });
+
+  it('falls back to GENERAL_ERROR for unknown code with no message in envelope', () => {
+    showErrorToast({ error: { code: 'TOTALLY_UNKNOWN' } }, mockToast);
     expect(mockToast.error).toHaveBeenCalledWith('Server error. Please try again later.');
   });
 

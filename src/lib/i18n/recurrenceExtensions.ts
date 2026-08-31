@@ -23,6 +23,13 @@ export const recurrenceExtensionsEn = {
     skipOccurrence: 'Skip this occurrence',
     endSeries: 'End series…',
   },
+  pauseConfirm: {
+    title: 'Pause this recurring task?',
+    description:
+      "Pausing will cancel today's live occurrence. The series resumes from the next scheduled date when you resume it.",
+    confirmLabel: 'Pause',
+    cancelLabel: 'Cancel',
+  },
   editScope: {
     title: 'Apply changes to…',
     description: 'This task repeats. Choose how far your changes should reach.',
@@ -54,6 +61,12 @@ export const recurrenceExtensionsHe = {
   actions: {
     skipOccurrence: 'דלג על מופע זה',
     endSeries: 'סיים סדרה…',
+  },
+  pauseConfirm: {
+    title: 'להשהות משימה חוזרת זו?',
+    description: 'השהייה תבטל את המופע הפעיל של היום. הסדרה תמשיך מהתאריך המתוכנן הבא כאשר תחדש אותה.',
+    confirmLabel: 'השהה',
+    cancelLabel: 'ביטול',
   },
   editScope: {
     title: 'החל שינויים על…',
@@ -87,6 +100,13 @@ export const recurrenceExtensionsRu = {
   actions: {
     skipOccurrence: 'Пропустить этот повтор',
     endSeries: 'Завершить серию…',
+  },
+  pauseConfirm: {
+    title: 'Приостановить эту повторяющуюся задачу?',
+    description:
+      'Приостановка отменит текущий активный повтор на сегодня. Серия возобновится со следующей запланированной даты, когда вы её возобновите.',
+    confirmLabel: 'Приостановить',
+    cancelLabel: 'Отмена',
   },
   editScope: {
     title: 'Применить изменения к…',

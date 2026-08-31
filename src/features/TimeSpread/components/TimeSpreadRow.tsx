@@ -33,6 +33,8 @@ const TimeSpreadRow = ({ task, activeTab, onEdit, onDelete }: TimeSpreadRowProps
   const { isRecurringInstance, skip, endSeries, dialogs: recurrenceDialogs } = useTaskRecurrenceActions(task);
   const checkboxRef = React.useRef<TaskCompleteCheckboxHandle>(null);
   const isCompleted = task.status === TaskStatus.DONE;
+  // A done recurring instance cannot be un-completed (TASK_RECURRING_NOT_REVERSIBLE).
+  const isRecurringDone = isCompleted && !!task.recurrenceRuleId;
 
   const shownActions = useMemo(() => {
     const scheduleFor = (offsetDays: number) => {
@@ -51,24 +53,26 @@ const TimeSpreadRow = ({ task, activeTab, onEdit, onDelete }: TimeSpreadRowProps
           { label: tRec('actions.endSeries'), icon: XCircle, onClick: endSeries, destructive: true },
         ]
       : [{ label: t('actions.delete'), icon: Trash2, onClick: () => onDelete(task.id), destructive: true }];
-    if (activeTab === ActiveTab.TODAY)
-      return [
-        { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
-        { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
-        ...deleteActions,
-      ];
-    if (activeTab === ActiveTab.TOMORROW)
-      return [
-        { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
-        { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
-        ...deleteActions,
-      ];
-    return [
-      { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
-      { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
-      { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
-      ...deleteActions,
-    ];
+    const scheduleActions =
+      activeTab === ActiveTab.TODAY
+        ? [
+            { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
+            { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+          ]
+        : activeTab === ActiveTab.TOMORROW
+          ? [
+              { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
+              { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+            ]
+          : [
+              { label: t('timeSpread.actions.today'), icon: CalendarClock, onClick: () => void scheduleFor(0) },
+              { label: t('timeSpread.actions.tomorrow'), icon: CalendarClock, onClick: () => void scheduleFor(1) },
+              { label: t('timeSpread.actions.remove'), icon: CalendarX, onClick: () => void unschedule() },
+            ];
+
+    // Recurring instances cannot be rescheduled via the plain schedule mutation —
+    // the backend rejects it with TASK_RECURRING_NOT_RESCHEDULABLE.
+    return [...(isRecurringInstance ? [] : scheduleActions), ...deleteActions];
   }, [activeTab, endSeries, isRecurringInstance, onDelete, scheduleTask, skip, t, tRec, task.id]);
 
   const run = async (op: Promise<unknown>) => {
@@ -146,6 +150,7 @@ const TimeSpreadRow = ({ task, activeTab, onEdit, onDelete }: TimeSpreadRowProps
               checked={isCompleted}
               onToggle={toggle}
               deferAnimation={willDefer}
+              disabled={isRecurringDone}
               size="sm"
               aria-label={t('actions.complete', { title: task.title })}
               data-testid={`timespread-checkbox-${task.id}`}

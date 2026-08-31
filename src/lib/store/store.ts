@@ -60,7 +60,7 @@ export const extendedTaskApi = taskApi.injectEndpoints({
     skipTaskOccurrence: builder.mutation<ITask, string>({
       query: id => ({ url: `/tasks/${id}/skip`, method: 'POST' }),
       transformResponse: (raw: { data: ITask; error: null }) => raw.data,
-      invalidatesTags: (_result, _err, id) => [{ type: 'Task' as const, id }, 'Task'],
+      invalidatesTags: (_result, _err, id) => [{ type: 'Task' as const, id }, 'Task', 'Focus', 'TimeSpread'],
     }),
   }),
 });

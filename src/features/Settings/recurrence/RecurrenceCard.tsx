@@ -32,6 +32,7 @@ export const RecurrenceCard = () => {
   const [deleteRule, { isLoading: isDeleting }] = useDeleteRecurrenceRuleMutation();
 
   const [pendingDelete, setPendingDelete] = useState<IRecurrenceRule | null>(null);
+  const [pendingPause, setPendingPause] = useState<IRecurrenceRule | null>(null);
   const [page, setPage] = useState(1);
 
   const rules = data?.items ?? [];
@@ -46,7 +47,16 @@ export const RecurrenceCard = () => {
   // mirroring the backend's IsWithinFreeLimit ranking exactly.
   const readOnlyRuleIds = isPro ? new Set<string>() : new Set(rules.slice(FREE_PLAN_RULE_LIMIT).map(r => r.id));
 
-  const handlePauseToggle = async (rule: IRecurrenceRule) => {
+  const handlePauseToggle = (rule: IRecurrenceRule) => {
+    if (!rule.paused) {
+      // Pausing cancels the current live occurrence — confirm before proceeding.
+      setPendingPause(rule);
+      return;
+    }
+    void doPauseToggle(rule);
+  };
+
+  const doPauseToggle = async (rule: IRecurrenceRule) => {
     try {
       await pauseRule({ id: rule.id, paused: !rule.paused }).unwrap();
       toast.success(rule.paused ? t('toast.resumed') : t('toast.paused'));
@@ -122,6 +132,22 @@ export const RecurrenceCard = () => {
         )}
       </CardContent>
 
+      <ConfirmDialog
+        open={pendingPause !== null}
+        onOpenChange={open => !open && setPendingPause(null)}
+        title={t('pauseConfirm.title')}
+        description={t('pauseConfirm.description')}
+        confirmLabel={t('pauseConfirm.confirmLabel')}
+        cancelLabel={t('pauseConfirm.cancelLabel')}
+        variant="info"
+        isLoading={isPausing}
+        onConfirm={async () => {
+          if (!pendingPause) return;
+          await doPauseToggle(pendingPause);
+          setPendingPause(null);
+        }}
+        data-testid="recurrence-pause-confirm"
+      />
       <ConfirmDialog
         open={pendingDelete !== null}
         onOpenChange={open => !open && setPendingDelete(null)}

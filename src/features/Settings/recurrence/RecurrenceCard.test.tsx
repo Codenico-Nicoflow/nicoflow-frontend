@@ -133,7 +133,43 @@ describe('RecurrenceCard', () => {
     await user.click(await screen.findByTestId('recurrence-actions-r1'));
     await user.click(await screen.findByText(/^pause$/i));
 
+    // Confirm the pause dialog
+    await user.click(await screen.findByRole('button', { name: /^pause$/i }));
+
     await waitFor(() => expect(body).toEqual({ paused: true }));
+  });
+
+  it('shows a confirm dialog when pausing (not when resuming)', async () => {
+    listReturns([makeRule()]);
+    statsReturns();
+
+    const user = userEvent.setup();
+    renderComponent(<RecurrenceCard />);
+
+    await user.click(await screen.findByTestId('recurrence-actions-r1'));
+    await user.click(await screen.findByText(/^pause$/i));
+
+    // Confirm dialog appears for pause (it cancels the live occurrence)
+    expect(await screen.findByTestId('recurrence-pause-confirm-content')).toBeInTheDocument();
+  });
+
+  it('does NOT show a confirm dialog when resuming', async () => {
+    listReturns([makeRule({ paused: true })]);
+    statsReturns();
+    server.use(
+      http.patch(`${API}/recurrence-rules/r1/pause`, () =>
+        HttpResponse.json({ data: makeRule({ paused: false }), error: null })
+      )
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<RecurrenceCard />);
+
+    await user.click(await screen.findByTestId('recurrence-actions-r1'));
+    await user.click(await screen.findByText(/^resume$/i));
+
+    // No confirm dialog — resuming is safe
+    expect(screen.queryByTestId('recurrence-pause-confirm-content')).not.toBeInTheDocument();
   });
 
   it('paginates rules 5 per page and steps forward/back', async () => {

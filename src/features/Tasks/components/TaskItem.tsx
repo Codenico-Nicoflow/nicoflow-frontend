@@ -36,6 +36,8 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
   const { isRecurringInstance, skip, endSeries, dialogs: recurrenceDialogs } = useTaskRecurrenceActions(task);
   const checkboxRef = React.useRef<TaskCompleteCheckboxHandle>(null);
   const isCompleted = task.status === TaskStatus.DONE;
+  // A done recurring instance cannot be un-completed (TASK_RECURRING_NOT_REVERSIBLE).
+  const isRecurringDone = isCompleted && !!task.recurrenceRuleId;
   // Mirrors the backend's own mark-missed guard (today-or-past, active,
   // recurring, unreaped) so the menu doesn't offer an action the server would
   // reject — the server stays the authority via TASK_NOT_MISSABLE either way.
@@ -180,6 +182,7 @@ const TaskItem = ({ task, index, onEdit, onDelete, onStatusToggle, dragHandle }:
               checked={isCompleted}
               onToggle={handleToggle}
               deferAnimation={willDefer}
+              disabled={isRecurringDone}
               size="md"
               aria-label={t('actions.complete', { title: task.title })}
               data-testid={`task-checkbox-${task.id}`}

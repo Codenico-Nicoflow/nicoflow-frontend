@@ -11,13 +11,13 @@ import { NotificationPanel } from './index';
 const API = 'http://localhost:8080/v1';
 
 const makeNotification = (o: Partial<INotification> = {}): INotification => {
-  const type = o.type ?? 'task_due_soon';
+  const type = o.type ?? 'morning_digest';
   return {
     id: 'n1',
     type,
     category: categoryForType(type),
-    title: 'Task due soon',
-    body: 'Buy milk',
+    title: 'Plan your day',
+    body: '3 tasks scheduled today.',
     metadata: {},
     isRead: false,
     readAt: null,
@@ -58,17 +58,17 @@ export const Populated: Story = {
     msw: {
       handlers: [
         listHandler([
-          makeNotification({ id: 'n1', title: 'Task due soon', body: 'Buy milk' }),
+          makeNotification({ id: 'n1', title: 'Plan your day', body: '3 tasks scheduled today.' }),
           makeNotification({
             id: 'n2',
-            title: 'Task due soon',
-            body: 'Call the bank',
+            title: 'Plan your day',
+            body: '1 overdue, 2 unprocessed in your inbox.',
             createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
           }),
           makeNotification({
             id: 'n3',
-            title: 'Task due soon',
-            body: 'Review the pull request',
+            title: 'Your day, wrapped',
+            body: 'You completed 4 tasks today.',
             isRead: true,
             readAt: new Date().toISOString(),
             createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),

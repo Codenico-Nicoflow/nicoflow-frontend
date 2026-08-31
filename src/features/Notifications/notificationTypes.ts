@@ -1,31 +1,20 @@
-import {
-  AlarmClock,
-  Bell,
-  CalendarClock,
-  CheckCircle2,
-  FolderCheck,
-  Inbox,
-  Megaphone,
-  Sparkles,
-  Sunrise,
-  Trophy,
-} from 'lucide-react';
+import { Bell, CheckCircle2, FolderCheck, Megaphone, Sparkles, Sunrise, Trophy } from 'lucide-react';
 
 // The full notification `type` set (SPEC §3.11). Kept as data so a row, a test, and
-// any future filter all read the same source. Unknown types fall back to the bell,
-// so a new backend type never renders blank or throws — forward-compatible by design.
+// any future filter all read the source. Unknown types fall back to the bell, so a
+// new backend type never renders blank or throws — forward-compatible by design.
+//
+// task_due_soon, task_overdue, day_plan_nudge, inbox_unprocessed, inbox_stale,
+// task_scheduled_today, and daily_summary were retired in the notification rework
+// (2026-08-31): morning_digest/evening_digest replace them, both unified across
+// plans.
 export const NOTIFICATION_TYPE_ICON: Record<string, typeof Bell> = {
-  task_due_soon: AlarmClock,
-  task_overdue: CalendarClock,
-  task_scheduled_today: Sunrise,
+  morning_digest: Sunrise,
+  evening_digest: Bell,
   task_completed: CheckCircle2,
   project_completed: FolderCheck,
   system_announcement: Megaphone,
-  day_plan_nudge: Sunrise,
-  inbox_unprocessed: Inbox,
-  inbox_stale: Inbox,
   inbox_zero: Sparkles,
-  daily_summary: Bell,
   streak_milestone: Trophy,
 };
 
@@ -50,15 +39,10 @@ export type NotificationCategory = (typeof NotificationCategory)[keyof typeof No
 // Unknown types fall back to system — forward-compat with future backend types.
 export const categoryForType = (type: string): NotificationCategory => {
   switch (type) {
-    case 'task_due_soon':
-    case 'task_overdue':
-    case 'task_scheduled_today':
-    case 'day_plan_nudge':
-    case 'inbox_unprocessed':
-    case 'inbox_stale':
+    case 'morning_digest':
       return NotificationCategory.REMINDER;
 
-    case 'daily_summary':
+    case 'evening_digest':
       return NotificationCategory.SUMMARY;
 
     case 'task_completed':

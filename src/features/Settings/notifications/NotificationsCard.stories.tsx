@@ -16,11 +16,8 @@ const prefsHandler = (overrides: Record<string, unknown> = {}, hang = false) =>
         emailDigest: true,
         pushEnabled: false,
         smsEnabled: false,
-        beforeDueMinutes: 1440,
-        afterDueMinutes: 0,
-        overdueEnabled: true,
-        dailySummaryEnabled: true,
-        inboxNudgesEnabled: true,
+        morningDigestEnabled: true,
+        eveningDigestEnabled: true,
         streaksEnabled: true,
         morningHour: 8,
         eveningHour: 20,
@@ -54,7 +51,7 @@ export const Pro: Story = {
   },
 };
 
-// Free user: Pro rows (email digest, daily summary, inbox, streaks) are locked.
+// Free user: Pro rows (email digest, streaks) are locked; both digest toggles stay usable.
 export const Free: Story = {
   parameters: {
     preloadedState: { auth: { user: makeUser({ status: 'regular' }), token: 't', isLoading: false } },

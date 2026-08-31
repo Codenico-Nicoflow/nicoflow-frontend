@@ -1,6 +1,6 @@
 import type { INotificationPref } from '@nicoflow/shared/types';
 import { USER_STATUS } from '@nicoflow/shared/types';
-import { CalendarClock, Inbox, ListChecks, Mail, Trophy } from 'lucide-react';
+import { Mail, Moon, Sunrise, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -16,29 +16,35 @@ import { ReminderHoursSection } from './ReminderHoursSection';
 const DEFAULT_MORNING_HOUR = 8;
 const DEFAULT_EVENING_HOUR = 20;
 
-// Boolean prefs surfaced here: emailDigest (Pro) + the four family toggles + Push (E-037).
-// SMS and the before/after lead-time prefs are deliberately absent — they have no delivery
-// path yet, so a toggle for them would be a broken promise.
-type ToggleKey = 'emailDigest' | 'overdueEnabled' | 'dailySummaryEnabled' | 'inboxNudgesEnabled' | 'streaksEnabled';
-type LabelKey = 'digest.label' | 'prefs.overdue' | 'prefs.dailySummary' | 'prefs.inboxNudges' | 'prefs.streaks';
+// Boolean prefs surfaced here: emailDigest (Pro) + the morning/evening digest
+// toggles (free, unified across plans) + streaks (Pro) + Push (E-037). SMS is
+// deliberately absent — it has no delivery path yet, so a toggle for it would be
+// a broken promise.
+type ToggleKey = 'emailDigest' | 'morningDigestEnabled' | 'eveningDigestEnabled' | 'streaksEnabled';
+type LabelKey = 'digest.label' | 'prefs.morningDigest' | 'prefs.eveningDigest' | 'prefs.streaks';
 
 const TOGGLE_META: {
   key: ToggleKey;
-  icon: typeof Inbox;
+  icon: typeof Mail;
   labelKey: LabelKey;
   pro: boolean;
   testId: string;
 }[] = [
   { key: 'emailDigest', icon: Mail, labelKey: 'digest.label', pro: true, testId: 'pref-email-digest' },
-  { key: 'overdueEnabled', icon: CalendarClock, labelKey: 'prefs.overdue', pro: false, testId: 'pref-overdue' },
   {
-    key: 'dailySummaryEnabled',
-    icon: ListChecks,
-    labelKey: 'prefs.dailySummary',
-    pro: true,
-    testId: 'pref-daily-summary',
+    key: 'morningDigestEnabled',
+    icon: Sunrise,
+    labelKey: 'prefs.morningDigest',
+    pro: false,
+    testId: 'pref-morning-digest',
   },
-  { key: 'inboxNudgesEnabled', icon: Inbox, labelKey: 'prefs.inboxNudges', pro: true, testId: 'pref-inbox' },
+  {
+    key: 'eveningDigestEnabled',
+    icon: Moon,
+    labelKey: 'prefs.eveningDigest',
+    pro: false,
+    testId: 'pref-evening-digest',
+  },
   { key: 'streaksEnabled', icon: Trophy, labelKey: 'prefs.streaks', pro: true, testId: 'pref-streaks' },
 ];
 

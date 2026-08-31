@@ -4,13 +4,8 @@ import { categoryForType, NotificationCategory, styleForCategory } from './notif
 
 describe('categoryForType', () => {
   it.each([
-    ['task_due_soon', NotificationCategory.REMINDER],
-    ['task_overdue', NotificationCategory.REMINDER],
-    ['task_scheduled_today', NotificationCategory.REMINDER],
-    ['day_plan_nudge', NotificationCategory.REMINDER],
-    ['inbox_unprocessed', NotificationCategory.REMINDER],
-    ['inbox_stale', NotificationCategory.REMINDER],
-    ['daily_summary', NotificationCategory.SUMMARY],
+    ['morning_digest', NotificationCategory.REMINDER],
+    ['evening_digest', NotificationCategory.SUMMARY],
     ['task_completed', NotificationCategory.CELEBRATION],
     ['project_completed', NotificationCategory.CELEBRATION],
     ['inbox_zero', NotificationCategory.CELEBRATION],

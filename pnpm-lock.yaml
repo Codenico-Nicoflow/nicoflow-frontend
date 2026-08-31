@@ -42,8 +42,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.64.0(react@19.1.0))
       '@nicoflow/shared':
-        specifier: ^0.10.4
-        version: 0.10.4(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)
+        specifier: ^0.11.0
+        version: 0.11.0(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.1.0(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1055,8 +1055,8 @@ packages:
   '@neoconfetti/react@1.0.0':
     resolution: {integrity: sha512-klcSooChXXOzIm+SE5IISIAn3bYzYfPjbX7D7HoqZL84oAfgREeSg5vSIaSFH+DaGzzvImTyWe1OyrJ67vik4A==}
 
-  '@nicoflow/shared@0.10.4':
-    resolution: {integrity: sha512-83XforxIwvXvCSmxLyOhmz/iNzAmS5z3MJ3oNn3QL58r57d53Fb6makgdMeLT7rZsYaaHyrNL9OPvYLxeMBExA==}
+  '@nicoflow/shared@0.11.0':
+    resolution: {integrity: sha512-k4o/p2NlVrouoVfCZaBN9FZ8Cl3CQc2Az1s/GSWpo9NCNTH2P6+PKts5pYx5z4Jml6KPOBWtW2nr1qB5RFXZBw==}
     peerDependencies:
       '@reduxjs/toolkit': ^2.9.0
       react: '>=18'
@@ -6244,7 +6244,7 @@ snapshots:
 
   '@neoconfetti/react@1.0.0': {}
 
-  '@nicoflow/shared@0.10.4(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)':
+  '@nicoflow/shared@0.11.0(@reduxjs/toolkit@2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)(zod@4.1.12)':
     dependencies:
       '@reduxjs/toolkit': 2.9.0(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)
       react: 19.1.0

@@ -30,13 +30,13 @@ const proStore = () => createMockStore({ auth: { user: makeUser('premium'), toke
 const freeStore = () => createMockStore({ auth: { user: makeUser('regular'), token: 't' } });
 
 const makeNotification = (o: Partial<INotification> = {}): INotification => {
-  const type = o.type ?? 'task_due_soon';
+  const type = o.type ?? 'morning_digest';
   return {
     id: 'n1',
     type,
     category: categoryForType(type),
-    title: 'Buy milk',
-    body: 'This task is scheduled soon.',
+    title: 'Plan your day',
+    body: '3 tasks scheduled today.',
     metadata: {},
     isRead: false,
     readAt: null,

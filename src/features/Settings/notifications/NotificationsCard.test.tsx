@@ -33,11 +33,8 @@ const prefsHandler = (overrides: Record<string, unknown> = {}) =>
         emailDigest: true,
         pushEnabled: false,
         smsEnabled: false,
-        beforeDueMinutes: 1440,
-        afterDueMinutes: 0,
-        overdueEnabled: true,
-        dailySummaryEnabled: true,
-        inboxNudgesEnabled: true,
+        morningDigestEnabled: true,
+        eveningDigestEnabled: true,
         streaksEnabled: true,
         morningHour: 8,
         eveningHour: 20,
@@ -58,28 +55,27 @@ describe('NotificationsCard', () => {
     expect(await screen.findByTestId('notifications-skeleton')).toBeInTheDocument();
   });
 
-  it('AC: renders emailDigest + the four family toggles', async () => {
+  it('AC: renders emailDigest + the three digest/streak toggles', async () => {
     server.use(prefsHandler());
 
     renderCard();
 
     await screen.findByTestId('pref-email-digest');
-    for (const id of ['pref-overdue', 'pref-daily-summary', 'pref-inbox', 'pref-streaks']) {
+    for (const id of ['pref-morning-digest', 'pref-evening-digest', 'pref-streaks']) {
       expect(screen.getByTestId(id)).toBeInTheDocument();
     }
   });
 
-  it('AC: does not surface SMS or lead-time controls', async () => {
+  it('AC: does not surface SMS controls', async () => {
     server.use(prefsHandler());
 
     renderCard();
-    await screen.findByTestId('pref-overdue');
+    await screen.findByTestId('pref-morning-digest');
 
     expect(screen.queryByText(/sms/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/lead time|minutes before|minutes after/i)).not.toBeInTheDocument();
   });
 
-  it('AC: a family switch reads the preference and auto-saves on toggle', async () => {
+  it('AC: a digest switch reads the preference and auto-saves on toggle', async () => {
     let putBody: unknown;
     server.use(
       prefsHandler(),
@@ -91,11 +87,11 @@ describe('NotificationsCard', () => {
 
     renderCard();
 
-    const overdue = await screen.findByTestId('pref-overdue');
-    await waitFor(() => expect(overdue).toHaveAttribute('data-state', 'checked'));
+    const morningDigest = await screen.findByTestId('pref-morning-digest');
+    await waitFor(() => expect(morningDigest).toHaveAttribute('data-state', 'checked'));
 
-    await userEvent.click(overdue);
-    await waitFor(() => expect(putBody).toEqual({ overdueEnabled: false }));
+    await userEvent.click(morningDigest);
+    await waitFor(() => expect(putBody).toEqual({ morningDigestEnabled: false }));
   });
 
   it('AC: the morning-hour picker reflects the preference and writes on change', async () => {
@@ -119,14 +115,13 @@ describe('NotificationsCard', () => {
     await waitFor(() => expect(putBody).toEqual({ morningHour: 7 }));
   });
 
-  it('AC: Pro-only families are locked for a free user; overdue stays usable', async () => {
+  it('AC: streaks is locked for a free user; both digests stay usable', async () => {
     server.use(prefsHandler());
 
     renderCard(freeStore());
 
-    await waitFor(() => expect(screen.getByTestId('pref-overdue')).not.toBeDisabled());
-    expect(screen.getByTestId('pref-daily-summary')).toBeDisabled();
-    expect(screen.getByTestId('pref-inbox')).toBeDisabled();
+    await waitFor(() => expect(screen.getByTestId('pref-morning-digest')).not.toBeDisabled());
+    expect(screen.getByTestId('pref-evening-digest')).not.toBeDisabled();
     expect(screen.getByTestId('pref-streaks')).toBeDisabled();
   });
 
@@ -168,7 +163,7 @@ describe('NotificationsCard', () => {
     await waitFor(() => expect(putBody).toEqual({ emailDigest: true }));
   });
 
-  it('push row appears after the five TOGGLE_META rows in the card', async () => {
+  it('push row appears after the four TOGGLE_META rows in the card', async () => {
     // Stub a full browser Push environment so PushToggle renders instead of returning null.
     const registration = { pushManager: { subscribe: vi.fn(), getSubscription: vi.fn().mockResolvedValue(null) } };
     vi.stubGlobal('PushManager', function PushManager() {});
@@ -186,7 +181,7 @@ describe('NotificationsCard', () => {
     server.use(prefsHandler());
     renderCard(proStore());
 
-    // All five standard toggles must render first.
+    // All four standard toggles must render first.
     const streaks = await screen.findByTestId('pref-streaks');
     const pushRow = await screen.findByTestId('push-toggle-row');
 

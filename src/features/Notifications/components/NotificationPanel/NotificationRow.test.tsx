@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { NotificationRow } from './NotificationRow';
 
 const makeNotification = (overrides: Partial<INotification> = {}): INotification => {
-  const type = overrides.type ?? 'task_due_soon';
+  const type = overrides.type ?? 'morning_digest';
   return {
     id: 'n1',
     type,
@@ -44,7 +44,7 @@ describe('NotificationRow', () => {
   });
 
   it('reminder category gets amber styling', () => {
-    renderRow(makeNotification({ type: 'task_due_soon' }));
+    renderRow(makeNotification({ type: 'morning_digest' }));
     const row = screen.getByTestId('notification-row');
     expect(row).toHaveAttribute('data-category', 'reminder');
   });
@@ -62,7 +62,7 @@ describe('NotificationRow', () => {
   });
 
   it('reminder without projectId in metadata is not navigable', () => {
-    renderRow(makeNotification({ type: 'task_due_soon', metadata: {} }));
+    renderRow(makeNotification({ type: 'morning_digest', metadata: {} }));
     const row = screen.getByTestId('notification-row');
     expect(row).not.toHaveAttribute('role', 'button');
   });
@@ -101,7 +101,7 @@ describe('NotificationRow', () => {
   });
 
   it('summary category gets muted styling', () => {
-    renderRow(makeNotification({ type: 'daily_summary' }));
+    renderRow(makeNotification({ type: 'evening_digest' }));
     const row = screen.getByTestId('notification-row');
     expect(row).toHaveAttribute('data-category', 'summary');
   });
@@ -109,7 +109,7 @@ describe('NotificationRow', () => {
   it('reminder with entityId + projectId in metadata is navigable', () => {
     renderRow(
       makeNotification({
-        type: 'task_due_soon',
+        type: 'morning_digest',
         metadata: { entityType: 'task', entityId: 't1', projectId: 'p1' },
       })
     );
@@ -119,7 +119,7 @@ describe('NotificationRow', () => {
   it('reminder with only projectId (no entityId) is still navigable', () => {
     renderRow(
       makeNotification({
-        type: 'task_due_soon',
+        type: 'morning_digest',
         metadata: { projectId: 'p1' },
       })
     );

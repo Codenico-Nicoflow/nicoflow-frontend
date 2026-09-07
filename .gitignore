@@ -67,6 +67,3 @@ temp
 
 GITLAB_CI_CD_COMPLETE_GUIDE.md
 TESTING_STRATEGY_SUMMARY.md
-# Harness loop state — local working memory, not shared
-specs/**/progress.md
-specs/**/blockers.md

@@ -252,6 +252,43 @@ describe('TaskDialog — edit mode', () => {
     await waitFor(() => expect(patchBody).toMatchObject({ projectId: 'project-2' }));
   });
 
+  it('reassigning the project on a recurring task sends projectId on the series scope too', async () => {
+    let patchBody: Record<string, unknown> | undefined;
+    const recurringTask = { ...task, recurrenceRuleId: 'rule-1' };
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.get(`${API}/recurrence-rules/rule-1`, () =>
+        HttpResponse.json(envelope({ id: 'rule-1', frequency: 'daily', interval: 1 }))
+      ),
+      http.patch(`${API}/recurrence-rules/rule-1`, () => HttpResponse.json(envelope({ id: 'rule-1' }))),
+      http.get(`${API}/projects`, () =>
+        HttpResponse.json(
+          items([
+            { id: 'project-1', name: 'Current Project' },
+            { id: 'project-2', name: 'Other Project' },
+          ])
+        )
+      ),
+      http.patch(`${API}/tasks/task-9`, async ({ request }) => {
+        patchBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope({ ...recurringTask, ...patchBody }));
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={recurringTask} />);
+
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toHaveTextContent('Current Project'));
+    await user.click(screen.getByTestId('select-trigger'));
+    await user.click(await screen.findByRole('option', { name: 'Other Project' }));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await user.click(await screen.findByTestId('edit-scope-series'));
+
+    await waitFor(() => expect(patchBody).toMatchObject({ projectId: 'project-2' }));
+  });
+
   it('saving recurrence on edit for a plain task calls convertTaskToRecurring in place, never createRecurrenceRule', async () => {
     let convertBody: Record<string, unknown> | undefined;
     let ruleCreated = false;

@@ -360,6 +360,12 @@ const TaskDialog = ({
           estimatedMinutes: data.estimatedMinutes ?? undefined,
           ...normalizeScheduleForFreq(recurrence),
         }).unwrap();
+        // The rule carries no projectId, so a series edit can't move the task —
+        // patch this occurrence so the move isn't silently dropped. Future
+        // occurrences still materialize into the rule's original project.
+        if (projectChanged) {
+          await updateTask({ id: task!.id, projectId: pickedProjectId }).unwrap();
+        }
       } else {
         // Occurrence edit (or no-recurrence task): plain per-instance PATCH.
         const updatePayload: Parameters<ReturnType<typeof useUpdateTaskMutation>[0]>[0] = {

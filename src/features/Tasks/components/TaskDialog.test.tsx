@@ -252,8 +252,12 @@ describe('TaskDialog — edit mode', () => {
     await waitFor(() => expect(patchBody).toMatchObject({ projectId: 'project-2' }));
   });
 
-  it('reassigning the project on a recurring task sends projectId on the series scope too', async () => {
-    let patchBody: Record<string, unknown> | undefined;
+  it('moves the whole series on the rule, never on the occurrence', async () => {
+    // The rule owns the project every future occurrence is stamped with, so a
+    // task PATCH here would relocate one occurrence and let the series reappear
+    // in the old project.
+    let rulePatchBody: Record<string, unknown> | undefined;
+    let taskPatched = false;
     const recurringTask = { ...task, recurrenceRuleId: 'rule-1' };
     server.use(
       http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
@@ -261,7 +265,10 @@ describe('TaskDialog — edit mode', () => {
       http.get(`${API}/recurrence-rules/rule-1`, () =>
         HttpResponse.json(envelope({ id: 'rule-1', frequency: 'daily', interval: 1 }))
       ),
-      http.patch(`${API}/recurrence-rules/rule-1`, () => HttpResponse.json(envelope({ id: 'rule-1' }))),
+      http.patch(`${API}/recurrence-rules/rule-1`, async ({ request }) => {
+        rulePatchBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope({ id: 'rule-1' }));
+      }),
       http.get(`${API}/projects`, () =>
         HttpResponse.json(
           items([
@@ -270,9 +277,9 @@ describe('TaskDialog — edit mode', () => {
           ])
         )
       ),
-      http.patch(`${API}/tasks/task-9`, async ({ request }) => {
-        patchBody = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json(envelope({ ...recurringTask, ...patchBody }));
+      http.patch(`${API}/tasks/task-9`, () => {
+        taskPatched = true;
+        return HttpResponse.json(envelope(recurringTask));
       })
     );
 
@@ -286,7 +293,50 @@ describe('TaskDialog — edit mode', () => {
 
     await user.click(await screen.findByTestId('edit-scope-series'));
 
-    await waitFor(() => expect(patchBody).toMatchObject({ projectId: 'project-2' }));
+    await waitFor(() => expect(rulePatchBody).toMatchObject({ projectId: 'project-2' }));
+    expect(taskPatched).toBe(false);
+  });
+
+  it('moves only this occurrence on the occurrence scope', async () => {
+    let taskPatchBody: Record<string, unknown> | undefined;
+    let rulePatched = false;
+    const recurringTask = { ...task, recurrenceRuleId: 'rule-1' };
+    server.use(
+      http.get(`${API}/tasks/task-9/subtasks`, () => HttpResponse.json(items([]))),
+      http.get(`${API}/attachments`, () => HttpResponse.json(envelope([]))),
+      http.get(`${API}/recurrence-rules/rule-1`, () =>
+        HttpResponse.json(envelope({ id: 'rule-1', frequency: 'daily', interval: 1 }))
+      ),
+      http.patch(`${API}/recurrence-rules/rule-1`, () => {
+        rulePatched = true;
+        return HttpResponse.json(envelope({ id: 'rule-1' }));
+      }),
+      http.get(`${API}/projects`, () =>
+        HttpResponse.json(
+          items([
+            { id: 'project-1', name: 'Current Project' },
+            { id: 'project-2', name: 'Other Project' },
+          ])
+        )
+      ),
+      http.patch(`${API}/tasks/task-9`, async ({ request }) => {
+        taskPatchBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json(envelope({ ...recurringTask, ...taskPatchBody }));
+      })
+    );
+
+    const user = userEvent.setup();
+    renderComponent(<TaskDialog open onOpenChange={vi.fn()} projectId="project-1" task={recurringTask} />);
+
+    await waitFor(() => expect(screen.getByTestId('select-trigger')).toHaveTextContent('Current Project'));
+    await user.click(screen.getByTestId('select-trigger'));
+    await user.click(await screen.findByRole('option', { name: 'Other Project' }));
+    await user.click(screen.getByTestId(FORM_DIALOG_SUBMIT_BUTTON));
+
+    await user.click(await screen.findByTestId('edit-scope-occurrence'));
+
+    await waitFor(() => expect(taskPatchBody).toMatchObject({ projectId: 'project-2' }));
+    expect(rulePatched).toBe(false);
   });
 
   it('saving recurrence on edit for a plain task calls convertTaskToRecurring in place, never createRecurrenceRule', async () => {
